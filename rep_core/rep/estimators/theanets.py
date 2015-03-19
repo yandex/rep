@@ -3,6 +3,7 @@ import numpy
 
 from .interface import Classifier
 from .utils import check_inputs
+from sklearn.preprocessing import MinMaxScaler, Imputer
 
 try:
     import theanets as tnt
@@ -48,7 +49,7 @@ class TheanetsClassifier(Classifier):
     :type decode_from: positive int
     :param features: list of features to train model
     :type features: None or list(str)
-    :param dict kwargs: parameters to specify the training algorithms
+    :param dict kwargs: parameters to specify training algorithm
     """
     def __init__(self, 
                  layers,
@@ -67,7 +68,6 @@ class TheanetsClassifier(Classifier):
                                      'hidden_dropouts', 'decode_from'}
         self.layers = layers
         self.network_params = {}
-        #self.classes_ = None
         # TODO: rewrite these ifs into something prettier
         if hidden_activation is not None:
             self.network_params['hidden_activation'] = hidden_activation
@@ -117,6 +117,10 @@ class TheanetsClassifier(Classifier):
                       'features': self.features}
         return parameters
 
+    def _transform_data(self, data):
+        return MinMaxScaler().fit_transform(Imputer().fit_transform(self._get_train_features(data)))
+
+
     def fit(self, X, y, sample_weight=None):
         """
         Train the classifier
@@ -131,14 +135,14 @@ class TheanetsClassifier(Classifier):
             raise NotImplementedError('sample_weight is not supported yet for theanets')
         self.classes_ = numpy.unique(y)
         X, y, sample_weight = check_inputs(X, y, sample_weight)
-        X = self._get_train_features(X)
+        X = self._transform_data(X)
         if self.layers[0] == -1:
             self.layers = (X.shape[1],) + self.layers[1:]
         if self.layers[-1] == -1:
             self.layers = self.layers[:-1] + (len(self.classes_),)
         self.exp = tnt.Experiment(tnt.Classifier, layers=self.layers, **self.network_params)
 
-        self.exp.train((X.values.astype(numpy.float32), y.astype(numpy.int32)),
+        self.exp.train((X.astype(numpy.float32), y.astype(numpy.int32)),
                        **self.optimize_params)
 
     def additional_fit(self, X, y, sample_weight=None, **kwargs):
@@ -159,8 +163,8 @@ class TheanetsClassifier(Classifier):
         else:
             self.optimize_params = [self.optimize_params, kwargs]
         X, y, sample_weight = check_inputs(X, y, sample_weight)
-        X = self._get_train_features(X)
-        self.exp.train((X.values.astype(numpy.float32), y.astype(numpy.int32)),
+        X = self._transform_data(X)
+        self.exp.train((X.astype(numpy.float32), y.astype(numpy.int32)),
                        **self.params)
 
     def predict_proba(self, X):
@@ -170,8 +174,8 @@ class TheanetsClassifier(Classifier):
         :param pandas.DataFrame X: data shape [n_samples, n_features]
         :rtype: numpy.array of shape [n_samples, n_classes] with probabilities
         """
-        X = self._get_train_features(X)
-        return self.exp.network.predict(X.values.astype(numpy.float32))
+        X = self._transform_data(X)
+        return self.exp.network.predict(X.astype(numpy.float32))
 
     def staged_predict_proba(self, X):
         """
