@@ -165,7 +165,7 @@ class TheanetsClassifier(Classifier):
         X, y, sample_weight = check_inputs(X, y, sample_weight)
         X = self._transform_data(X)
         self.exp.train((X.astype(numpy.float32), y.astype(numpy.int32)),
-                       **self.params)
+                       **kwargs)
 
     def predict_proba(self, X):
         """
