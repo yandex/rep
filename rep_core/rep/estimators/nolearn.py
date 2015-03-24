@@ -5,10 +5,12 @@ from .interface import Classifier, Regressor
 from .utils import check_inputs
 
 from nolearn.dbn import DBN
+from sklearn.preprocessing import Imputer, MinMaxScaler
 
 import inspect
 
 __author__ = 'Alexey Berdnikov'
+
 
 class NolearnClassifier(Classifier):
     def __init__(self, features=None,
@@ -42,6 +44,7 @@ class NolearnClassifier(Classifier):
                  random_state=None,
                  verbose=0):
         Classifier.__init__(self, features=features)
+        self.clf = None
 
         self.layer_sizes = layer_sizes
         self.scales = scales
@@ -79,39 +82,63 @@ class NolearnClassifier(Classifier):
 
         self.verbose = verbose
 
+    def _get_param_names(self):
+        return inspect.getargspec(self.__init__)[0][1:]
+
     def get_params(self):
         params = {}
-        args = inspect.getargspec(self.__init__)[0][1:]
-        for key in args:
+        param_names = self._get_param_names()
+        for key in param_names:
             value = getattr(self,key)
             params[key] = value
         return params
 
     def set_params(self, **params):
-        valid_param_names = self.get_params().keys()
+        valid_param_names = self._get_param_names()
         for key, value in params.items():
             if key not in valid_param_names:
-                raise AttributeError("NolearnClassifier has no parameter '{}'".format(key))
+                raise ValueError("NolearnClassifier has no parameter '{}'".format(key))
             else:
                 setattr(self, key, value)
 
+    def _transform_data(self, X, fit=False):
+        data = self._get_train_features(X).values
+
+        if fit:
+            self.imputer = Imputer()
+            self.scaler = MinMaxScaler()
+
+            self.imputer.fit(data)
+            self.scaler.fit(data)
+
+        return self.scaler.transform(self.imputer.transform(data))
+
     def fit(self, X, y, sample_weight=None):
         X, y, sample_weight = check_inputs(X, y, sample_weight=sample_weight, allow_none_weights=True)
-
         if sample_weight is not None:
-            raise ValueError("The sample_weight parameter is not supported for nolearn")
+            raise ValueError("'sample_weight' parameter is not supported for nolearn")
+        X = self._transform_data(X, fit=True)
 
         clf_params = self.get_params()
         del clf_params["features"]
         self.clf = DBN(**clf_params)
 
-        return self.clf.fit(self._get_train_features(X).values, y)
+        return self.clf.fit(X, y)
+
+    def _check_fitted(self):
+        if self.clf is None:
+            raise ValueError("estimator not fitted, call 'fit' before making predictions.")
 
     def predict(self, X):
-        return self.clf.predict(self._get_train_features(X).values)
+        self._check_fitted()
+        X = self._transform_data(X)
+        return self.clf.predict(X)
 
     def predict_proba(self, X):
-        return self.clf.predict_proba(self._get_train_features(X).values)
+        self._check_fitted()
+        X = self._transform_data(X)
+        return self.clf.predict_proba(X)
 
     def staged_predict_proba(self, X):
-        raise AttributeError("Not supported for nolearn")
+        self._check_fitted()
+        raise ValueError("'staged_predict_proba' is not supported for nolearn")
