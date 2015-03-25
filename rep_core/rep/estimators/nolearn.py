@@ -123,7 +123,9 @@ class NolearnClassifier(Classifier):
         del clf_params["features"]
         self.clf = DBN(**clf_params)
 
-        return self.clf.fit(X, y)
+        self.clf.fit(X, y)
+
+        return self
 
     def _check_fitted(self):
         if self.clf is None:
