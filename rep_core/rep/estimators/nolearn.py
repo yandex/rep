@@ -85,7 +85,7 @@ class NolearnClassifier(Classifier):
     def _get_param_names(self):
         return inspect.getargspec(self.__init__)[0][1:]
 
-    def get_params(self):
+    def get_params(self, deep=False):
         params = {}
         param_names = self._get_param_names()
         for key in param_names:
