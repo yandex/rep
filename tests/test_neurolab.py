@@ -27,7 +27,7 @@ def test_neurolab_multiple_classification():
                      supports_weight=False, has_staged_pp=False, has_importances=False)
 
 
-def test_neurolab_stacking_theanets():
+def test_neurolab_stacking():
     base_nlab = NeurolabClassifier(size=[150], transf=[nl.trans.LogSig(), nl.trans.LogSig()],
                                    epochs=10, trainf=nl.train.train_rprop, show=0)
     check_classifier(SklearnClassifier(clf=AdaBoostClassifier(base_estimator=base_nlab, n_estimators=3)),
