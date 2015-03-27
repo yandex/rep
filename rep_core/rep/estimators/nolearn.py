@@ -39,7 +39,6 @@ class NolearnClassifier(Classifier):
                  minibatches_per_epoch=None,
                  pretrain_callback=None,
                  fine_tune_callback=None,
-                 random_state=None,
                  verbose=0):
         Classifier.__init__(self, features=features)
         self.clf = None
@@ -81,8 +80,6 @@ class NolearnClassifier(Classifier):
         self.pretrain_callback = pretrain_callback
         self.fine_tune_callback = fine_tune_callback
 
-        self.random_state = random_state
-
         self.verbose = verbose
 
     def _transform_data(self, X, fit=False):
@@ -94,23 +91,31 @@ class NolearnClassifier(Classifier):
 
         return self.scaler.transform(self.imputer.transform(data))
 
-    def fit(self, X, y, sample_weight=None):
-        X, y, sample_weight = check_inputs(X, y, sample_weight=sample_weight, allow_none_weights=True)
-        if sample_weight is not None:
-            raise ValueError("'sample_weight' parameter is not supported for nolearn")
-        X = self._transform_data(X, fit=True)
+    def _set_classes(self, y):
+        self.classes_, y = np.unique(y, return_inverse=True)
+        self.n_classes_ = len(self.classes_)
+        return y
 
+    def _build_clf(self):
         clf_params = self.get_params()
         del clf_params["features"]
-        self.clf = DBN(**clf_params)
 
+        return DBN(**clf_params)
+
+    def fit(self, X, y):
+        X, y, sample_weight = check_inputs(X, y, sample_weight=None, allow_none_weights=True)
+
+        X = self._transform_data(X, fit=True)
+        y = self._set_classes(y)
+
+        self.clf = self._build_clf()
         self.clf.fit(X, y)
 
         return self
 
     def _check_is_fitted(self):
         if self.clf is None:
-            raise ValueError("estimator not fitted, call 'fit' before making predictions.")
+            raise AttributeError("estimator not fitted, call 'fit' before making predictions")
 
     def predict(self, X):
         self._check_is_fitted()
@@ -124,4 +129,4 @@ class NolearnClassifier(Classifier):
 
     def staged_predict_proba(self, X):
         self._check_is_fitted()
-        raise ValueError("'staged_predict_proba' is not supported for nolearn")
+        raise AttributeError("'staged_predict_proba' is not supported for nolearn")
