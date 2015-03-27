@@ -7,8 +7,6 @@ from .utils import check_inputs
 from nolearn.dbn import DBN
 from sklearn.preprocessing import Imputer, MinMaxScaler
 
-import inspect
-
 __author__ = 'Alexey Berdnikov'
 
 
@@ -45,6 +43,11 @@ class NolearnClassifier(Classifier):
                  verbose=0):
         Classifier.__init__(self, features=features)
         self.clf = None
+        self.classes_ = None
+        self.n_classes_ = None
+
+        self.imputer = Imputer()
+        self.scaler = MinMaxScaler()
 
         self.layer_sizes = layer_sizes
         self.scales = scales
@@ -82,32 +85,10 @@ class NolearnClassifier(Classifier):
 
         self.verbose = verbose
 
-    def _get_param_names(self):
-        return inspect.getargspec(self.__init__)[0][1:]
-
-    def get_params(self, deep=False):
-        params = {}
-        param_names = self._get_param_names()
-        for key in param_names:
-            value = getattr(self,key)
-            params[key] = value
-        return params
-
-    def set_params(self, **params):
-        valid_param_names = self._get_param_names()
-        for key, value in params.items():
-            if key not in valid_param_names:
-                raise ValueError("NolearnClassifier has no parameter '{}'".format(key))
-            else:
-                setattr(self, key, value)
-
     def _transform_data(self, X, fit=False):
         data = self._get_train_features(X).values
 
         if fit:
-            self.imputer = Imputer()
-            self.scaler = MinMaxScaler()
-
             self.imputer.fit(data)
             self.scaler.fit(data)
 
@@ -127,20 +108,20 @@ class NolearnClassifier(Classifier):
 
         return self
 
-    def _check_fitted(self):
+    def _check_is_fitted(self):
         if self.clf is None:
             raise ValueError("estimator not fitted, call 'fit' before making predictions.")
 
     def predict(self, X):
-        self._check_fitted()
+        self._check_is_fitted()
         X = self._transform_data(X)
         return self.clf.predict(X)
 
     def predict_proba(self, X):
-        self._check_fitted()
+        self._check_is_fitted()
         X = self._transform_data(X)
         return self.clf.predict_proba(X)
 
     def staged_predict_proba(self, X):
-        self._check_fitted()
+        self._check_is_fitted()
         raise ValueError("'staged_predict_proba' is not supported for nolearn")
