@@ -6,6 +6,7 @@ from .utils import check_inputs
 
 from nolearn.dbn import DBN
 from sklearn.preprocessing import Imputer, MinMaxScaler
+import numpy as np
 
 __author__ = 'Alexey Berdnikov'
 
