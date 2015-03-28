@@ -30,8 +30,10 @@ NET_TYPES = {'feed-forward':       (nl.net.newff, _min_max_transform, _one_hot_t
              'hemming-recurrent':  (nl.net.newhem),
              'hopfield-recurrent': (nl.net.newhop)}
 
-NET_PARAMS_NAMES = {'minmax', 'cn', 'layers', 'transf', 'target',
-                    'max_init', 'max_iter', 'delta', 'cn0', 'pc'}
+NET_PARAMS = ('minmax', 'cn', 'layers', 'transf', 'target',
+                    'max_init', 'max_iter', 'delta', 'cn0', 'pc')
+
+BASIC_PARAMS = ('net_type', 'trainf', 'initf', '_prepare_clf', '_transform_features', '_transform_labels')
 
 
 class NeurolabClassifier(Classifier):
@@ -49,6 +51,9 @@ class NeurolabClassifier(Classifier):
     :type initf: nl.init or list[nl.init] of shape [n_layers]
     :param trainf: net train function
     :param dict kwargs: additional arguments to net __init__
+    :param _prepare_clf
+    :param _transform_features
+    :param _transform_labels
     """
     def __init__(self, net_type='feed-forward',
                  features=None,
@@ -60,6 +65,7 @@ class NeurolabClassifier(Classifier):
         self.net_params = {}
         self.trainf=trainf
         self.initf=initf
+        self.net_type = net_type
         self._prepare_clf, self._transform_features, self._transform_labels = self._get_initializers(net_type)
         self.set_params(**kwargs)
         self.clf = None
@@ -76,7 +82,7 @@ class NeurolabClassifier(Classifier):
 
         net_params = dict(self.net_params)
         # Hemming and Hopfield networks do not transform input
-        if 'net_type' not in {'hemming-recurrent', 'hopfield-recurrent'}:
+        if self.net_type not in {'hemming-recurrent', 'hopfield-recurrent'}:
             net_params['minmax'] = [[0, 1]]*(x_train.shape[1])
         # Output layers for classifiers contain exactly nclasses output neurons
         if 'layers' in net_params:
@@ -128,14 +134,26 @@ class NeurolabClassifier(Classifier):
         :param dict params: parameters to set in model
         """
         for name, value in params.items():
-            if name in NET_PARAMS_NAMES:
+            if name in NET_PARAMS:
                 self.net_params[name] = value
-            elif name == 'net_type':
-                self._prepare_clf, self._transform_features, self._transform_labels = self._get_initializers(value)
-            elif name in {"trainf", "initf", "_prepare_clf", '_transform_features', '_transform_labels'}:
+            elif name in BASIC_PARAMS:
                 setattr(self, name, value)
             else:
                 self.train_params[name] = value
+
+            if name == 'net_type':
+                self._prepare_clf, self._transform_features, self._transform_labels = self._get_initializers(value)
+
+    def get_params(self, deep=True):
+        """
+        Get parameters of this estimator
+        :return dict
+        """
+        parameters = dict(self.net_params)
+        parameters.update(self.train_params)
+        for name in BASIC_PARAMS + ('classes_', 'clfcd '):
+            parameters[name] = getattr(self, name)
+        return parameters
 
     def _get_initializers(self, net_type):
         if net_type not in NET_TYPES:
