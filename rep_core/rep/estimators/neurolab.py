@@ -84,9 +84,10 @@ class NeurolabClassifier(Classifier):
         # Hemming and Hopfield networks do not transform input
         if self.net_type not in {'hemming-recurrent', 'hopfield-recurrent'}:
             net_params['minmax'] = [[0, 1]]*(x_train.shape[1])
-        # Output layers for classifiers contain exactly nclasses output neurons
+        # To unify the layer-description argument with other supported networks
         if 'layers' in net_params:
             net_params['size'] = net_params['layers']
+        # Output layers for classifiers contain exactly nclasses output neurons
         if 'size' in net_params:
             net_params['size'] = net_params['size'] + [y_train.shape[1]]
         net_params.pop('layers', None)
@@ -136,7 +137,7 @@ class NeurolabClassifier(Classifier):
         for name, value in params.items():
             if name in NET_PARAMS:
                 self.net_params[name] = value
-            elif name in BASIC_PARAMS:
+            elif name in BASIC_PARAMS + ('classes_', 'clf'):
                 setattr(self, name, value)
             else:
                 self.train_params[name] = value
@@ -151,7 +152,7 @@ class NeurolabClassifier(Classifier):
         """
         parameters = dict(self.net_params)
         parameters.update(self.train_params)
-        for name in BASIC_PARAMS + ('classes_', 'clfcd '):
+        for name in BASIC_PARAMS + ('classes_', 'clf'):
             parameters[name] = getattr(self, name)
         return parameters
 
