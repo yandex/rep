@@ -30,7 +30,7 @@ NET_TYPES = {'feed-forward':       (nl.net.newff, _min_max_transform, _one_hot_t
              'hemming-recurrent':  (nl.net.newhem),
              'hopfield-recurrent': (nl.net.newhop)}
 
-NET_PARAMS_NAMES = {'minmax', 'cn', 'size', 'transf', 'target',
+NET_PARAMS_NAMES = {'minmax', 'cn', 'layers', 'transf', 'target',
                     'max_init', 'max_iter', 'delta', 'cn0', 'pc'}
 
 
@@ -79,8 +79,11 @@ class NeurolabClassifier(Classifier):
         if 'net_type' not in {'hemming-recurrent', 'hopfield-recurrent'}:
             net_params['minmax'] = [[0, 1]]*(x_train.shape[1])
         # Output layers for classifiers contain exactly nclasses output neurons
+        if 'layers' in net_params:
+            net_params['size'] = net_params['layers']
         if 'size' in net_params:
             net_params['size'] = net_params['size'] + [y_train.shape[1]]
+        net_params.pop('layers', None)
         clf = self._prepare_clf(**net_params)
 
         # To allow similar initf function on all layers
