@@ -84,30 +84,10 @@ class NeurolabClassifier(Classifier):
         x_train = _transform_features(self._get_train_features(X))
         y_train = _transform_labels(y)
 
-        net_params = deepcopy(self.net_params)
-
         # Some networks do not support classification
         assert self.net_type not in CAN_CLASSIFY, 'Network type does not support classification'
 
-        # Network expects features to be [0, 1]-scaled
-        net_params['minmax'] = [[0, 1]]*(x_train.shape[1])
-
-        # To unify the layer-description argument with other supported networks
-        if 'layers' in net_params:
-            net_params['size'] = net_params['layers']
-            net_params.pop('layers')
-
-        # Output layers for classifiers contain exactly nclasses output neurons
-        if 'size' in net_params:
-            net_params['size'] += [y_train.shape[1]]
-
-        # Classification networks should have SoftMax as the transfer function on output layer
-        if 'transf' not in net_params:
-            net_params['transf'] = [nl.trans.SoftMax()] * len(net_params['size'])
-        elif hasattr(net_params['transf'], '__iter__'):
-            net_params['transf'][-1] = nl.trans.SoftMax()
-        else:
-            net_params['transf'] = nl.trans.SoftMax()
+        net_params = self._prepare_parameters_for_classification(self.net_params, x_train, y_train)
 
         clf = _prepare_clf(**net_params)
 
@@ -176,3 +156,33 @@ class NeurolabClassifier(Classifier):
         if net_type not in NET_TYPES:
             raise AttributeError('Got unexpected network type: \'{}\''.format(net_type))
         return NET_TYPES.get(net_type)
+
+    def _prepare_parameters_for_classification(self, params, x_train, y_train):
+        net_params = deepcopy(params)
+
+        # Network expects features to be [0, 1]-scaled
+        net_params['minmax'] = [[0, 1]]*(x_train.shape[1])
+
+        # To unify the layer-description argument with other supported networks
+        if 'layers' in net_params:
+            net_params['size'] = net_params['layers']
+            net_params.pop('layers')
+
+        # For some reason Neurolab asks for a separate cn parameter instead of accessing size[-1]
+        if 'cn' in net_params:
+            net_params['cn'] = len(self.classes_)
+
+        # Output layers for classifiers contain exactly nclasses output neurons
+        if 'size' in net_params:
+            net_params['size'] += [y_train.shape[1]]
+
+        # Classification networks should have SoftMax as the transfer function on output layer
+        if 'transf' not in net_params:
+            net_params['transf'] = \
+                [nl.trans.SoftMax()] * len(net_params['size']) if 'size' in net_params else nl.trans.SoftMax()
+        elif hasattr(net_params['transf'], '__iter__'):
+            net_params['transf'][-1] = nl.trans.SoftMax()
+        else:
+            net_params['transf'] = nl.trans.SoftMax()
+
+        return net_params
