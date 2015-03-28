@@ -15,10 +15,16 @@ def test_neurolab_single_classification():
                      supports_weight=False, has_staged_pp=False, has_importances=False)
     check_classifier(NeurolabClassifier(net_type='single-layer', cn='auto', show=0, epochs=50, trainf=nl.train.train_delta),
                      supports_weight=False, has_staged_pp=False, has_importances=False)
+    check_classifier(NeurolabClassifier(net_type='elman-recurrent', layers=[], show=0, epochs=50, trainf=nl.train.train_gdx),
+                     supports_weight=False, has_staged_pp=False, has_importances=False)
 
 
 def test_neurolab_multiple_classification():
     check_classifier(NeurolabClassifier(show=0, layers=[], epochs=50, trainf=nl.train.train_rprop),
+                     supports_weight=False, has_staged_pp=False, has_importances=False)
+    check_classifier(NeurolabClassifier(net_type='single-layer', cn='auto', show=0, epochs=50, trainf=nl.train.train_delta),
+                     supports_weight=False, has_staged_pp=False, has_importances=False)
+    check_classifier(NeurolabClassifier(net_type='elman-recurrent', layers=[], show=0, epochs=50, trainf=nl.train.train_gdx),
                      supports_weight=False, has_staged_pp=False, has_importances=False)
 
 
