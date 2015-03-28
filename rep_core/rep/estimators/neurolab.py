@@ -37,7 +37,7 @@ NET_PARAMS = ('minmax', 'cn', 'layers', 'transf', 'target',
 
 BASIC_PARAMS = ('net_type', 'trainf', 'initf')
 
-CAN_CLASSIFY = ('learning-vector', 'hopfield-recurrent', 'competing-layer', 'hemming-recurrent')
+CANT_CLASSIFY = ('learning-vector', 'hopfield-recurrent', 'competing-layer', 'hemming-recurrent')
 
 
 class NeurolabClassifier(Classifier):
@@ -85,7 +85,7 @@ class NeurolabClassifier(Classifier):
         y_train = _transform_labels(y)
 
         # Some networks do not support classification
-        assert self.net_type not in CAN_CLASSIFY, 'Network type does not support classification'
+        assert self.net_type not in CANT_CLASSIFY, 'Network type does not support classification'
 
         net_params = self._prepare_parameters_for_classification(self.net_params, x_train, y_train)
 
