@@ -56,6 +56,7 @@ class NeurolabClassifier(Classifier):
     :param _prepare_clf
     :param _transform_features
     :param _transform_labels
+    :param clf
     """
     def __init__(self, net_type='feed-forward',
                  features=None,
@@ -69,9 +70,9 @@ class NeurolabClassifier(Classifier):
         self.initf=initf
         self.net_type = net_type
         self._prepare_clf, self._transform_features, self._transform_labels = self._get_initializers(net_type)
-        self.set_params(**kwargs)
         self.clf = None
         self.classes_ = None
+        self.set_params(**kwargs)
 
     def fit(self, X, y, sample_weight=None):
         if sample_weight is not None:
