@@ -35,6 +35,8 @@ NET_PARAMS = ('minmax', 'cn', 'layers', 'transf', 'target',
 
 BASIC_PARAMS = ('net_type', 'trainf', 'initf', '_prepare_clf', '_transform_features', '_transform_labels')
 
+WRAPPER_FIELDS = ('classes_', 'clf')
+
 
 class NeurolabClassifier(Classifier):
     """
@@ -81,16 +83,31 @@ class NeurolabClassifier(Classifier):
         y_train = self._transform_labels(y)
 
         net_params = dict(self.net_params)
-        # Hemming and Hopfield networks do not transform input
-        if self.net_type not in {'hemming-recurrent', 'hopfield-recurrent'}:
-            net_params['minmax'] = [[0, 1]]*(x_train.shape[1])
+
+        # Some networks do not support classification
+        assert self.net_type not in ('learning-vector', 'hopfield', 'competing-layer', 'hemming-recurrent'), \
+            'Network type does not support classification'
+
+        # Network expects features to be [0, 1]-scaled
+        net_params['minmax'] = [[0, 1]]*(x_train.shape[1])
+
         # To unify the layer-description argument with other supported networks
         if 'layers' in net_params:
             net_params['size'] = net_params['layers']
+        net_params.pop('layers', None)
+
         # Output layers for classifiers contain exactly nclasses output neurons
         if 'size' in net_params:
             net_params['size'] = net_params['size'] + [y_train.shape[1]]
-        net_params.pop('layers', None)
+
+        # Classification networks should have SoftMax as the transfer function on output layer
+        if 'transf' not in net_params:
+            net_params['transf'] = [nl.trans.SoftMax()] * len(net_params['size'])
+        elif hasattr(net_params['transf'], '__iter__'):
+            net_params['transf'][-1] = nl.trans.SoftMax()
+        else:
+            net_params['transf'] = nl.trans.SoftMax()
+
         clf = self._prepare_clf(**net_params)
 
         # To allow similar initf function on all layers
@@ -137,7 +154,7 @@ class NeurolabClassifier(Classifier):
         for name, value in params.items():
             if name in NET_PARAMS:
                 self.net_params[name] = value
-            elif name in BASIC_PARAMS + ('classes_', 'clf'):
+            elif name in BASIC_PARAMS + WRAPPER_FIELDS:
                 setattr(self, name, value)
             else:
                 self.train_params[name] = value
@@ -152,7 +169,7 @@ class NeurolabClassifier(Classifier):
         """
         parameters = dict(self.net_params)
         parameters.update(self.train_params)
-        for name in BASIC_PARAMS + ('classes_', 'clf'):
+        for name in BASIC_PARAMS + WRAPPER_FIELDS:
             parameters[name] = getattr(self, name)
         return parameters
 
