@@ -4,6 +4,8 @@ from abc import ABCMeta
 from .interface import Classifier, Regressor
 from .utils import check_inputs
 
+from copy import deepcopy
+
 import neurolab as nl
 import numpy as np
 from sklearn.preprocessing import OneHotEncoder, MinMaxScaler, Imputer
@@ -33,9 +35,11 @@ NET_TYPES = {'feed-forward':       (nl.net.newff, _min_max_transform, _one_hot_t
 NET_PARAMS = ('minmax', 'cn', 'layers', 'transf', 'target',
                     'max_init', 'max_iter', 'delta', 'cn0', 'pc')
 
-BASIC_PARAMS = ('net_type', 'trainf', 'initf', '_prepare_clf', '_transform_features', '_transform_labels')
+BASIC_PARAMS = ('net_type', 'trainf', 'initf')
 
 WRAPPER_FIELDS = ('classes_', 'clf')
+
+CAN_CLASSIFY = ('learning-vector', 'hopfield-recurrent', 'competing-layer', 'hemming-recurrent')
 
 
 class NeurolabClassifier(Classifier):
@@ -53,9 +57,6 @@ class NeurolabClassifier(Classifier):
     :type initf: nl.init or list[nl.init] of shape [n_layers]
     :param trainf: net train function
     :param dict kwargs: additional arguments to net __init__
-    :param _prepare_clf
-    :param _transform_features
-    :param _transform_labels
     :param clf
     """
     def __init__(self, net_type='feed-forward',
@@ -69,7 +70,6 @@ class NeurolabClassifier(Classifier):
         self.trainf=trainf
         self.initf=initf
         self.net_type = net_type
-        self._prepare_clf, self._transform_features, self._transform_labels = self._get_initializers(net_type)
         self.clf = None
         self.classes_ = None
         self.set_params(**kwargs)
@@ -79,15 +79,17 @@ class NeurolabClassifier(Classifier):
             raise ValueError('sample_weight not supported')
 
         X, y, sample_weight = check_inputs(X, y, sample_weight)
-        self.classes_ = np.unique(y)
-        x_train = self._transform_features(self._get_train_features(X))
-        y_train = self._transform_labels(y)
 
-        net_params = dict(self.net_params)
+        _prepare_clf, _transform_features, _transform_labels = self._get_initializers(self.net_type)
+
+        self.classes_ = np.unique(y)
+        x_train = _transform_features(self._get_train_features(X))
+        y_train = _transform_labels(y)
+
+        net_params = deepcopy(self.net_params)
 
         # Some networks do not support classification
-        assert self.net_type not in ('learning-vector', 'hopfield', 'competing-layer', 'hemming-recurrent'), \
-            'Network type does not support classification'
+        assert self.net_type not in CAN_CLASSIFY, 'Network type does not support classification'
 
         # Network expects features to be [0, 1]-scaled
         net_params['minmax'] = [[0, 1]]*(x_train.shape[1])
@@ -95,11 +97,11 @@ class NeurolabClassifier(Classifier):
         # To unify the layer-description argument with other supported networks
         if 'layers' in net_params:
             net_params['size'] = net_params['layers']
-        net_params.pop('layers', None)
+            net_params.pop('layers')
 
         # Output layers for classifiers contain exactly nclasses output neurons
         if 'size' in net_params:
-            net_params['size'] = net_params['size'] + [y_train.shape[1]]
+            net_params['size'] += [y_train.shape[1]]
 
         # Classification networks should have SoftMax as the transfer function on output layer
         if 'transf' not in net_params:
@@ -109,7 +111,7 @@ class NeurolabClassifier(Classifier):
         else:
             net_params['transf'] = nl.trans.SoftMax()
 
-        clf = self._prepare_clf(**net_params)
+        clf = _prepare_clf(**net_params)
 
         # To allow similar initf function on all layers
         initf_iterable = self.initf if hasattr(self.initf, '__iter__') else [self.initf]*len(clf.layers)
@@ -133,7 +135,8 @@ class NeurolabClassifier(Classifier):
         :rtype: numpy.array of shape [n_samples, n_classes] with probabilities
         """
         assert self.clf is not None
-        return self.clf.sim(self._transform_features(self._get_train_features(X)))
+        _, _transform_features, _ = self._get_initializers(self.net_type)
+        return self.clf.sim(_transform_features(self._get_train_features(X)))
 
     def staged_predict_proba(self, X):
         """
@@ -148,8 +151,7 @@ class NeurolabClassifier(Classifier):
 
     def set_params(self, **params):
         """
-        Set the parameters of this estimator.
-        Additionaly, _prepare_clf, _transform_features and _transform_labels could be set here.
+        Set the parameters of this estimator
         :param dict params: parameters to set in model
         """
         for name, value in params.items():
@@ -160,21 +162,19 @@ class NeurolabClassifier(Classifier):
             else:
                 self.train_params[name] = value
 
-            if name == 'net_type':
-                self._prepare_clf, self._transform_features, self._transform_labels = self._get_initializers(value)
-
     def get_params(self, deep=True):
         """
         Get parameters of this estimator
         :return dict
         """
-        parameters = dict(self.net_params)
+        parameters = deepcopy(self.net_params)
         parameters.update(self.train_params)
         for name in BASIC_PARAMS + WRAPPER_FIELDS:
             parameters[name] = getattr(self, name)
         return parameters
 
-    def _get_initializers(self, net_type):
+    @staticmethod
+    def _get_initializers(net_type):
         if net_type not in NET_TYPES:
             raise AttributeError('Got unexpected network type: \'{}\''.format(net_type))
         return NET_TYPES.get(net_type)
