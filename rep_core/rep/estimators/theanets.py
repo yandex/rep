@@ -22,22 +22,19 @@ class TheanetsClassifier(Classifier):
 
     Parameters:
     -----------
-    :param layers: A sequence of values specifying the layer configuration for the network. For more information
+    :param layers: A sequence of values specifying the hidden layer configuration for the network. For more information
         please see 'Specifying layers' in theanets documentation:
         http://theanets.readthedocs.org/en/latest/creating.html#creating-specifying-layers
+        Note that theanets "layers" parameter included input and output layers in the sequence as well.
     :type layers: sequence of int, tuple, dict
-    :param hidden_activation: the name of an activation function to use on hidden network layers by default.
-        Defaults to 'logistic'
-    :type hidden_activation: str
-    :param output_activation: The name of an activation function to use on the output layer by default.
-        Defaults to 'linear'
-    :type output_activation: str
+    :param int input_layer: size of the input layer. If equals -1, the size is taken from the training dataset.
+    :param int output_layer: size of the output layer. If equals -1, the size is taken from the training dataset.
+    :param str hidden_activation: the name of an activation function to use on hidden network layers by default.
+    :param str output_activation: The name of an activation function to use on the output layer by default.
     :param rng: Use a specific Theano random number generator. A new one will be created if this is None.
     :type rng: theano RandomStreams object
-    :param input_noise: Standard deviation of desired noise to inject into input.
-    :type input_noise: float
-    :param hidden_noise: Standard deviation of desired noise to inject into hidden unit activation output.
-    :type hidden_noise: float
+    :param float input_noise: Standard deviation of desired noise to inject into input.
+    :param float hidden_noise: Standard deviation of desired noise to inject into hidden unit activation output.
     :param input_dropouts: Proportion of input units to randomly set to 0.
     :type input_dropouts: float in [0, 1]
     :param hidden_dropouts: Proportion of hidden unit activations to randomly set to 0.
@@ -48,9 +45,13 @@ class TheanetsClassifier(Classifier):
     :param features: list of features to train model
     :type features: None or list(str)
     :param list(dict) or None trainers: parameters to specify training algorithm
+    :param exp: the experiment which will be doing the training & prediction. Generally should be omitted.
+    :type exp: theanets.main.Experiment or None
     """
     def __init__(self, 
-                 layers,
+                 layers=[10],
+                 input_layer=-1,
+                 output_layer=-1,
                  hidden_activation='logistic',
                  output_activation='linear',
                  rng=None,
@@ -60,20 +61,28 @@ class TheanetsClassifier(Classifier):
                  hidden_dropouts=0,
                  decode_from=1,
                  features=None,
-                 trainers=None):
+                 trainers=None,
+                 exp=None):
         self.layers = layers
+        self.input_layer = input_layer
+        self.output_layer = output_layer
         self.network_params = {'hidden_activation': hidden_activation, 'output_activation': output_activation,
                                'rng': rng, 'input_noise': input_noise, 'hidden_noise': hidden_noise,
                                'input_dropouts': input_dropouts, 'hidden_dropouts': hidden_dropouts,
                                'decode_from': decode_from}
         # TODO: Do something with rng!
-        self.trainers = trainers  # should it really be None?
+        self.trainers = trainers
         if self.trainers is None:
             self.trainers = [{}]
-        self.exp = None
+        self.exp = exp
         Classifier.__init__(self, features=features)
 
     def __getstate__(self):
+        """
+        Required for pickle.dump working, because theanets objects can't be pickled by default.
+
+        :return dict result: the dictionary containing all the object, transformed and therefore picklable.
+        """
         result = self.__dict__.copy()
         del result['exp']
         if self.exp is None:
@@ -86,6 +95,11 @@ class TheanetsClassifier(Classifier):
         return result
 
     def __setstate__(self, dictionary):
+        """
+        Required for pickle.load working, because theanets objects can't be unpickled by default.
+
+        :param dict dictionary: the structure representing a TheanetsClassifier
+        """
         self.__dict__ = dictionary
         if dictionary['dumped_exp'] is None:
             self.exp = None
@@ -94,7 +108,9 @@ class TheanetsClassifier(Classifier):
                 with open(dump.name, 'wb') as dumpfile:
                     dumpfile.write(dictionary['dumped_exp'])
                 assert os.path.exists(dump.name), 'there is no such file: {}'.format(dump.name)
-                self.exp = tnt.Experiment.load(dump.name)
+                layers = [self.input_layer] + self.layers + [self.output_layer]
+                self.exp = tnt.Experiment(tnt.Classifier, layers=layers, **self.network_params)
+                self.exp.load(dump.name)
         del dictionary['dumped_exp']
 
     def set_params(self, **params):
@@ -124,15 +140,17 @@ class TheanetsClassifier(Classifier):
 
         :return dict
         """
-        parameters = {'layers': self.layers,
-                      'network_params': self.network_params,
-                      'trainers': self.trainers,
-                      'features': self.features,
-                      'exp': self.exp}
+        parameters = self.network_params.copy()
+        parameters['layers'] = self.layers
+        parameters['input_layer'] = self.input_layer
+        parameters['output_layer'] = self.output_layer
+        parameters['trainers'] = self.trainers
+        parameters['features'] = self.features
+        parameters['exp'] = self.exp
         return parameters
 
     def _transform_data(self, data):
-        return MinMaxScaler().fit_transform(Imputer().fit_transform(self._get_train_features(data)))
+        return MinMaxScaler().fit_transform(Imputer().fit_transform(self._get_train_features(data, allow_nans=True)))
 
     def _check_fitted(self):
         assert self.exp is not None, 'Classifier wasn`t fitted, please call `fit` first'
@@ -172,11 +190,13 @@ class TheanetsClassifier(Classifier):
         self.classes_ = numpy.unique(y)
         if self.exp is None:
             # initialize experiment
-            if self.layers[0] == -1:
-                self.layers = (X.shape[1],) + tuple(self.layers[1:])
-            if self.layers[-1] == -1:
-                self.layers = self.layers[:-1] + (len(self.classes_),)
-            self.exp = tnt.Experiment(tnt.Classifier, layers=self.layers, **self.network_params)
+            if self.input_layer == -1:
+                self.input_layer = X.shape[1]
+            if self.output_layer == -1:
+                self.output_layer = len(self.classes_)
+            layers = [self.input_layer] + self.layers + [self.output_layer]
+            print(layers)
+            self.exp = tnt.Experiment(tnt.Classifier, layers=layers, **self.network_params)
         if new_trainer:
             self.trainers.append(trainer)
         self.exp.train((X.astype(numpy.float32), y.astype(numpy.int32)),
