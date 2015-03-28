@@ -37,8 +37,6 @@ NET_PARAMS = ('minmax', 'cn', 'layers', 'transf', 'target',
 
 BASIC_PARAMS = ('net_type', 'trainf', 'initf')
 
-WRAPPER_FIELDS = ('classes_', 'clf')
-
 CAN_CLASSIFY = ('learning-vector', 'hopfield-recurrent', 'competing-layer', 'hemming-recurrent')
 
 
@@ -157,7 +155,7 @@ class NeurolabClassifier(Classifier):
         for name, value in params.items():
             if name in NET_PARAMS:
                 self.net_params[name] = value
-            elif name in BASIC_PARAMS + WRAPPER_FIELDS:
+            elif name in BASIC_PARAMS:
                 setattr(self, name, value)
             else:
                 self.train_params[name] = value
@@ -169,7 +167,7 @@ class NeurolabClassifier(Classifier):
         """
         parameters = deepcopy(self.net_params)
         parameters.update(self.train_params)
-        for name in BASIC_PARAMS + WRAPPER_FIELDS:
+        for name in BASIC_PARAMS:
             parameters[name] = getattr(self, name)
         return parameters
 
