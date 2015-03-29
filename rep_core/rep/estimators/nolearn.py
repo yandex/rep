@@ -65,7 +65,7 @@ class NolearnClassifier(Classifier):
 
     """
     def __init__(self, features=None,
-                 layers=[10],
+                 layers=(10,),
                  scales=0.05,
                  fan_outs=None,
                  output_act_funct=None,
@@ -99,7 +99,7 @@ class NolearnClassifier(Classifier):
         self.classes_ = None
         self.n_classes_ = None
 
-        self.layers = layers
+        self.layers = list(layers)
         self.scales = scales
         self.fan_outs = fan_outs
         self.output_act_funct = output_act_funct
@@ -165,6 +165,7 @@ class NolearnClassifier(Classifier):
         :param pandas.DataFrame | numpy.ndarray X: data shape `[n_samples, n_features]`
         :param list | numpy.array y: values - array-like of shape `[n_samples]`
         :return: self
+
         """
         X, y, sample_weight = check_inputs(X, y, sample_weight=None, allow_none_weights=True)
 
