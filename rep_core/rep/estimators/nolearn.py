@@ -19,7 +19,9 @@ class NolearnClassifier(Classifier):
     -----------
     :param features: features used in training
     :type features: `list[str]` or None
-    :param layer_sizes: A list of integers of layer sizes.
+    :param layers: A list of ints of the form `[n_hid_units_1, n_hid_units_2, ...]`, where `n_hid_units_i` is the number
+        of units in i-th hidden layer. The number of units in the input layer and the output layer will be set
+        automatically. Default value is `[10]` which means one hidden layer containing 10 units.
     :param scales: Scale of the randomly initialized weights. A list of floating point values. When you find good values
         for the scale of the weights you can speed up training a lot, and also improve performance. Defaults to `0.05`.
     :param fan_outs: Number of nonzero incoming connections to a hidden unit. Defaults to `None`, which means that all
@@ -63,7 +65,7 @@ class NolearnClassifier(Classifier):
 
     """
     def __init__(self, features=None,
-                 layer_sizes=None,
+                 layers=[10],
                  scales=0.05,
                  fan_outs=None,
                  output_act_funct=None,
@@ -97,10 +99,7 @@ class NolearnClassifier(Classifier):
         self.classes_ = None
         self.n_classes_ = None
 
-        self.imputer = Imputer()
-        self.scaler = MinMaxScaler()
-
-        self.layer_sizes = layer_sizes
+        self.layers = layers
         self.scales = scales
         self.fan_outs = fan_outs
         self.output_act_funct = output_act_funct
@@ -138,6 +137,9 @@ class NolearnClassifier(Classifier):
         data = self._get_train_features(X).values
 
         if fit:
+            self.imputer = Imputer()
+            self.scaler = MinMaxScaler()
+
             self.imputer.fit(data)
             self.scaler.fit(data)
 
@@ -151,6 +153,8 @@ class NolearnClassifier(Classifier):
     def _build_clf(self):
         clf_params = self.get_params()
         del clf_params["features"]
+        del clf_params["layers"]
+        clf_params["layer_sizes"] = [-1] + self.layers + [-1]
 
         return DBN(**clf_params)
 
@@ -210,7 +214,7 @@ class NolearnClassifier(Classifier):
         :param pandas.DataFrame | numpy.ndarray X: data shape `[n_samples, n_features]`
         :return: iterator
         .. warning::
-            doesn't support for nolearn (**AttributeError** will be thrown).
+            Doesn't support for nolearn (**AttributeError** will be thrown).
 
         """
         self._check_is_fitted()
