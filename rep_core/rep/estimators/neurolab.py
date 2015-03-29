@@ -55,7 +55,6 @@ class NeurolabClassifier(Classifier):
     :type initf: nl.init or list[nl.init] of shape [n_layers]
     :param trainf: net train function
     :param dict kwargs: additional arguments to net __init__
-    :param clf
     """
     def __init__(self, net_type='feed-forward',
                  features=None,
@@ -74,7 +73,7 @@ class NeurolabClassifier(Classifier):
 
     def fit(self, X, y, sample_weight=None):
         if sample_weight is not None:
-            raise ValueError('sample_weight not supported')
+            raise NotImplementedError('sample_weight not supported')
 
         X, y, sample_weight = check_inputs(X, y, sample_weight)
 
@@ -133,6 +132,8 @@ class NeurolabClassifier(Classifier):
         :param dict params: parameters to set in model
         """
         for name, value in params.items():
+            if name in {'random_state'}:
+                continue
             if name in NET_PARAMS:
                 self.net_params[name] = value
             elif name in BASIC_PARAMS:
