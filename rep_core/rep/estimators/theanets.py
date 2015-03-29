@@ -4,6 +4,7 @@ import numpy
 from .interface import Classifier
 from .utils import check_inputs
 from sklearn.preprocessing import MinMaxScaler, Imputer
+from sklearn.utils import check_random_state
 import os
 import tempfile
 
@@ -14,9 +15,9 @@ except ImportError as e:
 
 __author__ = 'Lisa Ignatyeva'
 
+UNSUPPORTED_OPTIMIZERS = ['pretrain', 'sample', 'hf']
 
 class TheanetsClassifier(Classifier):
-    # TODO: fix the doc
     """
     Implements classification from Theanets library.
 
@@ -31,8 +32,7 @@ class TheanetsClassifier(Classifier):
     :param int output_layer: size of the output layer. If equals -1, the size is taken from the training dataset.
     :param str hidden_activation: the name of an activation function to use on hidden network layers by default.
     :param str output_activation: The name of an activation function to use on the output layer by default.
-    :param rng: Use a specific Theano random number generator. A new one will be created if this is None.
-    :type rng: theano RandomStreams object
+    :param int random_state: random seed
     :param float input_noise: Standard deviation of desired noise to inject into input.
     :param float hidden_noise: Standard deviation of desired noise to inject into hidden unit activation output.
     :param input_dropouts: Proportion of input units to randomly set to 0.
@@ -42,6 +42,8 @@ class TheanetsClassifier(Classifier):
     :param decode_from: Any of the hidden layers can be tapped at the output. Just specify a value greater than
         1 to tap the last N hidden layers. The default is 1, which decodes from just the last layer.
     :type decode_from: positive int
+    :param scaler: scaler used to transform data
+    :type scaler: scaler from sklearn.preprocessing or None
     :param features: list of features to train model
     :type features: None or list(str)
     :param list(dict) or None trainers: parameters to specify training algorithm
@@ -52,22 +54,24 @@ class TheanetsClassifier(Classifier):
                  output_layer=-1,
                  hidden_activation='logistic',
                  output_activation='linear',
-                 rng=None,
+                 random_state=42,
                  input_noise=0,
                  hidden_noise=0,
                  input_dropouts=0,
                  hidden_dropouts=0,
                  decode_from=1,
+                 scaler=MinMaxScaler(),
                  features=None,
                  trainers=None):
         self.layers = layers
         self.input_layer = input_layer
         self.output_layer = output_layer
+        self.random_state = random_state
         self.network_params = {'hidden_activation': hidden_activation, 'output_activation': output_activation,
-                               'rng': rng, 'input_noise': input_noise, 'hidden_noise': hidden_noise,
+                               'input_noise': input_noise, 'hidden_noise': hidden_noise,
                                'input_dropouts': input_dropouts, 'hidden_dropouts': hidden_dropouts,
                                'decode_from': decode_from}
-        # TODO: Do something with rng!
+        self.scaler = scaler
         self.trainers = trainers
         if self.trainers is None:
             self.trainers = [{}]
@@ -106,9 +110,12 @@ class TheanetsClassifier(Classifier):
                     dumpfile.write(dictionary['dumped_exp'])
                 assert os.path.exists(dump.name), 'there is no such file: {}'.format(dump.name)
                 layers = [self.input_layer] + self.layers + [self.output_layer]
-                self.exp = tnt.Experiment(tnt.Classifier, layers=layers, **self.network_params)
+                self.exp = tnt.Experiment(tnt.Classifier, layers=layers, rng=self._get_rng(), **self.network_params)
                 self.exp.load(dump.name)
         del dictionary['dumped_exp']
+
+    def _get_rng(self):
+        return check_random_state(self.random_state)
 
     def set_params(self, **params):
         """
@@ -125,7 +132,7 @@ class TheanetsClassifier(Classifier):
                 else:
                     # TODO: if there is only one trainer, parameters names should be allowed to be simpler
                     trainer_num, sep, param = key.partition('_')
-                    if not sep:
+                    if not sep or trainer_num[:7] != 'trainer' or len(trainer_num) <= 7:
                         raise AttributeError(key + ' is an invalid parameter for a NN with multiple training')
                     trainer_num = int(trainer_num[7:])
                     # resize if needed
@@ -143,13 +150,19 @@ class TheanetsClassifier(Classifier):
         parameters['output_layer'] = self.output_layer
         parameters['trainers'] = self.trainers
         parameters['features'] = self.features
+        parameters['random_state'] = self.random_state
         return parameters
 
     def _transform_data(self, data):
-        return MinMaxScaler().fit_transform(Imputer().fit_transform(self._get_train_features(data, allow_nans=True)))
+        data = Imputer().fit_transform(self._get_train_features(data, allow_nans=True))
+        if self.scaler == None:
+            return data
+        if self._is_fitted():
+            return self.scaler.transform(data)
+        return self.scaler.fit_transform(data)
 
-    def _check_fitted(self):
-        assert self.exp is not None, 'Classifier wasn`t fitted, please call `fit` first'
+    def _is_fitted(self):
+        return self.exp is not None
 
     def fit(self, X, y, sample_weight=None):
         """
@@ -163,6 +176,9 @@ class TheanetsClassifier(Classifier):
         """
         self.exp = None
         for trainer in self.trainers:
+            for optimizer in UNSUPPORTED_OPTIMIZERS:
+                if 'optimize' in trainer and trainer['optimize'] == optimizer:
+                    raise NotImplementedError(optimizer + ' is not supported')
             self.partial_fit(X, y, new_trainer=False, **trainer)
         return self
 
@@ -192,7 +208,7 @@ class TheanetsClassifier(Classifier):
                 self.output_layer = len(self.classes_)
             layers = [self.input_layer] + self.layers + [self.output_layer]
             print(layers)
-            self.exp = tnt.Experiment(tnt.Classifier, layers=layers, **self.network_params)
+            self.exp = tnt.Experiment(tnt.Classifier, layers=layers, rng=self._get_rng(), **self.network_params)
         if new_trainer:
             self.trainers.append(trainer)
         self.exp.train((X.astype(numpy.float32), y.astype(numpy.int32)),
@@ -206,7 +222,7 @@ class TheanetsClassifier(Classifier):
         :param pandas.DataFrame X: data shape [n_samples, n_features]
         :rtype: numpy.array of shape [n_samples, n_classes] with probabilities
         """
-        self._check_fitted()
+        assert self._is_fitted(), 'Classifier wasn`t fitted, please call `fit` first'
         X = self._transform_data(X)
         return self.exp.network.predict(X.astype(numpy.float32))
 
