@@ -116,6 +116,7 @@ class TheanetsClassifier(Classifier):
         del dictionary['dumped_exp']
 
     def _get_rng(self):
+        numpy.random.seed(42)
         return check_random_state(self.random_state)
 
     def set_params(self, **params):
@@ -212,6 +213,7 @@ class TheanetsClassifier(Classifier):
             self.exp = tnt.Experiment(tnt.Classifier, layers=layers, rng=self._get_rng(), **self.network_params)
         if new_trainer:
             self.trainers.append(trainer)
+        numpy.random.seed(42)
         self.exp.train((X.astype(numpy.float32), y.astype(numpy.int32)),
                        **trainer)
         return self
