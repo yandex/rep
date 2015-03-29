@@ -50,7 +50,7 @@ class TheanetsClassifier(Classifier):
     :param list(dict) or None trainers: parameters to specify training algorithm
     """
     def __init__(self, 
-                 layers=(10),
+                 layers=(10,),
                  input_layer=-1,
                  output_layer=-1,
                  hidden_activation='logistic',
