@@ -59,7 +59,7 @@ class NolearnClassifier(Classifier):
         and is called for each epoch of fine tuning.
     :param verbose: Debugging output.
     .. warning::
-        nolearn doesn't support `staged_predict_proba()`, `feature_importances__' and sample weights.
+        nolearn doesn't support `staged_predict_proba()`, `feature_importances__` and sample weights.
 
     """
     def __init__(self, features=None,
@@ -207,10 +207,10 @@ class NolearnClassifier(Classifier):
     def staged_predict_proba(self, X):
         """
 
-        :param pandas.DataFrame | numpy.ndarray X: data shape `[n_samples, n_features]
+        :param pandas.DataFrame | numpy.ndarray X: data shape `[n_samples, n_features]`
         :return: iterator
         .. warning::
-            doesn't support for nolearn.
+            doesn't support for nolearn (**AttributeError** will be thrown).
 
         """
         self._check_is_fitted()
