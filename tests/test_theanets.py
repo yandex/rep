@@ -2,6 +2,7 @@ from __future__ import division, print_function, absolute_import
 from ._test_classifier import check_classifier
 from ._test_classifier import generate_classification_data
 from sklearn.base import clone
+from sklearn.metrics import roc_auc_score
 from sklearn.ensemble import BaggingClassifier
 from rep.estimators.sklearn import SklearnClassifier
 from rep.estimators.theanets import TheanetsClassifier
@@ -22,16 +23,34 @@ def test_theanets_multiple_classification():
 
 
 def test_theanets_partial_fit():
-    # according to reproducibility failures in theanets, it's impossible to compare predictions' quality,
-    # so we have to compare what we do compare now
-    clf = TheanetsClassifier(trainers=[{'optimize': 'rmsprop'}])
+    clf_complete = TheanetsClassifier(trainers=[{'optimize': 'rmsprop'}, {'optimize': 'rprop'}])
+    clf_partial = TheanetsClassifier(trainers=[{'optimize': 'rmsprop'}])
+    X, y, sample_weight = generate_classification_data()
+    clf_complete.fit(X, y)
+    clf_partial.fit(X, y)
+    clf_partial.partial_fit(X, y, optimize='rprop')
+
+    assert clf_complete.trainers == clf_partial.trainers, 'trainers not saved in partial fit'
+
+    auc_complete = roc_auc_score(y, clf_complete.predict_proba()[:, 1])
+    auc_partial = roc_auc_score(y, clf_partial.predict_proba()[:, 1])
+
+    assert auc_complete == auc_partial, 'same networks return different results'
+
+def test_theanets_reproducibility():
+    clf = TheanetsClassifier()
     X, y, sample_weight = generate_classification_data()
     clf.fit(X, y)
-    clf.partial_fit(X, y, optimize='rprop')
+    auc = roc_auc_score(y, clf.predict_proba()[:, 1])
+    for i in range(2):
+        clf.fit(X, y)
+        curr_auc = roc_auc_score(y, clf.predict_proba()[:, 1])
+        assert auc == curr_auc, 'running a network twice produces different results'
+
     cloned_clf = clone(clf)
-    assert len(cloned_clf.trainers) == 2, 'wrong amount of trainers'
-    assert cloned_clf.trainers[0]['optimize'] == 'rmsprop', 'wrong 1st trainer'
-    assert cloned_clf.trainers[1]['optimize'] == 'rprop', 'wrong 2nd trainer'
+    cloned_clf.fit(X, y)
+    cloned_auc = roc_auc_score(y, cloned_clf.predict_proba()[:, 1])
+    assert cloned_auc == auc, 'cloned network produces different result'
 
 
 def test_theanets_simple_stacking():
