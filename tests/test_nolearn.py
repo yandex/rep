@@ -10,7 +10,7 @@ def test_nolearn_classification():
     cl = NolearnClassifier()
     check_classifier(cl, check_instance=True, has_staged_pp=False, has_importances=False, supports_weight=False)
 
-    cl = NolearnClassifier(layer_sizes=[-1, 10, -1])
+    cl = NolearnClassifier(layer_sizes=[])
     check_classifier(cl, check_instance=True, has_staged_pp=False, has_importances=False, supports_weight=False)
 
 
