@@ -32,8 +32,8 @@ def test_theanets_partial_fit():
 
     assert clf_complete.trainers == clf_partial.trainers, 'trainers not saved in partial fit'
 
-    auc_complete = roc_auc_score(y, clf_complete.predict_proba()[:, 1])
-    auc_partial = roc_auc_score(y, clf_partial.predict_proba()[:, 1])
+    auc_complete = roc_auc_score(y, clf_complete.predict_proba(X)[:, 1])
+    auc_partial = roc_auc_score(y, clf_partial.predict_proba(X)[:, 1])
 
     assert auc_complete == auc_partial, 'same networks return different results'
 
@@ -44,12 +44,12 @@ def test_theanets_reproducibility():
     auc = roc_auc_score(y, clf.predict_proba()[:, 1])
     for i in range(2):
         clf.fit(X, y)
-        curr_auc = roc_auc_score(y, clf.predict_proba()[:, 1])
+        curr_auc = roc_auc_score(y, clf.predict_proba(X)[:, 1])
         assert auc == curr_auc, 'running a network twice produces different results'
 
     cloned_clf = clone(clf)
     cloned_clf.fit(X, y)
-    cloned_auc = roc_auc_score(y, cloned_clf.predict_proba()[:, 1])
+    cloned_auc = roc_auc_score(y, cloned_clf.predict_proba(X)[:, 1])
     assert cloned_auc == auc, 'cloned network produces different result'
 
 
