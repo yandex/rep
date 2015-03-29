@@ -17,6 +17,7 @@ __author__ = 'Lisa Ignatyeva'
 
 UNSUPPORTED_OPTIMIZERS = ['pretrain', 'sample', 'hf']
 
+
 class TheanetsClassifier(Classifier):
     """
     Implements classification from Theanets library.
@@ -49,7 +50,7 @@ class TheanetsClassifier(Classifier):
     :param list(dict) or None trainers: parameters to specify training algorithm
     """
     def __init__(self, 
-                 layers=[10],
+                 layers=(10),
                  input_layer=-1,
                  output_layer=-1,
                  hidden_activation='logistic',
@@ -63,7 +64,7 @@ class TheanetsClassifier(Classifier):
                  scaler=MinMaxScaler(),
                  features=None,
                  trainers=None):
-        self.layers = layers
+        self.layers = list(layers)
         self.input_layer = input_layer
         self.output_layer = output_layer
         self.random_state = random_state
@@ -155,7 +156,7 @@ class TheanetsClassifier(Classifier):
 
     def _transform_data(self, data):
         data = Imputer().fit_transform(self._get_train_features(data, allow_nans=True))
-        if self.scaler == None:
+        if self.scaler is None:
             return data
         if self._is_fitted():
             return self.scaler.transform(data)
