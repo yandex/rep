@@ -24,7 +24,7 @@ def test_theanets_partial_fit():
     # according to reproducibility failures in theanets, it's impossible to compare predictions' quality,
     # so we have to compare what we do compare now
     clf = TheanetsClassifier(trainers=[{'optimize': 'rmsprop'}])
-    X, y = generate_classification_data()
+    X, y, sample_weight = generate_classification_data()
     clf.fit(X, y)
     clf.partial_fit(X, y, optimize='rprop')
     cloned_clf = clone(clf)
@@ -33,9 +33,7 @@ def test_theanets_partial_fit():
     assert cloned_clf.trainers[1]['optimize'] == 'rprop', 'wrong 2nd trainer'
 
 
-
 def test_theanets_simple_stacking():
     base_tnt = TheanetsClassifier()
     check_classifier(SklearnClassifier(clf=BaggingClassifier(base_estimator=base_tnt, n_estimators=3)),
                      supports_weight=False, has_staged_pp=False, has_importances=False)
-
