@@ -218,5 +218,4 @@ class NolearnClassifier(Classifier):
             Doesn't support for nolearn (**AttributeError** will be thrown).
 
         """
-        self._check_is_fitted()
         raise AttributeError("'staged_predict_proba' is not supported for nolearn")
