@@ -37,11 +37,12 @@ def test_theanets_partial_fit():
 
     assert auc_complete == auc_partial, 'same networks return different results'
 
+
 def test_theanets_reproducibility():
     clf = TheanetsClassifier()
     X, y, sample_weight = generate_classification_data()
     clf.fit(X, y)
-    auc = roc_auc_score(y, clf.predict_proba()[:, 1])
+    auc = roc_auc_score(y, clf.predict_proba(X)[:, 1])
     for i in range(2):
         clf.fit(X, y)
         curr_auc = roc_auc_score(y, clf.predict_proba(X)[:, 1])
