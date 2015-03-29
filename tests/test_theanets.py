@@ -8,6 +8,7 @@ from rep.estimators.theanets import TheanetsClassifier
 
 __author__ = 'Lisa Ignatyeva'
 
+
 def test_theanets_single_classification():
     check_classifier(TheanetsClassifier(),
                      supports_weight=False, has_staged_pp=False, has_importances=False)
@@ -17,7 +18,7 @@ def test_theanets_single_classification():
 
 def test_theanets_multiple_classification():
     check_classifier(TheanetsClassifier(trainers=[{'optimize': 'adadelta'}, {'optimize': 'nag'}]),
-                                        supports_weight=False, has_staged_pp=False, has_importances=False)
+                     supports_weight=False, has_staged_pp=False, has_importances=False)
 
 
 def test_theanets_partial_fit():
