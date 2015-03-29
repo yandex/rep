@@ -45,8 +45,6 @@ class TheanetsClassifier(Classifier):
     :param features: list of features to train model
     :type features: None or list(str)
     :param list(dict) or None trainers: parameters to specify training algorithm
-    :param exp: the experiment which will be doing the training & prediction. Generally should be omitted.
-    :type exp: theanets.main.Experiment or None
     """
     def __init__(self, 
                  layers=[10],
@@ -61,8 +59,7 @@ class TheanetsClassifier(Classifier):
                  hidden_dropouts=0,
                  decode_from=1,
                  features=None,
-                 trainers=None,
-                 exp=None):
+                 trainers=None):
         self.layers = layers
         self.input_layer = input_layer
         self.output_layer = output_layer
@@ -74,7 +71,7 @@ class TheanetsClassifier(Classifier):
         self.trainers = trainers
         if self.trainers is None:
             self.trainers = [{}]
-        self.exp = exp
+        self.exp = None
         Classifier.__init__(self, features=features)
 
     def __getstate__(self):
@@ -146,7 +143,6 @@ class TheanetsClassifier(Classifier):
         parameters['output_layer'] = self.output_layer
         parameters['trainers'] = self.trainers
         parameters['features'] = self.features
-        parameters['exp'] = self.exp
         return parameters
 
     def _transform_data(self, data):
