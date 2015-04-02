@@ -15,27 +15,21 @@ __author__ = 'Sterzhanov Vladislav'
 
 
 def _one_hot_transform(y):
-    return np.array(OneHotEncoder(n_values=2).fit_transform(y.reshape((len(y), 1))).todense())
+    return np.array(OneHotEncoder().fit_transform(y.reshape((len(y), 1))).todense())
 
 
-def _min_max_transform(X):
-    return MinMaxScaler().fit_transform(Imputer().fit_transform(X))
-
-
-# TODO: add init functions for all possible networks
-# TODO: restructure set: get rid of transforms
-NET_TYPES = {'feed-forward':       (nl.net.newff, _min_max_transform, _one_hot_transform),
-             'single-layer':       (nl.net.newp, _min_max_transform, _one_hot_transform),
-             'competing-layer':    (nl.net.newc, _min_max_transform, _one_hot_transform),
-             'learning-vector':    (nl.net.newlvq, _min_max_transform, _one_hot_transform),
-             'elman-recurrent':    (nl.net.newelm, _min_max_transform, _one_hot_transform),
-             'hemming-recurrent':  (nl.net.newhem),
-             'hopfield-recurrent': (nl.net.newhop)}
+NET_TYPES = {'feed-forward':       nl.net.newff,
+             'single-layer':       nl.net.newp,
+             'competing-layer':    nl.net.newc,
+             'learning-vector':    nl.net.newlvq,
+             'elman-recurrent':    nl.net.newelm,
+             'hemming-recurrent':  nl.net.newhem,
+             'hopfield-recurrent': nl.net.newhop}
 
 NET_PARAMS = ('minmax', 'cn', 'layers', 'transf', 'target',
                     'max_init', 'max_iter', 'delta', 'cn0', 'pc')
 
-BASIC_PARAMS = ('net_type', 'trainf', 'initf')
+BASIC_PARAMS = ('net_type', 'trainf', 'initf', 'scaler')
 
 CANT_CLASSIFY = ('learning-vector', 'hopfield-recurrent', 'competing-layer', 'hemming-recurrent')
 
@@ -54,6 +48,7 @@ class NeurolabClassifier(Classifier):
     :param initf: layer initializers
     :type initf: nl.init or list[nl.init] of shape [n_layers]
     :param trainf: net train function
+    :param scaler: transformer to apply to the input objects
     :param dict kwargs: additional arguments to net __init__
     """
     def __init__(self, net_type='feed-forward',
@@ -69,19 +64,17 @@ class NeurolabClassifier(Classifier):
         self.net_type = net_type
         self.clf = None
         self.classes_ = None
+        self.scaler = MinMaxScaler()
         self.set_params(**kwargs)
 
-    def fit(self, X, y, sample_weight=None):
-        if sample_weight is not None:
-            raise NotImplementedError('sample_weight not supported')
+    def fit(self, X, y):
+        X, y, _ = check_inputs(X, y, None)
 
-        X, y, sample_weight = check_inputs(X, y, sample_weight)
-
-        _prepare_clf, _transform_features, _transform_labels = self._get_initializers(self.net_type)
+        _prepare_clf = self._get_initializers(self.net_type)
 
         self.classes_ = np.unique(y)
-        x_train = _transform_features(self._get_train_features(X))
-        y_train = _transform_labels(y)
+        x_train = self._transform_input(self._get_train_features(X), fit=1)
+        y_train = _one_hot_transform(y)
 
         # Some networks do not support classification
         assert self.net_type not in CANT_CLASSIFY, 'Network type does not support classification'
@@ -112,8 +105,7 @@ class NeurolabClassifier(Classifier):
         :rtype: numpy.array of shape [n_samples, n_classes] with probabilities
         """
         assert self.clf is not None
-        _, _transform_features, _ = self._get_initializers(self.net_type)
-        return self.clf.sim(_transform_features(self._get_train_features(X)))
+        return self.clf.sim(self._transform_input(self._get_train_features(X), fit=0))
 
     def staged_predict_proba(self, X):
         """
@@ -152,6 +144,11 @@ class NeurolabClassifier(Classifier):
             parameters[name] = getattr(self, name)
         return parameters
 
+    def _transform_input(self, X, fit=1):
+        if fit:
+            self.scaler.fit(X)
+        return self.scaler.transform(X)
+
     @staticmethod
     def _get_initializers(net_type):
         if net_type not in NET_TYPES:
@@ -170,18 +167,20 @@ class NeurolabClassifier(Classifier):
             net_params.pop('layers')
 
         # For some reason Neurolab asks for a separate cn parameter instead of accessing size[-1]
+        # (e.g. In case of Single-Layer Perceptron)
         if 'cn' in net_params:
             net_params['cn'] = len(self.classes_)
 
-        # Output layers for classifiers contain exactly nclasses output neurons
+        # Output layers of classifiers contain exactly nclasses output neurons
         if 'size' in net_params:
             net_params['size'] += [y_train.shape[1]]
 
         # Classification networks should have SoftMax as the transfer function on output layer
         if 'transf' not in net_params:
             net_params['transf'] = \
-                [nl.trans.SoftMax()] * len(net_params['size']) if 'size' in net_params else nl.trans.SoftMax()
-        elif hasattr(net_params['transf'], '__iter__'):
+                [nl.trans.TanSig()] * len(net_params['size']) if 'size' in net_params else nl.trans.SoftMax()
+
+        if hasattr(net_params['transf'], '__iter__'):
             net_params['transf'][-1] = nl.trans.SoftMax()
         else:
             net_params['transf'] = nl.trans.SoftMax()
