@@ -1,5 +1,4 @@
 from __future__ import division, print_function, absolute_import
-from abc import ABCMeta
 
 from .interface import Classifier, Regressor
 from .utils import check_inputs
@@ -8,14 +7,14 @@ from copy import deepcopy
 
 import neurolab as nl
 import numpy as np
-from sklearn.preprocessing import OneHotEncoder, MinMaxScaler, Imputer
+from sklearn.preprocessing import OneHotEncoder, MinMaxScaler
 
 
 __author__ = 'Sterzhanov Vladislav'
 
 
-def _one_hot_transform(y):
-    return np.array(OneHotEncoder().fit_transform(y.reshape((len(y), 1))).todense())
+def _one_hot_transform(y, n_classes):
+    return np.array(OneHotEncoder(n_values=n_classes).fit_transform(y.reshape((len(y), 1))).todense())
 
 
 NET_TYPES = {'feed-forward':       nl.net.newff,
@@ -27,7 +26,7 @@ NET_TYPES = {'feed-forward':       nl.net.newff,
              'hopfield-recurrent': nl.net.newhop}
 
 NET_PARAMS = ('minmax', 'cn', 'layers', 'transf', 'target',
-                    'max_init', 'max_iter', 'delta', 'cn0', 'pc')
+              'max_init', 'max_iter', 'delta', 'cn0', 'pc')
 
 BASIC_PARAMS = ('net_type', 'trainf', 'initf', 'scaler')
 
@@ -46,7 +45,7 @@ class NeurolabClassifier(Classifier):
     :param features: features used in training
     :type features: list[str] or None
     :param initf: layer initializers
-    :type initf: nl.init or list[nl.init] of shape [n_layers]
+    :type initf: anything implementing call(layers). e.g. nl.init.* or list[nl.init.*] of shape [n_layers]
     :param trainf: net train function
     :param scaler: transformer to apply to the input objects
     :param dict kwargs: additional arguments to net __init__
@@ -59,8 +58,8 @@ class NeurolabClassifier(Classifier):
         Classifier.__init__(self, features=features)
         self.train_params = {}
         self.net_params = {}
-        self.trainf=trainf
-        self.initf=initf
+        self.trainf = trainf
+        self.initf = initf
         self.net_type = net_type
         self.clf = None
         self.classes_ = None
@@ -70,18 +69,16 @@ class NeurolabClassifier(Classifier):
     def fit(self, X, y):
         X, y, _ = check_inputs(X, y, None)
 
-        _prepare_clf = self._get_initializers(self.net_type)
-
-        self.classes_ = np.unique(y)
-        x_train = self._transform_input(self._get_train_features(X), fit=1)
-        y_train = _one_hot_transform(y)
+        x_train = self._transform_input(self._get_train_features(X))
+        y_train = _one_hot_transform(y, len(np.unique(y)))
 
         # Some networks do not support classification
         assert self.net_type not in CANT_CLASSIFY, 'Network type does not support classification'
 
         net_params = self._prepare_parameters_for_classification(self.net_params, x_train, y_train)
 
-        clf = _prepare_clf(**net_params)
+        clf = self._prepare_clf(**net_params)
+        self.classes_ = np.unique(y)
 
         # To allow similar initf function on all layers
         initf_iterable = self.initf if hasattr(self.initf, '__iter__') else [self.initf]*len(clf.layers)
@@ -104,8 +101,8 @@ class NeurolabClassifier(Classifier):
         :param X: pandas.DataFrame of shape [n_samples, n_features]
         :rtype: numpy.array of shape [n_samples, n_classes] with probabilities
         """
-        assert self.clf is not None
-        return self.clf.sim(self._transform_input(self._get_train_features(X), fit=0))
+        assert self.clf is not None, 'Classifier not fitted, predict denied'
+        return self.clf.sim(self._transform_input(self._get_train_features(X), fit=False))
 
     def staged_predict_proba(self, X):
         """
@@ -144,10 +141,14 @@ class NeurolabClassifier(Classifier):
             parameters[name] = getattr(self, name)
         return parameters
 
-    def _transform_input(self, X, fit=1):
+    def _transform_input(self, X, fit=True):
         if fit:
             self.scaler.fit(X)
         return self.scaler.transform(X)
+
+    def _prepare_clf(self, **net_params):
+        init = self._get_initializers(self.net_type)
+        return init(**net_params)
 
     @staticmethod
     def _get_initializers(net_type):
