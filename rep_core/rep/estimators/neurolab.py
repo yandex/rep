@@ -75,10 +75,10 @@ class NeurolabClassifier(Classifier):
         # Some networks do not support classification
         assert self.net_type not in CANT_CLASSIFY, 'Network type does not support classification'
 
+        self.classes_ = np.unique(y)
         net_params = self._prepare_parameters_for_classification(self.net_params, x_train, y_train)
 
         clf = self._prepare_clf(**net_params)
-        self.classes_ = np.unique(y)
 
         # To allow similar initf function on all layers
         initf_iterable = self.initf if hasattr(self.initf, '__iter__') else [self.initf]*len(clf.layers)
