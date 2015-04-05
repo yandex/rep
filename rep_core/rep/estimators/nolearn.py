@@ -165,6 +165,8 @@ class NolearnClassifier(Classifier):
         :param pandas.DataFrame | numpy.ndarray X: data shape `[n_samples, n_features]`
         :param list | numpy.array y: values - array-like of shape `[n_samples]`
         :return: self
+        .. warning::
+            Sample weights are not supported for nolearn.
 
         """
         X, y, sample_weight = check_inputs(X, y, sample_weight=None, allow_none_weights=True)
@@ -187,8 +189,6 @@ class NolearnClassifier(Classifier):
 
         :param pandas.DataFrame | numpy.ndarray X: data shape `[n_samples, n_features]`
         :return: predicted values of shape `n_samples`
-        .. warning::
-            Sample weights are not supported for nolearn.
 
         """
         self._check_is_fitted()
@@ -201,8 +201,6 @@ class NolearnClassifier(Classifier):
 
         :param pandas.DataFrame | numpy.ndarray X: data shape `[n_samples, n_features]`
         :return: numpy.array of shape `[n_samples, n_classes]` with probabilities
-        .. warning::
-            Sample weights are not supported for nolearn.
 
         """
         self._check_is_fitted()
