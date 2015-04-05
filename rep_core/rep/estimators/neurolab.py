@@ -7,14 +7,16 @@ from copy import deepcopy
 
 import neurolab as nl
 import numpy as np
-from sklearn.preprocessing import OneHotEncoder, MinMaxScaler
+import scipy
+from sklearn.preprocessing import OneHotEncoder, StandardScaler, MinMaxScaler
+from sklearn.base import clone
 
 
 __author__ = 'Sterzhanov Vladislav'
 
 
-def _one_hot_transform(y, n_classes):
-    return np.array(OneHotEncoder(n_values=n_classes).fit_transform(y.reshape((len(y), 1))).todense())
+def _one_hot_transform(y):
+    return np.array(OneHotEncoder(n_values=len(np.unique(y))).fit_transform(y.reshape((len(y), 1))).todense())
 
 
 NET_TYPES = {'feed-forward':       nl.net.newff,
@@ -63,14 +65,14 @@ class NeurolabClassifier(Classifier):
         self.net_type = net_type
         self.clf = None
         self.classes_ = None
-        self.scaler = MinMaxScaler()
+        self.scaler = StandardScaler()
         self.set_params(**kwargs)
 
     def fit(self, X, y):
         X, y, _ = check_inputs(X, y, None)
 
-        x_train = self._transform_input(self._get_train_features(X))
-        y_train = _one_hot_transform(y, len(np.unique(y)))
+        x_train = self._transform_input(self._get_train_features(X), y)
+        y_train = _one_hot_transform(y)
 
         # Some networks do not support classification
         assert self.net_type not in CANT_CLASSIFY, 'Network type does not support classification'
@@ -102,7 +104,10 @@ class NeurolabClassifier(Classifier):
         :rtype: numpy.array of shape [n_samples, n_classes] with probabilities
         """
         assert self.clf is not None, 'Classifier not fitted, predict denied'
-        return self.clf.sim(self._transform_input(self._get_train_features(X), fit=False))
+        transformed_x = self._transform_input(self._get_train_features(X), fit=False)
+        assert np.all((transformed_x <= 1) & (transformed_x >= 0)), \
+            'Transformer returned illegal features (out of [0,1] range)'
+        return self.clf.sim(transformed_x)
 
     def staged_predict_proba(self, X):
         """
@@ -141,10 +146,11 @@ class NeurolabClassifier(Classifier):
             parameters[name] = getattr(self, name)
         return parameters
 
-    def _transform_input(self, X, fit=True):
+    def _transform_input(self, X, y=None, fit=True):
         if fit:
-            self.scaler.fit(X)
-        return self.scaler.transform(X)
+            self.scaler = clone(self.scaler)
+            self.scaler.fit(X, y)
+        return scipy.special.expit(self.scaler.transform(X) / 3)
 
     def _prepare_clf(self, **net_params):
         init = self._get_initializers(self.net_type)
