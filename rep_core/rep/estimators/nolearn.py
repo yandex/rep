@@ -26,9 +26,9 @@ class NolearnClassifier(Classifier):
         for the scale of the weights you can speed up training a lot, and also improve performance. Defaults to `0.05`.
     :param fan_outs: Number of nonzero incoming connections to a hidden unit. Defaults to `None`, which means that all
         connections have non-zero weights.
-    :param output_act_funct: Output activation function. Instance of type :class:`~.gdbn.activationFunctions.Sigmoid`,
-        :class:`~.gdbn.activationFunctions.Linear`, :class:`~.gdbn.activationFunctions.Softmax` from the
-        :mod:`gdbn.activationFunctions` module.  Defaults to :class:`~.gdbn.activationFunctions.Softmax`.
+    :param output_act_funct: Output activation function. Instance of type :class:`gdbn.activationFunctions.Sigmoid`,
+        :class:`gdbn.activationFunctions.Linear`, :class:`gdbn.activationFunctions.Softmax` from the
+        :mod:`gdbn.activationFunctions` module.  Defaults to :class:`gdbn.activationFunctions.Softmax`.
 
     :param real_valued_vis: Set `True` (the default) if visible units are real-valued.
     :param use_re_lu: Set `True` to use rectified linear units. Defaults to `False`.
@@ -55,10 +55,10 @@ class NolearnClassifier(Classifier):
     :param minibatch_size: Size of a minibatch.
     :param minibatches_per_epoch: Number of minibatches per epoch. The default is to use as many as fit into our
         training set.
-    :param pretrain_callback: An optional function that takes as arguments the :class:`DBN` instance, the epoch and the
-        layer index as its argument, and is called for each epoch of pretraining.
-    :param fine_tune_callback: An optional function that takes as arguments the :class:`DBN` instance and the epoch,
-        and is called for each epoch of fine tuning.
+    :param pretrain_callback: An optional function that takes as arguments the :class:`nolearn.dbn.DBN` instance, the
+        epoch and the layer index as its argument, and is called for each epoch of pretraining.
+    :param fine_tune_callback: An optional function that takes as arguments the :class:`nolearn.dbn.DBN` instance and
+        the epoch, and is called for each epoch of fine tuning.
     :param verbose: Debugging output.
     .. warning::
         nolearn doesn't support `staged_predict_proba()`, `feature_importances__` and sample weights.
