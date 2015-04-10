@@ -8,7 +8,7 @@ from copy import deepcopy
 import neurolab as nl
 import numpy as np
 import scipy
-from sklearn.preprocessing import OneHotEncoder, StandardScaler, MinMaxScaler
+from sklearn.preprocessing import OneHotEncoder, StandardScaler
 from sklearn.base import clone
 
 
@@ -147,6 +147,8 @@ class NeurolabClassifier(Classifier):
         return parameters
 
     def _transform_input(self, X, y=None, fit=True):
+        # FIXME: Need this while using sklearn < 0.16
+        X = np.copy(X)
         if fit:
             self.scaler = clone(self.scaler)
             self.scaler.fit(X, y)
