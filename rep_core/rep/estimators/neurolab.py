@@ -52,7 +52,6 @@ class NeurolabBase(object):
         self.scaler = StandardScaler()
         self.set_params(**kwargs)
 
-
     def set_params(self, **params):
         """
         Set the parameters of this estimator
@@ -120,7 +119,6 @@ class NeurolabBase(object):
         return NET_TYPES.get(net_type)
 
 
-
 class NeurolabRegressor(NeurolabBase, Regressor):
     """
     NeurolabRegressor is a wrapper on Neurolab network-like regressors
@@ -149,7 +147,6 @@ class NeurolabRegressor(NeurolabBase, Regressor):
 
     def fit(self, X, y):
         # TODO Some networks do not support regression?
-        #assert self.net_type not in CANT_CLASSIFY, 'Network type does not support classification'
 
         X, y, _ = check_inputs(X, y, None)
 
@@ -173,7 +170,6 @@ class NeurolabRegressor(NeurolabBase, Regressor):
         # Classisifier and Regressor would inherit
         return self._sim(self._get_train_features(X))
 
-
     def staged_predict(self, X, step=10):
         """
         Predicts probabilities on each stage
@@ -184,7 +180,6 @@ class NeurolabRegressor(NeurolabBase, Regressor):
         .. warning:: Doesn't have support in Neurolab (**AttributeError** will be thrown)
         """
         raise AttributeError("Not supported by Neurolab networks")
-
 
     def _prepare_parameters_for_regression(self, params, x_train, y_train):
         # TODO
@@ -201,23 +196,14 @@ class NeurolabRegressor(NeurolabBase, Regressor):
         # For some reason Neurolab asks for a separate cn parameter instead of accessing size[-1]
         # (e.g. In case of Single-Layer Perceptron)
         if 'cn' in net_params:
-            net_params['cn'] = len(self.classes_)
+            net_params['cn'] = 1
 
-        # Output layers of classifiers contain exactly nclasses output neurons
+        # Output layers of regressors contain exactly 1 output neuron
         if 'size' in net_params:
-            net_params['size'] += [y_train.shape[1]]
-
-        # Classification networks should have SoftMax as the transfer function on output layer
-        if 'transf' not in net_params:
-            net_params['transf'] = \
-                [nl.trans.TanSig()] * len(net_params['size']) if 'size' in net_params else nl.trans.SoftMax()
-
-        if hasattr(net_params['transf'], '__iter__'):
-            net_params['transf'][-1] = nl.trans.SoftMax()
-        else:
-            net_params['transf'] = nl.trans.SoftMax()
+            net_params['size'] += 1
 
         return net_params
+
 
 class NeurolabClassifier(NeurolabBase, Classifier):
     """
@@ -284,7 +270,6 @@ class NeurolabClassifier(NeurolabBase, Classifier):
         .. warning:: Doesn't have support in Neurolab (**AttributeError** will be thrown)
         """
         raise AttributeError("Not supported by Neurolab networks")
-
 
     def _prepare_parameters_for_classification(self, params, x_train, y_train):
         net_params = deepcopy(params)
