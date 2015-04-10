@@ -19,6 +19,7 @@ UNSUPPORTED_OPTIMIZERS = ['pretrain', 'sample', 'hf']
 # pretrain and sample data formats are too different from what we support here
 # hf now does not work in theanets, see https://github.com/lmjohns3/theanets/issues/62
 
+
 class TheanetsBase(object):
     def __init__(self,
                  layers,
@@ -48,6 +49,7 @@ class TheanetsBase(object):
         if self.trainers is None:
             self.trainers = [{}]
         self.exp = None
+        self.features = None
 
     def __getstate__(self):
         """
@@ -127,15 +129,14 @@ class TheanetsBase(object):
 
     def _transform_data(self, data):
         data_backup = data
-        data_backup = (self._get_train_features(data_backup, allow_nans=True))
         if self.scaler is None:
             if self._is_fitted():
-                return self.imputer.transfrom(data_backup)
+                return self.imputer.transform(data_backup)
             else:
                 return self.imputer.fit_transform(data_backup)
 
         if self._is_fitted():
-            return self.scaler.transform(self.imputer.transfrom(data_backup))
+            return self.scaler.transform(self.imputer.transform(data_backup))
         return self.scaler.fit_transform(self.imputer.fit_transform(data_backup))
 
     def _is_fitted(self):
@@ -160,7 +161,7 @@ class TheanetsBase(object):
         return self
 
     @abstractmethod
-    def partial_fit(self, X, y, sample_weight=None, new_trainer=True,  **trainer):
+    def partial_fit(self, X, y, sample_weight=None, new_trainer=True, **trainer):
         """
         Train the estimator by training the existing classifier again.
 
@@ -173,8 +174,6 @@ class TheanetsBase(object):
         :return: self
         """
         pass
-
-
 
 
 class TheanetsClassifier(TheanetsBase, Classifier):
@@ -208,7 +207,8 @@ class TheanetsClassifier(TheanetsBase, Classifier):
     :type features: None or list(str)
     :param list(dict) or None trainers: parameters to specify training algorithm
     """
-    def __init__(self, 
+
+    def __init__(self,
                  layers=(10,),
                  input_layer=-1,
                  output_layer=-1,
@@ -223,22 +223,23 @@ class TheanetsClassifier(TheanetsBase, Classifier):
                  scaler=MinMaxScaler(),
                  features=None,
                  trainers=None):
-        TheanetsBase.__init__(self, layers=layers,
-                               input_layer=input_layer,
-                               output_layer=output_layer,
-                               hidden_activation=hidden_activation,
-                               output_activation=output_activation,
-                               random_state=random_state,
-                               input_noise=input_noise,
-                               hidden_noise=hidden_noise,
-                               input_dropouts=input_dropouts,
-                               hidden_dropouts=hidden_dropouts,
-                               decode_from=decode_from,
-                               scaler=scaler,
-                               trainers=trainers)
+        TheanetsBase.__init__(self,
+                              layers=layers,
+                              input_layer=input_layer,
+                              output_layer=output_layer,
+                              hidden_activation=hidden_activation,
+                              output_activation=output_activation,
+                              random_state=random_state,
+                              input_noise=input_noise,
+                              hidden_noise=hidden_noise,
+                              input_dropouts=input_dropouts,
+                              hidden_dropouts=hidden_dropouts,
+                              decode_from=decode_from,
+                              scaler=scaler,
+                              trainers=trainers)
         Classifier.__init__(self, features=features)
 
-    def partial_fit(self, X, y, sample_weight=None, new_trainer=True,  **trainer):
+    def partial_fit(self, X, y, sample_weight=None, new_trainer=True, **trainer):
         """
         Train the classifier by training the existing classifier again.
 
@@ -254,7 +255,7 @@ class TheanetsClassifier(TheanetsBase, Classifier):
             # https://github.com/lmjohns3/theanets/issues/58
             raise NotImplementedError('sample_weight is not supported for theanets')
         X, y, sample_weight = check_inputs(X, y, sample_weight)
-        X = self._transform_data(X)
+        X = self._transform_data(self._get_train_features(X, allow_nans=True))
         self.classes_ = numpy.unique(y)
         if self.exp is None:
             # initialize experiment
@@ -280,7 +281,7 @@ class TheanetsClassifier(TheanetsBase, Classifier):
         :rtype: numpy.array of shape [n_samples, n_classes] with probabilities
         """
         assert self._is_fitted(), 'Classifier wasn`t fitted, please call `fit` first'
-        X = self._transform_data(X)
+        X = self._transform_data(self._get_train_features(X, allow_nans=True))
         return self.exp.network.predict(X.astype(numpy.float32))
 
     def staged_predict_proba(self, X):
@@ -294,7 +295,6 @@ class TheanetsClassifier(TheanetsBase, Classifier):
 
 
 class TheanetsRegressor(TheanetsBase, Regressor):
-
     def __init__(self,
                  layers=(10,),
                  input_layer=-1,
@@ -316,17 +316,17 @@ class TheanetsRegressor(TheanetsBase, Regressor):
                               output_layer=output_layer,
                               hidden_activation=hidden_activation,
                               output_activation=output_activation,
-                               random_state=random_state,
-                               input_noise=input_noise,
-                               hidden_noise=hidden_noise,
-                               input_dropouts=input_dropouts,
-                               hidden_dropouts=hidden_dropouts,
-                               decode_from=decode_from,
-                               scaler=scaler,
-                               trainers=trainers)
+                              random_state=random_state,
+                              input_noise=input_noise,
+                              hidden_noise=hidden_noise,
+                              input_dropouts=input_dropouts,
+                              hidden_dropouts=hidden_dropouts,
+                              decode_from=decode_from,
+                              scaler=scaler,
+                              trainers=trainers)
         Regressor.__init__(self, features=features)
 
-    def partial_fit(self, X, y, sample_weight=None, new_trainer=True,  **trainer):
+    def partial_fit(self, X, y, sample_weight=None, new_trainer=True, **trainer):
         """
         Train the regressor by training the existing regressor again.
 
@@ -342,7 +342,7 @@ class TheanetsRegressor(TheanetsBase, Regressor):
             # https://github.com/lmjohns3/theanets/issues/58
             raise NotImplementedError('sample_weight is not supported for theanets')
         X, y, sample_weight = check_inputs(X, y, sample_weight)
-        X = self._transform_data(X)
+        X = self._transform_data(self._get_train_features(X, allow_nans=True))
         if self.exp is None:
             # initialize experiment
             if self.input_layer == -1:
@@ -350,13 +350,11 @@ class TheanetsRegressor(TheanetsBase, Regressor):
             if self.output_layer == -1:
                 self.output_layer = 1
             layers = [self.input_layer] + self.layers + [self.output_layer]
-            print(layers)
-            self.exp = tnt.Experiment(tnt.Regressor, layers=layers, rng=self._get_rng(), **self.network_params)
+            self.exp = tnt.Experiment(tnt.feedforward.Regressor, layers=layers, rng=self._get_rng(), **self.network_params)
         if new_trainer:
             self.trainers.append(trainer)
         numpy.random.seed(42)
-        self.exp.train((X.astype(numpy.float32), y.astype(numpy.int32)),
-                       **trainer)
+        self.exp.train([X.astype(numpy.float32), y.reshape(len(y), 1)], **trainer)
         return self
 
     def predict(self, X):
@@ -367,7 +365,7 @@ class TheanetsRegressor(TheanetsBase, Regressor):
         :rtype: numpy.array of shape [n_samples, n_classes] with probabilities
         """
         assert self._is_fitted(), 'Regressor wasn`t fitted, please call `fit` first'
-        X = self._transform_data(X)
+        X = self._transform_data(self._get_train_features(X, allow_nans=True))
         return self.exp.network.predict(X.astype(numpy.float32))
 
     def staged_predict(self, X):
