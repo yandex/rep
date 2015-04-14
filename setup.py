@@ -83,7 +83,7 @@ setup(
         'numexpr >= 2.4',
         'plotly == 1.2.3',
         'scikit-learn == 0.15.2',
-        'bokeh == 0.8.0',
+        'bokeh == 0.8.1',
         'mpld3 == 0.2',
     ],
 
