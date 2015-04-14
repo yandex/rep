@@ -27,7 +27,7 @@ Main REP features include:
         'numexpr >= 2.4',
         'plotly == 1.2.3',
         'scikit-learn == 0.15.2',
-        'bokeh == 0.8.0',
+        'bokeh == 0.8.1',
         'mpld3 == 0.2',
 
 ## Install
@@ -54,7 +54,6 @@ Update pip:
 After cloning and (optionally) setting up virtual environment run:
 
     export LC_ALL=C
-
     pip install .
 
 
@@ -74,7 +73,6 @@ To use TMVA library:
 3. Install additional libraries to work with ROOT
 
         pip install root_numpy==3.3.1
-
         pip install rootpy==0.7.1
 
 
