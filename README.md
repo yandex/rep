@@ -73,8 +73,11 @@ To use TMVA library:
 
 3. Install additional libraries to work with ROOT
 
+
     pip install root_numpy==3.3.1
+
     pip install rootpy==0.7.1
+
 
 
 To use XGBoost library:
