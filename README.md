@@ -97,12 +97,3 @@ For server instead of the latest command use:
 
 Open [http://server:8888](http://server:8888)
 
-
-Explanations:
-
-* 8080 port - for ipython notebook
-* 5000 port - for nbdiff
-* /notebooks - folder with notebooks (data should be here as well)
-* /logdir - folder for ipython notebook logs
-
-To play with examples, copy `howto` folder from this repository to `$HOME/notebooks`   
