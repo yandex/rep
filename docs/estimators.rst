@@ -37,6 +37,7 @@ These classes are wrappers for physics machine learning library TMVA used .root 
 Now you can simply use it in python. TMVA contains classification and regression algorithms, including neural networks.
 
 TMVA Guide: http://mirror.yandex.ru/gentoo-distfiles/distfiles/TMVAUsersGuide-v4.03.pdf
+
 .. automodule:: rep.estimators.tmva
     :members:
     :show-inheritance:
