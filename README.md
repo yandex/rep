@@ -12,11 +12,12 @@ Main REP features include:
   * git, versioning of research
   * computation of different classification metrics 
 
+
+### Running using docker
+We provide the docker container with `REP` and all it's dependencies <br />
+https://github.com/yandex/rep/wiki/Running-REP-using-Docker/
+
 ### Installation
-
-see https://github.com/yandex/rep/wiki/Installing-manually (if you really want to do it by hand)
-
-### Run
-
-see https://github.com/yandex/rep/wiki/Running-REP-using-Docker/
-or https://github.com/yandex/rep/wiki/Running-manually
+However, if you want to install `REP` on your machine, follow this manual:  <br />
+https://github.com/yandex/rep/wiki/Installing-manually <br />
+and https://github.com/yandex/rep/wiki/Running-manually
