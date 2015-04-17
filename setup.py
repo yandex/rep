@@ -21,23 +21,28 @@ def find_version(*file_paths):
     raise RuntimeError("Unable to find version string.")
 
 
-with codecs.open('README.rst', encoding='utf-8') as f:
+with codecs.open('README.md', encoding='utf-8') as f:
     long_description = f.read()
+
+with codecs.open('AUTHORS', encoding='utf-8') as f:
+    authors = f.read()
+
+with codecs.open('requirements.txt', encoding='utf-8') as f:
+    requirements = f.read().split('\n')
 
 setup(
     name="rep",
     version=find_version('rep', '__init__.py'),
-    description="YDF and CERN utils",
-    long_description=long_description,
-
-    # url='https://github.com/pypa/sampleproject',
+    description="infrastructure for computational experiments on shared big datasets",
+    long_description="""Reproducible Experiment Platform is a collaborative software infrastructure for computational experiments on shared big datasets, which allows obtaining reproducible, repeatable results and consistent comparisons of the obtained results.""",
+    url='https://github.com/yandex/rep',
 
     # Author details
-    author='Alex Rogozhnikov, Tatiana Likhomanenko',
+    author=authors,
     author_email='axelr@yandex-team.ru, antares@yandex-team.ru',
 
     # Choose your license
-    license='Yandex',
+    license='Apache-2.0 License',
     packages=['rep', 'rep.estimators', 'rep.data', 'rep.metaml', 'rep.report', 'rep.test'],
     package_dir={'rep': 'rep'},
     classifiers=[
@@ -48,11 +53,11 @@ setup(
         'Development Status :: 4 - Beta',
 
         # Indicate who your project is intended for
-        'Intended Audience :: Andrey Ustuyzhanin, Alexey Rogozhnikov, Likhomanenko Tatiana',
-        'Topic :: YDF :: CERN Tools',
+        'Intended Audience :: Computational Researchers, students, teachers, data scientists',
+        'Topic :: Machine Learning :: Computational Experiment',
 
         # Pick your license as you wish (should match "license" above)
-        'License :: YDF :: Yandex License',
+        'License :: Apache-2.0 License',
 
         # Specify the Python versions you support here. In particular, ensure
         # that you indicate whether you support Python 2, Python 3 or both.
@@ -69,24 +74,7 @@ setup(
     # List run-time dependencies here. These will be installed by pip when your
     # project is installed.
 
-
-    install_requires=[
-        'numpy >= 1.9.0',
-        'scipy >= 0.14.0',
-        'ipython[all] == 3.0.0',
-        'pyzmq == 14.3.1',
-        'matplotlib == 1.3.1',
-        'openpyxl < 2.0.0',
-        'pandas == 0.14.0',
-        'requests >= 2.5.1',
-        'Jinja2 >= 2.7.3',
-        'numexpr >= 2.4',
-        'plotly == 1.2.3',
-        'scikit-learn == 0.15.2',
-        'bokeh == 0.8.1',
-        'mpld3 == 0.2',
-    ],
-
+    install_requires=requirements, 
 
     # If there are data files included in your packages that need to be
     # installed, specify them here. If using Python 2.6 or less, then these
