@@ -1,0 +1,525 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Plotting &mdash; REP (Reproducible Experiment Platform) 0.6.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.6.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="REP (Reproducible Experiment Platform) 0.6.0 documentation" href="index.html" />
+    <link rel="next" title="Utilities" href="utils.html" />
+    <link rel="prev" title="Report for models" href="report.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="utils.html" title="Utilities"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="report.html" title="Report for models"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">REP (Reproducible Experiment Platform) 0.6.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="plotting">
+<span id="id1"></span><h1>Plotting<a class="headerlink" href="#plotting" title="Permalink to this headline">¶</a></h1>
+<p>There are different plotting backends supported:</p>
+<ul class="simple">
+<li><em>matplotlib</em> (default, de-facto standard plotting library),</li>
+<li><em>plotly</em> (proprietary package with interactive plots, information is kept on the server),</li>
+<li><em>ROOT</em> (the library used by CERN people),</li>
+<li><em>bokeh</em> (open-source package with interactive plots)</li>
+</ul>
+<span class="target" id="module-rep.plotting"></span><dl class="class">
+<dt id="rep.plotting.AbstractPlot">
+<em class="property">class </em><code class="descclassname">rep.plotting.</code><code class="descname">AbstractPlot</code><a class="headerlink" href="#rep.plotting.AbstractPlot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>Abstract class for possible plot objects, which implements plot function.</p>
+<dl class="method">
+<dt id="rep.plotting.AbstractPlot.plot">
+<code class="descname">plot</code><span class="sig-paren">(</span><em>new_plot=False</em>, <em>xlim=None</em>, <em>ylim=None</em>, <em>title=None</em>, <em>figsize=None</em>, <em>xlabel=None</em>, <em>ylabel=None</em>, <em>fontsize=None</em>, <em>show_legend=True</em>, <em>grid=True</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.plotting.AbstractPlot.plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot data using matplotlib library. Use show() method for matplotlib to see result or</p>
+<div class="highlight-python"><div class="highlight"><pre>%pylab inline
+</pre></div>
+</div>
+<p>in IPython to see plot as cell output.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>new_plot</strong> (<em>bool</em>) &#8211; create or not new figure</li>
+<li><strong>xlim</strong> (<em>None or tuple(x_min, x_max)</em>) &#8211; x-axis range</li>
+<li><strong>ylim</strong> (<em>None or tuple(y_min, y_max)</em>) &#8211; y-axis range</li>
+<li><strong>title</strong> (<em>None or str</em>) &#8211; title</li>
+<li><strong>figsize</strong> (<em>None or tuple(weight, height)</em>) &#8211; figure size</li>
+<li><strong>xlabel</strong> (<em>None or str</em>) &#8211; x-axis name</li>
+<li><strong>ylabel</strong> (<em>None or str</em>) &#8211; y-axis name</li>
+<li><strong>fontsize</strong> (<em>None or int</em>) &#8211; font size</li>
+<li><strong>show_legend</strong> (<em>bool</em>) &#8211; show or not labels for plots</li>
+<li><strong>grid</strong> (<em>bool</em>) &#8211; show grid or not</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rep.plotting.AbstractPlot.plot_bokeh">
+<code class="descname">plot_bokeh</code><span class="sig-paren">(</span><em>xlim=None</em>, <em>ylim=None</em>, <em>title=None</em>, <em>figsize=None</em>, <em>xlabel=None</em>, <em>ylabel=None</em>, <em>fontsize=None</em>, <em>show_legend=True</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.plotting.AbstractPlot.plot_bokeh" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot data using bokeh library. Use show() method for bokeh to see result.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>new_plot</strong> (<em>bool</em>) &#8211; create or not new figure</li>
+<li><strong>xlim</strong> (<em>None or tuple(x_min, x_max)</em>) &#8211; x-axis range</li>
+<li><strong>ylim</strong> (<em>None or tuple(y_min, y_max)</em>) &#8211; y-axis range</li>
+<li><strong>title</strong> (<em>None or str</em>) &#8211; title</li>
+<li><strong>figsize</strong> (<em>None or tuple(weight, height)</em>) &#8211; figure size</li>
+<li><strong>xlabel</strong> (<em>None or str</em>) &#8211; x-axis name</li>
+<li><strong>ylabel</strong> (<em>None or str</em>) &#8211; y-axis name</li>
+<li><strong>fontsize</strong> (<em>None or int</em>) &#8211; font size</li>
+<li><strong>show_legend</strong> (<em>bool</em>) &#8211; show or not labels for plots</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rep.plotting.AbstractPlot.plot_plotly">
+<code class="descname">plot_plotly</code><span class="sig-paren">(</span><em>plotly_filename=None</em>, <em>mpl_type=False</em>, <em>xlim=None</em>, <em>ylim=None</em>, <em>title=None</em>, <em>figsize=None</em>, <em>xlabel=None</em>, <em>ylabel=None</em>, <em>fontsize=None</em>, <em>show_legend=True</em>, <em>grid=False</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.plotting.AbstractPlot.plot_plotly" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot data using plotly library in IPython</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>plotly_filename</strong> (<em>None or str</em>) &#8211; name for resulting plot file on server (use unique name, else the same plot will be showen)</li>
+<li><strong>mpl_type</strong> (<em>bool</em>) &#8211; use or not plotly converter from matplotlib (experimental parameter)</li>
+<li><strong>xlim</strong> (<em>None or tuple(x_min, x_max)</em>) &#8211; x-axis range</li>
+<li><strong>ylim</strong> (<em>None or tuple(y_min, y_max)</em>) &#8211; y-axis range</li>
+<li><strong>title</strong> (<em>None or str</em>) &#8211; title</li>
+<li><strong>figsize</strong> (<em>None or tuple(weight, height)</em>) &#8211; figure size</li>
+<li><strong>xlabel</strong> (<em>None or str</em>) &#8211; x-axis name</li>
+<li><strong>ylabel</strong> (<em>None or str</em>) &#8211; y-axis name</li>
+<li><strong>fontsize</strong> (<em>None or int</em>) &#8211; font size</li>
+<li><strong>show_legend</strong> (<em>bool</em>) &#8211; show or not labels for plots</li>
+<li><strong>grid</strong> (<em>bool</em>) &#8211; show grid or not</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rep.plotting.AbstractPlot.plot_tmva">
+<code class="descname">plot_tmva</code><span class="sig-paren">(</span><em>new_plot=False</em>, <em>style_file=None</em>, <em>figsize=None</em>, <em>xlim=None</em>, <em>ylim=None</em>, <em>title=None</em>, <em>xlabel=None</em>, <em>ylabel=None</em>, <em>show_legend=True</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.plotting.AbstractPlot.plot_tmva" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot data using tmva library.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>new_plot</strong> (<em>bool</em>) &#8211; create or not new figure</li>
+<li><strong>style_file</strong> (<em>None or str</em>) &#8211; tmva styles configuring file</li>
+<li><strong>xlim</strong> (<em>None or tuple(x_min, x_max)</em>) &#8211; x-axis range</li>
+<li><strong>ylim</strong> (<em>None or tuple(y_min, y_max)</em>) &#8211; y-axis range</li>
+<li><strong>title</strong> (<em>None or str</em>) &#8211; title</li>
+<li><strong>figsize</strong> (<em>None or tuple(weight, height)</em>) &#8211; figure size</li>
+<li><strong>xlabel</strong> (<em>None or str</em>) &#8211; x-axis name</li>
+<li><strong>ylabel</strong> (<em>None or str</em>) &#8211; y-axis name</li>
+<li><strong>show_legend</strong> (<em>bool</em>) &#8211; show or not labels for plots</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="rep.plotting.BarComparePlot">
+<em class="property">class </em><code class="descclassname">rep.plotting.</code><code class="descname">BarComparePlot</code><span class="sig-paren">(</span><em>data</em>, <em>alpha=0.5</em>, <em>sortby=None</em>, <em>step=5</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.plotting.BarComparePlot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#rep.plotting.AbstractPlot" title="rep.plotting.AbstractPlot"><code class="xref py py-class docutils literal"><span class="pre">rep.plotting.AbstractPlot</span></code></a></p>
+<p>Implements bar plots</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>data</strong> (<em>dict[str, dict(str, float)]</em>) &#8211; </li>
+<li><strong>alpha</strong> (<em>float</em>) &#8211; opacity</li>
+<li><strong>sortby</strong> (<em>None or str</em>) &#8211; sort bars by this data key</li>
+<li><strong>step</strong> (<em>int</em>) &#8211; length</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="class">
+<dt id="rep.plotting.BarPlot">
+<em class="property">class </em><code class="descclassname">rep.plotting.</code><code class="descname">BarPlot</code><span class="sig-paren">(</span><em>data</em>, <em>bins=30</em>, <em>normalization=True</em>, <em>value_range=None</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.plotting.BarPlot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#rep.plotting.AbstractPlot" title="rep.plotting.AbstractPlot"><code class="xref py py-class docutils literal"><span class="pre">rep.plotting.AbstractPlot</span></code></a></p>
+<p>Implements bar plots for train-test overfit (used in HEP)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>data</strong> (<em>dict[str, tuple(array, array, str)]</em>) &#8211; name - value, weight, style (&#8216;filled&#8217;, another)</li>
+<li><strong>bins</strong> (<em>int or list[float]</em>) &#8211; bins for histogram</li>
+<li><strong>normalization</strong> (<em>bool</em>) &#8211; normalize to pdf histogram or not</li>
+<li><strong>value_range</strong> (<em>None or tuple</em>) &#8211; min and max values</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="class">
+<dt id="rep.plotting.ColorMap">
+<em class="property">class </em><code class="descclassname">rep.plotting.</code><code class="descname">ColorMap</code><span class="sig-paren">(</span><em>matrix</em>, <em>labels=None</em>, <em>cmap='jet'</em>, <em>vmin=-1</em>, <em>vmax=1</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.plotting.ColorMap" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#rep.plotting.AbstractPlot" title="rep.plotting.AbstractPlot"><code class="xref py py-class docutils literal"><span class="pre">rep.plotting.AbstractPlot</span></code></a></p>
+<p>Implements color map plots</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>matrix</strong> (<em>numpy.ndarray</em>) &#8211; matrix</li>
+<li><strong>labels</strong> (<em>None or list[str]</em>) &#8211; names for each matrix-row</li>
+<li><strong>cmap</strong> (<em>str</em>) &#8211; color map name</li>
+<li><strong>vmin</strong> (<em>float</em>) &#8211; min value for color map</li>
+<li><strong>vmax</strong> (<em>float</em>) &#8211; max value for color map</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>for plotly use</p>
+<ul class="simple">
+<li>&#8216;Greys&#8217;, black to light-grey</li>
+<li>&#8216;YIGnBu&#8217;, white to green to blue to dark-blue</li>
+<li>&#8216;Greens&#8217;, dark-green to light-green</li>
+<li>&#8216;YIOrRd&#8217;, red to orange to gold to tan to white</li>
+<li>&#8216;Bluered&#8217;, bright-blue to purple to bright-red</li>
+<li>&#8216;RdBu&#8217;, blue to red (dim, the default color scale)</li>
+<li>&#8216;Picnic&#8217;, blue to light-blue to white to pink to red</li>
+</ul>
+<p>currently only available from the GUI, a slight alternative to &#8216;Jet&#8217;</p>
+<ul class="last simple">
+<li>&#8216;Portland&#8217;, blue to green to yellow to orange to red (dim)</li>
+<li>&#8216;Jet&#8217;, blue to light-blue to green to yellow to orange to red (bright)</li>
+<li>&#8216;Hot&#8217;, tan to yellow to red to black</li>
+<li>&#8216;Blackbody&#8217;, black to red to yellow to white to light-blue</li>
+<li>&#8216;Earth&#8217;, blue to green to yellow to brown to tan to white</li>
+<li>&#8216;Electric&#8217;, black to purple to orange to yellow to tan to white</li>
+</ul>
+</div>
+</dd></dl>
+
+<dl class="class">
+<dt id="rep.plotting.CorrelationMapPlot">
+<em class="property">class </em><code class="descclassname">rep.plotting.</code><code class="descname">CorrelationMapPlot</code><span class="sig-paren">(</span><em>data</em>, <em>bins=30</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.plotting.CorrelationMapPlot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#rep.plotting.AbstractPlot" title="rep.plotting.AbstractPlot"><code class="xref py py-class docutils literal"><span class="pre">rep.plotting.AbstractPlot</span></code></a></p>
+<p>Implements correlations map plots</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>array) data</strong> (<em>(array,</em>) &#8211; name var, name var - values for first, values for second</li>
+<li><strong>bins</strong> (<em>int or list[float]</em>) &#8211; count of bins</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="class">
+<dt id="rep.plotting.CorrelationPlot">
+<em class="property">class </em><code class="descclassname">rep.plotting.</code><code class="descname">CorrelationPlot</code><span class="sig-paren">(</span><em>data</em>, <em>bins=30</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.plotting.CorrelationPlot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#rep.plotting.AbstractPlot" title="rep.plotting.AbstractPlot"><code class="xref py py-class docutils literal"><span class="pre">rep.plotting.AbstractPlot</span></code></a></p>
+<p>Implements correlations plots</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>array) data</strong> (<em>(array,</em>) &#8211; name var, name var - values for first, values for second</li>
+<li><strong>bins</strong> (<em>int or list[float]</em>) &#8211; count of bins</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="class">
+<dt id="rep.plotting.ErrorPlot">
+<em class="property">class </em><code class="descclassname">rep.plotting.</code><code class="descname">ErrorPlot</code><span class="sig-paren">(</span><em>errors</em>, <em>size=2</em>, <em>log=False</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.plotting.ErrorPlot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#rep.plotting.AbstractPlot" title="rep.plotting.AbstractPlot"><code class="xref py py-class docutils literal"><span class="pre">rep.plotting.AbstractPlot</span></code></a></p>
+<p>Implements error bars plots</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>errors</strong> (<em>dict[str, tuple(array, array, array, array)]</em>) &#8211; name - x points, y points, y errors, x errors</li>
+<li><strong>size</strong> (<em>int</em>) &#8211; size of scatters</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>param bool log: logarithm scaling</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="rep.plotting.Function2D_Plot">
+<em class="property">class </em><code class="descclassname">rep.plotting.</code><code class="descname">Function2D_Plot</code><span class="sig-paren">(</span><em>function</em>, <em>xlim</em>, <em>ylim</em>, <em>xsteps=100</em>, <em>ysteps=100</em>, <em>cmap='Blues'</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.plotting.Function2D_Plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#rep.plotting.AbstractPlot" title="rep.plotting.AbstractPlot"><code class="xref py py-class docutils literal"><span class="pre">rep.plotting.AbstractPlot</span></code></a></p>
+<p>Implements 2d-functions plots</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>function</strong> (<em>function</em>) &#8211; vector function (X, Y)</li>
+<li><strong>float) xlim</strong> (<em>tuple(float,</em>) &#8211; x ranges</li>
+<li><strong>float) ylim</strong> (<em>tuple(float,</em>) &#8211; y ranges</li>
+<li><strong>xsteps</strong> (<em>int</em>) &#8211; count of points for approximation on x-axis</li>
+<li><strong>ysteps</strong> (<em>int</em>) &#8211; count of points for approximation on y-axis</li>
+<li><strong>cmap</strong> (<em>str</em>) &#8211; color map</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>for plotly use</p>
+<ul class="simple">
+<li>&#8216;Greys&#8217;, black to light-grey</li>
+<li>&#8216;YIGnBu&#8217;, white to green to blue to dark-blue</li>
+<li>&#8216;Greens&#8217;, dark-green to light-green</li>
+<li>&#8216;YIOrRd&#8217;, red to orange to gold to tan to white</li>
+<li>&#8216;Bluered&#8217;, bright-blue to purple to bright-red</li>
+<li>&#8216;RdBu&#8217;, blue to red (dim, the default color scale)</li>
+<li>&#8216;Picnic&#8217;, blue to light-blue to white to pink to red</li>
+</ul>
+<p>currently only available from the GUI, a slight alternative to &#8216;Jet&#8217;</p>
+<ul class="last simple">
+<li>&#8216;Portland&#8217;, blue to green to yellow to orange to red (dim)</li>
+<li>&#8216;Jet&#8217;, blue to light-blue to green to yellow to orange to red (bright)</li>
+<li>&#8216;Hot&#8217;, tan to yellow to red to black</li>
+<li>&#8216;Blackbody&#8217;, black to red to yellow to white to light-blue</li>
+<li>&#8216;Earth&#8217;, blue to green to yellow to brown to tan to white</li>
+<li>&#8216;Electric&#8217;, black to purple to orange to yellow to tan to white</li>
+</ul>
+</div>
+</dd></dl>
+
+<dl class="class">
+<dt id="rep.plotting.FunctionsPlot">
+<em class="property">class </em><code class="descclassname">rep.plotting.</code><code class="descname">FunctionsPlot</code><span class="sig-paren">(</span><em>functions</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.plotting.FunctionsPlot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#rep.plotting.AbstractPlot" title="rep.plotting.AbstractPlot"><code class="xref py py-class docutils literal"><span class="pre">rep.plotting.AbstractPlot</span></code></a></p>
+<p>Implements 1d-function plots</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>functions</strong> (<em>dict[str, tuple(array, array)]</em>) &#8211; name - x points, y points</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="class">
+<dt id="rep.plotting.GridPlot">
+<em class="property">class </em><code class="descclassname">rep.plotting.</code><code class="descname">GridPlot</code><span class="sig-paren">(</span><em>columns=3</em>, <em>*plots</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.plotting.GridPlot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#rep.plotting.AbstractPlot" title="rep.plotting.AbstractPlot"><code class="xref py py-class docutils literal"><span class="pre">rep.plotting.AbstractPlot</span></code></a></p>
+<p>Implements grid plots</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>columns</strong> (<em>int</em>) &#8211; count of columns in grid</li>
+<li><strong>plots</strong> (<em>list[AbstractPlot]</em>) &#8211; plot objects</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="class">
+<dt id="rep.plotting.HStackPlot">
+<em class="property">class </em><code class="descclassname">rep.plotting.</code><code class="descname">HStackPlot</code><span class="sig-paren">(</span><em>*plots</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.plotting.HStackPlot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#rep.plotting.AbstractPlot" title="rep.plotting.AbstractPlot"><code class="xref py py-class docutils literal"><span class="pre">rep.plotting.AbstractPlot</span></code></a></p>
+<p>Implements horizontal stack plots</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>plots</strong> (<em>list[AbstractPlot]</em>) &#8211; plot objects</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="class">
+<dt id="rep.plotting.ScatterPlot">
+<em class="property">class </em><code class="descclassname">rep.plotting.</code><code class="descname">ScatterPlot</code><span class="sig-paren">(</span><em>scatters</em>, <em>alpha=0.1</em>, <em>size=20</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.plotting.ScatterPlot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#rep.plotting.AbstractPlot" title="rep.plotting.AbstractPlot"><code class="xref py py-class docutils literal"><span class="pre">rep.plotting.AbstractPlot</span></code></a></p>
+<p>Implements scatters plots</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>scatters</strong> (<em>dict[str, tuple(array, array)]</em>) &#8211; name - x points, y points</li>
+<li><strong>size</strong> (<em>int</em>) &#8211; scatters size</li>
+<li><strong>alpha</strong> (<em>float</em>) &#8211; transparency</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="class">
+<dt id="rep.plotting.VStackPlot">
+<em class="property">class </em><code class="descclassname">rep.plotting.</code><code class="descname">VStackPlot</code><span class="sig-paren">(</span><em>*plots</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.plotting.VStackPlot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#rep.plotting.AbstractPlot" title="rep.plotting.AbstractPlot"><code class="xref py py-class docutils literal"><span class="pre">rep.plotting.AbstractPlot</span></code></a></p>
+<p>Implements vertical stack plots</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>plots</strong> (<em>list[AbstractPlot]</em>) &#8211; plot objects</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="rep.plotting.canvas">
+<code class="descclassname">rep.plotting.</code><code class="descname">canvas</code><span class="sig-paren">(</span><em>name='icanvas'</em>, <em>size=(800</em>, <em>600)</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.plotting.canvas" title="Permalink to this definition">¶</a></dt>
+<dd><p>Helper method for creating canvas</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="rep.plotting.default_canvas">
+<code class="descclassname">rep.plotting.</code><code class="descname">default_canvas</code><span class="sig-paren">(</span><em>name='icanvas'</em>, <em>size=(800</em>, <em>600)</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.plotting.default_canvas" title="Permalink to this definition">¶</a></dt>
+<dd><p>deprecated</p>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="report.html"
+                        title="previous chapter">Report for models</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="utils.html"
+                        title="next chapter">Utilities</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/plotting.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="utils.html" title="Utilities"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="report.html" title="Report for models"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">REP (Reproducible Experiment Platform) 0.6.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2014, Yandex.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
+  </body>
+</html>

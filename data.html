@@ -1,0 +1,243 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Data &mdash; REP (Reproducible Experiment Platform) 0.6.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.6.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="REP (Reproducible Experiment Platform) 0.6.0 documentation" href="index.html" />
+    <link rel="next" title="Estimators (classification and regression)" href="estimators.html" />
+    <link rel="prev" title="Welcome to REP’s documentation!" href="index.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="estimators.html" title="Estimators (classification and regression)"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Welcome to REP’s documentation!"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">REP (Reproducible Experiment Platform) 0.6.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="data">
+<span id="storages"></span><h1>Data<a class="headerlink" href="#data" title="Permalink to this headline">¶</a></h1>
+<p>This module contains wrappers for pandas.DataFrame data for estimators.</p>
+<div class="section" id="storage">
+<h2>Storage<a class="headerlink" href="#storage" title="Permalink to this headline">¶</a></h2>
+<p>This is wrapper for pandas.DataFrame, which allows you to define dataset for estimator by a simple way.</p>
+<span class="target" id="module-rep.data.storage"></span><dl class="class">
+<dt id="rep.data.storage.LabeledDataStorage">
+<em class="property">class </em><code class="descclassname">rep.data.storage.</code><code class="descname">LabeledDataStorage</code><span class="sig-paren">(</span><em>data</em>, <em>target=None</em>, <em>sample_weight=None</em>, <em>random_state=None</em>, <em>shuffle=False</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.data.storage.LabeledDataStorage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>This class implements interface of data for estimators training. It contains data, labels and weights -
+all information to train model.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>ds</strong> (<em>pandas.DataFrame</em>) &#8211; data</li>
+<li><strong>target</strong> (<em>None or numbers.Number or array-like</em>) &#8211; labels for classification and values for regression (set None for predict methods)</li>
+<li><strong>sample_weight</strong> (<em>None or numbers.Number or array-like</em>) &#8211; weight (set None for predict methods)</li>
+<li><strong>random_state</strong> (<em>None or int or RandomState</em>) &#8211; for pseudo random generator</li>
+<li><strong>shuffle</strong> (<em>bool</em>) &#8211; shuffle or not data</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="rep.data.storage.LabeledDataStorage.col">
+<code class="descname">col</code><span class="sig-paren">(</span><em>index</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.data.storage.LabeledDataStorage.col" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get necessary columns</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>index</strong> (<em>None or str or list(str)</em>) &#8211; names</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">pandas.Series or pandas.DataFrame</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rep.data.storage.LabeledDataStorage.eval_column">
+<code class="descname">eval_column</code><span class="sig-paren">(</span><em>expression</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.data.storage.LabeledDataStorage.eval_column" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluate some expression to get necessary data</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">numpy.array</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rep.data.storage.LabeledDataStorage.get_data">
+<code class="descname">get_data</code><span class="sig-paren">(</span><em>features=None</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.data.storage.LabeledDataStorage.get_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get data for estimator</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>features</strong> (<em>None or list[str]</em>) &#8211; set of feature names (if None then use all features in data storage)</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">pandas.DataFrame</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rep.data.storage.LabeledDataStorage.get_indices">
+<code class="descname">get_indices</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#rep.data.storage.LabeledDataStorage.get_indices" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get data indices</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">numpy.array</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rep.data.storage.LabeledDataStorage.get_targets">
+<code class="descname">get_targets</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#rep.data.storage.LabeledDataStorage.get_targets" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get sample targets for estimator</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">numpy.array</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rep.data.storage.LabeledDataStorage.get_weights">
+<code class="descname">get_weights</code><span class="sig-paren">(</span><em>allow_nones=False</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.data.storage.LabeledDataStorage.get_weights" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get sample weights for estimator</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">numpy.array</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Data</a><ul>
+<li><a class="reference internal" href="#storage">Storage</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="index.html"
+                        title="previous chapter">Welcome to REP&#8217;s documentation!</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="estimators.html"
+                        title="next chapter">Estimators (classification and regression)</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/data.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="estimators.html" title="Estimators (classification and regression)"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Welcome to REP’s documentation!"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">REP (Reproducible Experiment Platform) 0.6.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2014, Yandex.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
+  </body>
+</html>

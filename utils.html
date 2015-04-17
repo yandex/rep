@@ -1,0 +1,339 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Utilities &mdash; REP (Reproducible Experiment Platform) 0.6.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.6.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="REP (Reproducible Experiment Platform) 0.6.0 documentation" href="index.html" />
+    <link rel="prev" title="Plotting" href="plotting.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="plotting.html" title="Plotting"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">REP (Reproducible Experiment Platform) 0.6.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-rep.utils">
+<span id="utilities"></span><span id="utils"></span><h1>Utilities<a class="headerlink" href="#module-rep.utils" title="Permalink to this headline">¶</a></h1>
+<p>Different helpful functions, objects, methods are collected here.</p>
+<dl class="class">
+<dt id="rep.utils.Binner">
+<em class="property">class </em><code class="descclassname">rep.utils.</code><code class="descname">Binner</code><span class="sig-paren">(</span><em>values</em>, <em>bins_number</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.utils.Binner" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="rep.utils.Binner.bins_number">
+<code class="descname">bins_number</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#rep.utils.Binner.bins_number" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="rep.utils.Binner.get_bins">
+<code class="descname">get_bins</code><span class="sig-paren">(</span><em>values</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.utils.Binner.get_bins" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="rep.utils.Binner.get_bins_dumb">
+<code class="descname">get_bins_dumb</code><span class="sig-paren">(</span><em>values</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.utils.Binner.get_bins_dumb" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is the sane as previous function, but a bit slower and naive</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="rep.utils.Binner.set_limits">
+<code class="descname">set_limits</code><span class="sig-paren">(</span><em>limits</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.utils.Binner.set_limits" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="rep.utils.Binner.split_into_bins">
+<code class="descname">split_into_bins</code><span class="sig-paren">(</span><em>*arrays</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.utils.Binner.split_into_bins" title="Permalink to this definition">¶</a></dt>
+<dd><p>Splits the data of parallel arrays into bins, the first array is binning variable</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="rep.utils.Flattener">
+<em class="property">class </em><code class="descclassname">rep.utils.</code><code class="descname">Flattener</code><span class="sig-paren">(</span><em>data</em>, <em>sample_weight=None</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.utils.Flattener" title="Permalink to this definition">¶</a></dt>
+<dd><p>Prepares normalization function for some set of values
+transforms it to uniform distribution from [0, 1]. Example of usage:</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>data</strong> (<em>list or numpy.array</em>) &#8211; predictions</li>
+<li><strong>sample_weight</strong> (<em>None or list or numpy.array</em>) &#8211; weights</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">normalizer</span> <span class="o">=</span> <span class="n">Flattener</span><span class="p">(</span><span class="n">signal</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">hist</span><span class="p">(</span><span class="n">normalizer</span><span class="p">(</span><span class="n">background</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">hist</span><span class="p">(</span><span class="n">normalizer</span><span class="p">(</span><span class="n">signal</span><span class="p">))</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return func:</th><td class="field-body">normalization function</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="rep.utils.calc_ROC">
+<code class="descclassname">rep.utils.</code><code class="descname">calc_ROC</code><span class="sig-paren">(</span><em>prediction</em>, <em>signal</em>, <em>sample_weight=None</em>, <em>max_points=10000</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.utils.calc_ROC" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate roc curve</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>prediction</strong> (<em>array or list</em>) &#8211; predictions</li>
+<li><strong>signal</strong> (<em>array or list</em>) &#8211; true labels</li>
+<li><strong>sample_weight</strong> (<em>None or array or list</em>) &#8211; weights</li>
+<li><strong>max_points</strong> (<em>int</em>) &#8211; maximum of used points on roc curve</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">(tpr, tnr), (err_tnr, err_tpr), thresholds</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="rep.utils.calc_feature_correlation_matrix">
+<code class="descclassname">rep.utils.</code><code class="descname">calc_feature_correlation_matrix</code><span class="sig-paren">(</span><em>df</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.utils.calc_feature_correlation_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate correlation matrix</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>df</strong> (<em>pandas.DataFrame</em>) &#8211; data</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">correlation matrix for dataFrame</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">numpy.ndarray</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="rep.utils.calc_hist_with_errors">
+<code class="descclassname">rep.utils.</code><code class="descname">calc_hist_with_errors</code><span class="sig-paren">(</span><em>x</em>, <em>weight=None</em>, <em>bins=60</em>, <em>normed=True</em>, <em>x_range=None</em>, <em>ignored_sideband=0.0</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.utils.calc_hist_with_errors" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate data for error bar (for plot pdf with errors)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>x</strong> (<em>list or numpy.array</em>) &#8211; data</li>
+<li><strong>weight</strong> (<em>None or list or numpy.array</em>) &#8211; weights</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">tuple (x-points (list), y-points (list), y points errors (list), x points errors (list))</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="rep.utils.check_sample_weight">
+<code class="descclassname">rep.utils.</code><code class="descname">check_sample_weight</code><span class="sig-paren">(</span><em>y_true</em>, <em>sample_weight</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.utils.check_sample_weight" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks the weights, returns normalized version</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="rep.utils.get_columns_dict">
+<code class="descclassname">rep.utils.</code><code class="descname">get_columns_dict</code><span class="sig-paren">(</span><em>columns</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.utils.get_columns_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get (new column: old column) dict expressions</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>columns</strong> (<em>list[str]</em>) &#8211; columns names</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">dict</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="rep.utils.get_columns_in_df">
+<code class="descclassname">rep.utils.</code><code class="descname">get_columns_in_df</code><span class="sig-paren">(</span><em>df</em>, <em>columns</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.utils.get_columns_in_df" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get columns in data frame using <em>numexpr</em> evaluation</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>df</strong> (<em>pandas.DataFrame</em>) &#8211; data</li>
+<li><strong>columns</strong> &#8211; necessary columns</li>
+<li><strong>columns</strong> &#8211; None or list[str]</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">data frame with pointed columns</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="rep.utils.get_efficiencies">
+<code class="descclassname">rep.utils.</code><code class="descname">get_efficiencies</code><span class="sig-paren">(</span><em>prediction</em>, <em>spectator</em>, <em>sample_weight=None</em>, <em>bins_number=20</em>, <em>thresholds=None</em>, <em>errors=False</em>, <em>ignored_sideband=0.0</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.utils.get_efficiencies" title="Permalink to this definition">¶</a></dt>
+<dd><p>Construct efficiency function dependent on spectator for each threshold</p>
+<p>Different score functions available: Efficiency, Precision, Recall, F1Score,
+and other things from sklearn.metrics</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>prediction</strong> &#8211; list of probabilities</li>
+<li><strong>spectator</strong> &#8211; list of spectator&#8217;s values</li>
+<li><strong>bins_number</strong> &#8211; int, count of bins for plot</li>
+<li><strong>thresholds</strong> &#8211; <p>list of prediction&#8217;s threshold</p>
+<p>(default=prediction&#8217;s cuts for which efficiency will be [0.2, 0.4, 0.5, 0.6, 0.8])</p>
+</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><p>if errors=False
+OrderedDict threshold -&gt; (x_values, y_values)</p>
+<p>if errors=True
+OrderedDict threshold -&gt; (x_values, y_values, y_err, x_err)</p>
+<p>All the parts: x_values, y_values, y_err, x_err are numpy.arrays of the same length.</p>
+</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="rep.utils.reorder_by_first">
+<code class="descclassname">rep.utils.</code><code class="descname">reorder_by_first</code><span class="sig-paren">(</span><em>*arrays</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.utils.reorder_by_first" title="Permalink to this definition">¶</a></dt>
+<dd><p>Applies the same permutation to all passed arrays,
+permutation sorts the first passed array</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="rep.utils.train_test_split">
+<code class="descclassname">rep.utils.</code><code class="descname">train_test_split</code><span class="sig-paren">(</span><em>*arrays</em>, <em>**kw_args</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.utils.train_test_split" title="Permalink to this definition">¶</a></dt>
+<dd><p>Does the same thing as train_test_split, but preserves columns in DataFrames.
+Uses the same parameters: test_size, train_size, random_state, and has the same interface</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>arrays</strong> (<em>list[numpy.array] or list[pandas.DataFrame]</em>) &#8211; arrays to split</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="rep.utils.weighted_percentile">
+<code class="descclassname">rep.utils.</code><code class="descname">weighted_percentile</code><span class="sig-paren">(</span><em>array</em>, <em>percentiles</em>, <em>sample_weight=None</em>, <em>array_sorted=False</em>, <em>old_style=False</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.utils.weighted_percentile" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="plotting.html"
+                        title="previous chapter">Plotting</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/utils.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="plotting.html" title="Plotting"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">REP (Reproducible Experiment Platform) 0.6.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2014, Yandex.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
+  </body>
+</html>

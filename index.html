@@ -1,0 +1,170 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Welcome to REP’s documentation! &mdash; REP (Reproducible Experiment Platform) 0.6.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.6.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="REP (Reproducible Experiment Platform) 0.6.0 documentation" href="#" />
+    <link rel="next" title="Data" href="data.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="data.html" title="Data"
+             accesskey="N">next</a> |</li>
+        <li class="nav-item nav-item-0"><a href="#">REP (Reproducible Experiment Platform) 0.6.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="welcome-to-rep-s-documentation">
+<h1>Welcome to REP&#8217;s documentation!<a class="headerlink" href="#welcome-to-rep-s-documentation" title="Permalink to this headline">¶</a></h1>
+<p>REP (Reproducible Experiment Platform) library provides functionality for all your basic needs to deal with machine learning.</p>
+<p>It includes:</p>
+<blockquote>
+<div><ul class="simple">
+<li><a class="reference internal" href="data.html"><em>Data</em></a> support different data transformations, including operations in memory and on the disk</li>
+<li><a class="reference internal" href="estimators.html"><em>Estimators (classification and regression)</em></a> is sklearn-like wrappers for variety of machine learning libraries implementations (<strong>Sklearn, Uboost, XGBoost, TMVA</strong>). You can use them as base estimators in sklearn</li>
+<li><a class="reference internal" href="metaml.html"><em>Meta Machine Learning</em></a> contains factory (the set of estimators), grid search, folding algorithm. Also parallel execution on a cluster is supported</li>
+<li><a class="reference internal" href="report.html"><em>Report for models</em></a> contains helpful classes to get model result information on any dataset</li>
+<li><a class="reference internal" href="plotting.html"><em>Plotting</em></a> is  wrapper for different plotting libraries including interactive plots (<strong>matplotlib, bokeh, tmva, plotly</strong>)</li>
+<li><a class="reference internal" href="utils.html"><em>Utilities</em></a>  contains additional functions</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="contents">
+<h1>Contents:<a class="headerlink" href="#contents" title="Permalink to this headline">¶</a></h1>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="data.html">Data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="data.html#storage">Storage</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="estimators.html">Estimators (classification and regression)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="estimators.html#estimators-interfaces-for-classification-and-regression">Estimators interfaces (for classification and regression)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="estimators.html#sklearn-classifier-and-regressor">Sklearn classifier and regressor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="estimators.html#tmva-classifier-and-regressor">TMVA classifier and regressor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="estimators.html#module-rep.estimators.xgboost">XGBoost classifier and regressor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="estimators.html#examples">Examples</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="metaml.html">Meta Machine Learning</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="metaml.html#factory">Factory</a></li>
+<li class="toctree-l2"><a class="reference internal" href="metaml.html#factory-examples">Factory Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="metaml.html#grid-search">Grid Search</a></li>
+<li class="toctree-l2"><a class="reference internal" href="metaml.html#folding">Folding</a></li>
+<li class="toctree-l2"><a class="reference internal" href="metaml.html#stacking">Stacking</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="report.html">Report for models</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="report.html#classification-report">Classification Report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="report.html#regression-report">Regression Report</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="plotting.html">Plotting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utils.html">Utilities</a></li>
+</ul>
+</div>
+</div>
+<div class="section" id="indices-and-tables">
+<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
+<ul class="simple">
+<li><a class="reference internal" href="genindex.html"><span>Index</span></a></li>
+<li><a class="reference internal" href="py-modindex.html"><span>Module Index</span></a></li>
+<li><a class="reference internal" href="search.html"><span>Search Page</span></a></li>
+</ul>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="#">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Welcome to REP&#8217;s documentation!</a></li>
+<li><a class="reference internal" href="#contents">Contents:</a></li>
+<li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
+</ul>
+
+  <h4>Next topic</h4>
+  <p class="topless"><a href="data.html"
+                        title="next chapter">Data</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/index.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="data.html" title="Data"
+             >next</a> |</li>
+        <li class="nav-item nav-item-0"><a href="#">REP (Reproducible Experiment Platform) 0.6.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2014, Yandex.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
+  </body>
+</html>

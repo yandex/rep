@@ -1,0 +1,1161 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Estimators (classification and regression) &mdash; REP (Reproducible Experiment Platform) 0.6.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.6.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="REP (Reproducible Experiment Platform) 0.6.0 documentation" href="index.html" />
+    <link rel="next" title="Meta Machine Learning" href="metaml.html" />
+    <link rel="prev" title="Data" href="data.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="metaml.html" title="Meta Machine Learning"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="data.html" title="Data"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">REP (Reproducible Experiment Platform) 0.6.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="estimators-classification-and-regression">
+<span id="estimators"></span><h1>Estimators (classification and regression)<a class="headerlink" href="#estimators-classification-and-regression" title="Permalink to this headline">¶</a></h1>
+<p>This module contains wrappers with <code class="xref py py-class docutils literal"><span class="pre">sklearn</span></code> interface for different machine learning libraries (<strong>TMVA, sklearn, XGBoost</strong>).</p>
+<p>At first we defined some interface for classification and regressors wrappers, so you can add your own wrappers for another libraries following this interface.</p>
+<p>Sklearn wrapper is the same sklearn model, but it operates with <code class="xref py py-class docutils literal"><span class="pre">pandas.DataFrame</span></code> data (also supports <code class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></code>) and can choose just those features, that user pointed in the constructor.</p>
+<div class="section" id="estimators-interfaces-for-classification-and-regression">
+<h2>Estimators interfaces (for classification and regression)<a class="headerlink" href="#estimators-interfaces-for-classification-and-regression" title="Permalink to this headline">¶</a></h2>
+<p>There are interfaces for <strong>classification</strong> and <strong>regression</strong> wrappers.</p>
+<span class="target" id="module-rep.estimators.interface"></span><dl class="class">
+<dt id="rep.estimators.interface.Classifier">
+<em class="property">class </em><code class="descclassname">rep.estimators.interface.</code><code class="descname">Classifier</code><span class="sig-paren">(</span><em>features=None</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.estimators.interface.Classifier" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">sklearn.base.BaseEstimator</span></code>, <code class="xref py py-class docutils literal"><span class="pre">sklearn.base.ClassifierMixin</span></code></p>
+<p>Interface to train different <strong>classification</strong> model from different
+machine learning libraries, like <strong>Sklearn, TMVA, XGBoost</strong>...</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>features</strong> (<em>list[str] or None</em>) &#8211; features used to train model</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<ul class="last simple">
+<li>Classes must be from 0 to n_classes-1!!!</li>
+<li>if <cite>features</cite> aren&#8217;t set (<strong>None</strong>), then all features in training dataset will be used</li>
+<li>Datasets should be <cite>pandas.DataFrame</cite>, <cite>not numpy.array</cite>.
+Provided this, you&#8217;ll be able to choose features used in training by setting e.g.
+<cite>features=[&#8216;FlightTime&#8217;, &#8216;p&#8217;]</cite> in constructor.</li>
+<li>It works fine with <cite>numpy.array</cite> as well, but in this case all the features will be used.</li>
+</ul>
+</div>
+<dl class="method">
+<dt id="rep.estimators.interface.Classifier.fit">
+<code class="descname">fit</code><span class="sig-paren">(</span><em>X</em>, <em>y</em>, <em>sample_weight=None</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.estimators.interface.Classifier.fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Train the classifier model on dataset</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>X</strong> &#8211; pandas.DataFrame of shape [n_samples, n_features]</li>
+<li><strong>y</strong> &#8211; labels of events - array-like of shape [n_samples]</li>
+<li><strong>sample_weight</strong> &#8211; weight of events,
+array-like of shape [n_samples] or None if all weights are equal</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">self</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rep.estimators.interface.Classifier.fit_lds">
+<code class="descname">fit_lds</code><span class="sig-paren">(</span><em>lds</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.estimators.interface.Classifier.fit_lds" title="Permalink to this definition">¶</a></dt>
+<dd><p>Train the classifier on specific type dataset</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>lds</strong> (<a class="reference internal" href="data.html#rep.data.storage.LabeledDataStorage" title="rep.data.storage.LabeledDataStorage"><em>LabeledDataStorage</em></a>) &#8211; data</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">self</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rep.estimators.interface.Classifier.get_feature_importances">
+<code class="descname">get_feature_importances</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#rep.estimators.interface.Classifier.get_feature_importances" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get features importance</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">pandas.DataFrame with <cite>index=self.features</cite></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rep.estimators.interface.Classifier.get_params">
+<code class="descname">get_params</code><span class="sig-paren">(</span><em>deep=True</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.estimators.interface.Classifier.get_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get parameters for this estimator.</p>
+<dl class="docutils">
+<dt>deep: boolean, optional</dt>
+<dd>If True, will return the parameters for this estimator and
+contained subobjects that are estimators.</dd>
+</dl>
+<dl class="docutils">
+<dt>params <span class="classifier-delimiter">:</span> <span class="classifier">mapping of string to any</span></dt>
+<dd>Parameter names mapped to their values.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="rep.estimators.interface.Classifier.predict">
+<code class="descname">predict</code><span class="sig-paren">(</span><em>X</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.estimators.interface.Classifier.predict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Predict labels for all events in dataset</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>X</strong> &#8211; pandas.DataFrame of shape [n_samples, n_features]</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">numpy.array of shape [n_samples] with integer labels</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rep.estimators.interface.Classifier.predict_proba">
+<code class="descname">predict_proba</code><span class="sig-paren">(</span><em>X</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.estimators.interface.Classifier.predict_proba" title="Permalink to this definition">¶</a></dt>
+<dd><p>Predict probabilities for each class label on dataset</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>X</strong> &#8211; pandas.DataFrame of shape [n_samples, n_features]</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">numpy.array of shape [n_samples, n_classes] with probabilities</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rep.estimators.interface.Classifier.score">
+<code class="descname">score</code><span class="sig-paren">(</span><em>X</em>, <em>y</em>, <em>sample_weight=None</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.estimators.interface.Classifier.score" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the mean accuracy on the given test data and labels.</p>
+<dl class="docutils">
+<dt>X <span class="classifier-delimiter">:</span> <span class="classifier">array-like, shape = (n_samples, n_features)</span></dt>
+<dd>Test samples.</dd>
+<dt>y <span class="classifier-delimiter">:</span> <span class="classifier">array-like, shape = (n_samples,)</span></dt>
+<dd>True labels for X.</dd>
+<dt>sample_weight <span class="classifier-delimiter">:</span> <span class="classifier">array-like, shape = [n_samples], optional</span></dt>
+<dd>Sample weights.</dd>
+</dl>
+<dl class="docutils">
+<dt>score <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd>Mean accuracy of self.predict(X) wrt. y.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="rep.estimators.interface.Classifier.set_params">
+<code class="descname">set_params</code><span class="sig-paren">(</span><em>**params</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.estimators.interface.Classifier.set_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the parameters of this estimator.</p>
+<p>The method works on simple estimators as well as on nested objects
+(such as pipelines). The former have parameters of the form
+<code class="docutils literal"><span class="pre">&lt;component&gt;__&lt;parameter&gt;</span></code> so that it&#8217;s possible to update each
+component of a nested object.</p>
+<p>self</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="rep.estimators.interface.Classifier.staged_predict_proba">
+<code class="descname">staged_predict_proba</code><span class="sig-paren">(</span><em>X</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.estimators.interface.Classifier.staged_predict_proba" title="Permalink to this definition">¶</a></dt>
+<dd><p>Predicts probabilities on each stage</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>X</strong> &#8211; pandas.DataFrame of shape [n_samples, n_features]</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">iterator</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="rep.estimators.interface.Regressor">
+<em class="property">class </em><code class="descclassname">rep.estimators.interface.</code><code class="descname">Regressor</code><span class="sig-paren">(</span><em>features=None</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.estimators.interface.Regressor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">sklearn.base.BaseEstimator</span></code>, <code class="xref py py-class docutils literal"><span class="pre">sklearn.base.RegressorMixin</span></code></p>
+<dl class="docutils">
+<dt>Interface to train different <strong>regression</strong> model from different</dt>
+<dd>machine learning libraries, like <strong>TMVA, Sklearn, XGBoost</strong>...</dd>
+</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>features</strong> (<em>list[str] or None</em>) &#8211; features used to train model</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<ul class="last simple">
+<li>if <cite>features</cite> aren&#8217;t set (<strong>None</strong>), then all features in training dataset will be used</li>
+<li>Datasets should be <cite>pandas.DataFrame</cite>, <cite>not numpy.array</cite>.
+Provided this, you&#8217;ll be able to choose features used in training by setting e.g.
+<cite>features=[&#8216;FlightTime&#8217;, &#8216;p&#8217;]</cite> in constructor.</li>
+<li>It works fine with <cite>numpy.array</cite> as well, but in this case all the features will be used.</li>
+</ul>
+</div>
+<dl class="method">
+<dt id="rep.estimators.interface.Regressor.fit">
+<code class="descname">fit</code><span class="sig-paren">(</span><em>X</em>, <em>y</em>, <em>sample_weight=None</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.estimators.interface.Regressor.fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Train the regressor model</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>X</strong> &#8211; pandas.DataFrame of shape [n_samples, n_features]</li>
+<li><strong>y</strong> &#8211; values - array-like of shape [n_samples]</li>
+<li><strong>sample_weight</strong> &#8211; weight of events,
+array-like of shape [n_samples] or None if all weights are equal</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">self</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rep.estimators.interface.Regressor.fit_lds">
+<code class="descname">fit_lds</code><span class="sig-paren">(</span><em>lds</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.estimators.interface.Regressor.fit_lds" title="Permalink to this definition">¶</a></dt>
+<dd><p>Train the regressor model on specific dataset</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>lds</strong> (<a class="reference internal" href="data.html#rep.data.storage.LabeledDataStorage" title="rep.data.storage.LabeledDataStorage"><em>LabeledDataStorage</em></a>) &#8211; data</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">self</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rep.estimators.interface.Regressor.get_feature_importances">
+<code class="descname">get_feature_importances</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#rep.estimators.interface.Regressor.get_feature_importances" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get features importances</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">pandas.DataFrame with <cite>index=self.features</cite></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rep.estimators.interface.Regressor.get_params">
+<code class="descname">get_params</code><span class="sig-paren">(</span><em>deep=True</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.estimators.interface.Regressor.get_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get parameters for this estimator.</p>
+<dl class="docutils">
+<dt>deep: boolean, optional</dt>
+<dd>If True, will return the parameters for this estimator and
+contained subobjects that are estimators.</dd>
+</dl>
+<dl class="docutils">
+<dt>params <span class="classifier-delimiter">:</span> <span class="classifier">mapping of string to any</span></dt>
+<dd>Parameter names mapped to their values.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="rep.estimators.interface.Regressor.predict">
+<code class="descname">predict</code><span class="sig-paren">(</span><em>X</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.estimators.interface.Regressor.predict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Predict values for all events in dataset.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>X</strong> &#8211; pandas.DataFrame of shape [n_samples, n_features]</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">numpy.array of shape [n_samples] with predicted values</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rep.estimators.interface.Regressor.score">
+<code class="descname">score</code><span class="sig-paren">(</span><em>X</em>, <em>y</em>, <em>sample_weight=None</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.estimators.interface.Regressor.score" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the coefficient of determination R^2 of the prediction.</p>
+<p>The coefficient R^2 is defined as (1 - u/v), where u is the regression
+sum of squares ((y_true - y_pred) ** 2).sum() and v is the residual
+sum of squares ((y_true - y_true.mean()) ** 2).sum().
+Best possible score is 1.0, lower values are worse.</p>
+<dl class="docutils">
+<dt>X <span class="classifier-delimiter">:</span> <span class="classifier">array-like, shape = (n_samples, n_features)</span></dt>
+<dd>Test samples.</dd>
+<dt>y <span class="classifier-delimiter">:</span> <span class="classifier">array-like, shape = (n_samples,)</span></dt>
+<dd>True values for X.</dd>
+<dt>sample_weight <span class="classifier-delimiter">:</span> <span class="classifier">array-like, shape = [n_samples], optional</span></dt>
+<dd>Sample weights.</dd>
+</dl>
+<dl class="docutils">
+<dt>score <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd>R^2 of self.predict(X) wrt. y.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="rep.estimators.interface.Regressor.set_params">
+<code class="descname">set_params</code><span class="sig-paren">(</span><em>**params</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.estimators.interface.Regressor.set_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the parameters of this estimator.</p>
+<p>The method works on simple estimators as well as on nested objects
+(such as pipelines). The former have parameters of the form
+<code class="docutils literal"><span class="pre">&lt;component&gt;__&lt;parameter&gt;</span></code> so that it&#8217;s possible to update each
+component of a nested object.</p>
+<p>self</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="rep.estimators.interface.Regressor.staged_predict">
+<code class="descname">staged_predict</code><span class="sig-paren">(</span><em>X</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.estimators.interface.Regressor.staged_predict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Predicts values on each stage</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>X</strong> &#8211; pandas.DataFrame of shape [n_samples, n_features]</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">iterator</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="sklearn-classifier-and-regressor">
+<h2>Sklearn classifier and regressor<a class="headerlink" href="#sklearn-classifier-and-regressor" title="Permalink to this headline">¶</a></h2>
+<p>Sklearn wrapper for users is the same as sklearn model, just has one additional parameter <em>features</em> to choose necessary columns for training.
+If data has <code class="xref py py-class docutils literal"><span class="pre">numpy.array</span></code> type then behaviour will be the same as in sklear.</p>
+<span class="target" id="module-rep.estimators.sklearn"></span><dl class="class">
+<dt id="rep.estimators.sklearn.SklearnBase">
+<em class="property">class </em><code class="descclassname">rep.estimators.sklearn.</code><code class="descname">SklearnBase</code><span class="sig-paren">(</span><em>clf</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.estimators.sklearn.SklearnBase" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>SklearnBase is base for sklearn-like models. All attributes will be returned for base estimator</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>clf</strong> (<em>sklearn.BaseEstimator</em>) &#8211; your estimator, which will be used for training</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="rep.estimators.sklearn.SklearnBase.predict">
+<code class="descname">predict</code><span class="sig-paren">(</span><em>X</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.estimators.sklearn.SklearnBase.predict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Predict labels for estimators and values for regressors for all events in dataset</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>X</strong> &#8211; pandas.DataFrame of shape [n_samples, n_features]</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">numpy.array of shape [n_samples] with labels/values</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="rep.estimators.sklearn.SklearnClassifier">
+<em class="property">class </em><code class="descclassname">rep.estimators.sklearn.</code><code class="descname">SklearnClassifier</code><span class="sig-paren">(</span><em>clf</em>, <em>features=None</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.estimators.sklearn.SklearnClassifier" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#rep.estimators.sklearn.SklearnBase" title="rep.estimators.sklearn.SklearnBase"><code class="xref py py-class docutils literal"><span class="pre">rep.estimators.sklearn.SklearnBase</span></code></a>, <a class="reference internal" href="#rep.estimators.interface.Classifier" title="rep.estimators.interface.Classifier"><code class="xref py py-class docutils literal"><span class="pre">rep.estimators.interface.Classifier</span></code></a></p>
+<p>SklearnClassifier is wrapper on sklearn-like <strong>estimators</strong></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>clf</strong> (<em>sklearn.BaseEstimator</em>) &#8211; your classifier, which will be used for training</li>
+<li><strong>features</strong> (<em>list[str] or None</em>) &#8211; features used in training</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="rep.estimators.sklearn.SklearnClassifier.fit">
+<code class="descname">fit</code><span class="sig-paren">(</span><em>X</em>, <em>y</em>, <em>sample_weight=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.estimators.sklearn.SklearnClassifier.fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Train the classifier</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>X</strong> (<em>pandas.DataFrame</em>) &#8211; data shape [n_samples, n_features]</li>
+<li><strong>y</strong> &#8211; labels of events - array-like of shape [n_samples]</li>
+<li><strong>sample_weight</strong> &#8211; weight of events,
+array-like of shape [n_samples] or None if all weights are equal</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">self</p>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">if sklearn classifier doesn&#8217;t support <em>sample_weight</em> then put <em>sample_weight=None</em>,</p>
+</div>
+<p>else exception will be thrown.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="rep.estimators.sklearn.SklearnClassifier.predict_proba">
+<code class="descname">predict_proba</code><span class="sig-paren">(</span><em>X</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.estimators.sklearn.SklearnClassifier.predict_proba" title="Permalink to this definition">¶</a></dt>
+<dd><p>Predict probabilities for each class label on dataset</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>X</strong> &#8211; pandas.DataFrame of shape [n_samples, n_features]</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">numpy.array of shape [n_samples, n_classes] with probabilities</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rep.estimators.sklearn.SklearnClassifier.set_params">
+<code class="descname">set_params</code><span class="sig-paren">(</span><em>**params</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.estimators.sklearn.SklearnClassifier.set_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the parameters of this estimator.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>params</strong> (<em>dict</em>) &#8211; parameters to set in model</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Access to all parameters of base estimator can be done by (for example param <cite>depth</cite>) <em>model.clf__depth</em>.</p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="rep.estimators.sklearn.SklearnClassifier.staged_predict_proba">
+<code class="descname">staged_predict_proba</code><span class="sig-paren">(</span><em>X</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.estimators.sklearn.SklearnClassifier.staged_predict_proba" title="Permalink to this definition">¶</a></dt>
+<dd><p>Predicts probabilities on each stage</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">iterator</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="rep.estimators.sklearn.SklearnRegressor">
+<em class="property">class </em><code class="descclassname">rep.estimators.sklearn.</code><code class="descname">SklearnRegressor</code><span class="sig-paren">(</span><em>clf</em>, <em>features=None</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.estimators.sklearn.SklearnRegressor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#rep.estimators.sklearn.SklearnBase" title="rep.estimators.sklearn.SklearnBase"><code class="xref py py-class docutils literal"><span class="pre">rep.estimators.sklearn.SklearnBase</span></code></a>, <a class="reference internal" href="#rep.estimators.interface.Regressor" title="rep.estimators.interface.Regressor"><code class="xref py py-class docutils literal"><span class="pre">rep.estimators.interface.Regressor</span></code></a></p>
+<p>SklearnClassifier is wrapper on sklearn-like regressors</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>clf</strong> (<em>sklearn.BaseEstimator</em>) &#8211; your classifier, which will be used for training</li>
+<li><strong>features</strong> (<em>list[str] or None</em>) &#8211; features used in training</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="rep.estimators.sklearn.SklearnRegressor.fit">
+<code class="descname">fit</code><span class="sig-paren">(</span><em>X</em>, <em>y</em>, <em>sample_weight=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.estimators.sklearn.SklearnRegressor.fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Train the classifier</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>X</strong> (<em>pandas.DataFrame</em>) &#8211; data shape [n_samples, n_features]</li>
+<li><strong>y</strong> &#8211; labels of events - array-like of shape [n_samples]</li>
+<li><strong>sample_weight</strong> &#8211; weight of events,
+array-like of shape [n_samples] or None if all weights are equal</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">self</p>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">if sklearn classifier doesn&#8217;t support <em>sample_weight</em> then put <em>sample_weight=None</em>,</p>
+</div>
+<p>else exception will be thrown.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="rep.estimators.sklearn.SklearnRegressor.set_params">
+<code class="descname">set_params</code><span class="sig-paren">(</span><em>**params</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.estimators.sklearn.SklearnRegressor.set_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the parameters of this estimator.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>params</strong> (<em>dict</em>) &#8211; parameters to set in model</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Access to all parameters of base estimator can be done by (for example param <cite>depth</cite>) <em>model.clf__depth</em>.</p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="rep.estimators.sklearn.SklearnRegressor.staged_predict">
+<code class="descname">staged_predict</code><span class="sig-paren">(</span><em>X</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.estimators.sklearn.SklearnRegressor.staged_predict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Predicts values on each stage</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">iterator</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="tmva-classifier-and-regressor">
+<h2>TMVA classifier and regressor<a class="headerlink" href="#tmva-classifier-and-regressor" title="Permalink to this headline">¶</a></h2>
+<p>These classes are wrappers for physics machine learning library TMVA used .root format files (c++ library).
+Now you can simply use it in python. TMVA contains classification and regression algorithms, including neural networks.</p>
+<p>TMVA Guide: <a class="reference external" href="http://mirror.yandex.ru/gentoo-distfiles/distfiles/TMVAUsersGuide-v4.03.pdf">http://mirror.yandex.ru/gentoo-distfiles/distfiles/TMVAUsersGuide-v4.03.pdf</a>
+.. automodule:: rep.estimators.tmva</p>
+<blockquote>
+<div><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">members:</th><td class="field-body"></td>
+</tr>
+<tr class="field-even field"><th class="field-name" colspan="2">show-inheritance:</th></tr>
+<tr class="field-even field"><td>&nbsp;</td><td class="field-body"></td>
+</tr>
+<tr class="field-odd field"><th class="field-name">undoc-members:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+</div>
+<div class="section" id="module-rep.estimators.xgboost">
+<span id="xgboost-classifier-and-regressor"></span><h2>XGBoost classifier and regressor<a class="headerlink" href="#module-rep.estimators.xgboost" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="rep.estimators.xgboost.XGBoostBase">
+<em class="property">class </em><code class="descclassname">rep.estimators.xgboost.</code><code class="descname">XGBoostBase</code><span class="sig-paren">(</span><em>n_estimators=100</em>, <em>nthreads=16</em>, <em>num_feature=None</em>, <em>gamma=None</em>, <em>eta=0.3</em>, <em>max_depth=6</em>, <em>scale_pos_weight=1.0</em>, <em>min_child_weight=1.0</em>, <em>subsample=1.0</em>, <em>colsample=1.0</em>, <em>base_score=0.5</em>, <em>verbose=0</em>, <em>missing=-999.0</em>, <em>random_state=0</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.estimators.xgboost.XGBoostBase" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>Base class for XGBoostClassifier and XGBoostRegressor. XGBoost tree booster is used.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>n_estimators</strong> (<em>int</em>) &#8211; the number of round for boosting.</li>
+<li><strong>nthreads</strong> (<em>int</em>) &#8211; number of parallel threads used to run xgboost.</li>
+<li><strong>num_feature</strong> (<em>None or int</em>) &#8211; feature dimension used in boosting, set to maximum dimension of the feature
+(set automatically by xgboost, no need to be set by user).</li>
+<li><strong>gamma</strong> (<em>None or float</em>) &#8211; minimum loss reduction required to make a further partition on a leaf node of the tree.
+The larger, the more conservative the algorithm will be.</li>
+<li><strong>eta</strong> (<em>float</em>) &#8211; step size shrinkage used in update to prevent overfitting.
+After each boosting step, we can directly get the weights of new features
+and eta actually shrinkage the feature weights to make the boosting process more conservative.</li>
+<li><strong>max_depth</strong> (<em>int</em>) &#8211; maximum depth of a tree.</li>
+<li><strong>scale_pos_weight</strong> (<em>float</em>) &#8211; ration of weights of the class 1 to the weights of the class 0.</li>
+<li><strong>min_child_weight</strong> (<em>float</em>) &#8211; <p>minimum sum of instance weight(hessian) needed in a child.
+If the tree partition step results in a leaf node with the sum of instance weight less than min_child_weight,
+then the building process will give up further partitioning.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">weights are normalized so that mean=1 before fitting. Roughly min_child_weight is equal to the number of events.</p>
+</div>
+</li>
+<li><strong>subsample</strong> (<em>float</em>) &#8211; subsample ratio of the training instance.
+Setting it to 0.5 means that XGBoost randomly collected half of the data instances to grow trees
+and this will prevent overfitting.</li>
+<li><strong>colsample</strong> (<em>float</em>) &#8211; subsample ratio of columns when constructing each tree.</li>
+<li><strong>base_score</strong> (<em>float</em>) &#8211; the initial prediction score of all instances, global bias.</li>
+<li><strong>random_state</strong> (<em>int</em>) &#8211; random number seed.</li>
+<li><strong>verbose</strong> (<em>boot</em>) &#8211; if 1, will print messages during training</li>
+<li><strong>missing</strong> (<em>float</em>) &#8211; the number considered by xgboost as missing value.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="class">
+<dt id="rep.estimators.xgboost.XGBoostClassifier">
+<em class="property">class </em><code class="descclassname">rep.estimators.xgboost.</code><code class="descname">XGBoostClassifier</code><span class="sig-paren">(</span><em>features=None</em>, <em>n_estimators=100</em>, <em>nthreads=16</em>, <em>num_feature=None</em>, <em>gamma=None</em>, <em>eta=0.3</em>, <em>max_depth=6</em>, <em>scale_pos_weight=1.0</em>, <em>min_child_weight=1.0</em>, <em>subsample=1.0</em>, <em>colsample=1.0</em>, <em>base_score=0.5</em>, <em>verbose=0</em>, <em>missing=-999.0</em>, <em>random_state=0</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.estimators.xgboost.XGBoostClassifier" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#rep.estimators.xgboost.XGBoostBase" title="rep.estimators.xgboost.XGBoostBase"><code class="xref py py-class docutils literal"><span class="pre">rep.estimators.xgboost.XGBoostBase</span></code></a>, <a class="reference internal" href="#rep.estimators.interface.Classifier" title="rep.estimators.interface.Classifier"><code class="xref py py-class docutils literal"><span class="pre">rep.estimators.interface.Classifier</span></code></a></p>
+<p>Implements classification (multiclassification) from XGBoost library.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>features</strong> (<em>None or list(str)</em>) &#8211; list of features to train model</li>
+<li><strong>n_estimators</strong> (<em>int</em>) &#8211; the number of round for boosting.</li>
+<li><strong>nthreads</strong> (<em>int</em>) &#8211; number of parallel threads used to run xgboost.</li>
+<li><strong>num_feature</strong> (<em>None or int</em>) &#8211; feature dimension used in boosting, set to maximum dimension of the feature
+(set automatically by xgboost, no need to be set by user).</li>
+<li><strong>gamma</strong> (<em>None or float</em>) &#8211; minimum loss reduction required to make a further partition on a leaf node of the tree.
+The larger, the more conservative the algorithm will be.</li>
+<li><strong>eta</strong> (<em>float</em>) &#8211; step size shrinkage used in update to prevent overfitting.
+After each boosting step, we can directly get the weights of new features
+and eta actually shrinkage the feature weights to make the boosting process more conservative.</li>
+<li><strong>max_depth</strong> (<em>int</em>) &#8211; maximum depth of a tree.</li>
+<li><strong>scale_pos_weight</strong> (<em>float</em>) &#8211; ration of weights of the class 1 to the weights of the class 0.</li>
+<li><strong>min_child_weight</strong> (<em>float</em>) &#8211; <p>minimum sum of instance weight(hessian) needed in a child.
+If the tree partition step results in a leaf node with the sum of instance weight less than min_child_weight,
+then the building process will give up further partitioning.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">weights are normalized so that mean=1 before fitting. Roughly min_child_weight is equal to the number of events.</p>
+</div>
+</li>
+<li><strong>subsample</strong> (<em>float</em>) &#8211; subsample ratio of the training instance.
+Setting it to 0.5 means that XGBoost randomly collected half of the data instances to grow trees
+and this will prevent overfitting.</li>
+<li><strong>colsample</strong> (<em>float</em>) &#8211; subsample ratio of columns when constructing each tree.</li>
+<li><strong>base_score</strong> (<em>float</em>) &#8211; the initial prediction score of all instances, global bias.</li>
+<li><strong>random_state</strong> (<em>int</em>) &#8211; random number seed.</li>
+<li><strong>verbose</strong> (<em>boot</em>) &#8211; if 1, will print messages during training</li>
+<li><strong>missing</strong> (<em>float</em>) &#8211; the number considered by xgboost as missing value.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="attribute">
+<dt id="rep.estimators.xgboost.XGBoostClassifier.feature_importances_">
+<code class="descname">feature_importances_</code><a class="headerlink" href="#rep.estimators.xgboost.XGBoostClassifier.feature_importances_" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sklearn-way of returning feature importance.
+This returned as numpy.array, assuming that initially passed train_features=None</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="rep.estimators.xgboost.XGBoostClassifier.fit">
+<code class="descname">fit</code><span class="sig-paren">(</span><em>X</em>, <em>y</em>, <em>sample_weight=None</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.estimators.xgboost.XGBoostClassifier.fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Train the classifier</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>X</strong> (<em>pandas.DataFrame</em>) &#8211; data shape [n_samples, n_features]</li>
+<li><strong>y</strong> &#8211; labels of events - array-like of shape [n_samples]</li>
+<li><strong>sample_weight</strong> &#8211; weight of events,
+array-like of shape [n_samples] or None if all weights are equal</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">self</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rep.estimators.xgboost.XGBoostClassifier.get_feature_importances">
+<code class="descname">get_feature_importances</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#rep.estimators.xgboost.XGBoostClassifier.get_feature_importances" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get features importance</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">pandas.DataFrame with column effect and <cite>index=features</cite></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rep.estimators.xgboost.XGBoostClassifier.predict_proba">
+<code class="descname">predict_proba</code><span class="sig-paren">(</span><em>X</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.estimators.xgboost.XGBoostClassifier.predict_proba" title="Permalink to this definition">¶</a></dt>
+<dd><p>Predict data</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>X</strong> (<em>pandas.DataFrame</em>) &#8211; data shape [n_samples, n_features]</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">numpy.array of shape [n_samples, n_classes] with probabilities</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rep.estimators.xgboost.XGBoostClassifier.staged_predict_proba">
+<code class="descname">staged_predict_proba</code><span class="sig-paren">(</span><em>X</em>, <em>step=10</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.estimators.xgboost.XGBoostClassifier.staged_predict_proba" title="Permalink to this definition">¶</a></dt>
+<dd><p>Predicts probabilities on each stage</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>X</strong> (<em>pandas.DataFrame</em>) &#8211; data shape [n_samples, n_features]</li>
+<li><strong>step</strong> (<em>int</em>) &#8211; step for returned iterations</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">iterator</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="rep.estimators.xgboost.XGBoostRegressor">
+<em class="property">class </em><code class="descclassname">rep.estimators.xgboost.</code><code class="descname">XGBoostRegressor</code><span class="sig-paren">(</span><em>features=None</em>, <em>n_estimators=100</em>, <em>nthreads=16</em>, <em>num_feature=None</em>, <em>gamma=None</em>, <em>eta=0.3</em>, <em>max_depth=6</em>, <em>min_child_weight=1.0</em>, <em>subsample=1.0</em>, <em>colsample=1.0</em>, <em>objective_type='linear'</em>, <em>base_score=0.5</em>, <em>verbose=0</em>, <em>missing=-999.0</em>, <em>random_state=0</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.estimators.xgboost.XGBoostRegressor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#rep.estimators.xgboost.XGBoostBase" title="rep.estimators.xgboost.XGBoostBase"><code class="xref py py-class docutils literal"><span class="pre">rep.estimators.xgboost.XGBoostBase</span></code></a>, <a class="reference internal" href="#rep.estimators.interface.Regressor" title="rep.estimators.interface.Regressor"><code class="xref py py-class docutils literal"><span class="pre">rep.estimators.interface.Regressor</span></code></a></p>
+<p>Implements regression from XGBoost library.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>features</strong> (<em>None or list(str)</em>) &#8211; list of features to train model</li>
+<li><strong>n_estimators</strong> (<em>int</em>) &#8211; the number of round for boosting.</li>
+<li><strong>nthreads</strong> (<em>int</em>) &#8211; number of parallel threads used to run xgboost.</li>
+<li><strong>num_feature</strong> (<em>None or int</em>) &#8211; feature dimension used in boosting, set to maximum dimension of the feature
+(set automatically by xgboost, no need to be set by user).</li>
+<li><strong>gamma</strong> (<em>None or float</em>) &#8211; minimum loss reduction required to make a further partition on a leaf node of the tree.
+The larger, the more conservative the algorithm will be.</li>
+<li><strong>eta</strong> (<em>float</em>) &#8211; step size shrinkage used in update to prevent overfitting.
+After each boosting step, we can directly get the weights of new features
+and eta actually shrinkage the feature weights to make the boosting process more conservative.</li>
+<li><strong>max_depth</strong> (<em>int</em>) &#8211; maximum depth of a tree.</li>
+<li><strong>min_child_weight</strong> (<em>float</em>) &#8211; <p>minimum sum of instance weight(hessian) needed in a child.
+If the tree partition step results in a leaf node with the sum of instance weight less than min_child_weight,
+then the building process will give up further partitioning.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">weights are normalized so that mean=1 before fitting. Roughly min_child_weight is equal to the number of events.</p>
+</div>
+</li>
+<li><strong>subsample</strong> (<em>float</em>) &#8211; subsample ratio of the training instance.
+Setting it to 0.5 means that XGBoost randomly collected half of the data instances to grow trees
+and this will prevent overfitting.</li>
+<li><strong>colsample</strong> (<em>float</em>) &#8211; subsample ratio of columns when constructing each tree.</li>
+<li><strong>objective_type</strong> (<em>str</em>) &#8211; <p>specify the learning task and the corresponding learning objective, and the options are below:</p>
+<ul>
+<li>&#8220;linear&#8221; &#8211; linear regression</li>
+<li>&#8220;logistic&#8221; &#8211; logistic regression</li>
+</ul>
+</li>
+<li><strong>base_score</strong> (<em>float</em>) &#8211; the initial prediction score of all instances, global bias.</li>
+<li><strong>random_state</strong> (<em>int</em>) &#8211; random number seed.</li>
+<li><strong>verbose</strong> (<em>boot</em>) &#8211; if 1, will print messages during training</li>
+<li><strong>missing</strong> (<em>float</em>) &#8211; the number considered by xgboost as missing value.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="attribute">
+<dt id="rep.estimators.xgboost.XGBoostRegressor.feature_importances_">
+<code class="descname">feature_importances_</code><a class="headerlink" href="#rep.estimators.xgboost.XGBoostRegressor.feature_importances_" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sklearn-way of returning feature importance.
+This returned as numpy.array, assuming that initially passed train_features=None</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="rep.estimators.xgboost.XGBoostRegressor.fit">
+<code class="descname">fit</code><span class="sig-paren">(</span><em>X</em>, <em>y</em>, <em>sample_weight=None</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.estimators.xgboost.XGBoostRegressor.fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Train the classifier</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>X</strong> (<em>pandas.DataFrame</em>) &#8211; data shape [n_samples, n_features]</li>
+<li><strong>y</strong> &#8211; labels of events - array-like of shape [n_samples]</li>
+<li><strong>sample_weight</strong> &#8211; weight of events,
+array-like of shape [n_samples] or None if all weights are equal</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">self</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rep.estimators.xgboost.XGBoostRegressor.get_feature_importances">
+<code class="descname">get_feature_importances</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#rep.estimators.xgboost.XGBoostRegressor.get_feature_importances" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get features importance</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">pandas.DataFrame with column effect and <cite>index=features</cite></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rep.estimators.xgboost.XGBoostRegressor.predict">
+<code class="descname">predict</code><span class="sig-paren">(</span><em>X</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.estimators.xgboost.XGBoostRegressor.predict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Predict data</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>X</strong> (<em>pandas.DataFrame</em>) &#8211; data shape [n_samples, n_features]</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">numpy.array of shape [n_samples, n_classes] with probabilities</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rep.estimators.xgboost.XGBoostRegressor.staged_predict">
+<code class="descname">staged_predict</code><span class="sig-paren">(</span><em>X</em>, <em>step=10</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.estimators.xgboost.XGBoostRegressor.staged_predict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Predicts probabilities on each stage</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>X</strong> (<em>pandas.DataFrame</em>) &#8211; data shape [n_samples, n_features]</li>
+<li><strong>step</strong> (<em>int</em>) &#8211; step for returned iterations</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">iterator</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="examples">
+<h2>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="classification">
+<h3>Classification<a class="headerlink" href="#classification" title="Permalink to this headline">¶</a></h3>
+<ul>
+<li><dl class="first docutils">
+<dt>Prepare dataset</dt>
+<dd><div class="first last highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">sklearn</span> <span class="kn">import</span> <span class="n">datasets</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">pandas</span><span class="o">,</span> <span class="nn">numpy</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">rep.utils</span> <span class="kn">import</span> <span class="n">train_test_split</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">roc_auc_score</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c"># iris data</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">iris</span> <span class="o">=</span> <span class="n">datasets</span><span class="o">.</span><span class="n">load_iris</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">iris</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;a&#39;</span><span class="p">,</span> <span class="s">&#39;b&#39;</span><span class="p">,</span> <span class="s">&#39;c&#39;</span><span class="p">,</span> <span class="s">&#39;d&#39;</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">labels</span> <span class="o">=</span> <span class="n">iris</span><span class="o">.</span><span class="n">target</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c"># Take just two classes instead of three</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">labels</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">labels</span> <span class="o">=</span> <span class="n">labels</span><span class="p">[</span><span class="n">labels</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">train_data</span><span class="p">,</span> <span class="n">test_data</span><span class="p">,</span> <span class="n">train_labels</span><span class="p">,</span> <span class="n">test_labels</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">train_size</span><span class="o">=</span><span class="mf">0.7</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Sklearn classification</dt>
+<dd><div class="first last highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">rep.estimators</span> <span class="kn">import</span> <span class="n">SklearnClassifier</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">sklearn.ensemble</span> <span class="kn">import</span> <span class="n">GradientBoostingClassifier</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c"># Using gradient boosting with default settings</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sk</span> <span class="o">=</span> <span class="n">SklearnClassifier</span><span class="p">(</span><span class="n">GradientBoostingClassifier</span><span class="p">(),</span> <span class="n">features</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;a&#39;</span><span class="p">,</span> <span class="s">&#39;b&#39;</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c"># Training classifier</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sk</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">train_data</span><span class="p">,</span> <span class="n">train_labels</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pred</span> <span class="o">=</span> <span class="n">sk</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">test_data</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">pred</span>
+<span class="go">[[  9.99842983e-01   1.57016893e-04]</span>
+<span class="go"> [  1.45163843e-04   9.99854836e-01]</span>
+<span class="go"> [  9.99842983e-01   1.57016893e-04]</span>
+<span class="go"> [  9.99827693e-01   1.72306607e-04], ..]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">roc_auc_score</span><span class="p">(</span><span class="n">test_labels</span><span class="p">,</span> <span class="n">pred</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">])</span>
+<span class="go">0.99768518518518523</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>TMVA classification</dt>
+<dd><div class="first last highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">rep.estimators</span> <span class="kn">import</span> <span class="n">TMVAClassifier</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tmva</span> <span class="o">=</span> <span class="n">TMVAClassifier</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="s">&#39;kBDT&#39;</span><span class="p">,</span> <span class="n">NTrees</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">Shrinkage</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">nCuts</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">BoostType</span><span class="o">=</span><span class="s">&#39;Grad&#39;</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;a&#39;</span><span class="p">,</span> <span class="s">&#39;b&#39;</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tmva</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">train_data</span><span class="p">,</span> <span class="n">train_labels</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pred</span> <span class="o">=</span> <span class="n">tmva</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">test_data</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">pred</span>
+<span class="go">[[  9.99991025e-01   8.97546346e-06]</span>
+<span class="go"> [  1.14084636e-04   9.99885915e-01]</span>
+<span class="go"> [  9.99991009e-01   8.99060302e-06]</span>
+<span class="go"> [  9.99798700e-01   2.01300452e-04], ..]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">roc_auc_score</span><span class="p">(</span><span class="n">test_labels</span><span class="p">,</span> <span class="n">pred</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">])</span>
+<span class="go">0.99999999999999989</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>XGBoost classification</dt>
+<dd><div class="first last highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">rep.estimators</span> <span class="kn">import</span> <span class="n">XGBoostClassifier</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c"># XGBoost with default parameters</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">xgb</span> <span class="o">=</span> <span class="n">XGBoostClassifier</span><span class="p">(</span><span class="n">features</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;a&#39;</span><span class="p">,</span> <span class="s">&#39;b&#39;</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">xgb</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">train_data</span><span class="p">,</span> <span class="n">train_labels</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="n">numpy</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">train_labels</span><span class="p">)))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pred</span> <span class="o">=</span> <span class="n">xgb</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">test_data</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">pred</span>
+<span class="go">[[ 0.9983651   0.00163494]</span>
+<span class="go"> [ 0.00170585  0.99829417]</span>
+<span class="go"> [ 0.99845636  0.00154361]</span>
+<span class="go"> [ 0.96618336  0.03381656], ..]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">roc_auc_score</span><span class="p">(</span><span class="n">test_labels</span><span class="p">,</span> <span class="n">pred</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">])</span>
+<span class="go">0.99768518518518512</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+</li>
+</ul>
+</div>
+<div class="section" id="regerssion">
+<h3>Regerssion<a class="headerlink" href="#regerssion" title="Permalink to this headline">¶</a></h3>
+<ul>
+<li><dl class="first docutils">
+<dt>Prepare dataset</dt>
+<dd><div class="first last highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">sklearn</span> <span class="kn">import</span> <span class="n">datasets</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">mean_squared_error</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">rep.utils</span> <span class="kn">import</span> <span class="n">train_test_split</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">pandas</span><span class="o">,</span> <span class="nn">numpy</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c"># diabetes data</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">diabetes</span> <span class="o">=</span> <span class="n">datasets</span><span class="o">.</span><span class="n">load_diabetes</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">features</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;feature_</span><span class="si">%d</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">number</span> <span class="k">for</span> <span class="n">number</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">diabetes</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">diabetes</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">features</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">labels</span> <span class="o">=</span> <span class="n">diabetes</span><span class="o">.</span><span class="n">target</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">train_data</span><span class="p">,</span> <span class="n">test_data</span><span class="p">,</span> <span class="n">train_labels</span><span class="p">,</span> <span class="n">test_labels</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">train_size</span><span class="o">=</span><span class="mf">0.7</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Sklearn regression</dt>
+<dd><div class="first last highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">rep.estimators</span> <span class="kn">import</span> <span class="n">SklearnRegressor</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">sklearn.ensemble</span> <span class="kn">import</span> <span class="n">GradientBoostingRegressor</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c"># Using gradient boosting with default settings</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sk</span> <span class="o">=</span> <span class="n">SklearnRegressor</span><span class="p">(</span><span class="n">GradientBoostingRegressor</span><span class="p">(),</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">[:</span><span class="mi">8</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c"># Training classifier</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sk</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">train_data</span><span class="p">,</span> <span class="n">train_labels</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pred</span> <span class="o">=</span> <span class="n">sk</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">train_data</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">numpy</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">mean_squared_error</span><span class="p">(</span><span class="n">train_labels</span><span class="p">,</span> <span class="n">pred</span><span class="p">))</span>
+<span class="go">60.666009962879265</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>TMVA regression</dt>
+<dd><div class="first last highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">rep.estimators</span> <span class="kn">import</span> <span class="n">TMVARegressor</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tmva</span> <span class="o">=</span> <span class="n">TMVARegressor</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="s">&#39;kBDT&#39;</span><span class="p">,</span> <span class="n">NTrees</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">Shrinkage</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">nCuts</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">BoostType</span><span class="o">=</span><span class="s">&#39;Grad&#39;</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">[:</span><span class="mi">8</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tmva</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">train_data</span><span class="p">,</span> <span class="n">train_labels</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pred</span> <span class="o">=</span> <span class="n">tmva</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">test_data</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">numpy</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">mean_squared_error</span><span class="p">(</span><span class="n">test_labels</span><span class="p">,</span> <span class="n">pred</span><span class="p">))</span>
+<span class="go">73.74191838418254</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>XGBoost regression</dt>
+<dd><div class="first last highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">rep.estimators</span> <span class="kn">import</span> <span class="n">XGBoostRegressor</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c"># XGBoost with default parameters</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">xgb</span> <span class="o">=</span> <span class="n">XGBoostRegressor</span><span class="p">(</span><span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">[:</span><span class="mi">8</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">xgb</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">train_data</span><span class="p">,</span> <span class="n">train_labels</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="n">numpy</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">train_labels</span><span class="p">)))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pred</span> <span class="o">=</span> <span class="n">xgb</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">test_data</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">numpy</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">mean_squared_error</span><span class="p">(</span><span class="n">test_labels</span><span class="p">,</span> <span class="n">pred</span><span class="p">))</span>
+<span class="go">65.557743652940133</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+</li>
+</ul>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Estimators (classification and regression)</a><ul>
+<li><a class="reference internal" href="#estimators-interfaces-for-classification-and-regression">Estimators interfaces (for classification and regression)</a></li>
+<li><a class="reference internal" href="#sklearn-classifier-and-regressor">Sklearn classifier and regressor</a></li>
+<li><a class="reference internal" href="#tmva-classifier-and-regressor">TMVA classifier and regressor</a></li>
+<li><a class="reference internal" href="#module-rep.estimators.xgboost">XGBoost classifier and regressor</a></li>
+<li><a class="reference internal" href="#examples">Examples</a><ul>
+<li><a class="reference internal" href="#classification">Classification</a></li>
+<li><a class="reference internal" href="#regerssion">Regerssion</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="data.html"
+                        title="previous chapter">Data</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="metaml.html"
+                        title="next chapter">Meta Machine Learning</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/estimators.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="metaml.html" title="Meta Machine Learning"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="data.html" title="Data"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">REP (Reproducible Experiment Platform) 0.6.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2014, Yandex.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
+  </body>
+</html>

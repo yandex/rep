@@ -1,0 +1,645 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Report for models &mdash; REP (Reproducible Experiment Platform) 0.6.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.6.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="REP (Reproducible Experiment Platform) 0.6.0 documentation" href="index.html" />
+    <link rel="next" title="Plotting" href="plotting.html" />
+    <link rel="prev" title="Meta Machine Learning" href="metaml.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="plotting.html" title="Plotting"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="metaml.html" title="Meta Machine Learning"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">REP (Reproducible Experiment Platform) 0.6.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="report-for-models">
+<span id="report"></span><h1>Report for models<a class="headerlink" href="#report-for-models" title="Permalink to this headline">¶</a></h1>
+<p>This module contains helpful classes to get report for estimators, like as feature distribution,
+prediction distribution, roc curves, learning curves, and others.</p>
+<div class="section" id="classification-report">
+<h2>Classification Report<a class="headerlink" href="#classification-report" title="Permalink to this headline">¶</a></h2>
+<p>This is report for classification estimators</p>
+<span class="target" id="module-rep.report.classification"></span><dl class="class">
+<dt id="rep.report.classification.ClassificationReport">
+<em class="property">class </em><code class="descclassname">rep.report.classification.</code><code class="descname">ClassificationReport</code><span class="sig-paren">(</span><em>classifiers</em>, <em>lds</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.report.classification.ClassificationReport" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test estimators on any data. Support Roc curve, prediction distribution, features information (correlation matrix, distribution,
+correlation between pairs of features), efficiencies for thresholds (evaluate flatness for important feature),
+correlation with prediction for necessary feature, any metrics of quality</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>Classifier] classifiers</strong> (<em>dict[str,</em>) &#8211; estimators</li>
+<li><strong>lds</strong> (<a class="reference internal" href="data.html#rep.data.storage.LabeledDataStorage" title="rep.data.storage.LabeledDataStorage"><em>LabeledDataStorage</em></a>) &#8211; data</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="rep.report.classification.ClassificationReport.compute_metric">
+<code class="descname">compute_metric</code><span class="sig-paren">(</span><em>metric</em>, <em>mask=None</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.report.classification.ClassificationReport.compute_metric" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute metric value</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>metric</strong> &#8211; class with __call__(self, y_true, prob, sample_weight=None) or function</li>
+<li><strong>mask</strong> (<em>None or array-like or str or function(pandas.DataFrame)</em>) &#8211; mask which points we should use</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">metric value for each estimator</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rep.report.classification.ClassificationReport.efficiencies">
+<code class="descname">efficiencies</code><span class="sig-paren">(</span><em>features</em>, <em>thresholds=None</em>, <em>mask=None</em>, <em>bins=30</em>, <em>labels_dict=None</em>, <em>ignored_sideband=0.0</em>, <em>errors=False</em>, <em>grid_columns=2</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.report.classification.ClassificationReport.efficiencies" title="Permalink to this definition">¶</a></dt>
+<dd><p>Efficiencies for spectators</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>features</strong> (<em>None or list[str]</em>) &#8211; using features (if None then use classifier&#8217;s spectators)</li>
+<li><strong>bins</strong> (<em>int or array-like</em>) &#8211; bins for histogram</li>
+<li><strong>mask</strong> (<em>None or numbers.Number or array-like or str or function(pandas.DataFrame)</em>) &#8211; mask for data, which will be used</li>
+<li><strong>thresholds</strong> (<em>list[float]</em>) &#8211; thresholds on prediction</li>
+<li><strong>errors</strong> (<em>bool</em>) &#8211; if True then use errorbar, else interpolate function</li>
+<li><strong>labels_dict</strong> (<em>None or OrderedDict(int: str)</em>) &#8211; label &#8211; name for class label
+if None then {0: &#8216;bck&#8217;, &#8216;1&#8217;: &#8216;signal&#8217;}</li>
+<li><strong>grid_columns</strong> (<em>int</em>) &#8211; count of columns in grid</li>
+<li><strong>ignored_sideband</strong> (<em>float</em>) &#8211; (0, 1) percent of plotting data</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">plotting.HStackPlot(plotting.FunctionsPlot)</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rep.report.classification.ClassificationReport.efficiencies_2d">
+<code class="descname">efficiencies_2d</code><span class="sig-paren">(</span><em>features</em>, <em>efficiency</em>, <em>mask=None</em>, <em>n_bins=20</em>, <em>ignored_sideband=0.0</em>, <em>labels_dict=None</em>, <em>grid_columns=2</em>, <em>signal_label=1</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.report.classification.ClassificationReport.efficiencies_2d" title="Permalink to this definition">¶</a></dt>
+<dd><p>For binary classification plots the dependence of efficiency on two columns</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>features</strong> &#8211; two features names</li>
+<li><strong>efficiency</strong> (<em>float</em>) &#8211; efficiency</li>
+<li><strong>n_bins</strong> (<em>int or array-like</em>) &#8211; bins for histogram</li>
+<li><strong>mask</strong> (<em>None or numbers.Number or array-like or str or function(pandas.DataFrame)</em>) &#8211; mask for data, which will be used</li>
+<li><strong>labels_dict</strong> (<em>None or OrderedDict(int: str)</em>) &#8211; label &#8211; name for class label
+if None then {0: &#8216;bck&#8217;, &#8216;1&#8217;: &#8216;signal&#8217;}</li>
+<li><strong>grid_columns</strong> (<em>int</em>) &#8211; count of columns in grid</li>
+<li><strong>ignored_sideband</strong> (<em>float</em>) &#8211; (0, 1) percent of plotting data</li>
+<li><strong>signal_label</strong> (<em>int</em>) &#8211; label to calculaty efficiency threshold</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">plotting.GridPlot(plotting.FunctionsPlot)</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rep.report.classification.ClassificationReport.feature_importance">
+<code class="descname">feature_importance</code><span class="sig-paren">(</span><em>grid_columns=2</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.report.classification.ClassificationReport.feature_importance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get features importance</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>grid_columns</strong> (<em>int</em>) &#8211; count of columns in grid</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="plotting.html#rep.plotting.GridPlot" title="rep.plotting.GridPlot">plotting.GridPlot</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rep.report.classification.ClassificationReport.feature_importance_shuffling">
+<code class="descname">feature_importance_shuffling</code><span class="sig-paren">(</span><em>metric=&lt;function _log_loss&gt;</em>, <em>mask=None</em>, <em>grid_columns=2</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.report.classification.ClassificationReport.feature_importance_shuffling" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get features importance using shuffling method (apply random permutation to one particular column)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>metric</strong> &#8211; function to measure quality
+function(y_true, proba, sample_weight=None)</li>
+<li><strong>mask</strong> (<em>None or numbers.Number or array-like or str or function(pandas.DataFrame)</em>) &#8211; mask which points the data we should train on</li>
+<li><strong>grid_columns</strong> (<em>int</em>) &#8211; number of columns in grid</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference internal" href="plotting.html#rep.plotting.GridPlot" title="rep.plotting.GridPlot">plotting.GridPlot</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rep.report.classification.ClassificationReport.features_correlation_matrix">
+<code class="descname">features_correlation_matrix</code><span class="sig-paren">(</span><em>features=None</em>, <em>mask=None</em>, <em>tick_labels=None</em>, <em>vmin=-1</em>, <em>vmax=1</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.report.classification.ClassificationReport.features_correlation_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Correlation between features</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>features</strong> (<em>None or list[str]</em>) &#8211; using features (if None then use estimator&#8217;s features)</li>
+<li><strong>mask</strong> (<em>None or numbers.Number or array-like or str or function(pandas.DataFrame)</em>) &#8211; mask for data, which will be used</li>
+<li><strong>tick_labels</strong> (<em>None or array-like</em>) &#8211; names for features in matrix</li>
+<li><strong>vmin</strong> (<em>int</em>) &#8211; min of value for min color</li>
+<li><strong>vmax</strong> (<em>int</em>) &#8211; max of value for max color</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">plotting.GridPlot(plotting.ColorMap)</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rep.report.classification.ClassificationReport.features_correlation_matrix_by_class">
+<code class="descname">features_correlation_matrix_by_class</code><span class="sig-paren">(</span><em>features=None</em>, <em>mask=None</em>, <em>tick_labels=None</em>, <em>vmin=-1</em>, <em>vmax=1</em>, <em>labels_dict=None</em>, <em>grid_columns=2</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.report.classification.ClassificationReport.features_correlation_matrix_by_class" title="Permalink to this definition">¶</a></dt>
+<dd><p>Correlation between features (built separately for each class)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>features</strong> (<em>None or list[str]</em>) &#8211; using features (if None then use classifier&#8217;s features)</li>
+<li><strong>mask</strong> (<em>None or numbers.Number or array-like or str or function(pandas.DataFrame)</em>) &#8211; mask for data, which will be used</li>
+<li><strong>labels_dict</strong> (<em>None or OrderedDict(int: str)</em>) &#8211; label &#8211; name for class label
+if None then {0: &#8216;bck&#8217;, &#8216;1&#8217;: &#8216;signal&#8217;}</li>
+<li><strong>tick_labels</strong> (<em>None or array-like</em>) &#8211; names for features in matrix</li>
+<li><strong>vmin</strong> (<em>int</em>) &#8211; min of value for min color</li>
+<li><strong>vmax</strong> (<em>int</em>) &#8211; max of value for max color</li>
+<li><strong>grid_columns</strong> (<em>int</em>) &#8211; count of columns in grid</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">plotting.GridPlot(plotting.ColorMap)</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rep.report.classification.ClassificationReport.features_pdf">
+<code class="descname">features_pdf</code><span class="sig-paren">(</span><em>features=None</em>, <em>mask=None</em>, <em>bins=30</em>, <em>ignored_sideband=0.0</em>, <em>labels_dict=None</em>, <em>grid_columns=2</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.report.classification.ClassificationReport.features_pdf" title="Permalink to this definition">¶</a></dt>
+<dd><p>Features distribution with errors</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>features</strong> (<em>None or list[str]</em>) &#8211; using features (if None then use classifier&#8217;s features)</li>
+<li><strong>mask</strong> (<em>None or numbers.Number or array-like or str or function(pandas.DataFrame)</em>) &#8211; mask for data, which will be used</li>
+<li><strong>bins</strong> (<em>int or array-like</em>) &#8211; count of bins or array with boarders</li>
+<li><strong>labels_dict</strong> (<em>None or OrderedDict(int: str)</em>) &#8211; label &#8211; name for class label
+if None then {0: &#8216;bck&#8217;, &#8216;1&#8217;: &#8216;signal&#8217;}</li>
+<li><strong>grid_columns</strong> (<em>int</em>) &#8211; count of columns in grid</li>
+<li><strong>ignored_sideband</strong> (<em>float</em>) &#8211; float from (0, 1), part of events ignored from the left and from the right</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">plotting.GridPlot(plotting.ErrorPlot)</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rep.report.classification.ClassificationReport.learning_curve">
+<code class="descname">learning_curve</code><span class="sig-paren">(</span><em>metric</em>, <em>mask=None</em>, <em>steps=10</em>, <em>metric_label='metric'</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.report.classification.ClassificationReport.learning_curve" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get learning curves</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>metric</strong> (<em>function</em>) &#8211; function looks like function
+def function(y_true, y_pred, sample_weight=None)</li>
+<li><strong>steps</strong> (<em>int or dict</em>) &#8211; if int, the same step is used in all learning curves,
+otherwise dict with steps for each estimator</li>
+<li><strong>metric_label</strong> (<em>str</em>) &#8211; name for metric on plot</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference internal" href="plotting.html#rep.plotting.FunctionsPlot" title="rep.plotting.FunctionsPlot">plotting.FunctionsPlot</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rep.report.classification.ClassificationReport.metrics_vs_cut">
+<code class="descname">metrics_vs_cut</code><span class="sig-paren">(</span><em>metric</em>, <em>mask=None</em>, <em>metric_label='metric'</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.report.classification.ClassificationReport.metrics_vs_cut" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test different quality functions on predictions</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>metric</strong> (<em>rep.report.metrics.OptimalMetric</em>) &#8211; optimal metric</li>
+<li><strong>mask</strong> (<em>None or numbers.Number or array-like or str or function(pandas.DataFrame)</em>) &#8211; mask for data, which will be used</li>
+<li><strong>metric_label</strong> (<em>str</em>) &#8211; name for metric on plot</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference internal" href="plotting.html#rep.plotting.FunctionsPlot" title="rep.plotting.FunctionsPlot">plotting.FunctionsPlot</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rep.report.classification.ClassificationReport.prediction_pdf">
+<code class="descname">prediction_pdf</code><span class="sig-paren">(</span><em>mask=None</em>, <em>bins=30</em>, <em>size=2</em>, <em>log=False</em>, <em>plot_type='error_bar'</em>, <em>normed=True</em>, <em>labels_dict=None</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.report.classification.ClassificationReport.prediction_pdf" title="Permalink to this definition">¶</a></dt>
+<dd><p>Distribution of prediction for signal and bck separately with errors</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>mask</strong> (<em>None or numbers.Number or array-like or str or function(pandas.DataFrame)</em>) &#8211; mask for data, which will be used</li>
+<li><strong>bins</strong> (<em>int or array-like</em>) &#8211; bins for histogram</li>
+<li><strong>size</strong> (<em>int</em>) &#8211; size for point on plots</li>
+<li><strong>log</strong> (<em>bool</em>) &#8211; log scale on plot</li>
+<li><strong>normed</strong> (<em>bool</em>) &#8211; normed pdf or not</li>
+<li><strong>plot_type</strong> (<em>str</em>) &#8211; &#8216;error_bar&#8217; for error type and &#8216;bar&#8217; for hist type</li>
+<li><strong>labels_dict</strong> (<em>None or OrderedDict(int: str)</em>) &#8211; label &#8211; name for class label
+if None then {0: &#8216;bck&#8217;, &#8216;1&#8217;: &#8216;signal&#8217;}</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">plotting.ErrorPlot or plotting.BarPlot</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rep.report.classification.ClassificationReport.roc">
+<code class="descname">roc</code><span class="sig-paren">(</span><em>mask=None</em>, <em>signal_label=1</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.report.classification.ClassificationReport.roc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate roc functions for data and return roc plot object</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>mask</strong> (<em>None or numbers.Number or array-like or str or function(pandas.DataFrame)</em>) &#8211; mask for data, which will be used</li>
+<li><strong>grid_columns</strong> (<em>int</em>) &#8211; count of columns for multi-rocs</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference internal" href="plotting.html#rep.plotting.FunctionsPlot" title="rep.plotting.FunctionsPlot">plotting.FunctionsPlot</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rep.report.classification.ClassificationReport.scatter">
+<code class="descname">scatter</code><span class="sig-paren">(</span><em>correlation_pairs</em>, <em>mask=None</em>, <em>marker_size=20</em>, <em>alpha=0.1</em>, <em>labels_dict=None</em>, <em>grid_columns=2</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.report.classification.ClassificationReport.scatter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Correlation between pairs of features</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>correlation_pairs</strong> (<em>list[tuple]</em>) &#8211; pairs of features along which scatter plot will be build.</li>
+<li><strong>mask</strong> (<em>None or array-like or str or function(pandas.DataFrame)</em>) &#8211; mask for data, which will be used</li>
+<li><strong>marker_size</strong> (<em>int</em>) &#8211; size of marker for each event on the plot</li>
+<li><strong>alpha</strong> (<em>float</em>) &#8211; blending parameter for scatter</li>
+<li><strong>labels_dict</strong> (<em>None or OrderedDict(int: str)</em>) &#8211; label &#8211; name for class label
+if None then {0: &#8216;bck&#8217;, &#8216;1&#8217;: &#8216;signal&#8217;}</li>
+<li><strong>grid_columns</strong> (<em>int</em>) &#8211; count of columns in grid</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">plotting.GridPlot(plotting.ScatterPlot)</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="regression-report">
+<h2>Regression Report<a class="headerlink" href="#regression-report" title="Permalink to this headline">¶</a></h2>
+<p>This is report for regression estimators</p>
+<span class="target" id="module-rep.report.regression"></span><dl class="class">
+<dt id="rep.report.regression.RegressionReport">
+<em class="property">class </em><code class="descclassname">rep.report.regression.</code><code class="descname">RegressionReport</code><span class="sig-paren">(</span><em>regressors</em>, <em>lds</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.report.regression.RegressionReport" title="Permalink to this definition">¶</a></dt>
+<dd><p>Report simplifies comparison of regressors on the same dataset.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>regressors</strong> (<em>dict[str, Regressor]</em>) &#8211; OrderedDict with regressors (RegressionFactory)</li>
+<li><strong>lds</strong> (<a class="reference internal" href="data.html#rep.data.storage.LabeledDataStorage" title="rep.data.storage.LabeledDataStorage"><em>LabeledDataStorage</em></a>) &#8211; data</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="rep.report.regression.RegressionReport.compute_metric">
+<code class="descname">compute_metric</code><span class="sig-paren">(</span><em>metric</em>, <em>mask=None</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.report.regression.RegressionReport.compute_metric" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute metric value</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>metric</strong> &#8211; class with __call__(self, y_true, prob, sample_weight=None) or function</li>
+<li><strong>mask</strong> (<em>None or array-like or str or function(pandas.DataFrame)</em>) &#8211; mask which points we should use</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">metric value for each estimator</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rep.report.regression.RegressionReport.feature_importance">
+<code class="descname">feature_importance</code><span class="sig-paren">(</span><em>grid_columns=2</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.report.regression.RegressionReport.feature_importance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get features importance</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>grid_columns</strong> (<em>int</em>) &#8211; count of columns in grid</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="plotting.html#rep.plotting.GridPlot" title="rep.plotting.GridPlot">plotting.GridPlot</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rep.report.regression.RegressionReport.feature_importance_shuffling">
+<code class="descname">feature_importance_shuffling</code><span class="sig-paren">(</span><em>metric=&lt;function mean_squared_error&gt;</em>, <em>mask=None</em>, <em>grid_columns=2</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.report.regression.RegressionReport.feature_importance_shuffling" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get features importance using shuffling method (apply random permutation to one particular column)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>metric</strong> &#8211; function to measure quality
+function(y_true, y_predicted, sample_weight=None)</li>
+<li><strong>mask</strong> (<em>None or numbers.Number or array-like or str or function(pandas.DataFrame)</em>) &#8211; mask which points we should compare on</li>
+<li><strong>grid_columns</strong> (<em>int</em>) &#8211; number of columns in grid</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference internal" href="plotting.html#rep.plotting.GridPlot" title="rep.plotting.GridPlot">plotting.GridPlot</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rep.report.regression.RegressionReport.features_correlation_matrix">
+<code class="descname">features_correlation_matrix</code><span class="sig-paren">(</span><em>features=None</em>, <em>mask=None</em>, <em>tick_labels=None</em>, <em>vmin=-1</em>, <em>vmax=1</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.report.regression.RegressionReport.features_correlation_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Correlation between features</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>features</strong> (<em>None or list[str]</em>) &#8211; using features (if None then use estimator&#8217;s features)</li>
+<li><strong>mask</strong> (<em>None or numbers.Number or array-like or str or function(pandas.DataFrame)</em>) &#8211; mask for data, which will be used</li>
+<li><strong>tick_labels</strong> (<em>None or array-like</em>) &#8211; names for features in matrix</li>
+<li><strong>vmin</strong> (<em>int</em>) &#8211; min of value for min color</li>
+<li><strong>vmax</strong> (<em>int</em>) &#8211; max of value for max color</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">plotting.GridPlot(plotting.ColorMap)</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rep.report.regression.RegressionReport.learning_curve">
+<code class="descname">learning_curve</code><span class="sig-paren">(</span><em>metric</em>, <em>mask=None</em>, <em>steps=10</em>, <em>metric_label='metric'</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.report.regression.RegressionReport.learning_curve" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get learning curves</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>metric</strong> (<em>function</em>) &#8211; function looks like function
+def function(y_true, y_pred, sample_weight=None)</li>
+<li><strong>steps</strong> (<em>int or dict</em>) &#8211; if int, the same step is used in all learning curves,
+otherwise dict with steps for each estimator</li>
+<li><strong>metric_label</strong> (<em>str</em>) &#8211; name for metric on plot</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference internal" href="plotting.html#rep.plotting.FunctionsPlot" title="rep.plotting.FunctionsPlot">plotting.FunctionsPlot</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rep.report.regression.RegressionReport.predictions_scatter">
+<code class="descname">predictions_scatter</code><span class="sig-paren">(</span><em>features=None</em>, <em>mask=None</em>, <em>marker_size=20</em>, <em>alpha=0.1</em>, <em>grid_columns=2</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.report.regression.RegressionReport.predictions_scatter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Correlation between predictions and features</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>features</strong> (<em>None or list[str]</em>) &#8211; using features (if None then use classifier&#8217;s features)</li>
+<li><strong>mask</strong> (<em>None or array-like or str or function(pandas.DataFrame)</em>) &#8211; mask for data, which will be used</li>
+<li><strong>marker_size</strong> (<em>int</em>) &#8211; size of marker for each event on the plot</li>
+<li><strong>alpha</strong> (<em>float</em>) &#8211; blending parameter for scatter</li>
+<li><strong>grid_columns</strong> (<em>int</em>) &#8211; count of columns in grid</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">plotting.GridPlot(plotting.ScatterPlot)</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rep.report.regression.RegressionReport.scatter">
+<code class="descname">scatter</code><span class="sig-paren">(</span><em>correlation_pairs</em>, <em>mask=None</em>, <em>marker_size=20</em>, <em>alpha=0.1</em>, <em>grid_columns=2</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.report.regression.RegressionReport.scatter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Correlation between pairs of features</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>correlation_pairs</strong> (<em>list[tuple]</em>) &#8211; pairs of features along which scatter plot will be build.</li>
+<li><strong>mask</strong> (<em>None or array-like or str or function(pandas.DataFrame)</em>) &#8211; mask for data, which will be used</li>
+<li><strong>marker_size</strong> (<em>int</em>) &#8211; size of marker for each event on the plot</li>
+<li><strong>alpha</strong> (<em>float</em>) &#8211; blending parameter for scatter</li>
+<li><strong>grid_columns</strong> (<em>int</em>) &#8211; count of columns in grid</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">plotting.GridPlot(plotting.ScatterPlot)</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Report for models</a><ul>
+<li><a class="reference internal" href="#classification-report">Classification Report</a></li>
+<li><a class="reference internal" href="#regression-report">Regression Report</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="metaml.html"
+                        title="previous chapter">Meta Machine Learning</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="plotting.html"
+                        title="next chapter">Plotting</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/report.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="plotting.html" title="Plotting"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="metaml.html" title="Meta Machine Learning"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">REP (Reproducible Experiment Platform) 0.6.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2014, Yandex.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
+  </body>
+</html>
