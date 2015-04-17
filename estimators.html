@@ -609,23 +609,275 @@ array-like of shape [n_samples] or None if all weights are equal</li>
 <h2>TMVA classifier and regressor<a class="headerlink" href="#tmva-classifier-and-regressor" title="Permalink to this headline">¶</a></h2>
 <p>These classes are wrappers for physics machine learning library TMVA used .root format files (c++ library).
 Now you can simply use it in python. TMVA contains classification and regression algorithms, including neural networks.</p>
-<p>TMVA Guide: <a class="reference external" href="http://mirror.yandex.ru/gentoo-distfiles/distfiles/TMVAUsersGuide-v4.03.pdf">http://mirror.yandex.ru/gentoo-distfiles/distfiles/TMVAUsersGuide-v4.03.pdf</a>
-.. automodule:: rep.estimators.tmva</p>
-<blockquote>
-<div><table class="docutils field-list" frame="void" rules="none">
+<p>TMVA Guide: <a class="reference external" href="http://mirror.yandex.ru/gentoo-distfiles/distfiles/TMVAUsersGuide-v4.03.pdf">http://mirror.yandex.ru/gentoo-distfiles/distfiles/TMVAUsersGuide-v4.03.pdf</a></p>
+<span class="target" id="module-rep.estimators.tmva"></span><p>wrapper for <a class="reference external" href="http://mirror.yandex.ru/gentoo-distfiles/distfiles/TMVAUsersGuide-v4.03.pdf">http://mirror.yandex.ru/gentoo-distfiles/distfiles/TMVAUsersGuide-v4.03.pdf</a></p>
+<dl class="class">
+<dt id="rep.estimators.tmva.TMVABase">
+<em class="property">class </em><code class="descclassname">rep.estimators.tmva.</code><code class="descname">TMVABase</code><span class="sig-paren">(</span><em>factory_options=''</em>, <em>method='kBDT'</em>, <em>**method_parameters</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.estimators.tmva.TMVABase" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>TMVABase - base estimator for tmva wrappers.</p>
+<table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">members:</th><td class="field-body"></td>
-</tr>
-<tr class="field-even field"><th class="field-name" colspan="2">show-inheritance:</th></tr>
-<tr class="field-even field"><td>&nbsp;</td><td class="field-body"></td>
-</tr>
-<tr class="field-odd field"><th class="field-name">undoc-members:</th><td class="field-body"></td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>method</strong> (<em>str</em>) &#8211; algorithm method (default=&#8217;kBDT&#8217;)</li>
+<li><strong>features</strong> (<em>list[str] or None</em>) &#8211; features used in training</li>
+<li><strong>factory_options</strong> (<em>str</em>) &#8211; system options</li>
+<li><strong>method_parameters</strong> (<em>dict</em>) &#8211; estimator options</li>
+</ul>
+</td>
 </tr>
 </tbody>
 </table>
-</div></blockquote>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">TMVA doesn&#8217;t support staged predictions and features importances =((</p>
+</div>
+</dd></dl>
+
+<dl class="class">
+<dt id="rep.estimators.tmva.TMVAClassifier">
+<em class="property">class </em><code class="descclassname">rep.estimators.tmva.</code><code class="descname">TMVAClassifier</code><span class="sig-paren">(</span><em>method='kBDT'</em>, <em>features=None</em>, <em>factory_options=''</em>, <em>sigmoid_function='bdt'</em>, <em>**method_parameters</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.estimators.tmva.TMVAClassifier" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#rep.estimators.tmva.TMVABase" title="rep.estimators.tmva.TMVABase"><code class="xref py py-class docutils literal"><span class="pre">rep.estimators.tmva.TMVABase</span></code></a>, <a class="reference internal" href="#rep.estimators.interface.Classifier" title="rep.estimators.interface.Classifier"><code class="xref py py-class docutils literal"><span class="pre">rep.estimators.interface.Classifier</span></code></a></p>
+<p>TMVAClassifier wraps estimators from TMVA (CERN library for machine learning)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>method</strong> (<em>str</em>) &#8211; algorithm method (default=&#8217;kBDT&#8217;)</li>
+<li><strong>features</strong> (<em>list[str] or None</em>) &#8211; features used in training</li>
+<li><strong>factory_options</strong> (<em>str</em>) &#8211; <p>system options, for example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="s">&quot;!V:!Silent:Color:Transformations=I;D;P;G,D&quot;</span>
+</pre></div>
+</div>
+</li>
+<li><strong>sigmoid_function</strong> (<em>str</em>) &#8211; <p>function which is used to convert TMVA output to probabilities;</p>
+<ul>
+<li><em>identity</em> (svm, mlp) &#8212; the same output, use this for methods returning class probabilities</li>
+<li><em>sigmoid</em> &#8212; sigmoid transformation, use it if output varies in range [-infinity, +infinity]</li>
+<li><em>bdt</em> (for bdt algorithms output varies in range [-1, 1])</li>
+<li><em>sig_eff=0.4</em> &#8212; for rectangular cut optimization methods,</li>
+</ul>
+<p>and 0.4 will be used as signal efficiency to evaluate MVA,
+(put any float number from [0, 1])</p>
+</li>
+<li><strong>method_parameters</strong> (<em>dict</em>) &#8211; estimator options, example: NTrees=100, BoostType=&#8217;Grad&#8217;</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">TMVA doesn&#8217;t support <em>staged_predict_proba()</em> and <em>feature_importances__</em></p>
+</div>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">TMVA doesn&#8217;t support multiclassification, only two-classes classification</p>
+</div>
+<dl class="method">
+<dt id="rep.estimators.tmva.TMVAClassifier.fit">
+<code class="descname">fit</code><span class="sig-paren">(</span><em>X</em>, <em>y</em>, <em>sample_weight=None</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.estimators.tmva.TMVAClassifier.fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Train the classifier</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>X</strong> (<em>pandas.DataFrame</em>) &#8211; data shape [n_samples, n_features]</li>
+<li><strong>y</strong> &#8211; labels of events - array-like of shape [n_samples]</li>
+<li><strong>sample_weight</strong> &#8211; weight of events,
+array-like of shape [n_samples] or None if all weights are equal</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">self</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rep.estimators.tmva.TMVAClassifier.get_params">
+<code class="descname">get_params</code><span class="sig-paren">(</span><em>deep=True</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.estimators.tmva.TMVAClassifier.get_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get parameters for this estimator.</p>
+<p>deep: boolean, optional</p>
+<blockquote>
+<div>If True, will return the parameters for this estimator and contained subobjects that are estimators.</div></blockquote>
+<p>params : mapping of string to any</p>
+<blockquote>
+<div>Parameter names mapped to their values.</div></blockquote>
+</dd></dl>
+
+<dl class="method">
+<dt id="rep.estimators.tmva.TMVAClassifier.predict_proba">
+<code class="descname">predict_proba</code><span class="sig-paren">(</span><em>X</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.estimators.tmva.TMVAClassifier.predict_proba" title="Permalink to this definition">¶</a></dt>
+<dd><p>Predict data</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>X</strong> (<em>pandas.DataFrame</em>) &#8211; data shape [n_samples, n_features]</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">numpy.array of shape [n_samples, n_classes] with probabilities</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rep.estimators.tmva.TMVAClassifier.set_params">
+<code class="descname">set_params</code><span class="sig-paren">(</span><em>**params</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.estimators.tmva.TMVAClassifier.set_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the parameters of this estimator.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>params</strong> (<em>dict</em>) &#8211; parameters to set in model</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rep.estimators.tmva.TMVAClassifier.staged_predict_proba">
+<code class="descname">staged_predict_proba</code><span class="sig-paren">(</span><em>X</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.estimators.tmva.TMVAClassifier.staged_predict_proba" title="Permalink to this definition">¶</a></dt>
+<dd><p>Predicts probabilities on each stage</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>X</strong> (<em>pandas.DataFrame</em>) &#8211; data shape [n_samples, n_features]</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">iterator</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">Doesn&#8217;t support for TMVA (<strong>AttributeError</strong> will be thrown)</p>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="rep.estimators.tmva.TMVARegressor">
+<em class="property">class </em><code class="descclassname">rep.estimators.tmva.</code><code class="descname">TMVARegressor</code><span class="sig-paren">(</span><em>method='kBDT'</em>, <em>features=None</em>, <em>factory_options=''</em>, <em>**method_parameters</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.estimators.tmva.TMVARegressor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#rep.estimators.tmva.TMVABase" title="rep.estimators.tmva.TMVABase"><code class="xref py py-class docutils literal"><span class="pre">rep.estimators.tmva.TMVABase</span></code></a>, <a class="reference internal" href="#rep.estimators.interface.Regressor" title="rep.estimators.interface.Regressor"><code class="xref py py-class docutils literal"><span class="pre">rep.estimators.interface.Regressor</span></code></a></p>
+<p>TMVARegressor wraps regressors from TMVA (CERN library for machine learning)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>method</strong> (<em>str</em>) &#8211; algorithm method (default=&#8217;kBDT&#8217;)</li>
+<li><strong>features</strong> (<em>list[str] or None</em>) &#8211; features used in training</li>
+<li><strong>factory_options</strong> (<em>str</em>) &#8211; <p>system options, for example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="s">&quot;!V:!Silent:Color:Transformations=I;D;P;G,D&quot;</span>
+</pre></div>
+</div>
+</li>
+<li><strong>method_parameters</strong> (<em>dict</em>) &#8211; estimator options, example: NTrees=100, BoostType=Grad</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">TMVA doesn&#8217;t support <em>staged_predict()</em> and <em>feature_importances__</em></p>
+</div>
+<dl class="method">
+<dt id="rep.estimators.tmva.TMVARegressor.fit">
+<code class="descname">fit</code><span class="sig-paren">(</span><em>X</em>, <em>y</em>, <em>sample_weight=None</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.estimators.tmva.TMVARegressor.fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Train the classifier</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>X</strong> (<em>pandas.DataFrame</em>) &#8211; data shape [n_samples, n_features]</li>
+<li><strong>y</strong> &#8211; values - array-like of shape [n_samples]</li>
+<li><strong>sample_weight</strong> &#8211; weight of events,
+array-like of shape [n_samples] or None if all weights are equal</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">self</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rep.estimators.tmva.TMVARegressor.get_params">
+<code class="descname">get_params</code><span class="sig-paren">(</span><em>deep=True</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.estimators.tmva.TMVARegressor.get_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get parameters for this estimator.</p>
+<p>deep: boolean, optional</p>
+<blockquote>
+<div>If True, will return the parameters for this estimator and contained subobjects that are estimators.</div></blockquote>
+<p>params : mapping of string to any</p>
+<blockquote>
+<div>Parameter names mapped to their values.</div></blockquote>
+</dd></dl>
+
+<dl class="method">
+<dt id="rep.estimators.tmva.TMVARegressor.predict">
+<code class="descname">predict</code><span class="sig-paren">(</span><em>X</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.estimators.tmva.TMVARegressor.predict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Predict data</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>X</strong> (<em>pandas.DataFrame</em>) &#8211; data shape [n_samples, n_features]</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">numpy.array of shape n_samples with values</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rep.estimators.tmva.TMVARegressor.set_params">
+<code class="descname">set_params</code><span class="sig-paren">(</span><em>**params</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.estimators.tmva.TMVARegressor.set_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the parameters of this estimator.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>params</strong> (<em>dict</em>) &#8211; parameters to set in model</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rep.estimators.tmva.TMVARegressor.staged_predict">
+<code class="descname">staged_predict</code><span class="sig-paren">(</span><em>X</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.estimators.tmva.TMVARegressor.staged_predict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Predicts values on each stage</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>X</strong> (<em>pandas.DataFrame</em>) &#8211; data shape [n_samples, n_features]</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">iterator</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">Doesn&#8217;t support for TMVA (<strong>AttributeError</strong> will be thrown)</p>
+</div>
+</dd></dl>
+
+</dd></dl>
+
 </div>
 <div class="section" id="module-rep.estimators.xgboost">
 <span id="xgboost-classifier-and-regressor"></span><h2>XGBoost classifier and regressor<a class="headerlink" href="#module-rep.estimators.xgboost" title="Permalink to this headline">¶</a></h2>
