@@ -13,7 +13,7 @@ __author__ = 'Alexey Berdnikov'
 
 class NolearnBase(object):
     """
-    Base class for NolearnClassifier. :class:`DBN` from :mod:`nolearn` library is used.
+    Base class for NolearnClassifier and NolearnRegressor. :class:`DBN` from :mod:`nolearn` library is used.
 
     Parameters:
     -----------
@@ -340,3 +340,131 @@ class NolearnClassifier(NolearnBase, Classifier):
 
         """
         raise AttributeError("'staged_predict_proba' is not supported for nolearn")
+
+
+class NolearnRegressor(NolearnBase, Regressor):
+    """
+    Regressor based on :class:`DBN` from :mod:`nolearn.dbn`.
+
+    Parameters:
+    -----------
+    :param features: features used in training
+    :type features: `list[str]` or None
+    :param layers: A list of ints of the form `[n_hid_units_1, n_hid_units_2, ...]`, where `n_hid_units_i` is the number
+        of units in i-th hidden layer. The number of units in the input layer and the output layer will be set
+        automatically. Default value is `[10]` which means one hidden layer containing 10 units.
+    :param scales: Scale of the randomly initialized weights. A list of floating point values. When you find good values
+        for the scale of the weights you can speed up training a lot, and also improve performance. Defaults to `0.05`.
+    :param fan_outs: Number of nonzero incoming connections to a hidden unit. Defaults to `None`, which means that all
+        connections have non-zero weights.
+    :param output_act_funct: Output activation function. Instance of type :class:`gdbn.activationFunctions.Sigmoid`,
+        :class:`gdbn.activationFunctions.Linear`, :class:`gdbn.activationFunctions.Softmax` from the
+        :mod:`gdbn.activationFunctions` module.  Defaults to :class:`gdbn.activationFunctions.Softmax`.
+    :param real_valued_vis: Set `True` (the default) if visible units are real-valued.
+    :param use_re_lu: Set `True` to use rectified linear units. Defaults to `False`.
+    :param uniforms: Not documented at this time.
+    :param learn_rates: A list of learning rates, one entry per weight layer.
+    :param learn_rate_decays: The number with which the `learn_rate` is multiplied after each epoch of fine-tuning.
+    :param learn_rate_minimums: The minimum `learn_rates`; after the learn rate reaches the minimum learn rate, the
+        `learn_rate_decays` no longer has any effect.
+    :param momentum: Momentum
+    :param l2_costs: L2 costs per weight layer.
+    :param dropouts: Dropouts per weight layer.
+    :param nesterov: Not documented at this time.
+    :param nest_compare: Not documented at this time.
+    :param rms_lims: Not documented at this time.
+    :param learn_rates_pretrain: A list of learning rates similar to `learn_rates_pretrain`, but used for pretraining.
+        Defaults to value of `learn_rates` parameter.
+    :param momentum_pretrain: Momentum for pre-training. Defaults to value of `momentum` parameter.
+    :param l2_costs_pretrain: L2 costs per weight layer, for pre-training.  Defaults to the value of `l2_costs`
+        parameter.
+    :param nest_compare_pretrain: Not documented at this time.
+    :param epochs: Number of epochs to train (with backprop).
+    :param epochs_pretrain: Number of epochs to pre-train (with CDN).
+    :param loss_funct: A function that calculates the loss. Used for displaying learning progress.
+    :param minibatch_size: Size of a minibatch.
+    :param minibatches_per_epoch: Number of minibatches per epoch. The default is to use as many as fit into our
+        training set.
+    :param pretrain_callback: An optional function that takes as arguments the :class:`nolearn.dbn.DBN` instance, the
+        epoch and the layer index as its argument, and is called for each epoch of pretraining.
+    :param fine_tune_callback: An optional function that takes as arguments the :class:`nolearn.dbn.DBN` instance and
+        the epoch, and is called for each epoch of fine tuning.
+    :param verbose: Debugging output.
+    .. warning::
+        nolearn doesn't support `feature_importances__` and sample weights.
+
+    """
+    def __init__(self, features=None,
+                 layers=(10,),
+                 scales=0.05,
+                 fan_outs=None,
+                 output_act_funct=None,
+                 real_valued_vis=True,
+                 use_re_lu=True,
+                 uniforms=False,
+                 learn_rates=0.1,
+                 learn_rate_decays=1.0,
+                 learn_rate_minimums=0.0,
+                 momentum=0.9,
+                 l2_costs=0.0001,
+                 dropouts=0,
+                 nesterov=True,
+                 nest_compare=True,
+                 rms_lims=None,
+                 learn_rates_pretrain=None,
+                 momentum_pretrain=None,
+                 l2_costs_pretrain=None,
+                 nest_compare_pretrain=None,
+                 epochs=10,
+                 epochs_pretrain=0,
+                 loss_funct=None,
+                 minibatch_size=64,
+                 minibatches_per_epoch=None,
+                 pretrain_callback=None,
+                 fine_tune_callback=None,
+                 verbose=0):
+        NolearnBase.__init__(self,
+                             layers=layers,
+                             scales=scales,
+                             fan_outs=fan_outs,
+                             output_act_funct=output_act_funct,
+                             real_valued_vis=real_valued_vis,
+                             use_re_lu=use_re_lu,
+                             uniforms=uniforms,
+                             learn_rates=learn_rates,
+                             learn_rate_decays=learn_rate_decays,
+                             learn_rate_minimums=learn_rate_minimums,
+                             momentum=momentum,
+                             l2_costs=l2_costs,
+                             dropouts=dropouts,
+                             nesterov=nesterov,
+                             nest_compare=nest_compare,
+                             rms_lims=rms_lims,
+                             learn_rates_pretrain=learn_rates_pretrain,
+                             momentum_pretrain=momentum_pretrain,
+                             l2_costs_pretrain=l2_costs_pretrain,
+                             nest_compare_pretrain=nest_compare_pretrain,
+                             epochs=epochs,
+                             epochs_pretrain=epochs_pretrain,
+                             loss_funct=loss_funct,
+                             minibatch_size=minibatch_size,
+                             minibatches_per_epoch=minibatches_per_epoch,
+                             pretrain_callback=pretrain_callback,
+                             fine_tune_callback=fine_tune_callback,
+                             verbose=verbose)
+        Regressor.__init__(self, features=features)
+
+    def fit(self, X, y):
+        """
+        Train the classifier.
+
+        :param pandas.DataFrame | numpy.ndarray X: data shape `[n_samples, n_features]`
+        :param list | numpy.array y: values - array-like of shape `[n_samples]`
+        :return: self
+        .. warning::
+            Sample weights are not supported for nolearn.
+
+        """
+        X, y, sample_weight = check_inputs(X, y, sample_weight=None, allow_none_weights=True)
+        X = self._transform_data(X, fit=True)
+        return self._fit(X, y)
