@@ -151,10 +151,11 @@ class NeurolabRegressor(NeurolabBase, Regressor):
         X, y, _ = check_inputs(X, y, None)
 
         x_train = self._transform_input(self._get_train_features(X), y)
+        y_train = y.reshape(len(y), 1)
 
-        net_params = self._prepare_parameters_for_regression(self.net_params, x_train, y)
+        net_params = self._prepare_parameters_for_regression(self.net_params, x_train, y_train)
 
-        net = self._fit(x_train, y, **net_params)
+        net = self._fit(x_train, y_train, **net_params)
 
         self.net = net
         return self
@@ -200,7 +201,7 @@ class NeurolabRegressor(NeurolabBase, Regressor):
 
         # Output layers of regressors contain exactly 1 output neuron
         if 'size' in net_params:
-            net_params['size'] += 1
+            net_params['size'] += [1]
 
         return net_params
 
@@ -240,7 +241,7 @@ class NeurolabClassifier(NeurolabBase, Classifier):
         x_train = self._transform_input(self._get_train_features(X), y)
         y_train = _one_hot_transform(y)
 
-        self.classes_ = np.unique(y)
+        self.classes_ = self._get_classes(y, y_train)
         net_params = self._prepare_parameters_for_classification(self.net_params, x_train, y_train)
 
         net = self._fit(x_train, y_train, **net_params)
@@ -270,6 +271,14 @@ class NeurolabClassifier(NeurolabBase, Classifier):
         .. warning:: Doesn't have support in Neurolab (**AttributeError** will be thrown)
         """
         raise AttributeError("Not supported by Neurolab networks")
+
+    def _get_classes(self, y, y_transformed):
+        # I found no proved evidence that OHE is guaranteed to encode values in accordance to their order
+        # So this hack appeared
+        cl = np.zeros(len(np.unique(y)))
+        for true_cl, enc in zip(y, y_transformed):
+            cl[true_cl] = np.argmax(enc)
+        return cl
 
     def _prepare_parameters_for_classification(self, params, x_train, y_train):
         net_params = deepcopy(params)
