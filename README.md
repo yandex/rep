@@ -21,3 +21,9 @@ https://github.com/yandex/rep/wiki/Running-REP-using-Docker/
 However, if you want to install `REP` on your machine, follow this manual:  <br />
 https://github.com/yandex/rep/wiki/Installing-manually <br />
 and https://github.com/yandex/rep/wiki/Running-manually
+
+### First steps
+
+To get started with the framework, look at the notebooks in /howto/  <br />
+Notebooks in repository can be viewed (not executed) online at nbviewer: http://nbviewer.ipython.org/github/yandex/rep/tree/master/howto/  <br />
+There are basic introductory notebooks (about python, IPython) and more advanced ones (about the REP itself)
