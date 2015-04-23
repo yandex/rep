@@ -10,7 +10,8 @@ __author__ = 'Alex Rogozhnikov'
 
 class SklearnBase(object):
     """
-    SklearnBase is base for sklearn-like models. All attributes will be returned for base estimator
+    SklearnBase is base for sklearn-like models.
+    All attributes will be returned for base estimator
 
     Parameters:
     -----------
@@ -45,7 +46,7 @@ class SklearnBase(object):
 
     def predict(self, X):
         """
-        Predict labels for estimators and values for regressors for all events in dataset
+        Predict labels for estimators and values for regressors for all events in dataset.
 
         :param X: pandas.DataFrame of shape [n_samples, n_features]
         :rtype: numpy.array of shape [n_samples] with labels/values
@@ -189,7 +190,8 @@ class SklearnRegressor(SklearnBase, Regressor):
 
     def staged_predict(self, X):
         """
-        Predicts values on each stage
+        Predicts regression target at each stage for X.
+        This method allows monitoring of error after each stage.
 
         :return: iterator
         """

@@ -31,7 +31,7 @@ class XGBoostBase(object):
 
     Parameters:
     -----------
-    :param int n_estimators: the number of round for boosting.
+    :param int n_estimators: the number of trees built.
     :param int nthreads: number of parallel threads used to run xgboost.
     :param num_feature: feature dimension used in boosting, set to maximum dimension of the feature
         (set automatically by xgboost, no need to be set by user).
@@ -212,13 +212,13 @@ class XGBoostBase(object):
 
 class XGBoostClassifier(XGBoostBase, Classifier):
     """
-    Implements classification (multiclassification) from XGBoost library.
+    Implements classification (and multiclassification) from XGBoost library.
 
     Parameters:
     -----------
     :param features: list of features to train model
     :type features: None or list(str)
-    :param int n_estimators: the number of round for boosting.
+    :param int n_estimators: the number of trees built.
     :param int nthreads: number of parallel threads used to run xgboost.
     :param num_feature: feature dimension used in boosting, set to maximum dimension of the feature
         (set automatically by xgboost, no need to be set by user).
@@ -299,7 +299,7 @@ class XGBoostClassifier(XGBoostBase, Classifier):
 
     def predict_proba(self, X):
         """
-        Predict data
+        Predict probabilities for data X.
 
         :param pandas.DataFrame X: data shape [n_samples, n_features]
         :rtype: numpy.array of shape [n_samples, n_classes] with probabilities
@@ -312,7 +312,7 @@ class XGBoostClassifier(XGBoostBase, Classifier):
 
     def staged_predict_proba(self, X, step=10):
         """
-        Predicts probabilities on each stage
+        Predicts probabilities on each stage for data X.
 
         :param pandas.DataFrame X: data shape [n_samples, n_features]
         :param int step: step for returned iterations
@@ -350,7 +350,7 @@ class XGBoostRegressor(XGBoostBase, Regressor):
     -----------
     :param features: list of features to train model
     :type features: None or list(str)
-    :param int n_estimators: the number of round for boosting.
+    :param int n_estimators: the number of trees built.
     :param int nthreads: number of parallel threads used to run xgboost.
     :param num_feature: feature dimension used in boosting, set to maximum dimension of the feature
         (set automatically by xgboost, no need to be set by user).
@@ -419,10 +419,10 @@ class XGBoostRegressor(XGBoostBase, Regressor):
 
     def fit(self, X, y, sample_weight=None):
         """
-        Train the classifier
+        Train the classifier on training dataset
 
         :param pandas.DataFrame X: data shape [n_samples, n_features]
-        :param y: labels of events - array-like of shape [n_samples]
+        :param y: regression targets of events - array-like of shape [n_samples]
         :param sample_weight: weight of events,
                array-like of shape [n_samples] or None if all weights are equal
         :return: self
@@ -435,7 +435,7 @@ class XGBoostRegressor(XGBoostBase, Regressor):
 
     def predict(self, X):
         """
-        Predict data
+        Predicts regression target for X.
 
         :param pandas.DataFrame X: data shape [n_samples, n_features]
         :rtype: numpy.array of shape [n_samples, n_classes] with probabilities
@@ -446,7 +446,7 @@ class XGBoostRegressor(XGBoostBase, Regressor):
 
     def staged_predict(self, X, step=10):
         """
-        Predicts probabilities on each stage
+        Predicts regression target at each stage for X.
 
         :param pandas.DataFrame X: data shape [n_samples, n_features]
         :param int step: step for returned iterations
