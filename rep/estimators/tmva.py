@@ -23,12 +23,13 @@ from ..utils import get_columns_dict
 __author__ = 'Tatiana Likhomanenko'
 
 logger = getLogger(__name__)
+# those parameters that shall not be passed to options of TMVA classifier
 _PASS_PARAMETERS = {'random_state'}
 
 
 class _AdditionalInformation():
     """
-    Additional information for tmva factory
+    Additional information for tmva factory (used in training)
     """
 
     def __init__(self, directory, features_names, model_type='classification'):
@@ -45,7 +46,7 @@ class _AdditionalInformation():
 
 class _AdditionalInformationPredict():
     """
-    Additional information for tmva factory
+    Additional information for tmva factory (used in predictions)
     """
 
     def __init__(self, directory, xml_file, features_names, method_name, model_type=('classification', None)):
@@ -197,7 +198,7 @@ class TMVABase(object):
 
 class TMVAClassifier(TMVABase, Classifier):
     """
-    TMVAClassifier wraps estimators from TMVA (CERN library for machine learning)
+    TMVAClassifier wraps classifiers from TMVA (CERN library for machine learning)
 
     Parameters:
     -----------
@@ -210,14 +211,14 @@ class TMVAClassifier(TMVABase, Classifier):
 
     :param str sigmoid_function: function which is used to convert TMVA output to probabilities;
 
-        * *identity* (svm, mlp) --- the same output, use this for methods returning class probabilities
+        * *identity* (use for svm, mlp) --- the same output, use this for methods returning class probabilities
 
         * *sigmoid* --- sigmoid transformation, use it if output varies in range [-infinity, +infinity]
 
         * *bdt* (for bdt algorithms output varies in range [-1, 1])
 
         * *sig_eff=0.4* --- for rectangular cut optimization methods,
-        and 0.4 will be used as signal efficiency to evaluate MVA,
+        for instance, here 0.4 will be used as signal efficiency to evaluate MVA,
         (put any float number from [0, 1])
 
     :param dict method_parameters: estimator options, example: NTrees=100, BoostType='Grad'
@@ -226,7 +227,7 @@ class TMVAClassifier(TMVABase, Classifier):
         TMVA doesn't support *staged_predict_proba()* and *feature_importances__*
 
     .. warning::
-        TMVA doesn't support multiclassification, only two-classes classification
+        TMVA doesn't support multiclassification, only two-class classification
     """
 
     def __init__(self,
@@ -300,7 +301,7 @@ class TMVAClassifier(TMVABase, Classifier):
 
     def predict_proba(self, X):
         """
-        Predict data
+        Predict probabilities for new data.
 
         :param pandas.DataFrame X: data shape [n_samples, n_features]
         :rtype: numpy.array of shape [n_samples, n_classes] with probabilities
@@ -330,7 +331,7 @@ class TMVAClassifier(TMVABase, Classifier):
         :param pandas.DataFrame X: data shape [n_samples, n_features]
         :return: iterator
 
-        .. warning:: Doesn't support for TMVA (**AttributeError** will be thrown)
+        .. warning:: Not supported for TMVA (**AttributeError** will be thrown)
         """
         raise AttributeError("Not supported for TMVA")
 
@@ -429,6 +430,6 @@ class TMVARegressor(TMVABase, Regressor):
         :param pandas.DataFrame X: data shape [n_samples, n_features]
         :return: iterator
 
-        .. warning:: Doesn't support for TMVA (**AttributeError** will be thrown)
+        .. warning:: Not supported for TMVA (**AttributeError** will be thrown)
         """
         raise AttributeError("Not supported for TMVA")
