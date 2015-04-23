@@ -8,21 +8,27 @@ from rep.utils import check_sample_weight
 
 __author__ = 'Alex Rogozhnikov'
 
+"""
+About
+this file contains definitions for useful metrics.
 
-# About
-# this file contains definitions for useful metrics in specific format.
+In general case, metrics follows standard sklearn convention for **estimators**, provides:
 
-# In general case, metrics follows standard sklearn convention for estimators, provides
-# - constructor
-# m = metrics(parameter=1)
-# - fitting, where checks and heavy computations performed.
-# m.fit(X, y, sample_weight=None)
-# - computation of metrics by probabilities:
-# proba = classifier.predict_proba(X)
-# m(proba)
+Constructor
+>>> m = metrics(parameter=1)
+
+Fitting, where checks and heavy computations performed.
+>>> m.fit(X, y, sample_weight=None)
+
+Computation of metrics by probabilities:
+>>> proba = classifier.predict_proba(X)
+>>> m(y, proba, sample_weight=None)
+"""
 
 
 class MetricMixin(object):
+    """Class with helpful methods for metrics,
+     metrics are expected (but not obliged) to be derived from it."""
     def prepare(self, X, y, sample_weight):
         assert len(X) == len(y), 'Lengths are different!'
         sample_weight = check_sample_weight(y, sample_weight=sample_weight)
