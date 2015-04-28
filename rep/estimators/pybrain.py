@@ -22,7 +22,7 @@ from .utils import check_inputs
 import numpy
 import pandas
 
-from sklearn.preprocessing import OneHotEncoder, Imputer, StandardScaler
+from sklearn.preprocessing import OneHotEncoder, StandardScaler
 from sklearn.base import clone
 from pybrain.tools.shortcuts import buildNetwork
 from pybrain.datasets import SupervisedDataSet
@@ -117,6 +117,7 @@ class PyBrainBase(object):
         self.continue_epochs = continue_epochs
         self.validation_proportion = validation_proportion
 
+        self.__fitted = False
 
     def _check_init_input(self, layers, hiddenclass):
         """
@@ -124,6 +125,9 @@ class PyBrainBase(object):
         """
         if layers is not None and hiddenclass is not None and len(layers) != len(hiddenclass):
             raise ValueError('Number of hidden layers does not match number of classes')
+
+    def _is_fitted(self):
+        return self.__fitted
 
     def set_params(self, **params):
         """
@@ -136,6 +140,30 @@ class PyBrainBase(object):
                 setattr(self, k, v)
             if k in (self.params.keys()):
                 self.params[k] = params[k]
+
+    def get_params(self, deep=True):
+        """
+        Gets parameters of the estimator
+
+        :return dict
+        """
+        parameters = self.params.copy()
+        parameters['layers'] = self.layers
+        parameters['hiddenclass'] = self.hiddenclass
+        parameters['features'] = self.features
+        parameters['epochs'] = self.epochs
+        parameters['scaler'] = self.scaler
+        parameters['learningrate'] = self.learningrate
+        parameters['lrdecay'] = self.lrdecay
+        parameters['momentum'] = self.momentum
+        parameters['verbose'] = self.verbose
+        parameters['batchlearning'] = self.batchlearning
+        parameters['weightdecay'] = self.weightdecay
+        parameters['max_epochs'] = self.max_epochs
+        parameters['continue_epochs'] = self.continue_epochs
+        parameters['validation_proportion'] = self.validation_proportion
+
+        return parameters
 
     def _transform_data(self, X, y=None):
         X = self._get_train_features(X)
@@ -186,6 +214,7 @@ class PyBrainBase(object):
 
             for i in range(0, len(y)):
                 ds.addSample(tuple(X[i, :]), tuple(label[i]))
+
         elif model_type == 'regression':
             net_options['outclass'] = structure.LinearLayer
 
@@ -195,8 +224,9 @@ class PyBrainBase(object):
             ds = SupervisedDataSet(X.shape[1], y.shape[1])
             ds.setField('input', X)
             ds.setField('target', y)
+
         else:
-            raise 'Wrong model type'
+            raise ValueError('Wrong model type')
 
         self.net = buildNetwork(*layers_for_net, **net_options)
 
@@ -261,7 +291,7 @@ class PyBrainClassifier(PyBrainBase, Classifier):
                  hiddenclass=None,
                  features=None,
                  epochs=10,
-                 scaler=None,
+                 scaler='standard',
                  use_rprop=False,
                  learningrate=0.01,
                  lrdecay=1.0,
@@ -349,19 +379,9 @@ class PyBrainClassifier(PyBrainBase, Classifier):
 
         :return dict
         """
-        parameters = self.params.copy()
-        parameters['layers'] = self.layers
-        parameters['hiddenclass'] = self.hiddenclass
+        parameters = PyBrainBase.get_params(self, deep)
         parameters['features'] = self.features
-        parameters['epochs'] = self.epochs
-        parameters['scaler'] = self.scaler
         parameters['use_rprop'] = self.use_rprop
-        parameters['learningrate'] = self.learningrate
-        parameters['lrdecay'] = self.lrdecay
-        parameters['momentum'] = self.momentum
-        parameters['verbose'] = self.verbose
-        parameters['batchlearning'] = self.batchlearning
-        parameters['weightdecay'] = self.weightdecay
         parameters['etaminus'] = self.etaminus
         parameters['etaplus'] = self.etaplus
         parameters['deltamin'] = self.deltamin
@@ -377,6 +397,8 @@ class PyBrainClassifier(PyBrainBase, Classifier):
         :param pandas.DataFrame X: data shape [n_samples, n_features]
         :rtype: numpy.array of shape [n_samples, n_classes] with probabilities
         """
+        assert self._is_fitted(), "classifier isn't fitted, please call 'fit' first"
+
         X = self._transform_data(X)
         proba = []
         for values in X:
@@ -463,6 +485,17 @@ class PyBrainRegressor(PyBrainBase, Regressor):
                              weightdecay=weightdecay,
                              **params)
 
+    def get_params(self, deep=True):
+        """
+        Gets parameters of the estimator
+
+        :return dict
+        """
+        parameters = PyBrainBase.get_params(self, deep)
+        parameters['features'] = self.features
+
+        return parameters
+
     def fit(self, X, y):
         """
         Train the regressor model.
@@ -491,6 +524,7 @@ class PyBrainRegressor(PyBrainBase, Regressor):
         else:
             for i in range(self.epochs):
                 trainer.train()
+        self._fitted = True
 
         return self
 
@@ -501,6 +535,8 @@ class PyBrainRegressor(PyBrainBase, Regressor):
         :param X: pandas.DataFrame of shape [n_samples, n_features]
         :rtype: numpy.array of shape [n_samples] with predicted values
         """
+        assert self._is_fitted(), "regressor isn't fitted, please call 'fit' first"
+
         X = self._transform_data(X)
         y_test_dummy = numpy.zeros((len(X), 1))
 
