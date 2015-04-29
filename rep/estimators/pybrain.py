@@ -117,17 +117,12 @@ class PyBrainBase(object):
         self.continue_epochs = continue_epochs
         self.validation_proportion = validation_proportion
 
-        self.__fitted = False
-
     def _check_init_input(self, layers, hiddenclass):
         """
         Checks the input of __init__.
         """
         if layers is not None and hiddenclass is not None and len(layers) != len(hiddenclass):
             raise ValueError('Number of hidden layers does not match number of classes')
-
-    def _is_fitted(self):
-        return self.__fitted
 
     def set_params(self, **params):
         """
@@ -326,6 +321,11 @@ class PyBrainClassifier(PyBrainBase, Classifier):
         self.deltamax = deltamax
         self.delta0 = delta0
 
+        self.__fitted = False
+
+    def _is_fitted(self):
+        return self.__fitted
+
     def fit(self, X, y):
         """
         Trains the classifier
@@ -370,6 +370,9 @@ class PyBrainClassifier(PyBrainBase, Classifier):
         else:
             for i in range(self.epochs):
                 trainer.train()
+        print(self.__fitted)
+        self.__fitted = True
+        print(self.__fitted)
 
         return self
 
@@ -484,6 +487,10 @@ class PyBrainRegressor(PyBrainBase, Regressor):
                              batchlearning=batchlearning,
                              weightdecay=weightdecay,
                              **params)
+        self.__fitted = False
+
+    def _is_fitted(self):
+        return self.__fitted
 
     def get_params(self, deep=True):
         """
@@ -524,7 +531,7 @@ class PyBrainRegressor(PyBrainBase, Regressor):
         else:
             for i in range(self.epochs):
                 trainer.train()
-        self._fitted = True
+        self.__fitted = True
 
         return self
 

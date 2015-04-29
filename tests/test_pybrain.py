@@ -14,12 +14,11 @@
 
 
 from __future__ import division, print_function, absolute_import
-from ._test_classifier import check_classifier, check_regression
-from rep.estimators import PyBrainClassifier
+from rep.test.test_estimators import check_classifier, check_regression
+from rep.estimators.pybrain import PyBrainClassifier
 from rep.estimators.pybrain import PyBrainRegressor
 from sklearn.ensemble import BaggingClassifier
-from rep.estimators.sklearn import SklearnClassifier
-from sklearn.preprocessing import StandardScaler
+from rep.estimators import SklearnClassifier
 
 
 __author__ = 'Artem Zhirokhov'
