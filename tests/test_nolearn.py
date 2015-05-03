@@ -1,5 +1,5 @@
 from __future__ import division, print_function, absolute_import
-from ._test_classifier import check_classifier, check_regression
+from rep.test.test_estimators import check_classifier, check_regression
 from rep.estimators import NolearnClassifier
 
 from sklearn.ensemble import AdaBoostClassifier, BaggingClassifier
