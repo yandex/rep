@@ -12,3 +12,8 @@ try:
     from .xgboost import XGBoostClassifier, XGBoostRegressor
 except:
     pass
+
+try:
+    from .nolearn import NolearnClassifier
+except:
+    pass
