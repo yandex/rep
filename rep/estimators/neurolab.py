@@ -12,17 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-__author__ = 'Sterzhanov Vladislav'
-
-
 from __future__ import division, print_function, absolute_import
-
 from abc import ABCMeta
 
 from .interface import Classifier, Regressor
 from .utils import check_inputs
 
-from copy import deepcopy
+from copy import deepcopy, copy
 
 import neurolab as nl
 import numpy as np
@@ -31,6 +27,7 @@ import scipy
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
 from sklearn.base import clone
 
+__author__ = 'Sterzhanov Vladislav'
 
 def _one_hot_transform(y):
     return np.array(OneHotEncoder(n_values=len(np.unique(y))).fit_transform(y.reshape((len(y), 1))).todense())
@@ -55,15 +52,14 @@ CANT_CLASSIFY = ('learning-vector', 'hopfield-recurrent', 'competing-layer', 'he
 class NeurolabBase(object):
     __metaclass__ = ABCMeta
 
-    def __init__(self, net_type, initf,
-                 trainf, **kwargs):
+    def __init__(self, net_type, initf, trainf, scaler, **kwargs):
         self.train_params = {}
         self.net_params = {}
         self.trainf = trainf
         self.initf = initf
         self.net_type = net_type
         self.net = None
-        self.scaler = StandardScaler()
+        self.scaler = (StandardScaler() if scaler is None else scaler)
         self.set_params(**kwargs)
 
     def set_params(self, **params):
@@ -87,7 +83,7 @@ class NeurolabBase(object):
         :return dict
         """
         parameters = deepcopy(self.net_params)
-        parameters.update(self.train_params)
+        parameters.update(deepcopy(self.train_params))
         for name in BASIC_PARAMS:
             parameters[name] = getattr(self, name)
         return parameters
@@ -110,11 +106,11 @@ class NeurolabBase(object):
     def _sim(self, X):
         assert self.net is not None, 'Classifier not fitted, predict denied'
         transformed_x = self._transform_input(X, fit=False)
-        assert np.all((transformed_x <= 1) & (transformed_x >= 0)), \
-            'Transformer returned illegal features (out of [0,1] range)'
         return self.net.sim(transformed_x)
 
     def _transform_input(self, X, y=None, fit=True):
+        if self.scaler is False:
+            return X
         # FIXME: Need this while using sklearn < 0.16
         X = np.copy(X)
         if fit:
@@ -155,9 +151,10 @@ class NeurolabRegressor(NeurolabBase, Regressor):
                  features=None,
                  initf=nl.init.init_zeros,
                  trainf=None,
+                 scaler=None,
                  **kwargs):
         Regressor.__init__(self, features=features)
-        NeurolabBase.__init__(self, net_type=net_type, initf=initf, trainf=trainf, **kwargs)
+        NeurolabBase.__init__(self, net_type=net_type, initf=initf, trainf=trainf, scaler=scaler, **kwargs)
 
     def fit(self, X, y):
         # TODO Some networks do not support regression?
@@ -181,8 +178,6 @@ class NeurolabRegressor(NeurolabBase, Regressor):
         :param pandas.DataFrame X: data shape [n_samples, n_features]
         :return: numpy.array of shape n_samples with values
         """
-        # FIXME: Dirty hack 'cause there is no base object defining _get_train_features that
-        # Classisifier and Regressor would inherit
         return self._sim(self._get_train_features(X))
 
     def staged_predict(self, X, step=10):
@@ -197,7 +192,6 @@ class NeurolabRegressor(NeurolabBase, Regressor):
         raise AttributeError("Not supported by Neurolab networks")
 
     def _prepare_parameters_for_regression(self, params, x_train, y_train):
-        # TODO
         net_params = deepcopy(params)
 
         # Network expects features to be [0, 1]-scaled
@@ -241,9 +235,10 @@ class NeurolabClassifier(NeurolabBase, Classifier):
                  features=None,
                  initf=nl.init.init_zeros,
                  trainf=None,
+                 scaler=None,
                  **kwargs):
         Classifier.__init__(self, features=features)
-        NeurolabBase.__init__(self, net_type=net_type, initf=initf, trainf=trainf, **kwargs)
+        NeurolabBase.__init__(self, net_type=net_type, initf=initf, trainf=trainf, scaler=scaler, **kwargs)
         self.classes_ = None
 
     def fit(self, X, y):
@@ -270,9 +265,6 @@ class NeurolabClassifier(NeurolabBase, Classifier):
         :param X: pandas.DataFrame of shape [n_samples, n_features]
         :rtype: numpy.array of shape [n_samples, n_classes] with probabilities
         """
-
-        # FIXME: Dirty hack 'cause there is no base object defining _get_train_features that
-        # Classisifier and Regressor would inherit
         return self._sim(self._get_train_features(X))
 
     def staged_predict_proba(self, X):
