@@ -11,9 +11,7 @@ from subprocess import PIPE
 import shutil
 import sys
 
-import root_numpy
 import numpy
-
 from .interface import Classifier, Regressor
 from .utils import check_inputs, score_to_proba, proba_to_two_dimension
 from six.moves import cPickle
@@ -31,16 +29,11 @@ class _AdditionalInformation():
     Additional information for tmva factory
     """
 
-    def __init__(self, directory, features_names, model_type='classification'):
+    def __init__(self, directory, model_type='classification'):
         self.directory = directory
-        self.filename = os.path.join(self.directory, 'train.root')
-        self.treename = 'train_tree'
         self.tmva_root = 'result.root'
         self.tmva_job = "TMVAEstimation"
-        self.weight_column = 'REP_Weight__'
-        self.target_column = 'REP_Signal__'
         self.model_type = model_type
-        self.features = features_names
 
 
 class _AdditionalInformationPredict():
@@ -52,10 +45,9 @@ class _AdditionalInformationPredict():
         self.directory = directory
         self.xml_file = xml_file
         self.features = features_names
-        self.treename = 'test_tree'
-        self.filename = os.path.join(self.directory, 'test.root')
         self.method_name = method_name
         self.model_type = model_type
+        self.predictions = os.path.join(directory, 'dump_predictions.pkl')
 
 
 class TMVABase(object):
@@ -96,7 +88,7 @@ class TMVABase(object):
     def _remove_tmp_directory(directory):
         shutil.rmtree(directory, ignore_errors=True)
 
-    def _fit(self, X, y, sample_weight=None, features_names=None, model_type='classification'):
+    def _fit(self, X, y, sample_weight=None, model_type='classification'):
         """
         Train the classifier
 
@@ -108,19 +100,15 @@ class TMVABase(object):
         """
         # saving data to 2 different root files.
         directory = self._create_tmp_directory()
-        add_info = _AdditionalInformation(directory, features_names, model_type=model_type)
+        add_info = _AdditionalInformation(directory, model_type=model_type)
         try:
-            X[add_info.weight_column] = sample_weight
-            X[add_info.target_column] = y
-            root_numpy.array2root(X.to_records(), filename=add_info.filename,
-                                  treename=add_info.treename)
-            self._run_tmva_training(add_info)
+            self._run_tmva_training(add_info, X, y, sample_weight)
         finally:
             self._remove_tmp_directory(directory)
 
         return self
 
-    def _run_tmva_training(self, info):
+    def _run_tmva_training(self, info, X, y, sample_weight):
         """
         Run subprocess to train tmva factory
 
@@ -135,12 +123,12 @@ class TMVABase(object):
 
         cPickle.dump(self, tmva_process.stdin)
         cPickle.dump(info, tmva_process.stdin)
+        cPickle.dump(X, tmva_process.stdin)
+        cPickle.dump(y, tmva_process.stdin)
+        cPickle.dump(sample_weight, tmva_process.stdin)
         stdout, stderr = tmva_process.communicate()
         assert tmva_process.returncode == 0, \
             'ERROR: TMVA process is incorrect finished \n LOG: %s \n %s' % (stderr, stdout)
-
-        assert 'TrainTree' in root_numpy.list_trees(os.path.join(info.directory, info.tmva_root)), \
-            'ERROR: Result file has not TrainTree'
 
         xml_filename = os.path.join(info.directory, 'weights',
                                     '{job}_{name}.weights.xml'.format(job=info.tmva_job, name=self._method_name))
@@ -166,15 +154,13 @@ class TMVABase(object):
                 file_xml.flush()
                 add_info = _AdditionalInformationPredict(directory, file_xml.name, features_names, self._method_name,
                                                          model_type=model_type)
-                root_numpy.array2root(X.astype(numpy.float32).to_records(), filename=add_info.filename,
-                                      treename=add_info.treename)
-                prediction = self._run_tmva_predict(add_info)
+                prediction = self._run_tmva_predict(add_info, X)
         finally:
             self._remove_tmp_directory(directory)
 
         return prediction
 
-    def _run_tmva_predict(self, info):
+    def _run_tmva_predict(self, info, data):
         """
         Run subprocess to train tmva factory
 
@@ -188,11 +174,11 @@ class TMVABase(object):
             shell=True)
 
         cPickle.dump(info, tmva_process.stdin)
+        cPickle.dump(data, tmva_process.stdin)
         stdout, stderr = tmva_process.communicate()
         assert tmva_process.returncode == 0, \
             'ERROR: TMVA process is incorrect finished \n LOG: %s \n %s' % (stderr, stdout)
-
-        return root_numpy.root2array(info.filename, treename=info.treename, branches=[self._method_name])[self._method_name]
+        return numpy.load(info.predictions)
 
 
 class TMVAClassifier(TMVABase, Classifier):
@@ -295,8 +281,8 @@ class TMVAClassifier(TMVABase, Classifier):
             self.factory_options = '{}:AnalysisType=Classification'.format(self.factory_options)
         else:
             self.factory_options = '{}:AnalysisType=Multiclass'.format(self.factory_options)
-        features_names = get_columns_dict(self.features).keys()
-        return self._fit(X, y, sample_weight=sample_weight, features_names=features_names)
+        #features_names = get_columns_dict(self.features).keys()
+        return self._fit(X, y, sample_weight=sample_weight)
 
     def predict_proba(self, X):
         """
@@ -407,9 +393,9 @@ class TMVARegressor(TMVABase, Regressor):
         """
         X, y, sample_weight = check_inputs(X, y, sample_weight=sample_weight, allow_none_weights=False)
         X = self._get_train_features(X).copy()
-        features_names = get_columns_dict(self.features).keys()
+        #features_names = get_columns_dict(self.features).keys()
         self.factory_options = '{}:AnalysisType=Regression'.format(self.factory_options)
-        return self._fit(X, y, sample_weight=sample_weight, features_names=features_names, model_type='regression')
+        return self._fit(X, y, sample_weight=sample_weight, model_type='regression')
 
     def predict(self, X):
         """
