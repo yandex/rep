@@ -52,14 +52,14 @@ CANT_CLASSIFY = ('learning-vector', 'hopfield-recurrent', 'competing-layer', 'he
 class NeurolabBase(object):
     __metaclass__ = ABCMeta
 
-    def __init__(self, net_type, initf, trainf, scaler, **kwargs):
+    def __init__(self, net_type, initf, trainf, **kwargs):
         self.train_params = {}
         self.net_params = {}
         self.trainf = trainf
         self.initf = initf
         self.net_type = net_type
         self.net = None
-        self.scaler = (StandardScaler() if scaler is None else scaler)
+        self.scaler = None
         self.set_params(**kwargs)
 
     def set_params(self, **params):
@@ -67,9 +67,18 @@ class NeurolabBase(object):
         Set the parameters of this estimator
         :param dict params: parameters to set in model
         """
+        if 'scaler' in params:
+            scaler = params['scaler']
+            self.scaler = (StandardScaler() if scaler is None else scaler)
+            params.pop('scaler')
+
         for name, value in params.items():
             if name in {'random_state'}:
                 continue
+            if name.startswith("scaler__"):
+                assert hasattr(self.scaler, 'get_params'), \
+                    "Trying to set {} without scaler".format(name)
+                self.scaler.set_params({name.lstrip("scaler__"): value})
             if name in NET_PARAMS:
                 self.net_params[name] = value
             elif name in BASIC_PARAMS:
@@ -85,6 +94,9 @@ class NeurolabBase(object):
         parameters = deepcopy(self.net_params)
         parameters.update(deepcopy(self.train_params))
         for name in BASIC_PARAMS:
+            if name == 'scaler':
+                parameters['scaler'] = \
+                    clone(self.scaler) if hasattr(self.scaler, 'get_params') else self.scaler
             parameters[name] = getattr(self, name)
         return parameters
 
@@ -121,6 +133,34 @@ class NeurolabBase(object):
     def _prepare_net(self, **net_params):
         init = self._get_initializers(self.net_type)
         return init(**net_params)
+
+    @staticmethod
+    def _prepare_params(net_params, x_train, out_layer_size):
+        params = deepcopy(net_params)
+        # Network expects features to be [0, 1]-scaled
+        params['minmax'] = [[0, 1]]*(x_train.shape[1])
+
+        # To unify the layer-description argument with other supported networks
+        if 'layers' in params:
+            params['size'] = params['layers']
+            params.pop('layers')
+
+        # For some reason Neurolab asks for a separate cn parameter instead of accessing size[-1]
+        # (e.g. In case of Single-Layer Perceptron)
+        if 'cn' in params:
+            params['cn'] = out_layer_size
+
+        if 'size' in params:
+            params['size'] += [out_layer_size]
+
+        return params
+
+
+
+
+
+
+
 
     @staticmethod
     def _get_initializers(net_type):
@@ -164,7 +204,7 @@ class NeurolabRegressor(NeurolabBase, Regressor):
         x_train = self._transform_input(self._get_train_features(X), y)
         y_train = y.reshape(len(y), 1)
 
-        net_params = self._prepare_parameters_for_regression(self.net_params, x_train, y_train)
+        net_params = self._prepare_parameters_for_regression(self.net_params, x_train)
 
         net = self._fit(x_train, y_train, **net_params)
 
@@ -191,27 +231,8 @@ class NeurolabRegressor(NeurolabBase, Regressor):
         """
         raise AttributeError("Not supported by Neurolab networks")
 
-    def _prepare_parameters_for_regression(self, params, x_train, y_train):
-        net_params = deepcopy(params)
-
-        # Network expects features to be [0, 1]-scaled
-        net_params['minmax'] = [[0, 1]]*(x_train.shape[1])
-
-        # To unify the layer-description argument with other supported networks
-        if 'layers' in net_params:
-            net_params['size'] = net_params['layers']
-            net_params.pop('layers')
-
-        # For some reason Neurolab asks for a separate cn parameter instead of accessing size[-1]
-        # (e.g. In case of Single-Layer Perceptron)
-        if 'cn' in net_params:
-            net_params['cn'] = 1
-
-        # Output layers of regressors contain exactly 1 output neuron
-        if 'size' in net_params:
-            net_params['size'] += [1]
-
-        return net_params
+    def _prepare_parameters_for_regression(self, params, x_train):
+        return NeurolabBase._prepare_params(params, x_train, 1)
 
 
 class NeurolabClassifier(NeurolabBase, Classifier):
@@ -251,7 +272,7 @@ class NeurolabClassifier(NeurolabBase, Classifier):
         y_train = _one_hot_transform(y)
 
         self.classes_ = self._get_classes(y, y_train)
-        net_params = self._prepare_parameters_for_classification(self.net_params, x_train, y_train)
+        net_params = self._prepare_parameters_for_classification(self.net_params, x_train)
 
         net = self._fit(x_train, y_train, **net_params)
 
@@ -286,25 +307,8 @@ class NeurolabClassifier(NeurolabBase, Classifier):
             cl[true_cl] = np.argmax(enc)
         return cl
 
-    def _prepare_parameters_for_classification(self, params, x_train, y_train):
-        net_params = deepcopy(params)
-
-        # Network expects features to be [0, 1]-scaled
-        net_params['minmax'] = [[0, 1]]*(x_train.shape[1])
-
-        # To unify the layer-description argument with other supported networks
-        if 'layers' in net_params:
-            net_params['size'] = net_params['layers']
-            net_params.pop('layers')
-
-        # For some reason Neurolab asks for a separate cn parameter instead of accessing size[-1]
-        # (e.g. In case of Single-Layer Perceptron)
-        if 'cn' in net_params:
-            net_params['cn'] = len(self.classes_)
-
-        # Output layers of classifiers contain exactly nclasses output neurons
-        if 'size' in net_params:
-            net_params['size'] += [y_train.shape[1]]
+    def _prepare_parameters_for_classification(self, params, x_train):
+        net_params = NeurolabBase._prepare_params(params, x_train, len(self.classes_))
 
         # Classification networks should have SoftMax as the transfer function on output layer
         if 'transf' not in net_params:
