@@ -104,7 +104,7 @@ class NeurolabBase(object):
         net_params = self._prepare_params_specific(self.net_params, x_train)
 
         init = self._get_initializers(self.net_type)
-        net = init(net_params)
+        net = init(**net_params)
 
         # To allow similar initf function on all layers
         initf_iterable = self.initf if hasattr(self.initf, '__iter__') else [self.initf]*len(net.layers)
