@@ -28,7 +28,7 @@ def tmva_process(info, data):
 
     reader = ROOT.TMVA.Reader()
 
-    for feature in info.features:
+    for feature in data.columns:
         reader.AddVariable(feature, array.array('f', [0.]))
 
     model_type, sigmoid_function = info.model_type
