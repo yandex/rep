@@ -11,11 +11,9 @@ from subprocess import PIPE
 import shutil
 import sys
 
-import numpy
 from .interface import Classifier, Regressor
 from .utils import check_inputs, score_to_proba, proba_to_two_dimension
 from six.moves import cPickle
-from ..utils import get_columns_dict
 
 
 __author__ = 'Tatiana Likhomanenko'
@@ -41,10 +39,9 @@ class _AdditionalInformationPredict():
     Additional information for tmva factory
     """
 
-    def __init__(self, directory, xml_file, features_names, method_name, model_type=('classification', None)):
+    def __init__(self, directory, xml_file, method_name, model_type=('classification', None)):
         self.directory = directory
         self.xml_file = xml_file
-        self.features = features_names
         self.method_name = method_name
         self.model_type = model_type
         self.result_filename = os.path.join(directory, 'dump_predictions.pkl')
@@ -138,7 +135,7 @@ class TMVABase(object):
     def _check_fitted(self):
         assert self.formula_xml is not None, "Classifier wasn't fitted, please call `fit` first"
 
-    def _predict(self, X, features_names=None, model_type=('classification', None)):
+    def _predict(self, X, model_type=('classification', None)):
         """
         Predict data
 
@@ -152,7 +149,7 @@ class TMVABase(object):
             with tempfile.NamedTemporaryFile(mode="w", suffix='.xml', dir=directory, delete=True) as file_xml:
                 file_xml.write(self.formula_xml)
                 file_xml.flush()
-                add_info = _AdditionalInformationPredict(directory, file_xml.name, features_names, self._method_name,
+                add_info = _AdditionalInformationPredict(directory, file_xml.name, self._method_name,
                                                          model_type=model_type)
                 prediction = self._run_tmva_predict(add_info, X)
         finally:
@@ -294,8 +291,7 @@ class TMVAClassifier(TMVABase, Classifier):
         :rtype: numpy.array of shape [n_samples, n_classes] with probabilities
         """
         X = self._get_train_features(X)
-        features_names = get_columns_dict(self.features).keys()
-        prediction = self._predict(X, features_names=features_names, model_type=('classification', self.sigmoid_function))
+        prediction = self._predict(X, model_type=('classification', self.sigmoid_function))
         return self._convert_output(prediction)
 
     def _convert_output(self, prediction):
@@ -407,8 +403,7 @@ class TMVARegressor(TMVABase, Regressor):
         :return: numpy.array of shape n_samples with values
         """
         X = self._get_train_features(X)
-        features_names = get_columns_dict(self.features).keys()
-        return self._predict(X, features_names=features_names, model_type=('regression', None))
+        return self._predict(X, model_type=('regression', None))
 
     def staged_predict(self, X):
         """
