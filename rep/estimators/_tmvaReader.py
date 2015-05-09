@@ -54,4 +54,5 @@ def main():
     assert isinstance(info, tmva._AdditionalInformationPredict)
     assert isinstance(data, pandas.DataFrame)
     predictions = tmva_process(info, data)
-    predictions.dump(info.predictions)
+    with open(info.result_filename, 'wb') as predictions_file:
+        pickle.dump(predictions, predictions_file)
