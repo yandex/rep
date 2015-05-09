@@ -41,6 +41,12 @@ def tmva_process(classifier, info, data, labels, sample_weight):
 
     # Set data
     if info.model_type == 'classification':
+        if classifier.method == 'kCuts':
+            # signal must the first added tree, because rectangular cut optimization in another way doesn't work
+            inds = numpy.argsort(labels)[::-1]
+            data = data.ix[inds, :]
+            labels = labels[inds]
+            sample_weight = sample_weight[inds]
         add_classification_events(factory, numpy.array(data), labels, weights=sample_weight)
         add_classification_events(factory, numpy.array(data), labels, weights=sample_weight, test=True)
     elif info.model_type == 'regression':
