@@ -47,7 +47,7 @@ class _AdditionalInformationPredict():
         self.features = features_names
         self.method_name = method_name
         self.model_type = model_type
-        self.predictions = os.path.join(directory, 'dump_predictions.pkl')
+        self.result_filename = os.path.join(directory, 'dump_predictions.pkl')
 
 
 class TMVABase(object):
@@ -178,7 +178,9 @@ class TMVABase(object):
         stdout, stderr = tmva_process.communicate()
         assert tmva_process.returncode == 0, \
             'ERROR: TMVA process is incorrect finished \n LOG: %s \n %s' % (stderr, stdout)
-        return numpy.load(info.predictions)
+        with open(info.result_filename, 'rb') as predictions_file:
+            predictions = cPickle.load(predictions_file)
+        return predictions
 
 
 class TMVAClassifier(TMVABase, Classifier):
