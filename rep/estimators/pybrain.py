@@ -34,14 +34,12 @@ __author__ = 'Artem Zhirokhov'
 
 
 LAYER_CLASS = {'BiasUnit': structure.BiasUnit,
-               'GaussianLayer': structure.GaussianLayer,
                'LinearLayer': structure.LinearLayer,
-               'LSTMLayer': structure.LSTMLayer,
                'MDLSTMLayer': structure.MDLSTMLayer,
                'SigmoidLayer': structure.SigmoidLayer,
                'SoftmaxLayer': structure.SoftmaxLayer,
-               'StateDependentLayer': structure.StateDependentLayer,
                'TanhLayer': structure.TanhLayer}
+_PASS_PARAMETERS = {'random_state'}
 
 
 class PyBrainBase(object):
@@ -124,6 +122,14 @@ class PyBrainBase(object):
         if layers is not None and hiddenclass is not None and len(layers) != len(hiddenclass):
             raise ValueError('Number of hidden layers does not match number of classes')
 
+        if hiddenclass is not None:
+            if hiddenclass[0] == 'BiasUnit':
+                raise ValueError('BiasUnit should not be the first unit class')
+
+            for hid_class in hiddenclass:
+                if hid_class not in LAYER_CLASS:
+                    raise ValueError('Wrong class name ' + hid_class)
+
     def set_params(self, **params):
         """
         A tool to set parameters in estimator.
@@ -133,8 +139,21 @@ class PyBrainBase(object):
         for k, v in params.items():
             if hasattr(self, k):
                 setattr(self, k, v)
-            if k in (self.params.keys()):
-                self.params[k] = params[k]
+            else:
+                if k in _PASS_PARAMETERS:
+                    continue
+
+                if k[:len('layers__')] == 'layers__':
+                    index = int(k[len('layers__'):])
+                    self.layers[index] = v
+                elif k[:len('hiddenclass__')] == 'hiddenclass__':
+                    index = int(k[len('hiddenclass__'):])
+                    self.hiddenclass[index] = v
+                elif k[:len('scaler__')] == 'scaler__':
+                    scaler_params = {k[len('scaler__'):]: v}
+                    self.scaler.set_params(**scaler_params)
+                else:
+                    self.params[k] = params[k]
 
     def get_params(self, deep=True):
         """
@@ -160,7 +179,7 @@ class PyBrainBase(object):
 
         return parameters
 
-    def _transform_data(self, X, y=None):
+    def _transform_data(self, X, y=None, fit=True):
         X = self._get_train_features(X)
 
         data_temp = numpy.copy(X)
@@ -170,13 +189,17 @@ class PyBrainBase(object):
         elif self.scaler == 'standard':
             self.scaler = StandardScaler()
 
-        X = self.scaler.fit_transform(data_temp)
+        if fit:
+            self.scaler = clone(self.scaler)
+            self.scaler.fit(data_temp, y)
+
+        X = self.scaler.transform(data_temp)
         return X
 
     def _prepare_net_and_dataset(self, X, y, model_type):
         X, y, sample_weight = check_inputs(X, y, sample_weight=None, allow_none_weights=True)
         self._check_init_input(self.layers, self.hiddenclass)
-        X = self._transform_data(X)
+        X = self._transform_data(X, y, fit=True)
 
         if self.layers is None:
             self.layers = [10]
@@ -294,6 +317,9 @@ class PyBrainClassifier(PyBrainBase, Classifier):
                  verbose=False,
                  batchlearning=False,
                  weightdecay=0.,
+                 max_epochs=None,
+                 continue_epochs=10,
+                 validation_proportion=0.25,
                  etaminus=0.5,
                  etaplus=1.2,
                  deltamin=1.0e-6,
@@ -311,6 +337,9 @@ class PyBrainClassifier(PyBrainBase, Classifier):
                              verbose=verbose,
                              batchlearning=batchlearning,
                              weightdecay=weightdecay,
+                             max_epochs=max_epochs,
+                             continue_epochs=continue_epochs,
+                             validation_proportion=validation_proportion,
                              **params)
         self.use_rprop = use_rprop
 
@@ -370,9 +399,7 @@ class PyBrainClassifier(PyBrainBase, Classifier):
         else:
             for i in range(self.epochs):
                 trainer.train()
-        print(self.__fitted)
         self.__fitted = True
-        print(self.__fitted)
 
         return self
 
@@ -402,7 +429,7 @@ class PyBrainClassifier(PyBrainBase, Classifier):
         """
         assert self._is_fitted(), "classifier isn't fitted, please call 'fit' first"
 
-        X = self._transform_data(X)
+        X = self._transform_data(X, fit=False)
         proba = []
         for values in X:
             pred = self.net.activate(list(values))
@@ -474,6 +501,9 @@ class PyBrainRegressor(PyBrainBase, Regressor):
                  verbose=False,
                  batchlearning=False,
                  weightdecay=0.,
+                 max_epochs=None,
+                 continue_epochs=10,
+                 validation_proportion=0.25,
                  **params):
         Regressor.__init__(self, features=features)
         PyBrainBase.__init__(self, layers=layers,
@@ -486,6 +516,9 @@ class PyBrainRegressor(PyBrainBase, Regressor):
                              verbose=verbose,
                              batchlearning=batchlearning,
                              weightdecay=weightdecay,
+                             max_epochs=max_epochs,
+                             continue_epochs=continue_epochs,
+                             validation_proportion=validation_proportion,
                              **params)
         self.__fitted = False
 
@@ -544,7 +577,7 @@ class PyBrainRegressor(PyBrainBase, Regressor):
         """
         assert self._is_fitted(), "regressor isn't fitted, please call 'fit' first"
 
-        X = self._transform_data(X)
+        X = self._transform_data(X, fit=False)
         y_test_dummy = numpy.zeros((len(X), 1))
 
         ds = SupervisedDataSet(X.shape[1], y_test_dummy.shape[1])
