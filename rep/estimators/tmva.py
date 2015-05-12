@@ -189,7 +189,7 @@ class TMVAClassifier(TMVABase, Classifier):
     :param str method: algorithm method (default='kBDT')
     :param features: features used in training
     :type features: list[str] or None
-    :param str factory_options: system options, for example::
+    :param str factory_options: options, for example::
 
         "!V:!Silent:Color:Transformations=I;D;P;G,D"
 
@@ -328,7 +328,7 @@ class TMVARegressor(TMVABase, Regressor):
     :param str method: algorithm method (default='kBDT')
     :param features: features used in training
     :type features: list[str] or None
-    :param str factory_options: system options, for example::
+    :param str factory_options: options, for example::
 
         "!V:!Silent:Color:Transformations=I;D;P;G,D"
 
