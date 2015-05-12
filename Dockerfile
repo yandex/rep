@@ -15,7 +15,6 @@ RUN apt-get install libcurl4-gnutls-dev -y --force-yes
 # basic python modules
 #
 RUN easy_install distribute
-RUN pip install cython
 # numpy goes first
 RUN pip install \
   numpy==1.9.1 
@@ -32,7 +31,7 @@ RUN git clone http://root.cern.ch/git/root.git \
   && git checkout v5-34-21 \
   && ./configure --prefix=/usr/local \
   && make -j2 \
-  && make install \
+  && make install \e
   && cd .. \
   && rm -rf root
 
@@ -45,7 +44,7 @@ ENV PYTHONPATH /usr/local/lib/root
 RUN easy_install -U pip
 RUN pip install \
   rootpy==0.7.1 \
-  root_numpy==3.3.1
+  root_numpy==4.1.2
 
 # XGboost
 #
