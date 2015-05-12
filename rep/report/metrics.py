@@ -9,17 +9,45 @@ from rep.utils import check_sample_weight
 __author__ = 'Alex Rogozhnikov'
 
 
-# About
-# this file contains definitions for useful metrics in specific format.
+"""
+About
+this file contains definitions for useful metrics in specific REP format.
 
-# In general case, metrics follows standard sklearn convention for estimators, provides
-# - constructor
-# m = metrics(parameter=1)
-# - fitting, where checks and heavy computations performed.
-# m.fit(X, y, sample_weight=None)
-# - computation of metrics by probabilities:
-# proba = classifier.predict_proba(X)
-# m(proba)
+In general case, metrics follows standard sklearn convention for **estimators**, provides
+* constructor (you should create instance of metric!)
+>>> metric = RocAuc(parameter=1)
+* fitting, where checks and heavy computations performed
+(this step is needed for ranking metrics, uniformity metrics).
+>>> metric.fit(X, y, sample_weight=None)
+* computation of metrics by probabilities:
+>>>proba = classifier.predict_proba(X)
+>>>metrics(proba)
+
+This way metrics can be used in learning curves, for instance. Once fitted, then for every stage
+computation will be very fast
+
+
+Correspondence between physical terms and ML terms.
+
+Some notation used below
+IsSignal - is really signal
+AsSignal - classified as signal
+IsBackgroundAsSignal - background, but classified as signal
+... and so on. Cute, right?
+
+There are many ways to denote this things
+tpr = s = isSasS / isS
+fpr = b = isBasS / isB
+
+Here we used normalized s and b, while physicists usually normalize
+them to particular values of expected amount of s and b.
+
+signal efficiency = tpr = s
+# the following line used only in HEP
+background efficiency = fpr = b
+
+"""
+
 
 
 class MetricMixin(object):
