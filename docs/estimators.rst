@@ -117,7 +117,7 @@ Classification
     0.99768518518518512
 
 
-Regerssion
+Regression
 **********
 
 * Prepare dataset
