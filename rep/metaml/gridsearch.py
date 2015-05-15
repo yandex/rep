@@ -1,10 +1,8 @@
-# About
-
-# this module is implementation of optimized grid_search,
-# which tests not all points of parameter space.
+"""
+This module does hyper parameters optimization -- find the best parameters for estimator using different optimization models.
+"""
 
 # TODO think of pareto-optimization
-
 
 from __future__ import division, print_function, absolute_import
 from itertools import islice
@@ -388,7 +386,7 @@ def _translate_key_from_subgrid(subgrid_indices, key):
 
 class FoldingScorer(object):
     """
-    Scorer, which implements logic of data folding and scoring
+    Scorer, which implements logic of data folding and scoring. This is a function-like object
 
     Parameters:
     ----------
@@ -396,29 +394,19 @@ class FoldingScorer(object):
     :param int fold_checks: not greater than folds, the number of checks we do by cross-validating
     :param function score_function: quality. if fold_checks > 1, the average is computed over checks.
 
-        function(y_true, proba, sample_weight=None),
-            y_true: [n_samples],
+    >>> def new_score_function(y_true, proba, sample_weight=None):
+    >>>     '''
+    >>>     y_true: [n_samples]
+    >>>     proba: [n_samples, n_classes]
+    >>>     sample_weight: [n_samples] or None
+    >>>     '''
+    >>>     ...
 
-            proba: [n_samples, n_classes],
-
-            sample_weight: [n_samples] or None
-
-    Methods:
+    Example:
     --------
-    __call__(self, base_estimator, params, X, y, sample_weight=None):
-        base_estimator: sklearn.base.BaseEstimator
-
-        params: dict
-
-        X: pandas.DataFrame of shape [n_samples, n_features]
-
-        y: labels of events - array-like of shape [n_samples]
-
-        sample_weight: weight of events,
-               array-like of shape [n_samples] or None if all weights are equal
-
-        return score: float
-
+    >>> fs = FoldingScorer(new_score_function)
+    >>> fs(base_estimator, params, X, y, sample_weight=None)
+    0.5
     """
 
     def __init__(self, score_function, folds=3, fold_checks=1):

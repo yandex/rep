@@ -1,3 +1,7 @@
+"""
+Sklearn wrapper for users is the same as sklearn model, just has one additional parameter *features* to choose necessary columns for training.
+If data has :class:`numpy.array` type then behaviour will be the same as in sklear.
+"""
 from __future__ import division, print_function, absolute_import
 from abc import ABCMeta
 

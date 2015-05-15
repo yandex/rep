@@ -12,8 +12,6 @@ Sklearn wrapper is the same sklearn model, but it operates with :class:`pandas.D
 
 Estimators interfaces (for classification and regression)
 ---------------------------------------------------------
-There are interfaces for **classification** and **regression** wrappers.
-
 .. automodule:: rep.estimators.interface
     :members:
     :inherited-members:
@@ -23,9 +21,6 @@ There are interfaces for **classification** and **regression** wrappers.
 
 Sklearn classifier and regressor
 --------------------------------
-Sklearn wrapper for users is the same as sklearn model, just has one additional parameter *features* to choose necessary columns for training.
-If data has :class:`numpy.array` type then behaviour will be the same as in sklear.
-
 .. automodule:: rep.estimators.sklearn
     :members:
     :show-inheritance:
@@ -33,11 +28,6 @@ If data has :class:`numpy.array` type then behaviour will be the same as in skle
 
 TMVA classifier and regressor
 -----------------------------
-These classes are wrappers for physics machine learning library TMVA used .root format files (c++ library).
-Now you can simply use it in python. TMVA contains classification and regression algorithms, including neural networks.
-
-TMVA Guide: http://mirror.yandex.ru/gentoo-distfiles/distfiles/TMVAUsersGuide-v4.03.pdf
-
 .. automodule:: rep.estimators.tmva
     :members:
     :show-inheritance:
@@ -46,7 +36,6 @@ TMVA Guide: http://mirror.yandex.ru/gentoo-distfiles/distfiles/TMVAUsersGuide-v4
 
 XGBoost classifier and regressor
 --------------------------------
-
 .. automodule:: rep.estimators.xgboost
     :members:
     :show-inheritance:

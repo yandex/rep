@@ -8,9 +8,6 @@ Also there is class which allows you to train set of models and compare them ver
 
 Factory
 -------
-
-This module allows to train models all together on the same dataset parallel in some cluster system (or sequential training if cluster is absent).
-
 .. automodule:: rep.metaml.factory
     :members:
     :show-inheritance:
@@ -65,8 +62,6 @@ Factory Examples
 
 Grid Search
 -----------
-This module does hyperparameters optimization -- find the best parameters for estimator using different optimization models.
-
 .. automodule:: rep.metaml.gridsearch
     :members:
     :inherited-members:
@@ -76,8 +71,6 @@ This module does hyperparameters optimization -- find the best parameters for es
 
 Folding
 -------
-This is specific hierarchical algorithm based on the same idea of cross-validation.
-
 .. automodule:: rep.metaml.folding
     :members:
     :show-inheritance:
@@ -85,9 +78,6 @@ This is specific hierarchical algorithm based on the same idea of cross-validati
 
 Stacking
 --------
-
-This module allows to train estimators on datasets splitting by special feature
-
 .. automodule:: rep.metaml.stacking
     :members:
     :show-inheritance:

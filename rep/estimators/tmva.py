@@ -1,5 +1,8 @@
 """
- wrapper for http://mirror.yandex.ru/gentoo-distfiles/distfiles/TMVAUsersGuide-v4.03.pdf
+These classes are wrappers for physics machine learning library TMVA used .root format files (c++ library).
+Now you can simply use it in python. TMVA contains classification and regression algorithms, including neural networks.
+
+.. seealso:: TMVA guide http://mirror.yandex.ru/gentoo-distfiles/distfiles/TMVAUsersGuide-v4.03.pdf
 """
 from __future__ import division, print_function, absolute_import
 from abc import ABCMeta

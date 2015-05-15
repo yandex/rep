@@ -1,3 +1,14 @@
+"""
+This file contains report class for regression estimators. Report includes:
+
+    * features scatter plots, correlations
+    * learning curve
+    * feature importance
+    * feature importance by shuffling the feature column
+
+All methods return objects, which can have plot method (details see in :class:`rep.plotting`)
+"""
+
 from __future__ import division, print_function, absolute_import
 
 from itertools import islice
@@ -44,7 +55,7 @@ class RegressionReport(AbstractReport):
         :param float alpha: blending parameter for scatter
         :param int grid_columns: count of columns in grid
 
-        :rtype: plotting.GridPlot(plotting.ScatterPlot)
+        :rtype: plotting.GridPlot
         """
         features = list(set(itertools.chain.from_iterable(correlation_pairs)))
         _, df, = self._apply_mask(mask, self._get_features(features))
@@ -63,7 +74,7 @@ class RegressionReport(AbstractReport):
         :param float alpha: blending parameter for scatter
         :param int grid_columns: count of columns in grid
 
-        :rtype: plotting.GridPlot(plotting.ScatterPlot)
+        :rtype: plotting.GridPlot
         """
         features = self.common_features if features is None else features
         mask, df, = self._apply_mask(mask, self._get_features(features))

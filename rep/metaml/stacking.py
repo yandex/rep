@@ -1,3 +1,6 @@
+"""
+This module allows to train estimators on datasets splitting by special feature.
+"""
 from __future__ import division, print_function, absolute_import
 import numpy
 import pandas
