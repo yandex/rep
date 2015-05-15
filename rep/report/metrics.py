@@ -51,6 +51,8 @@ background efficiency = fpr = b
 
 
 class MetricMixin(object):
+    """Class with helpful methods for metrics,
+     metrics are expected (but not obliged) to be derived from it."""
     def prepare(self, X, y, sample_weight):
         assert len(X) == len(y), 'Lengths are different!'
         sample_weight = check_sample_weight(y, sample_weight=sample_weight)
