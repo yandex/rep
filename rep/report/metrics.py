@@ -1,3 +1,53 @@
+"""
+This file contains definitions for useful metrics in specific REP format.
+In general case, metrics follows standard sklearn convention for **estimators**, provides
+
+    * constructor (you should create instance of metric!):
+
+    >>> metric = RocAuc(parameter=1)
+
+    * fitting, where checks and heavy computations performed
+      (this step is needed for ranking metrics, uniformity metrics):
+
+    >>> metric.fit(X, y, sample_weight=None)
+
+    * computation of metrics by probabilities:
+
+    >>> proba = classifier.predict_proba(X)
+    >>> metrics(proba)
+
+
+This way metrics can be used in learning curves, for instance. Once fitted, then for every stage
+computation will be very fast.
+
+
+Correspondence between physical terms and ML terms
+**************************************************
+
+Some notation used below:
+
+    * IsSignal (IsS) --- is really signal
+    * AsSignal (AsS) --- classified as signal
+    * IsBackgroundAsSignal - background, but classified as signal
+
+... and so on. Cute, right?
+
+There are many ways to denote this things:
+
+    * tpr = s = isSasS / isS
+    * fpr = b = isBasS / isB
+
+Here we used normalized s and b, while physicists usually normalize
+them to particular values of expected amount of s and b.
+
+    * signal efficiency = tpr = s
+
+    the following line used only in HEP
+
+    * background efficiency = fpr = b
+"""
+
+
 from __future__ import division, print_function, absolute_import
 import numpy
 from sklearn.base import BaseEstimator
@@ -9,51 +59,20 @@ from rep.utils import check_sample_weight
 __author__ = 'Alex Rogozhnikov'
 
 
-"""
-About
-this file contains definitions for useful metrics in specific REP format.
-
-In general case, metrics follows standard sklearn convention for **estimators**, provides
-* constructor (you should create instance of metric!)
->>> metric = RocAuc(parameter=1)
-* fitting, where checks and heavy computations performed
-(this step is needed for ranking metrics, uniformity metrics).
->>> metric.fit(X, y, sample_weight=None)
-* computation of metrics by probabilities:
->>>proba = classifier.predict_proba(X)
->>>metrics(proba)
-
-This way metrics can be used in learning curves, for instance. Once fitted, then for every stage
-computation will be very fast
-
-
-Correspondence between physical terms and ML terms.
-
-Some notation used below
-IsSignal - is really signal
-AsSignal - classified as signal
-IsBackgroundAsSignal - background, but classified as signal
-... and so on. Cute, right?
-
-There are many ways to denote this things
-tpr = s = isSasS / isS
-fpr = b = isBasS / isB
-
-Here we used normalized s and b, while physicists usually normalize
-them to particular values of expected amount of s and b.
-
-signal efficiency = tpr = s
-# the following line used only in HEP
-background efficiency = fpr = b
-
-"""
-
-
-
 class MetricMixin(object):
     """Class with helpful methods for metrics,
      metrics are expected (but not obliged) to be derived from it."""
-    def prepare(self, X, y, sample_weight):
+    def __prepare(self, X, y, sample_weight):
+        """
+        Preparation
+
+        :param pandas.DataFrame X: data shape [n_samples, n_features]
+        :param y: labels of events - array-like of shape [n_samples]
+        :param sample_weight: weight of events,
+               array-like of shape [n_samples] or None if all weights are equal
+
+        :return: X, y, sample_weight, indices
+        """
         assert len(X) == len(y), 'Lengths are different!'
         sample_weight = check_sample_weight(y, sample_weight=sample_weight)
         self.classes_, indices = numpy.unique(y, return_inverse=True)
@@ -61,21 +80,39 @@ class MetricMixin(object):
         return X, y, sample_weight, indices
 
     def fit(self, X, y, sample_weight=None):
-        """Prepare metrics for usage, preprocessing is done in this function. """
+        """
+        Prepare metrics for usage, preprocessing is done in this function.
+
+        :param pandas.DataFrame X: data shape [n_samples, n_features]
+        :param y: labels of events - array-like of shape [n_samples]
+        :param sample_weight: weight of events,
+               array-like of shape [n_samples] or None if all weights are equal
+        :return: self
+        """
         return self
 
 
 class RocAuc(BaseEstimator, MetricMixin):
+    """
+    Computes area under the ROC curve.
+
+    :param int positive_label: label of class, in case of more then two classes,
+     will compute ROC AUC for this specific class vs others
+    """
     def __init__(self, positive_label=1):
-        """
-        Computes area under the ROC curve.
-        :param positive_label: int, label of class, in case of more then two classes,
-         will compute ROC AUC for this specific class vs others
-        """
         self.positive_label = positive_label
 
     def fit(self, X, y, sample_weight=None):
-        X, y, self.sample_weight, _ = self.prepare(X, y, sample_weight=sample_weight)
+        """
+        Prepare metrics for usage, preprocessing is done in this function.
+
+        :param pandas.DataFrame X: data shape [n_samples, n_features]
+        :param y: labels of events - array-like of shape [n_samples]
+        :param sample_weight: weight of events,
+               array-like of shape [n_samples] or None if all weights are equal
+        :return: self
+        """
+        X, y, self.sample_weight, _ = self.__prepare(X, y, sample_weight=sample_weight)
         # computing index of positive label
         self.positive_index = self.classes_.tolist().index(self.positive_label)
         self.true_class = (numpy.array(y) == self.positive_label)
@@ -88,17 +125,26 @@ class RocAuc(BaseEstimator, MetricMixin):
 
 
 class LogLoss(BaseEstimator, MetricMixin):
+    """
+    Log loss,
+    which is the same as minus log-likelihood,
+    and the same as logistic loss,
+    and the same as cross-entropy loss.
+    """
     def __init__(self, regularization=1e-15):
-        """
-        Log loss,
-        which is the same as minus log-likelihood,
-        and the same as logistic loss,
-        and the same as cross-entropy loss.
-        """
         self.regularization = regularization
 
     def fit(self, X, y, sample_weight=None):
-        X, y, sample_weight, self.class_indices = self.prepare(X, y, sample_weight=sample_weight)
+        """
+        Prepare metrics for usage, preprocessing is done in this function.
+
+        :param pandas.DataFrame X: data shape [n_samples, n_features]
+        :param y: labels of events - array-like of shape [n_samples]
+        :param sample_weight: weight of events,
+               array-like of shape [n_samples] or None if all weights are equal
+        :return: self
+        """
+        X, y, sample_weight, self.class_indices = self.__prepare(X, y, sample_weight=sample_weight)
         self.sample_weight = sample_weight / sample_weight.sum()
         self.samples_indices = numpy.arange(len(X))
         return self
@@ -111,16 +157,14 @@ class LogLoss(BaseEstimator, MetricMixin):
 
 
 class OptimalMetric(BaseEstimator, MetricMixin):
-    def __init__(self, metric, expected_s=1., expected_b=1., signal_label=1):
-        """
-        Class to calculate optimal threshold on predictions using some metric
+    """
+    Class to calculate optimal threshold on predictions using some metric
 
-        Parameters:
-        -----------
-        :param function metric: metrics(s, b) -> float
-        :param expected_s: float, total weight of signal
-        :param expected_b: float, total weight of background
-        """
+    :param function metric: metrics(s, b) -> float
+    :param expected_s: float, total weight of signal
+    :param expected_b: float, total weight of background
+    """
+    def __init__(self, metric, expected_s=1., expected_b=1., signal_label=1):
         self.metric = metric
         self.expected_s = expected_s
         self.expected_b = expected_b
@@ -185,6 +229,13 @@ def significance(s, b):
 
 
 class OptimalSignificance(OptimalMetric):
+    """
+    Optimal values of significance:
+     s / sqrt(b)
+
+    :param float expected_s: expected amount of signal
+    :param float expected_b: expected amount of background
+    """
     def __init__(self, expected_s=1., expected_b=1.):
         OptimalMetric.__init__(self, metric=significance,
                                expected_s=expected_s,
@@ -194,6 +245,7 @@ class OptimalSignificance(OptimalMetric):
 def ams(s, b, br=10.):
     """
     Regularized approximate median significance
+
     :param s: amount of signal passed
     :param b: amount of background passed
     :param br: regularization
@@ -203,13 +255,15 @@ def ams(s, b, br=10.):
 
 
 class OptimalAMS(OptimalMetric):
+    """
+    Optimal values of AMS (average median significance)
+
+    default values of expected_s and expected_b are from HiggsML challenge.
+
+    :param float expected_s: expected amount of signal
+    :param float expected_b: expected amount of background
+    """
     def __init__(self, expected_s=691.988607712, expected_b=410999.847):
-        """
-        Optimal values of AMS (average median significance)
-        default values of expected_s and expected_b are from HiggsML challenge.
-        :param expected_s: float, expected amount of signal
-        :param expected_b: float, expected amount of background
-        """
         OptimalMetric.__init__(self, metric=ams,
                                expected_s=expected_s,
                                expected_b=expected_b)

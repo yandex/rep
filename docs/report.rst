@@ -3,13 +3,11 @@
 Report for models
 =================
 
-This module contains helpful classes to get report for estimators, like as feature distribution,
-prediction distribution, roc curves, learning curves, and others.
+This module contains helpful classes to get a report for estimators, like as feature distribution,
+prediction distribution, roc curves, learning curves, and others, and compare them.
 
 Classification Report
 ---------------------
-This is report for classification estimators
-
 .. automodule:: rep.report.classification
     :members:
     :inherited-members:
@@ -17,9 +15,16 @@ This is report for classification estimators
 
 Regression Report
 -----------------
-This is report for regression estimators
-
 .. automodule:: rep.report.regression
     :members:
     :inherited-members:
+    :undoc-members:
+
+
+Metrics
+-------
+
+.. automodule:: rep.report.metrics
+    :members:
+    :show-inheritance:
     :undoc-members:

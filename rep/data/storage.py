@@ -1,3 +1,6 @@
+"""
+This is wrapper for pandas.DataFrame, which allows you to define dataset for estimator by a simple way.
+"""
 from __future__ import division, print_function, absolute_import
 import numbers
 

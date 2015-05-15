@@ -1,3 +1,6 @@
+"""
+This module allows to train models all together on the same dataset parallel in some cluster system (or sequential training if cluster is absent).
+"""
 from __future__ import division, print_function, absolute_import
 from abc import ABCMeta, abstractmethod
 from collections import OrderedDict
@@ -102,7 +105,9 @@ class AbstractFactory(OrderedDict):
 
         :param X: pandas.DataFrame of shape [n_samples, n_features]
         :param y: numpy.array of shape [n_samples] with targets
-        :param sample_weight:
+        :param sample_weight: weight of events,
+               array-like of shape [n_samples] or None if all weights are equal
+        :rtype: rep.report.classification.ClassificationReport or rep.report.regression.RegressionReport
         """
         from ..data import LabeledDataStorage
         return self.test_on_lds(LabeledDataStorage(X, target=y, sample_weight=sample_weight))

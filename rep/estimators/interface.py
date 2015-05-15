@@ -1,3 +1,6 @@
+"""
+There are interfaces for **classification** and **regression** wrappers.
+"""
 from __future__ import division, print_function, absolute_import
 from abc import ABCMeta, abstractmethod
 import logging

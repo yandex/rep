@@ -1,3 +1,17 @@
+"""
+This file contains report class for classification estimators. Report includes:
+
+    * features scatter plots, distributions, correlations
+    * learning curve
+    * roc curve
+    * efficiencies
+    * metric vs cut
+    * feature importance
+    * feature importance by shuffling the feature column
+
+All methods return objects, which can have plot method (details see in :class:`rep.plotting`)
+"""
+
 from __future__ import division, print_function, absolute_import
 from itertools import islice
 from collections import OrderedDict
@@ -61,11 +75,6 @@ class ClassificationReport(AbstractReport):
             assert isinstance(classifier, Classifier), "Object {} doesn't implement interface".format(name)
 
         AbstractReport.__init__(self, lds=lds, estimators=classifiers)
-        # self.classes_ = None
-        # for proba in self.prediction.values():
-        #     self.classes_ = self.classes_ if self.classes_ is not None else proba.shape[1]
-        #     assert p
-        #
 
     def _predict(self, estimator, X):
         return estimator.predict_proba(X)
@@ -106,7 +115,7 @@ class ClassificationReport(AbstractReport):
         :type labels_dict: None or OrderedDict(int: str)
         :param int grid_columns: count of columns in grid
         :param float ignored_sideband: float from (0, 1), part of events ignored from the left and from the right
-        :rtype: plotting.GridPlot(plotting.ErrorPlot)
+        :rtype: plotting.GridPlot
         """
         features = self.common_features if features is None else features
         pdf = defaultdict(OrderedDict)
@@ -145,7 +154,7 @@ class ClassificationReport(AbstractReport):
         :param int vmax: max of value for max color
         :param int grid_columns: count of columns in grid
 
-        :rtype: plotting.GridPlot(plotting.ColorMap)
+        :rtype: plotting.GridPlot
         """
         features = self.common_features if features is None else features
         _, df, class_labels = self._apply_mask(mask, self._get_features(features), self.target)
@@ -180,7 +189,7 @@ class ClassificationReport(AbstractReport):
         :type labels_dict: None or OrderedDict(int: str)
         :param int grid_columns: count of columns in grid
 
-        :rtype: plotting.GridPlot(plotting.ScatterPlot)
+        :rtype: plotting.GridPlot
         """
         features = list(set(itertools.chain.from_iterable(correlation_pairs)))
 
@@ -292,7 +301,7 @@ class ClassificationReport(AbstractReport):
         :param int grid_columns: count of columns in grid
         :param float ignored_sideband: (0, 1) percent of plotting data
 
-        :rtype: plotting.HStackPlot(plotting.FunctionsPlot)
+        :rtype: plotting.GridPlot
         """
         mask, data, class_labels, weight = self._apply_mask(
             mask, self._get_features(features), self.target, self.weight)
@@ -404,9 +413,9 @@ class ClassificationReport(AbstractReport):
         :type labels_dict: None or OrderedDict(int: str)
         :param int grid_columns: count of columns in grid
         :param float ignored_sideband: (0, 1) percent of plotting data
-        :param int signal_label: label to calculaty efficiency threshold
+        :param int signal_label: label to calculate efficiency threshold
 
-        :rtype: plotting.GridPlot(plotting.FunctionsPlot)
+        :rtype: plotting.GridPlot
         """
 
         assert len(features) == 2, 'you should provide two columns'

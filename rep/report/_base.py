@@ -55,7 +55,7 @@ class AbstractReport:
     def _get_features(self, features=None):
         return self.lds.get_data(features=features)
 
-    def features_correlation_matrix(self, features=None, mask=None, tick_labels=None, vmin=-1, vmax=1):
+    def features_correlation_matrix(self, features=None, mask=None, tick_labels=None, vmin=-1, vmax=1, cmap='Reds'):
         """
         Correlation between features
 
@@ -67,8 +67,8 @@ class AbstractReport:
         :type tick_labels: None or array-like
         :param int vmin: min of value for min color
         :param int vmax: max of value for max color
-
-        :rtype: plotting.GridPlot(plotting.ColorMap)
+        :param str cmap: color map name
+        :rtype: plotting.ColorMap
         """
         features = self.common_features if features is None else features
         _, df, = self._apply_mask(mask, self._get_features(features))
@@ -79,7 +79,7 @@ class AbstractReport:
         assert len(tick_labels) == len(features_names), 'Tick labels and features have different length'
         plot_corr = plotting.ColorMap(
             utils.calc_feature_correlation_matrix(df[features_names]),
-            labels=tick_labels, vmin=vmin, vmax=vmax, cmap='Reds')
+            labels=tick_labels, vmin=vmin, vmax=vmax, cmap=cmap)
         plot_corr.title = 'Correlation'
         plot_corr.fontsize = 10
         plot_corr.figsize = (len(features) // 5 + 2, len(features) // 5)

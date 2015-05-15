@@ -1,3 +1,8 @@
+"""
+Wrapper for XGBoost library.
+
+.. seealso:: https://github.com/dmlc/xgboost
+"""
 from __future__ import division, print_function, absolute_import
 
 from collections import defaultdict

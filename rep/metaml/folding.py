@@ -1,3 +1,6 @@
+"""
+This is specific hierarchical algorithm based on the same idea of cross-validation.
+"""
 from __future__ import division, print_function, absolute_import
 
 import numpy
