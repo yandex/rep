@@ -408,9 +408,9 @@ class ClassificationReport(AbstractReport):
 
         :rtype: plotting.GridPlot(plotting.FunctionsPlot)
         """
-        from hep_ml.commonutils import compute_bdt_cut
 
         assert len(features) == 2, 'you should provide two columns'
+        assert 0. <= efficiency <= 1., 'efficiency should be in range (0, 1)'
 
         mask, data, class_labels, weight = self._apply_mask(
             mask, self._get_features(features), self.target, self.weight)
@@ -437,8 +437,9 @@ class ClassificationReport(AbstractReport):
         sig_mask = class_labels == signal_label
         for classifier_name, prediction in self.prediction.items():
             prediction = prediction[mask]
-
-            threshold_ = compute_bdt_cut(numpy.array(efficiency), sig_mask, prediction[:, signal_label], weight)
+            # important: this isn't completely correct, since we need weighted percentile.
+            # TODO fix
+            threshold_ = numpy.percentile(prediction[sig_mask, signal_label], 100 * (1. - efficiency))
             passed = prediction[:, signal_label] > threshold_
             minlength = n_bins ** 2
             for label, label_name in labels_dict.items():
