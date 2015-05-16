@@ -14,48 +14,22 @@ All methods return objects, which can have plot method (details see in :class:`r
 
 from __future__ import division, print_function, absolute_import
 from itertools import islice
-from collections import OrderedDict
-from collections import defaultdict
+from collections import OrderedDict, defaultdict
 import itertools
 
 import numpy
-from sklearn.preprocessing.label import LabelBinarizer
-from sklearn.utils.validation import check_arrays, column_or_1d
 
 from .. import utils
 from .. import plotting
 from ._base import AbstractReport
-from .metrics import OptimalMetric
+from .metrics import OptimalMetric, LogLoss
 from ..estimators.interface import Classifier
-from ..utils import check_sample_weight, get_columns_dict
+from ..utils import get_columns_dict
 
 
 __author__ = 'Alex Rogozhnikov, Tatiana Likhomanenko'
 
 BAR_TYPES = {'error_bar', 'bar'}
-
-
-def _log_loss(y_true, y_pred, eps=1e-10, sample_weight=None):
-    """ This is shorter ans simpler version og log_loss, which supports sample_weight """
-    sample_weight = check_sample_weight(y_true, sample_weight=sample_weight)
-    y_true, y_pred, sample_weight = check_arrays(y_true, y_pred, sample_weight)
-    y_true = column_or_1d(y_true)
-
-    lb = LabelBinarizer()
-    T = lb.fit_transform(y_true)
-    if T.shape[1] == 1:
-        T = numpy.append(1 - T, T, axis=1)
-
-    # Clipping
-    Y = numpy.clip(y_pred, eps, 1 - eps)
-
-    # Check if dimensions are consistent.
-    T, Y = check_arrays(T, Y)
-
-    # Renormalize
-    Y /= Y.sum(axis=1)[:, numpy.newaxis]
-    loss = -(T * numpy.log(Y) * sample_weight[:, numpy.newaxis]).sum() / numpy.sum(sample_weight)
-    return loss
 
 
 class ClassificationReport(AbstractReport):
@@ -373,7 +347,7 @@ class ClassificationReport(AbstractReport):
             curve[stage] = metric_func(labels, prediction, sample_weight=weight)
         return curve.keys(), curve.values()
 
-    def feature_importance_shuffling(self, metric=_log_loss, mask=None, grid_columns=2):
+    def feature_importance_shuffling(self, metric=LogLoss(), mask=None, grid_columns=2):
         """
         Get features importance using shuffling method (apply random permutation to one particular column)
 
