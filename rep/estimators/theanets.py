@@ -64,7 +64,11 @@ class TheanetsBase(object):
     :type decode_from: positive int
     :param scaler: scaler used to transform data. If False, scaling will not be used.
     :type scaler: scaler from sklearn.preprocessing or False
-    :param list(dict) or None trainers: parameters to specify training algorithm
+    :param list(dict) or None trainers: parameters to specify training algorithm(s)
+    example: [{'optimize': sgd, 'momentum': 0.2}, {'optimize': 'nag'}]
+    For more information on available trainers and their parameters, see this page
+    http://theanets.readthedocs.org/en/latest/training.html?highlight=trainers#gradient-based-methods
+    Note that not pretrain, sample and hf are not supported.
     """
     def __init__(self,
                  layers,
@@ -140,7 +144,6 @@ class TheanetsBase(object):
         A magic method which makes theanets calls be reproducible. Should be called when creating an experiment to pass
         a proper rng value and before running exp.train in order to fix the seed.
         See https://github.com/lmjohns3/theanets/issues/72
-        :return:
         """
         numpy.random.seed(42)
         return check_random_state(self.random_state)
@@ -314,7 +317,11 @@ class TheanetsClassifier(TheanetsBase, Classifier):
     :type decode_from: positive int
     :param scaler: scaler used to transform data. If False, scaling will not be used.
     :type scaler: scaler from sklearn.preprocessing or False
-    :param list(dict) or None trainers: parameters to specify training algorithm
+    :param list(dict) or None trainers: parameters to specify training algorithm(s)
+    example: [{'optimize': sgd, 'momentum': 0.2}, {'optimize': 'nag'}]
+    For more information on available trainers and their parameters, see this page
+    http://theanets.readthedocs.org/en/latest/training.html?highlight=trainers#gradient-based-methods
+    Note that not pretrain, sample and hf are not supported.
     """
 
     def __init__(self,
@@ -420,7 +427,11 @@ class TheanetsRegressor(TheanetsBase, Regressor):
     :type decode_from: positive int
     :param scaler: scaler used to transform data. If False, scaling will not be used.
     :type scaler: scaler from sklearn.preprocessing or False
-    :param list(dict) or None trainers: parameters to specify training algorithm
+    :param list(dict) or None trainers: parameters to specify training algorithm(s)
+    example: [{'optimize': sgd, 'momentum': 0.2}, {'optimize': 'nag'}]
+    For more information on available trainers and their parameters, see this page
+    http://theanets.readthedocs.org/en/latest/training.html?highlight=trainers#gradient-based-methods
+    Note that not pretrain, sample and hf are not supported.
     """
     def __init__(self,
                  features=None,
