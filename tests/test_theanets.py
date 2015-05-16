@@ -14,8 +14,8 @@
 
 
 from __future__ import division, print_function, absolute_import
-from ._test_classifier import check_classifier, check_regression
-from ._test_classifier import generate_classification_data
+from rep.test.test_estimators import check_classifier, check_regression
+from rep.test.test_estimators import generate_classification_data
 from sklearn.base import clone
 from sklearn.metrics import roc_auc_score
 from sklearn.ensemble import BaggingClassifier
@@ -24,19 +24,26 @@ from rep.estimators.theanets import TheanetsClassifier, TheanetsRegressor
 
 __author__ = 'Lisa Ignatyeva'
 
-"""
+
 def test_theanets_single_classification():
     check_classifier(TheanetsClassifier(),
                      supports_weight=False, has_staged_pp=False, has_importances=False)
+    check_classifier(TheanetsClassifier(layers=[]),
+                     supports_weight=False, has_staged_pp=False, has_importances=False)
     check_classifier(TheanetsClassifier(layers=[20], trainers=[{'optimize': 'sgd', 'learning_rate': 0.3}]),
                      supports_weight=False, has_staged_pp=False, has_importances=False)
-"""
+    check_classifier(TheanetsClassifier(layers=[5, 5], trainers=[{'optimize': 'sgd', 'learning_rate': 0.3}]),
+                     supports_weight=False, has_staged_pp=False, has_importances=False)
+    check_classifier(TheanetsClassifier(layers=[5, 5], trainers=[{'optimize': 'sgd', 'learning_rate': 0.3}]),
+                     supports_weight=False, has_staged_pp=False, has_importances=False)
+
 
 def test_theanets_regression():
     check_regression(TheanetsRegressor(layers=[20], trainers=[{'optimize': 'rmsprop'}]),
                      supports_weight=False, has_staged_predictions=False, has_importances=False)
     check_regression(TheanetsRegressor(),
                      supports_weight=False, has_staged_predictions=False, has_importances=False)
+
 
 def test_theanets_multiple_classification():
     check_classifier(TheanetsClassifier(trainers=[{'optimize': 'adadelta'}, {'optimize': 'nag'}]),
