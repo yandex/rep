@@ -23,9 +23,9 @@ import neurolab as nl
 __author__ = 'Sterzhanov Vladislav'
 
 
-N_EPOCHS2 = 40
-N_EPOCHS4 = 550
-N_EPOCHS_REGR = 500
+N_EPOCHS2 = 100
+N_EPOCHS4 = 800
+N_EPOCHS_REGR = 950
 
 
 def test_neurolab_single_classification():
