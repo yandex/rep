@@ -27,7 +27,7 @@ import scipy
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
 from sklearn.base import clone
 
-__author__ = 'Sterzhanov Vladislav'
+__author__ = 'Vlad Sterzhanov'
 
 
 NET_TYPES = {'feed-forward':       nl.net.newff,
@@ -73,7 +73,7 @@ class NeurolabBase(object):
             if name in {'random_state'}:
                 continue
             if name.startswith("scaler__"):
-                assert hasattr(self.scaler, 'get_params'), \
+                assert hasattr(self.scaler, 'set_params'), \
                     "Trying to set {} without scaler".format(name)
                 self.scaler.set_params({name.lstrip("scaler__"): value})
             if name in NET_PARAMS:
@@ -91,9 +91,6 @@ class NeurolabBase(object):
         parameters = deepcopy(self.net_params)
         parameters.update(deepcopy(self.train_params))
         for name in BASIC_PARAMS:
-            if name == 'scaler':
-                parameters['scaler'] = \
-                    clone(self.scaler) if hasattr(self.scaler, 'get_params') else self.scaler
             parameters[name] = getattr(self, name)
         return parameters
 
@@ -101,7 +98,7 @@ class NeurolabBase(object):
         x_train = self._transform_input(self._get_train_features(X), y)
 
         # Prepare parameters depending on network purpose (classification \ regression)
-        net_params = self._prepare_params_specific(self.net_params, x_train)
+        net_params = self._prepare_params(self.net_params, x_train, y_train)
 
         init = self._get_initializers(self.net_type)
         net = init(**net_params)
@@ -133,10 +130,11 @@ class NeurolabBase(object):
         if fit:
             self.scaler = clone(self.scaler)
             self.scaler.fit(X, y)
+        # HACK: neurolab requires all features (even those of predicted objects) to be in [min, max]
+        # so this dark magic appeared, seems to work ok for most reasonable usecases
         return scipy.special.expit(self.scaler.transform(X) / 3)
 
-    @staticmethod
-    def _prepare_params_general(net_params, x_train, out_layer_size):
+    def _prepare_params(self, net_params, x_train, y_train):
         params = deepcopy(net_params)
         # Network expects features to be [0, 1]-scaled
         params['minmax'] = [[0, 1]]*(x_train.shape[1])
@@ -149,11 +147,11 @@ class NeurolabBase(object):
         # For some reason Neurolab asks for a separate cn parameter instead of accessing size[-1]
         # (e.g. In case of Single-Layer Perceptron)
         if 'cn' in params:
-            params['cn'] = out_layer_size
+            params['cn'] = y_train.shape[1]
 
         # Set output layer size
         if 'size' in params:
-            params['size'] += [out_layer_size]
+            params['size'] += [y_train.shape[1]]
 
         return params
 
@@ -204,7 +202,7 @@ class NeurolabRegressor(NeurolabBase, Regressor):
         """
         # TODO Some networks do not support regression?
         X, y, _ = check_inputs(X, y, None)
-        y_train = y.reshape(len(y), 1)
+        y_train = y.reshape(len(y), 1 if len(y.shape) == 1 else y.shape[1])
         return self._fit(X, y, y_train)
 
     def predict(self, X):
@@ -214,7 +212,8 @@ class NeurolabRegressor(NeurolabBase, Regressor):
         :param pandas.DataFrame X: data shape [n_samples, n_features]
         :return: numpy.array of shape n_samples with values
         """
-        return self._sim(self._get_train_features(X))
+        modeled = self._sim(self._get_train_features(X))
+        return modeled if modeled.shape[1] != 1 else np.ravel(modeled)
 
     def staged_predict(self, X, step=10):
         """
@@ -226,9 +225,6 @@ class NeurolabRegressor(NeurolabBase, Regressor):
         .. warning:: Doesn't have support in Neurolab (**AttributeError** will be thrown)
         """
         raise AttributeError("Not supported by Neurolab networks")
-
-    def _prepare_params_specific(self, params, x_train):
-        return NeurolabBase._prepare_params_general(params, x_train, 1)
 
 
 class NeurolabClassifier(NeurolabBase, Classifier):
@@ -272,8 +268,8 @@ class NeurolabClassifier(NeurolabBase, Classifier):
         # Some networks do not support classification
         assert self.net_type not in CANT_CLASSIFY, 'Network type does not support classification'
         X, y, _ = check_inputs(X, y, None)
+        self._set_classes(y)
         y_train = NeurolabClassifier._one_hot_transform(y)
-        self.classes_ = self._get_classes(y, y_train)
         return self._fit(X, y, y_train)
 
     def predict_proba(self, X):
@@ -300,16 +296,8 @@ class NeurolabClassifier(NeurolabBase, Classifier):
     def _one_hot_transform(y):
         return np.array(OneHotEncoder(n_values=len(np.unique(y))).fit_transform(y.reshape((len(y), 1))).todense())
 
-    def _get_classes(self, y, y_transformed):
-        # I've found no direct evidence that OHE is guaranteed to encode values in accordance to their order
-        # So this hack appeared
-        cl = np.zeros(len(np.unique(y)))
-        for true_cl, enc in zip(y, y_transformed):
-            cl[true_cl] = np.argmax(enc)
-        return cl
-
-    def _prepare_params_specific(self, params, x_train):
-        net_params = NeurolabBase._prepare_params_general(params, x_train, len(self.classes_))
+    def _prepare_params(self, params, x_train, y_train):
+        net_params = super(NeurolabClassifier, self)._prepare_params(params, x_train, y_train)
 
         # Default parameters for transfer functions in classifier networks
         if 'transf' not in net_params:
