@@ -9,8 +9,6 @@ from .. import utils
 
 __author__ = 'Alex Rogozhnikov, Tatiana Likhomanenko'
 
-# TODO 3d correlation
-
 
 class AbstractReport:
     """
@@ -165,13 +163,19 @@ class AbstractReport:
             result = dict()
             _, data, labels, weights = self._apply_mask(mask, self._get_features(estimator.features), self.target,
                                                         self.weight)
+            metric_copy = copy.deepcopy(metric)
+            try:
+                metric_copy.fit(data, labels, sample_weight=weights)
+            except:
+                # metric doesn't support fitting
+                pass
             for feature in data.columns:
                 data_modified = data.copy()
                 column = numpy.array(data_modified[feature])
                 numpy.random.shuffle(column)
                 data_modified[feature] = column
                 predictions = self._predict(estimator, data_modified)
-                result[feature] = metric(labels, predictions, sample_weight=weights)
+                result[feature] = metric_copy(labels, predictions, sample_weight=weights)
 
             plot_fig = plotting.BarComparePlot({name: result}, sortby=name)
             plot_fig.title = 'Feature importance for %s' % name
