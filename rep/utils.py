@@ -127,7 +127,7 @@ class Binner:
 
 def calc_ROC(prediction, signal, sample_weight=None, max_points=10000):
     """
-    Calculate roc curve
+    Calculate roc curve, returns limited number of points.
 
     :param prediction: predictions
     :type prediction: array or list
