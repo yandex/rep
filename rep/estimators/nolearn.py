@@ -20,6 +20,7 @@ from .utils import check_inputs
 
 from nolearn.dbn import DBN
 from sklearn.preprocessing import Imputer, MinMaxScaler
+from sklearn.base import clone
 import numpy as np
 
 __author__ = 'Alexey Berdnikov'
@@ -36,6 +37,9 @@ class NolearnClassifier(Classifier):
     :param layers: A list of ints of the form `[n_hid_units_1, n_hid_units_2, ...]`, where `n_hid_units_i` is the number
         of units in i-th hidden layer. The number of units in the input layer and the output layer will be set
         automatically. Default value is `[10]` which means one hidden layer containing 10 units.
+    :param scaler: A scikit-learn transformer to apply to the input objects. If `None` (which is default),
+        `MinmaxScaler()` from :mod:`sklearn.preprocessing` will be used. If you don't want to use any transformer, set
+        `False`.
     :param scales: Scale of the randomly initialized weights. A list of floating point values. When you find good values
         for the scale of the weights you can speed up training a lot, and also improve performance. Defaults to `0.05`.
     :param fan_outs: Number of nonzero incoming connections to a hidden unit. Defaults to `None`, which means that all
@@ -79,6 +83,7 @@ class NolearnClassifier(Classifier):
     """
     def __init__(self, features=None,
                  layers=(10,),
+                 scaler=None,
                  scales=0.05,
                  fan_outs=None,
                  output_act_funct=None,
@@ -112,6 +117,7 @@ class NolearnClassifier(Classifier):
         self.n_classes_ = None
 
         self.layers = list(layers)
+        self.scaler = scaler
         self.scales = scales
         self.fan_outs = fan_outs
         self.output_act_funct = output_act_funct
@@ -145,22 +151,33 @@ class NolearnClassifier(Classifier):
 
         self.verbose = verbose
 
-    def _transform_data(self, X, fit=False):
+    def _transform_data(self, X, y=None, fit=False):
         data = self._get_train_features(X).values
 
         if fit:
-            self.imputer = Imputer()
-            self.scaler = MinMaxScaler()
+            self._fit_scaler(X, y)
 
-            self.imputer.fit(data)
-            self.scaler.fit(data)
+        if self.scaler_fitted_ is not None:
+            data = self.scaler_fitted_.transform(data)
 
-        return self.scaler.transform(self.imputer.transform(data))
+        return data
+
+    def _fit_scaler(self, X, y):
+        if self.scaler is None:
+            self.scaler_fitted_ = MinMaxScaler()
+        elif self.scaler == False:
+            self.scaler_fitted_ = None
+        else:
+            self.scaler_fitted_ = clone(self.scaler)
+
+        if self.scaler_fitted_ is not None:
+            self.scaler_fitted_.fit(X,y)
 
     def _build_clf(self):
         clf_params = self.get_params()
         del clf_params["features"]
         del clf_params["layers"]
+        del clf_params["scaler"]
         clf_params["layer_sizes"] = [-1] + self.layers + [-1]
 
         return DBN(**clf_params)
@@ -187,9 +204,8 @@ class NolearnClassifier(Classifier):
         """
         X, y, sample_weight = check_inputs(X, y, sample_weight=None, allow_none_weights=True)
 
-        X = self._transform_data(X, fit=True)
+        X = self._transform_data(X, y, fit=True)
         y = self._set_classes(y)
-
 
         self.clf = self._build_clf()
         self.clf.fit(X, y)
