@@ -4,7 +4,7 @@ Meta Machine Learning
 =====================
 
 Meta machine learning is specific algorithms, like complicated hierarchical algorithm, hyperparameters optimization parameters.
-Also there is class which allows you to train set of models and compare them very simply.
+Also there is Factory which allows you to train set of models and compare them very simply.
 
 Factory
 -------
