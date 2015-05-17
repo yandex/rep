@@ -1,5 +1,5 @@
 """
-This is specific hierarchical algorithm based on the same idea of cross-validation.
+This is specific meta-algorithm based on the idea of cross-validation.
 """
 from __future__ import division, print_function, absolute_import
 
@@ -19,13 +19,21 @@ __author__ = 'Tatiana Likhomanenko'
 
 class FoldingClassifier(Classifier):
     """
-    This class implements classifier_interface.Classifier interface and realize folding algorithm:
-    all data are divided into several equal n-parts; union n-1 parts and train on it classifier;
-    at the end we have n-estimators; result classifier is combination of all ones.
+    This meta-classifier implements folding algorithm:
+    * training data is splitted into n equal parts;
+    * then n times union of n-1 parts is used to train classifier;
+    * at the end we have n-estimators, which are used to classify new events
+
+    To build unbiased predictions for data, pass the **same** dataset (with same order of events)
+     as in training to `predict`, `predict_proba` or `staged_predict_proba`, in which case
+     classifier will use to predict each event that base classifier which didn't use that event during training.
+
+    To use information from not one, but several classifiers during predictions,
+    provide appropriate voting function.
 
     Parameters:
     -----------
-    :param sklearn.BaseEstimator base_estimator: your classifier, which will be used for training
+    :param sklearn.BaseEstimator base_estimator: base classifier, which will be used for training
     :param int n_folds: count of folds
     :param features: features used in training
     :type features: None or list[str]
@@ -62,7 +70,8 @@ class FoldingClassifier(Classifier):
 
     def fit(self, X, y, sample_weight=None):
         """
-        Train the classifier
+        Train the classifier, will train several base classifiers on overlapping
+        subsets of training dataset.
 
         :param X: pandas.DataFrame of shape [n_samples, n_features]
         :param y: labels of events - array-like of shape [n_samples]
@@ -111,13 +120,13 @@ class FoldingClassifier(Classifier):
 
     def predict(self, X, vote_function=None):
         """
-        Predict labels
+        Predict labels. To get unbiased predictions, you can pass training dataset
+        (with same order of events) and vote_function=None.
 
         :param X: pandas.DataFrame of shape [n_samples, n_features]
         :param vote_function: function to combine prediction of folds' estimators.
             If None then folding scheme is used. Parameters: numpy.ndarray [n_classifiers, n_samples]
-        :type vote_function: None or function
-
+        :type vote_function: None or function, if None, will use folding scheme.
         :rtype: numpy.array of shape [n_samples, n_classes] with labels
         """
         proba = self.predict_proba(X, vote_function=vote_function)
@@ -125,7 +134,8 @@ class FoldingClassifier(Classifier):
 
     def predict_proba(self, X, vote_function=None):
         """
-        Predict probabilities
+        Predict probabilities. To get unbiased predictions, you can pass training dataset
+        (with same order of events) and vote_function=None.
 
         :param X: pandas.DataFrame of shape [n_samples, n_features]
         :param vote_function: function to combine prediction of folds' estimators.
@@ -155,7 +165,8 @@ class FoldingClassifier(Classifier):
 
     def staged_predict_proba(self, X, vote_function=None):
         """
-        Predict probabilities on each stage
+        Predict probabilities on each stage. To get unbiased predictions, you can pass training dataset
+        (with same order of events) and vote_function=None.
 
         :param X: pandas.DataFrame of shape [n_samples, n_features]
         :param vote_function: function to combine prediction of folds' estimators.

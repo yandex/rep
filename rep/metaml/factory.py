@@ -1,5 +1,9 @@
 """
-This module allows to train models all together on the same dataset parallel in some cluster system (or sequential training if cluster is absent).
+**Factory** provides convenient way to train several classifiers on the same dataset.
+These classifiers can be trained one-by-one in a single thread, or simultaneously
+ with IPython cluster or in several threads.
+
+Also `Factory` allows comparison of several classifiers (predictions of which can be used in parallel).
 """
 from __future__ import division, print_function, absolute_import
 from abc import ABCMeta, abstractmethod
@@ -19,7 +23,10 @@ __author__ = 'Tatiana Likhomanenko'
 
 class AbstractFactory(OrderedDict):
     """
-    Ordered dict of estimators, which can be trained simultaneously and can be compared.
+    Factory provides interface to train simultaneously several estimators (classifiers or regressors).
+    Later their quality can be compared.
+
+        .. Note: don't use this class, but it's ancestors.
     """
 
     __metaclass__ = ABCMeta
@@ -28,14 +35,14 @@ class AbstractFactory(OrderedDict):
         """
         Train all estimators on the same data.
 
-        :param X: pandas.DataFrame of shape [n_samples, n_features]
-        :param y: labels of events - array-like of shape [n_samples]
-        :param sample_weight: weight of events,
+        :param X: pandas.DataFrame of shape [n_samples, n_features] with features
+        :param y: array-like of shape [n_samples] with labels of samples
+        :param sample_weight: weights of events,
                array-like of shape [n_samples] or None if all weights are equal
-        :param  features: features to train estimators
-            If None then estimators will be trained on estimator.features
+        :param features: features to train estimators
+            If None, estimators will be trained on `estimator.features`
         :type features: None or list[str]
-        :param parallel_profile: profile
+        :param parallel_profile: profile of parallel execution system or None
         :type parallel_profile: None or str
 
         :return: self
@@ -63,12 +70,12 @@ class AbstractFactory(OrderedDict):
 
     def fit_lds(self, lds, parallel_profile=None, features=None):
         """
-        Fit on data all estimators
+        Fit all estimators on the same dataset.
 
-        :param LabeledDataStorage lds: data
-        :param  features: features to train estimators
-            If None then estimators will be trained on estimator.features
-        :param parallel_profile: profile
+        :param LabeledDataStorage lds: dataset
+        :param features: features to train estimators
+            If None, estimators will be trained on `estimator.features`
+        :param parallel_profile: profile of parallel execution system or None
         :type parallel_profile: None or str
 
         :return: self
@@ -82,7 +89,7 @@ class AbstractFactory(OrderedDict):
         Predict labels (or values for regressors) for all events in dataset.
 
         :param X: pandas.DataFrame of shape [n_samples, n_features]
-        :param parallel_profile: profile
+        :param parallel_profile: profile of parallel execution system or None
         :type parallel_profile: None or str
 
         :rtype: OrderedDict[numpy.array of shape [n_samples] with integer labels (or values)]
@@ -92,7 +99,7 @@ class AbstractFactory(OrderedDict):
     @abstractmethod
     def test_on_lds(self, lds):
         """
-        Prepare report for factory (comparison of all models)
+        Prepare report for factory (comparison of all models).
 
         :param LabeledDataStorage lds: data
         :rtype: rep.report.classification.ClassificationReport or rep.report.regression.RegressionReport
@@ -101,12 +108,13 @@ class AbstractFactory(OrderedDict):
 
     def test_on(self, X, y, sample_weight=None):
         """
-        Prepare report for factory (comparison of all models)
+        Prepare report for factory (comparison of all models).
 
-        :param X: pandas.DataFrame of shape [n_samples, n_features]
+        :param X: pandas.DataFrame of shape [n_samples, n_features] with features
         :param y: numpy.array of shape [n_samples] with targets
         :param sample_weight: weight of events,
                array-like of shape [n_samples] or None if all weights are equal
+
         :rtype: rep.report.classification.ClassificationReport or rep.report.regression.RegressionReport
         """
         from ..data import LabeledDataStorage
@@ -115,19 +123,23 @@ class AbstractFactory(OrderedDict):
 
 class ClassifiersFactory(AbstractFactory):
     """
-    Train several estimators simultaneously, so you can compare them very simply
+    Factory provides training of several classifiers in parallel.
+    Quality of trained classifiers can be compared.
     """
 
     def add_classifier(self, name, classifier):
         """
-        Add classifier to factory
+        Add classifier to factory.
+        Automatically wraps classifier with :class:`SklearnClassifier`
 
         :param str name: unique name for classifier.
             If name coincides with one already used, the old classifier will be replaced by one passed.
         :param  classifier: classifier object
 
-            .. note:: if type == sklearn.base.BaseEstimator, then features=None is used
+            .. note:: if type == sklearn.base.BaseEstimator, then features=None is used,
+            to specify features used by classifier, wrap it with `SklearnClassifier`
         :type classifier: sklearn.base.BaseEstimator or estimators.interface.Classifier
+
 
         """
         if isinstance(classifier, Classifier):
@@ -192,7 +204,7 @@ class ClassifiersFactory(AbstractFactory):
 
     def staged_predict_proba(self, X):
         """
-        Predicts probabilities on each stage
+        Predict probabilities on each stage (attention: returns dictionary of generators)
 
         :param X: pandas.DataFrame of shape [n_samples, n_features]
         :rtype: dict[iterator]
@@ -207,7 +219,7 @@ class ClassifiersFactory(AbstractFactory):
 
     def test_on_lds(self, lds):
         """
-        Report for factory of estimators
+        Prepare report for factory of estimators
 
         :param LabeledDataStorage lds: data
         :rtype: rep.report.classification.ClassificationReport
@@ -217,7 +229,8 @@ class ClassifiersFactory(AbstractFactory):
 
 class RegressorsFactory(AbstractFactory):
     """
-    Train several regressors simultaneously, so you can compare them very simply
+    Factory provides training of several classifiers in parallel.
+    Quality of trained regressors can be compared.
     """
 
     def add_regressor(self, name, regressor):
@@ -246,7 +259,7 @@ class RegressorsFactory(AbstractFactory):
 
         :param X: pandas.DataFrame of shape [n_samples, n_features]
         :param parallel_profile: profile
-        :type parallel_profile: None or str
+        :type parallel_profile: None or name of profile to parallelize computations.
 
         :rtype: OrderedDict[numpy.array of shape [n_samples] with float values]
         """
@@ -294,7 +307,8 @@ class RegressorsFactory(AbstractFactory):
 
 def train_estimator(name, estimator, X, y, sample_weight=None):
     """
-    Trains one estimator on a separate node
+    Supplementary function.
+    Trains estimator on a separate node (or in a separate thread)
 
     :param str name: classifier name
     :param estimator: estimator
@@ -325,7 +339,8 @@ def train_estimator(name, estimator, X, y, sample_weight=None):
 
 def predict_estimator(name, estimator, X, prediction_type='classification'):
     """
-    Predict method for one estimator on a separate node
+    Supplementary function.
+    Builds predictions for one estimator on a separate node (or in a separate thread)
 
     :param str name: classifier name
     :param estimator: estimator
