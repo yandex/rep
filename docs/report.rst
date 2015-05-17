@@ -3,8 +3,8 @@
 Report for models
 =================
 
-This module contains helpful classes to get a report for estimators, like as feature distribution,
-prediction distribution, roc curves, learning curves, and others, and compare them.
+This module contains helpful classes to get a report for estimators, such as feature distribution,
+prediction distribution, ROC curves, learning curves, and others, and compare them.
 
 Classification Report
 ---------------------
@@ -19,7 +19,6 @@ Regression Report
     :members:
     :inherited-members:
     :undoc-members:
-
 
 Metrics
 -------
