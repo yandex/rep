@@ -11,9 +11,6 @@ from rep.estimators.sklearn import SklearnClassifier
 
 __author__ = 'Alex Rogozhnikov'
 
-# TODO:
-# As soon as shipped sklearn 0.15.3, check staged_predict_proba.
-
 
 def test_feature_splitter():
     # testing splitter
@@ -29,6 +26,10 @@ def test_feature_splitter():
                          split_feature=split_column)
     fs.fit(X, y, sample_weight=sample_weight)
     assert fs.score(X, y) > 0.9
+    p_final = fs.predict_proba(X)
+    for p in fs.staged_predict_proba(X):
+        pass
+    assert numpy.allclose(p_final, p), 'end of iterations differs from expected'
 
 
 def test_simple_stacking_xgboost():
