@@ -31,7 +31,7 @@ RUN git clone http://root.cern.ch/git/root.git \
   && git checkout v5-34-21 \
   && ./configure --prefix=/usr/local \
   && make -j2 \
-  && make install \e
+  && make install \
   && cd .. \
   && rm -rf root
 
