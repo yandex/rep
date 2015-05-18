@@ -40,3 +40,21 @@ def test_logloss(size=1000):
     print(value, value2)
 
     assert numpy.allclose(value, value2)
+
+
+def test_roc_auc(size=1000):
+    from sklearn.metrics import roc_auc_score
+    prediction = numpy.random.random(size=size)
+    random_labels = numpy.random.choice(2, size=size)
+
+    proba = numpy.ndarray((len(prediction), 2))
+    proba[:, 0] = 1 - prediction
+    proba[:, 1] = prediction
+
+    roc_auc_metric = metrics.RocAuc().fit(proba, y=random_labels, sample_weight=None)
+    value = roc_auc_score(random_labels, prediction)
+    value2 = roc_auc_metric(random_labels, proba)
+
+    print(value, value2)
+
+    assert numpy.allclose(value, value2)

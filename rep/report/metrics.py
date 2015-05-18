@@ -62,7 +62,7 @@ __author__ = 'Alex Rogozhnikov'
 class MetricMixin(object):
     """Class with helpful methods for metrics,
      metrics are expected (but not obliged) to be derived from it."""
-    def __prepare(self, X, y, sample_weight):
+    def _prepare(self, X, y, sample_weight):
         """
         Preparation
 
@@ -112,7 +112,7 @@ class RocAuc(BaseEstimator, MetricMixin):
                array-like of shape [n_samples] or None if all weights are equal
         :return: self
         """
-        X, y, self.sample_weight, _ = self.__prepare(X, y, sample_weight=sample_weight)
+        X, y, self.sample_weight, _ = self._prepare(X, y, sample_weight=sample_weight)
         # computing index of positive label
         self.positive_index = self.classes_.tolist().index(self.positive_label)
         self.true_class = (numpy.array(y) == self.positive_label)
@@ -144,7 +144,7 @@ class LogLoss(BaseEstimator, MetricMixin):
                array-like of shape [n_samples] or None if all weights are equal
         :return: self
         """
-        X, y, sample_weight, self.class_indices = self.__prepare(X, y, sample_weight=sample_weight)
+        X, y, sample_weight, self.class_indices = self._prepare(X, y, sample_weight=sample_weight)
         self.sample_weight = sample_weight / sample_weight.sum()
         self.samples_indices = numpy.arange(len(X))
         return self
