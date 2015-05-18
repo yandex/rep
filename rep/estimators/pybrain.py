@@ -76,7 +76,7 @@ class PyBrainBase(object):
     :param int max_epochs: if is given, at most that many epochs are trained.
     :param int continue_epochs: each time validation error hits a minimum, try for continue_epochs epochs to find a better one.
     :param float validation_proportion: the ratio of the dataset that is used for the validation dataset.
-
+    See: http://pybrain.org/docs/
     """
 
     def __init__(self,
@@ -143,13 +143,13 @@ class PyBrainBase(object):
                 if k in _PASS_PARAMETERS:
                     continue
 
-                if k[:len('layers__')] == 'layers__':
+                if k.startswith('layers__'):
                     index = int(k[len('layers__'):])
                     self.layers[index] = v
-                elif k[:len('hiddenclass__')] == 'hiddenclass__':
+                elif k.startswith('hiddenclass__'):
                     index = int(k[len('hiddenclass__'):])
                     self.hiddenclass[index] = v
-                elif k[:len('scaler__')] == 'scaler__':
+                elif k.startswith('scaler__'):
                     scaler_params = {k[len('scaler__'):]: v}
                     self.scaler.set_params(**scaler_params)
                 else:
@@ -183,7 +183,7 @@ class PyBrainBase(object):
         X = self._get_train_features(X)
 
         data_temp = numpy.copy(X)
-        if self.scaler is None:
+        if self.scaler is False:
             X = data_temp
             return X
         elif self.scaler == 'standard':
@@ -223,7 +223,7 @@ class PyBrainBase(object):
         if model_type == 'classification':
             net_options['outclass'] = structure.SoftmaxLayer
 
-            self.classes_ = numpy.unique(y)
+            self._set_classes(y)
             layers_for_net = [X.shape[1], self.layers[0], len(self.classes_)]
             ds = SupervisedDataSet(X.shape[1], len(self.classes_))
 
@@ -236,7 +236,8 @@ class PyBrainBase(object):
         elif model_type == 'regression':
             net_options['outclass'] = structure.LinearLayer
 
-            y = y.reshape((len(y), 1))
+            if len(y.shape) == 1:
+                y = y.reshape((len(y), 1))
             layers_for_net = [X.shape[1], self.layers[0], y.shape[1]]
 
             ds = SupervisedDataSet(X.shape[1], y.shape[1])
@@ -301,7 +302,7 @@ class PyBrainClassifier(PyBrainBase, Classifier):
     :param int max_epochs: if is given, at most that many epochs are trained.
     :param int continue_epochs: each time validation error hits a minimum, try for continue_epochs epochs to find a better one.
     :param float validation_proportion: the ratio of the dataset that is used for the validation dataset.
-
+    See: http://pybrain.org/docs/
     """
 
     def __init__(self,
@@ -410,7 +411,6 @@ class PyBrainClassifier(PyBrainBase, Classifier):
         :return dict
         """
         parameters = PyBrainBase.get_params(self, deep)
-        parameters['features'] = self.features
         parameters['use_rprop'] = self.use_rprop
         parameters['etaminus'] = self.etaminus
         parameters['etaplus'] = self.etaplus
@@ -486,7 +486,7 @@ class PyBrainRegressor(PyBrainBase, Regressor):
     :param int max_epochs: if is given, at most that many epochs are trained.
     :param int continue_epochs: each time validation error hits a minimum, try for continue_epochs epochs to find a better one.
     :param float validation_proportion: the ratio of the dataset that is used for the validation dataset.
-
+    See: http://pybrain.org/docs/
     """
 
     def __init__(self,
@@ -494,7 +494,7 @@ class PyBrainRegressor(PyBrainBase, Regressor):
                  hiddenclass=None,
                  features=None,
                  epochs=10,
-                 scaler=None,
+                 scaler='standard',
                  learningrate=0.01,
                  lrdecay=1.0,
                  momentum=0.,
@@ -524,17 +524,6 @@ class PyBrainRegressor(PyBrainBase, Regressor):
 
     def _is_fitted(self):
         return self.__fitted
-
-    def get_params(self, deep=True):
-        """
-        Gets parameters of the estimator
-
-        :return dict
-        """
-        parameters = PyBrainBase.get_params(self, deep)
-        parameters['features'] = self.features
-
-        return parameters
 
     def fit(self, X, y):
         """
@@ -584,7 +573,8 @@ class PyBrainRegressor(PyBrainBase, Regressor):
         ds.setField('input', X)
         ds.setField('target', y_test_dummy)
 
-        return self.net.activateOnDataset(ds)
+#       reshaping from (-1, 1) to (-1,)
+        return (self.net.activateOnDataset(ds)).reshape(-1,)
 
     def staged_predict(self, X):
         """
