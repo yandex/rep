@@ -195,11 +195,6 @@ class NolearnClassifier(Classifier):
             raise ValueError("cannot convert 'layers' parameter to list")
         return layers
 
-    def _set_classes(self, y):
-        self.classes_, y = np.unique(y, return_inverse=True)
-        self.n_classes_ = len(self.classes_)
-        return y
-
     def set_params(self, **params):
         """
         Set the parameters of this estimator.
@@ -237,7 +232,7 @@ class NolearnClassifier(Classifier):
         X, y, sample_weight = check_inputs(X, y, sample_weight=None, allow_none_weights=True)
 
         X = self._transform_data(X, y, fit=True)
-        y = self._set_classes(y)
+        self._set_classes(y)
 
         self.clf = self._build_clf()
         self.clf.fit(X, y)
