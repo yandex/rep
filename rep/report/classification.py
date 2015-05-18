@@ -1,5 +1,5 @@
 """
-This file contains report class for classification estimators. Report includes:
+This module contains report class for classification estimators. Report includes:
 
     * features scatter plots, distributions, correlations
     * learning curve
@@ -9,7 +9,8 @@ This file contains report class for classification estimators. Report includes:
     * feature importance
     * feature importance by shuffling the feature column
 
-All methods return objects, which can have plot method (details see in :class:`rep.plotting`)
+All methods return objects, which have `plot` method (details see in :class:`rep.plotting`),
+these objects contain raw information about things to be plotted.
 """
 
 from __future__ import division, print_function, absolute_import
@@ -34,9 +35,10 @@ BAR_TYPES = {'error_bar', 'bar'}
 
 class ClassificationReport(AbstractReport):
     """
-    Test estimators on any data. Support Roc curve, prediction distribution, features information (correlation matrix, distribution,
-    correlation between pairs of features), efficiencies for thresholds (evaluate flatness for important feature),
-    correlation with prediction for necessary feature, any metrics of quality
+    Test estimators on any data. Supports ROC curve, prediction distribution, features information
+    (correlation matrix, distribution, scatter plots for pairs of features),
+    efficiencies for thresholds (evaluate flatness of predictions for important feature),
+    correlation with prediction for necessary feature, any metrics of quality.
 
     Parameters:
     -----------
@@ -55,11 +57,12 @@ class ClassificationReport(AbstractReport):
 
     @staticmethod
     def _check_labels(labels_dict, class_labels):
-        """ The labels listed may be not used
+        """ Normalizes the names for labels.
 
-        :param labels_dict: dict(label -> name) or None, if None,
-            the classes will be named 0: bck and 1: signal
-        :param class_labels: array with labels of events, [n_samples]
+        :param labels_dict: dict(label -> name) or None,
+            if None, the classes will be named 0: bck and 1: signal
+        :param class_labels: array of shape [n_samples] with labels of events,
+            used here to define the set of used labels.
         """
         labels_dict_init = OrderedDict()
         all_classes = set(class_labels)
@@ -70,13 +73,13 @@ class ClassificationReport(AbstractReport):
             for key, value in labels_dict.items():
                 if key in all_classes:
                     labels_dict_init[key] = value
-        assert set(labels_dict_init.keys()).issubset(all_classes), 'Labels must be a subset of {}, but {}'.format(
-            all_classes, labels_dict_init.keys())
+        assert set(labels_dict_init.keys()).issubset(all_classes), \
+            'Labels must be a subset of {}, but {}'.format(all_classes, labels_dict_init.keys())
         return labels_dict_init
 
     def features_pdf(self, features=None, mask=None, bins=30, ignored_sideband=0.0, labels_dict=None, grid_columns=2):
         """
-        Features distribution with errors
+        Features distribution (with errors)
 
         :param features: using features (if None then use classifier's features)
         :type features: None or list[str]
@@ -199,7 +202,8 @@ class ClassificationReport(AbstractReport):
         mask, = self._apply_mask(mask)
 
         classes_labels = set(numpy.unique(self.target[mask]))
-        assert len(classes_labels) == 2 and signal_label in classes_labels, 'Classes must be 2 instead of {}'.format(classes_labels)
+        assert len(classes_labels) == 2 and signal_label in classes_labels, \
+            'Classes must be 2 instead of {}'.format(classes_labels)
 
         for name, prediction in self.prediction.items():
             labels_active = numpy.array(self.target[mask] == signal_label, dtype=int)
@@ -208,23 +212,27 @@ class ClassificationReport(AbstractReport):
         plot_fig = plotting.FunctionsPlot(roc_curves)
         plot_fig.xlabel = 'Signal sensitivity'
         plot_fig.ylabel = 'Bg rejection eff (specificity)'
-        plot_fig.title = 'Roc curves'
+        plot_fig.title = 'ROC curves'
         return plot_fig
 
-    def prediction_pdf(self, mask=None, bins=30, size=2, log=False, plot_type='error_bar',
+    def prediction_pdf(self, mask=None, target_class=1, bins=30, size=2, log=False, plot_type='error_bar',
                        normed=True, labels_dict=None):
         """
         Distribution of prediction for signal and bck separately with errors
 
         :param mask: mask for data, which will be used
         :type mask: None or numbers.Number or array-like or str or function(pandas.DataFrame)
-        :param bins: bins for histogram
+        :param target_class: draw probabilities of being classified as target_class
+            (default 1, will draw signal probabilities).
+            If None, will draw probability corresponding to right class of each event.
+        :type target_class: int or None
+        :param bins: number of bins in histogram
         :type bins: int or array-like
-        :param int size: size for point on plots
-        :param bool log: log scale on plot
-        :param bool normed: normed pdf or not
+        :param int size: points size on plots
+        :param bool log: use logarithmic scale
+        :param bool normed: draw normed pdf or not (normed by default)
         :param str plot_type: 'error_bar' for error type and 'bar' for hist type
-        :param labels_dict: label -- name for class label
+        :param labels_dict: names for class labels as dictionary
             if None then {0: 'bck', '1': 'signal'}
         :type labels_dict: None or OrderedDict(int: str)
         :rtype: plotting.ErrorPlot or plotting.BarPlot
@@ -240,13 +248,14 @@ class ClassificationReport(AbstractReport):
             prediction = prediction[mask]
             for label, name_label in labels_dict.items():
                 label_mask = class_labels == label
+                target_label = label if target_class is None else target_class
                 plot_name = '{name} for {cl}'.format(name=name_label, cl=name)
                 if plot_type == 'error_bar':
                     data[plot_name] = utils.calc_hist_with_errors(
-                        prediction[label_mask, label],
+                        prediction[label_mask, target_label],
                         weight[label_mask], bins, normed=normed, x_range=(0, 1))
                 else:
-                    data[plot_name] = (prediction[label_mask, label], weight[label_mask], filled_type.next())
+                    data[plot_name] = (prediction[label_mask, target_label], weight[label_mask], filled_type.next())
 
         if plot_type == 'error_bar':
             plot_fig = plotting.ErrorPlot(data, size=size, log=log)
@@ -310,10 +319,10 @@ class ClassificationReport(AbstractReport):
 
     def metrics_vs_cut(self, metric, mask=None, metric_label='metric'):
         """
-        Test different quality functions on predictions
+        Draw values of binary metric depending on the threshold on predictions.
 
-        :param rep.report.metrics.OptimalMetric metric: optimal metric
-        :param mask: mask for data, which will be used
+        :param metric: binary metric (AMS, f1 or so - shall use only tpr and fpr)
+        :param mask: mask for data used in comparison
         :type mask: None or numbers.Number or array-like or str or function(pandas.DataFrame)
         :param str metric_label: name for metric on plot
 
@@ -323,8 +332,7 @@ class ClassificationReport(AbstractReport):
         mask, = self._apply_mask(mask)
         class_labels, weight = self.target[mask], self.weight[mask]
 
-        # assert len(numpy.unique(class_labels)) == 2, 'This function supported only for 2-classification'
-
+        # assert len(numpy.unique(class_labels)) == 2, 'This function supports only for 2-classification'
 
         quality = OrderedDict()
         opt_metrics = OptimalMetric(metric)
@@ -337,7 +345,11 @@ class ClassificationReport(AbstractReport):
         return plot_fig
 
     def _learning_curve_additional(self, name, metric_func, step, mask):
-        """Returns values of roc auc (or some other metric) for particular classifier, mask and metric function. """
+        """
+        Compute values of RocAuc (or some other metric) for particular classifier, mask and metric function.
+        :return: tuple(stages, values) with numbers of stages and corresponding
+        computed values of metric after each stage.
+        """
         _, data, labels, weight = self._apply_mask(
             mask, self._get_features(), self.target, self.weight)
 
@@ -376,8 +388,8 @@ class ClassificationReport(AbstractReport):
         """
         For binary classification plots the dependence of efficiency on two columns
 
-        :param features: two features names
-        :param float efficiency: efficiency
+        :param features: tuple of list with names of two features
+        :param float efficiency: efficiency, float
         :param n_bins: bins for histogram
         :type n_bins: int or array-like
         :param mask: mask for data, which will be used
