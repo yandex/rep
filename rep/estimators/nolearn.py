@@ -152,15 +152,15 @@ class NolearnClassifier(Classifier):
         self.verbose = verbose
 
     def _transform_data(self, X, y=None, fit=False):
-        data = self._get_train_features(X).values
+        X = self._get_train_features(X).values
 
         if fit:
             self._fit_scaler(X, y)
 
         if self.scaler_fitted_ is not None:
-            data = self.scaler_fitted_.transform(data)
+            X = self.scaler_fitted_.transform(X)
 
-        return data
+        return X
 
     def _fit_scaler(self, X, y):
         if self.scaler is None:
@@ -174,7 +174,7 @@ class NolearnClassifier(Classifier):
             self.scaler_fitted_.fit(X,y)
 
     def _build_clf(self):
-        clf_params = self.get_params()
+        clf_params = self.get_params(deep=False)
         del clf_params["features"]
         del clf_params["layers"]
         del clf_params["scaler"]
