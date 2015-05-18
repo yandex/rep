@@ -20,7 +20,7 @@ from .utils import check_inputs
 
 from nolearn.dbn import DBN
 from sklearn.preprocessing import Imputer, MinMaxScaler
-from sklearn.base import clone
+from sklearn.base import clone, BaseEstimator
 import numpy as np
 
 __author__ = 'Alexey Berdnikov'
@@ -179,10 +179,7 @@ class NolearnClassifier(Classifier):
         del clf_params["layers"]
         del clf_params["scaler"]
 
-        try:
-            layers = list(self.layers)
-        except:
-            raise ValueError("cannot convert 'layers' parameter to list")
+        layers = self._check_layers()
         clf_params["layer_sizes"] = [-1] + layers + [-1]
 
         return DBN(**clf_params)
@@ -191,10 +188,40 @@ class NolearnClassifier(Classifier):
         if self.clf is None:
             raise AttributeError("estimator not fitted, call 'fit' before making predictions")
 
+    def _check_layers(self):
+        try:
+            layers = list(self.layers)
+        except:
+            raise ValueError("cannot convert 'layers' parameter to list")
+        return layers
+
     def _set_classes(self, y):
         self.classes_, y = np.unique(y, return_inverse=True)
         self.n_classes_ = len(self.classes_)
         return y
+
+    def set_params(self, **params):
+        """
+        Set the parameters of this estimator.
+
+        The method works also on nested objects (such as pipelines). Use parameters of the form
+        ``<component>__<parameter>`` to update the parameter of the component (``layers__<number>`` is also acceptable).
+
+        Returns
+        -------
+        self
+
+        """
+        skipped_parameters = {}
+        layers_prefix = "layers__"
+        for key, value in params.items():
+            if key.startswith(layers_prefix):
+                self.layers = self._check_layers()
+                k = int(key[len(layers_prefix):])
+                self.layers[k] = value
+            else:
+                skipped_parameters[key] = value
+        BaseEstimator.set_params(self, **skipped_parameters)
 
     def fit(self, X, y):
         """
