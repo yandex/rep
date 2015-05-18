@@ -116,7 +116,7 @@ class NolearnClassifier(Classifier):
         self.classes_ = None
         self.n_classes_ = None
 
-        self.layers = list(layers)
+        self.layers = layers
         self.scaler = scaler
         self.scales = scales
         self.fan_outs = fan_outs
@@ -178,7 +178,12 @@ class NolearnClassifier(Classifier):
         del clf_params["features"]
         del clf_params["layers"]
         del clf_params["scaler"]
-        clf_params["layer_sizes"] = [-1] + self.layers + [-1]
+
+        try:
+            layers = list(self.layers)
+        except:
+            raise ValueError("cannot convert 'layers' parameter to list")
+        clf_params["layer_sizes"] = [-1] + layers + [-1]
 
         return DBN(**clf_params)
 
