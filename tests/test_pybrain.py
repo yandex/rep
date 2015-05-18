@@ -18,6 +18,7 @@ from rep.test.test_estimators import check_classifier, check_regression
 from rep.estimators.pybrain import PyBrainClassifier
 from rep.estimators.pybrain import PyBrainRegressor
 from sklearn.ensemble import BaggingClassifier
+from sklearn.pipeline import Pipeline
 from rep.estimators import SklearnClassifier
 
 
@@ -26,15 +27,48 @@ __author__ = 'Artem Zhirokhov'
 
 def test_pybrain_classification():
     check_classifier(PyBrainClassifier(), has_staged_pp=False, has_importances=False, supports_weight=False)
+    check_classifier(PyBrainClassifier(layers=[10, 10]), has_staged_pp=False, has_importances=False, supports_weight=False)
+
+
+def test_pybrain_Linear():
+    check_classifier(PyBrainClassifier(layers=[10], hiddenclass=['LinearLayer']),
+                     has_staged_pp=False, has_importances=False, supports_weight=False)
+    check_regression(PyBrainRegressor(layers=[10], hiddenclass=['LinearLayer']),
+                     has_staged_predictions=False, has_importances=False, supports_weight=False)
+
+
+def test_pybrain_MDLSTM():
+    check_classifier(PyBrainClassifier(layers=[10], hiddenclass=['MDLSTMLayer']),
+                     has_staged_pp=False, has_importances=False, supports_weight=False)
+    check_regression(PyBrainRegressor(layers=[10], hiddenclass=['MDLSTMLayer']),
+                     has_staged_predictions=False, has_importances=False, supports_weight=False)
+
+
+def test_pybrain_SoftMax():
+    check_classifier(PyBrainClassifier(layers=[10], hiddenclass=['SoftmaxLayer']),
+                     has_staged_pp=False, has_importances=False, supports_weight=False)
+    check_regression(PyBrainRegressor(layers=[10], hiddenclass=['SoftmaxLayer']),
+                     has_staged_predictions=False, has_importances=False, supports_weight=False)
+
+
+def test_pybrain_Tanh():
+    check_classifier(PyBrainClassifier(layers=[10], hiddenclass=['TanhLayer']),
+                     has_staged_pp=False, has_importances=False, supports_weight=False)
+    check_regression(PyBrainRegressor(layers=[10], hiddenclass=['TanhLayer']),
+                     has_staged_predictions=False, has_importances=False, supports_weight=False)
+
 
 def test_pybrain_rprop():
     check_classifier(PyBrainClassifier(use_rprop=True), has_staged_pp=False, has_importances=False, supports_weight=False)
 
+
 def test_pybrain_multiclassification():
     check_classifier(PyBrainClassifier(), has_staged_pp=False, has_importances=False, supports_weight=False, n_classes=4)
 
+
 def test_pybrain_regression():
     check_regression(PyBrainRegressor(), has_staged_predictions=False, has_importances=False, supports_weight=False)
+
 
 def test_simple_stacking_pybrain():
     base_pybrain = PyBrainClassifier()
