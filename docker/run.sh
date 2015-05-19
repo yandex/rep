@@ -13,7 +13,7 @@ usage() {
 }
 
 IMAGE="anaderi/rep:latest"
-DIR=`cd "$(dirname 0)" && pwd -P`
+DIR=`cd "$(dirname $0)" && pwd -P`
 CID_FILE=$DIR/docker.cid
 port=8080
 nbdiff_port=8086
@@ -36,5 +36,5 @@ PORT_MAP="-p $port:8080 -p $nbdiff_port:5000"
 CID=$(docker run  --net=host -d $PORT_MAP $DIR_MAP $IMAGE)
 [ -z "$CID" ] && halt "Error starting docker"
 echo $CID > $CID_FILE
-echo "Done. CID=$CID" | head -c 23
+echo "Done. CID=$CID" | head -c 22
 echo

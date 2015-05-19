@@ -5,7 +5,7 @@ exit 1
 }
 
 
-DIR=`cd "$(dirname 0)" && pwd -P`
+DIR=`cd "$(dirname $0)" && pwd -P`
 PREFIX="/python"
 cd $DIR
 [ -d modules ] || halt "no modules directory found"

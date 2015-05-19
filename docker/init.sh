@@ -4,7 +4,7 @@ exit 1
 }
 
 CP_CMD=cp
-MYDIR=`cd "$(dirname 0)" && pwd -P`
+MYDIR=`cd "$(dirname $0)" && pwd -P`
 [ -z "$1" ] && halt "Usage: $0 DIRECTORY"
 DIR=$1 ; shift
 [ "$1" == "--ln" ] && CP_CMD="ln -s" && shift
