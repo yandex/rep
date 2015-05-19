@@ -20,6 +20,7 @@ from .utils import check_inputs
 from nolearn.dbn import DBN
 from sklearn.preprocessing import StandardScaler
 from sklearn.base import clone, BaseEstimator
+import gnumpy as gnp
 
 __author__ = 'Alexey Berdnikov'
 
@@ -177,7 +178,12 @@ class NolearnClassifier(Classifier):
         layers = self._check_layers()
         net_params["layer_sizes"] = [-1] + layers + [-1]
 
-        return DBN(**net_params)
+        net = DBN(**net_params)
+
+        # Black magic. For some reason this makes results of prediction to be reproducibile.
+        gnp.seed_rand(42)
+
+        return net
 
     def _check_is_fitted(self):
         if not hasattr(self, 'net_'):
