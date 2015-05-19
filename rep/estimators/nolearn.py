@@ -112,9 +112,6 @@ class NolearnClassifier(Classifier):
                  fine_tune_callback=None,
                  verbose=0):
         Classifier.__init__(self, features=features)
-        self.clf = None
-        self.classes_ = None
-        self.n_classes_ = None
 
         self.layers = layers
         self.scaler = scaler
@@ -173,19 +170,19 @@ class NolearnClassifier(Classifier):
         if self.scaler_fitted_ is not None:
             self.scaler_fitted_.fit(X,y)
 
-    def _build_clf(self):
-        clf_params = self.get_params(deep=False)
-        del clf_params["features"]
-        del clf_params["layers"]
-        del clf_params["scaler"]
+    def _build_net(self):
+        net_params = self.get_params(deep=False)
+        del net_params["features"]
+        del net_params["layers"]
+        del net_params["scaler"]
 
         layers = self._check_layers()
-        clf_params["layer_sizes"] = [-1] + layers + [-1]
+        net_params["layer_sizes"] = [-1] + layers + [-1]
 
-        return DBN(**clf_params)
+        return DBN(**net_params)
 
     def _check_is_fitted(self):
-        if self.clf is None:
+        if not hasattr(self, 'net_'):
             raise AttributeError("estimator not fitted, call 'fit' before making predictions")
 
     def _check_layers(self):
@@ -234,8 +231,8 @@ class NolearnClassifier(Classifier):
         X = self._transform_data(X, y, fit=True)
         self._set_classes(y)
 
-        self.clf = self._build_clf()
-        self.clf.fit(X, y)
+        self.net_ = self._build_net()
+        self.net_.fit(X, y)
 
         return self
 
@@ -249,7 +246,7 @@ class NolearnClassifier(Classifier):
         """
         self._check_is_fitted()
         X = self._transform_data(X)
-        return self.clf.predict(X)
+        return self.net_.predict(X)
 
     def predict_proba(self, X):
         """
@@ -261,7 +258,7 @@ class NolearnClassifier(Classifier):
         """
         self._check_is_fitted()
         X = self._transform_data(X)
-        return self.clf.predict_proba(X)
+        return self.net_.predict_proba(X)
 
     def staged_predict_proba(self, X):
         """
