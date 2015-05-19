@@ -19,7 +19,7 @@ from .interface import Classifier
 from .utils import check_inputs
 
 from nolearn.dbn import DBN
-from sklearn.preprocessing import Imputer, MinMaxScaler
+from sklearn.preprocessing import Imputer, StandardScaler
 from sklearn.base import clone, BaseEstimator
 import numpy as np
 
@@ -38,7 +38,7 @@ class NolearnClassifier(Classifier):
         of units in i-th hidden layer. The number of units in the input layer and the output layer will be set
         automatically. Default value is `[10]` which means one hidden layer containing 10 units.
     :param scaler: A scikit-learn transformer to apply to the input objects. If `None` (which is default),
-        `MinmaxScaler()` from :mod:`sklearn.preprocessing` will be used. If you don't want to use any transformer, set
+        `StandardScaler()` from :mod:`sklearn.preprocessing` will be used. If you don't want to use any transformer, set
         `False`.
     :param scales: Scale of the randomly initialized weights. A list of floating point values. When you find good values
         for the scale of the weights you can speed up training a lot, and also improve performance. Defaults to `0.05`.
@@ -161,7 +161,7 @@ class NolearnClassifier(Classifier):
 
     def _fit_scaler(self, X, y):
         if self.scaler is None:
-            self.scaler_fitted_ = MinMaxScaler()
+            self.scaler_fitted_ = StandardScaler()
         elif self.scaler == False:
             self.scaler_fitted_ = None
         else:
