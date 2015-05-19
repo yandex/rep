@@ -13,15 +13,13 @@
 # limitations under the License.
 
 from __future__ import division, print_function, absolute_import
-from abc import ABCMeta
 
 from .interface import Classifier
 from .utils import check_inputs
 
 from nolearn.dbn import DBN
-from sklearn.preprocessing import Imputer, StandardScaler
+from sklearn.preprocessing import StandardScaler
 from sklearn.base import clone, BaseEstimator
-import numpy as np
 
 __author__ = 'Alexey Berdnikov'
 
