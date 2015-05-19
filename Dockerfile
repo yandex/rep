@@ -20,7 +20,7 @@ RUN pip install \
   numpy==1.9.1 
 
 ENV TEMP /tmp
-COPY requirements.txt $TEMP/
+RUN curl https://raw.githubusercontent.com/yandex/rep/master/requirements.txt > $TEMP/requirements.txt 
 RUN pip install -r $TEMP/requirements.txt
 
 # CERN root
