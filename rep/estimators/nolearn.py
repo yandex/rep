@@ -25,6 +25,10 @@ import gnumpy as gnp
 __author__ = 'Alexey Berdnikov'
 
 
+LIST_PARAMS = {'layers', 'scales', 'fan_outs', 'uniforms', 'learn_rates', 'learn_rate_decays', 'learn_rate_minimums',
+               'l2_costs', 'dropouts', 'rms_lims', 'learn_rates_pretrain', 'l2_costs_pretrain', 'epochs_pretrain'}
+
+
 class NolearnClassifier(Classifier):
     """
     Classifier based on :class:`DBN` from :mod:`nolearn.dbn`.
@@ -175,7 +179,7 @@ class NolearnClassifier(Classifier):
         del net_params["layers"]
         del net_params["scaler"]
 
-        layers = self._check_layers()
+        layers = self._check_list_parameter('layers')
         net_params["layer_sizes"] = [-1] + layers + [-1]
 
         net = DBN(**net_params)
@@ -189,35 +193,37 @@ class NolearnClassifier(Classifier):
         if not hasattr(self, 'net_'):
             raise AttributeError("estimator not fitted, call 'fit' before making predictions")
 
-    def _check_layers(self):
-        try:
-            layers = list(self.layers)
-        except:
-            raise ValueError("cannot convert 'layers' parameter to list")
-        return layers
+    def _check_list_parameter(self, name):
+        parameter = getattr(self, name)
+        if not hasattr(parameter, '__iter__'):
+            raise ValueError("cannot convert '{}' parameter to list".format(name))
+        return list(parameter)
 
     def set_params(self, **params):
         """
         Set the parameters of this estimator.
 
         The method works also on nested objects (such as pipelines). Use parameters of the form
-        ``<component>__<parameter>`` to update the parameter of the component (``layers__<number>`` is also acceptable).
+        ``<component>__<parameter>`` to update the parameter of the component. Use ``<parameter>__<number>`` to change
+        an element of parameter which is presented by a list (e. g. ``layers__0``).
 
         Returns
         -------
         self
 
         """
-        skipped_parameters = {}
-        layers_prefix = "layers__"
+        skipped_params = {}
         for key, value in params.items():
-            if key.startswith(layers_prefix):
-                self.layers = self._check_layers()
-                k = int(key[len(layers_prefix):])
-                self.layers[k] = value
+            split = key.split('__', 1)
+            param_name = split[0]
+            if len(split) > 1 and param_name in LIST_PARAMS:
+                param_value = self._check_list_parameter(param_name)
+                k = int(split[1])
+                param_value[k] = value
+                setattr(self, param_name, param_value)
             else:
-                skipped_parameters[key] = value
-        BaseEstimator.set_params(self, **skipped_parameters)
+                skipped_params[key] = value
+        BaseEstimator.set_params(self, **skipped_params)
 
     def fit(self, X, y):
         """
