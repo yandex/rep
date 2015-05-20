@@ -11,7 +11,7 @@ DIR=$1 ; shift
 [ -d $DIR ] && halt "ERR: directory $DIR already exists"
 mkdir -p $DIR
 
-$CP_CMD $MYDIR/*.sh $DIR
+$CP_CMD $MYDIR/*.sh $DIR  # TODO: exclude init.sh
 for f in ipykee log modules notebooks ; do
   mkdir $DIR/$f
 done
