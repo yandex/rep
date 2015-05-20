@@ -18,4 +18,4 @@ RUN ipython profile create
 
 EXPOSE 8080
 EXPOSE 5000
-CMD ["sh", "run.sh"]
+CMD ["bash", "run.sh"]
