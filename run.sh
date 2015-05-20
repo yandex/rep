@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 NOTEBOOK_DIR='/notebooks'
 [ -d '/logdir' ] && LOG_DIR='/logdir'
