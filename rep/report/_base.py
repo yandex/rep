@@ -187,8 +187,11 @@ class AbstractReport:
         """
         Compute metric value
 
-        :param metric: class with __call__(self, y_true, prob, sample_weight=None) or function
-        :param mask: mask which points we should use
+        :param metric: function like object with::
+
+            __call__(self, y_true, prob, sample_weight=None)
+
+        :param mask: mask, points we should use
         :type mask: None or array-like or str or function(pandas.DataFrame)
 
         :return: metric value for each estimator
