@@ -42,7 +42,8 @@ class ClassificationReport(AbstractReport):
 
     Parameters:
     -----------
-    :param dict[str, Classifier] classifiers: estimators
+    :param classifiers: estimators
+    :type classifiers: dict[str, Classifier]
     :param LabeledDataStorage lds: data
     """
     def __init__(self, classifiers, lds):
