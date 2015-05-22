@@ -35,14 +35,14 @@ class NolearnClassifier(Classifier):
 
     Parameters:
     -----------
-    :param features: features used in training
+    :param features: Features used in training.
     :type features: `list[str]` or None
     :param layers: A list of ints of the form `[n_hid_units_1, n_hid_units_2, ...]`, where `n_hid_units_i` is the number
         of units in i-th hidden layer. The number of units in the input layer and the output layer will be set
         automatically. Default value is `[10]` which means one hidden layer containing 10 units.
     :param scaler: A scikit-learn transformer to apply to the input objects. If `None` (which is default),
-        `StandardScaler()` from :mod:`sklearn.preprocessing` will be used. If you don't want to use any transformer, set
-        `False`.
+        `StandardScaler()` from :mod:`sklearn.preprocessing` will be used. If you do not want to use any transformer,
+         set `False`.
     :param scales: Scale of the randomly initialized weights. A list of floating point values. When you find good values
         for the scale of the weights you can speed up training a lot, and also improve performance. Defaults to `0.05`.
     :param fan_outs: Number of nonzero incoming connections to a hidden unit. Defaults to `None`, which means that all
@@ -57,14 +57,14 @@ class NolearnClassifier(Classifier):
     :param learn_rate_decays: The number with which the `learn_rate` is multiplied after each epoch of fine-tuning.
     :param learn_rate_minimums: The minimum `learn_rates`; after the learn rate reaches the minimum learn rate, the
         `learn_rate_decays` no longer has any effect.
-    :param momentum: Momentum
+    :param momentum: Momentum.
     :param l2_costs: L2 costs per weight layer.
     :param dropouts: Dropouts per weight layer.
     :param nesterov: Not documented at this time.
     :param nest_compare: Not documented at this time.
     :param rms_lims: Not documented at this time.
-    :param learn_rates_pretrain: A list of learning rates similar to `learn_rates_pretrain`, but used for pretraining.
-        Defaults to value of `learn_rates` parameter.
+    :param learn_rates_pretrain: A list of learning rates similar to `learn_rates`, but used for pretraining. Defaults
+        to value of `learn_rates` parameter.
     :param momentum_pretrain: Momentum for pre-training. Defaults to value of `momentum` parameter.
     :param l2_costs_pretrain: L2 costs per weight layer, for pre-training.  Defaults to the value of `l2_costs`
         parameter.
@@ -82,6 +82,9 @@ class NolearnClassifier(Classifier):
     :param verbose: Debugging output.
     .. warning::
         nolearn doesn't support `staged_predict_proba()`, `feature_importances__` and sample weights.
+    .. warning::
+        The `random_state` parameter is not implemented in this wrapper because nolearn uses this parameter
+        in a way that is incompatible with scikit-learn.
 
     """
     def __init__(self, features=None,
@@ -184,7 +187,7 @@ class NolearnClassifier(Classifier):
 
         net = DBN(**net_params)
 
-        # Black magic. For some reason this makes results of prediction to be reproducibile.
+        # Black magic. For some reason this makes results of prediction to be reproducible.
         gnp.seed_rand(42)
 
         return net
@@ -203,9 +206,9 @@ class NolearnClassifier(Classifier):
         """
         Set the parameters of this estimator.
 
-        The method works also on nested objects (such as pipelines). Use parameters of the form
+        The method works also on nested objects (such as pipelines). Use parameter of the form
         ``<component>__<parameter>`` to update the parameter of the component. Use ``<parameter>__<number>`` to change
-        an element of parameter which is presented by a list (e. g. ``layers__0``).
+        an element of parameter which is presented by a list (e. g. `layers__0`).
 
         Returns
         -------
@@ -229,8 +232,8 @@ class NolearnClassifier(Classifier):
         """
         Train the classifier.
 
-        :param pandas.DataFrame | numpy.ndarray X: data shape `[n_samples, n_features]`
-        :param list | numpy.array y: values - array-like of shape `[n_samples]`
+        :param pandas.DataFrame | numpy.ndarray X: Data shape `[n_samples, n_features]`.
+        :param list | numpy.array y: Values - array-like of shape `[n_samples]`.
         :return: self
         .. warning::
             Sample weights are not supported for nolearn.
@@ -250,8 +253,8 @@ class NolearnClassifier(Classifier):
         """
         Predict data.
 
-        :param pandas.DataFrame | numpy.ndarray X: data shape `[n_samples, n_features]`
-        :return: predicted values of shape `n_samples`
+        :param pandas.DataFrame | numpy.ndarray X: Data shape `[n_samples, n_features]`.
+        :return: Predicted values of shape `n_samples`.
 
         """
         self._check_is_fitted()
@@ -260,10 +263,10 @@ class NolearnClassifier(Classifier):
 
     def predict_proba(self, X):
         """
-        Predict data
+        Predict data.
 
-        :param pandas.DataFrame | numpy.ndarray X: data shape `[n_samples, n_features]`
-        :return: numpy.array of shape `[n_samples, n_classes]` with probabilities
+        :param pandas.DataFrame | numpy.ndarray X: Data shape `[n_samples, n_features]`.
+        :return: A `numpy.array` of shape `[n_samples, n_classes]` with probabilities.
 
         """
         self._check_is_fitted()
@@ -272,8 +275,9 @@ class NolearnClassifier(Classifier):
 
     def staged_predict_proba(self, X):
         """
+        Predict values on each stage.
 
-        :param pandas.DataFrame | numpy.ndarray X: data shape `[n_samples, n_features]`
+        :param pandas.DataFrame | numpy.ndarray X: Data shape `[n_samples, n_features]`.
         :return: iterator
         .. warning::
             Doesn't support for nolearn (**AttributeError** will be thrown).
