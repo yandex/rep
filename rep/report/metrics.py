@@ -53,7 +53,7 @@ import numpy
 from sklearn.base import BaseEstimator
 from sklearn.metrics import roc_auc_score, roc_curve
 from sklearn.utils import check_arrays
-from rep.utils import check_sample_weight
+from rep.utils import check_sample_weight, weighted_percentile
 
 
 __author__ = 'Alex Rogozhnikov'
@@ -268,3 +268,32 @@ class OptimalAMS(OptimalMetric):
                                expected_s=expected_s,
                                expected_b=expected_b)
 
+
+class FPRatTPR(BaseEstimator, MetricMixin):
+    """
+    Fix TPR value on roc curve and return FPR value.
+    """
+    def __init__(self, tpr):
+        self.tpr = tpr
+
+    def __call__(self, y, proba, sample_weight=None):
+        if sample_weight is None:
+            sample_weight = numpy.ones(len(proba))
+        y, proba, sample_weight = check_arrays(y, proba, sample_weight)
+        threshold = weighted_percentile(proba[y == 1, 1], (1. - self.tpr), sample_weight=sample_weight[y == 1])
+        return numpy.sum(sample_weight[(y == 0) & (proba[:, 1] >= threshold)]) / sum(sample_weight[y == 0])
+
+
+class TPRatFPR(BaseEstimator, MetricMixin):
+    """
+    Fix FPR value on roc curve and return TPR value.
+    """
+    def __init__(self, fpr):
+        self.fpr = fpr
+
+    def __call__(self, y, proba, sample_weight=None):
+        if sample_weight is None:
+            sample_weight = numpy.ones(len(proba))
+        y, proba, sample_weight = check_arrays(y, proba, sample_weight)
+        threshold = weighted_percentile(proba[y == 0, 1], (1 - self.fpr), sample_weight=sample_weight[y == 0])
+        return numpy.sum(sample_weight[(y == 1) & (proba[:, 1] > threshold)]) / sum(sample_weight[y == 1])
