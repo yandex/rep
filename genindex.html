@@ -7,7 +7,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Index &mdash; REP (Reproducible Experiment Platform) 0.6.0 documentation</title>
+    <title>Index &mdash; REP (Reproducible Experiment Platform) 0.6.1 documentation</title>
     
     <link rel="stylesheet" href="_static/nature.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -15,7 +15,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '0.6.0',
+        VERSION:     '0.6.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="REP (Reproducible Experiment Platform) 0.6.0 documentation" href="index.html" /> 
+    <link rel="top" title="REP (Reproducible Experiment Platform) 0.6.1 documentation" href="index.html" /> 
   </head>
   <body role="document">
     <div class="related" role="navigation" aria-label="related navigation">
@@ -37,7 +37,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">REP (Reproducible Experiment Platform) 0.6.0 documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">REP (Reproducible Experiment Platform) 0.6.1 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -60,6 +60,7 @@
  | <a href="#H"><strong>H</strong></a>
  | <a href="#L"><strong>L</strong></a>
  | <a href="#M"><strong>M</strong></a>
+ | <a href="#O"><strong>O</strong></a>
  | <a href="#P"><strong>P</strong></a>
  | <a href="#R"><strong>R</strong></a>
  | <a href="#S"><strong>S</strong></a>
@@ -88,12 +89,12 @@
   <dt><a href="metaml.html#rep.metaml.factory.ClassifiersFactory.add_classifier">add_classifier() (rep.metaml.factory.ClassifiersFactory method)</a>
   </dt>
 
-  </dl></td>
-  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="metaml.html#rep.metaml.factory.RegressorsFactory.add_regressor">add_regressor() (rep.metaml.factory.RegressorsFactory method)</a>
   </dt>
 
+  </dl></td>
+  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="metaml.html#rep.metaml.gridsearch.AbstractParameterGenerator.add_result">add_result() (rep.metaml.gridsearch.AbstractParameterGenerator method)</a>
   </dt>
@@ -116,6 +117,10 @@
   </dt>
 
       </dl></dd>
+      
+  <dt><a href="report.html#rep.report.metrics.ams">ams() (in module rep.report.metrics)</a>
+  </dt>
+
       
   <dt><a href="metaml.html#rep.metaml.gridsearch.AnnealingParameterOptimizer">AnnealingParameterOptimizer (class in rep.metaml.gridsearch)</a>
   </dt>
@@ -238,6 +243,10 @@
 
       
   <dt><a href="plotting.html#rep.plotting.ColorMap">ColorMap (class in rep.plotting)</a>
+  </dt>
+
+      
+  <dt><a href="report.html#rep.report.metrics.OptimalMetric.compute">compute() (rep.report.metrics.OptimalMetric method)</a>
   </dt>
 
       
@@ -399,6 +408,18 @@
   <dt><a href="metaml.html#rep.metaml.stacking.FeatureSplitter.fit">(rep.metaml.stacking.FeatureSplitter method)</a>
   </dt>
 
+        
+  <dt><a href="report.html#rep.report.metrics.LogLoss.fit">(rep.report.metrics.LogLoss method)</a>
+  </dt>
+
+        
+  <dt><a href="report.html#rep.report.metrics.MetricMixin.fit">(rep.report.metrics.MetricMixin method)</a>
+  </dt>
+
+        
+  <dt><a href="report.html#rep.report.metrics.RocAuc.fit">(rep.report.metrics.RocAuc method)</a>
+  </dt>
+
       </dl></dd>
   </dl></td>
   <td style="width: 33%" valign="top"><dl>
@@ -430,6 +451,10 @@
 
       
   <dt><a href="metaml.html#rep.metaml.gridsearch.FoldingScorer">FoldingScorer (class in rep.metaml.gridsearch)</a>
+  </dt>
+
+      
+  <dt><a href="report.html#rep.report.metrics.FPRatTPR">FPRatTPR (class in rep.report.metrics)</a>
   </dt>
 
       
@@ -596,8 +621,6 @@
   <dt><a href="data.html#rep.data.storage.LabeledDataStorage">LabeledDataStorage (class in rep.data.storage)</a>
   </dt>
 
-  </dl></td>
-  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="report.html#rep.report.classification.ClassificationReport.learning_curve">learning_curve() (rep.report.classification.ClassificationReport method)</a>
   </dt>
@@ -609,13 +632,45 @@
 
       </dl></dd>
   </dl></td>
+  <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="report.html#rep.report.metrics.LogLoss">LogLoss (class in rep.report.metrics)</a>
+  </dt>
+
+  </dl></td>
 </tr></table>
 
 <h2 id="M">M</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%" valign="top"><dl>
       
+  <dt><a href="report.html#rep.report.metrics.MetricMixin">MetricMixin (class in rep.report.metrics)</a>
+  </dt>
+
+  </dl></td>
+  <td style="width: 33%" valign="top"><dl>
+      
   <dt><a href="report.html#rep.report.classification.ClassificationReport.metrics_vs_cut">metrics_vs_cut() (rep.report.classification.ClassificationReport method)</a>
+  </dt>
+
+  </dl></td>
+</tr></table>
+
+<h2 id="O">O</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="report.html#rep.report.metrics.OptimalAMS">OptimalAMS (class in rep.report.metrics)</a>
+  </dt>
+
+      
+  <dt><a href="report.html#rep.report.metrics.OptimalMetric">OptimalMetric (class in rep.report.metrics)</a>
+  </dt>
+
+  </dl></td>
+  <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="report.html#rep.report.metrics.OptimalSignificance">OptimalSignificance (class in rep.report.metrics)</a>
   </dt>
 
   </dl></td>
@@ -638,6 +693,10 @@
 
       
   <dt><a href="plotting.html#rep.plotting.AbstractPlot.plot_tmva">plot_tmva() (rep.plotting.AbstractPlot method)</a>
+  </dt>
+
+      
+  <dt><a href="report.html#rep.report.metrics.OptimalMetric.plot_vs_cut">plot_vs_cut() (rep.report.metrics.OptimalMetric method)</a>
   </dt>
 
       
@@ -790,12 +849,12 @@
   <dt><a href="estimators.html#module-rep.estimators.tmva">rep.estimators.tmva (module)</a>
   </dt>
 
-  </dl></td>
-  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="estimators.html#module-rep.estimators.xgboost">rep.estimators.xgboost (module)</a>
   </dt>
 
+  </dl></td>
+  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="metaml.html#module-rep.metaml.factory">rep.metaml.factory (module)</a>
   </dt>
@@ -821,6 +880,10 @@
   </dt>
 
       
+  <dt><a href="report.html#module-rep.report.metrics">rep.report.metrics (module)</a>
+  </dt>
+
+      
   <dt><a href="report.html#module-rep.report.regression">rep.report.regression (module)</a>
   </dt>
 
@@ -830,6 +893,10 @@
 
       
   <dt><a href="report.html#rep.report.classification.ClassificationReport.roc">roc() (rep.report.classification.ClassificationReport method)</a>
+  </dt>
+
+      
+  <dt><a href="report.html#rep.report.metrics.RocAuc">RocAuc (class in rep.report.metrics)</a>
   </dt>
 
   </dl></td>
@@ -892,6 +959,10 @@
   </dt>
 
       </dl></dd>
+      
+  <dt><a href="report.html#rep.report.metrics.significance">significance() (in module rep.report.metrics)</a>
+  </dt>
+
       
   <dt><a href="estimators.html#rep.estimators.sklearn.SklearnBase">SklearnBase (class in rep.estimators.sklearn)</a>
   </dt>
@@ -1005,6 +1076,10 @@
   </dt>
 
       
+  <dt><a href="report.html#rep.report.metrics.TPRatFPR">TPRatFPR (class in rep.report.metrics)</a>
+  </dt>
+
+      
   <dt><a href="metaml.html#rep.metaml.factory.train_estimator">train_estimator() (in module rep.metaml.factory)</a>
   </dt>
 
@@ -1091,7 +1166,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">REP (Reproducible Experiment Platform) 0.6.0 documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">REP (Reproducible Experiment Platform) 0.6.1 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">

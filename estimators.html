@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Estimators (classification and regression) &mdash; REP (Reproducible Experiment Platform) 0.6.0 documentation</title>
+    <title>Estimators (classification and regression) &mdash; REP (Reproducible Experiment Platform) 0.6.1 documentation</title>
     
     <link rel="stylesheet" href="_static/nature.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '0.6.0',
+        VERSION:     '0.6.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,7 +24,7 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="REP (Reproducible Experiment Platform) 0.6.0 documentation" href="index.html" />
+    <link rel="top" title="REP (Reproducible Experiment Platform) 0.6.1 documentation" href="index.html" />
     <link rel="next" title="Meta Machine Learning" href="metaml.html" />
     <link rel="prev" title="Data" href="data.html" /> 
   </head>
@@ -44,7 +44,7 @@
         <li class="right" >
           <a href="data.html" title="Data"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">REP (Reproducible Experiment Platform) 0.6.0 documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">REP (Reproducible Experiment Platform) 0.6.1 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -56,12 +56,14 @@
   <div class="section" id="estimators-classification-and-regression">
 <span id="estimators"></span><h1>Estimators (classification and regression)<a class="headerlink" href="#estimators-classification-and-regression" title="Permalink to this headline">¶</a></h1>
 <p>This module contains wrappers with <code class="xref py py-class docutils literal"><span class="pre">sklearn</span></code> interface for different machine learning libraries (<strong>TMVA, sklearn, XGBoost</strong>).</p>
-<p>At first we defined some interface for classification and regressors wrappers, so you can add your own wrappers for another libraries following this interface.</p>
-<p>Sklearn wrapper is the same sklearn model, but it operates with <code class="xref py py-class docutils literal"><span class="pre">pandas.DataFrame</span></code> data (also supports <code class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></code>) and can choose just those features, that user pointed in the constructor.</p>
-<div class="section" id="estimators-interfaces-for-classification-and-regression">
-<h2>Estimators interfaces (for classification and regression)<a class="headerlink" href="#estimators-interfaces-for-classification-and-regression" title="Permalink to this headline">¶</a></h2>
+<p>We defined some interface for classifiers&#8217; and regressors&#8217; wrappers, so new wrappers can be added for another libraries
+following the same interface. Notably the interface has backward compatibility with scikit-learn library.</p>
+<p>Sklearn wrapper is the same sklearn model, but it operates with <code class="xref py py-class docutils literal"><span class="pre">pandas.DataFrame</span></code> data (though supports <code class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></code> as well)
+and can use only those features user pointed in constructor (<code class="xref py py-class docutils literal"><span class="pre">pandas.DataFrame</span></code> provides named columns).</p>
+<div class="section" id="module-rep.estimators.interface">
+<span id="estimators-interfaces-for-classification-and-regression"></span><h2>Estimators interfaces (for classification and regression)<a class="headerlink" href="#module-rep.estimators.interface" title="Permalink to this headline">¶</a></h2>
 <p>There are interfaces for <strong>classification</strong> and <strong>regression</strong> wrappers.</p>
-<span class="target" id="module-rep.estimators.interface"></span><dl class="class">
+<dl class="class">
 <dt id="rep.estimators.interface.Classifier">
 <em class="property">class </em><code class="descclassname">rep.estimators.interface.</code><code class="descname">Classifier</code><span class="sig-paren">(</span><em>features=None</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.estimators.interface.Classifier" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">sklearn.base.BaseEstimator</span></code>, <code class="xref py py-class docutils literal"><span class="pre">sklearn.base.ClassifierMixin</span></code></p>
@@ -395,15 +397,16 @@ component of a nested object.</p>
 </dd></dl>
 
 </div>
-<div class="section" id="sklearn-classifier-and-regressor">
-<h2>Sklearn classifier and regressor<a class="headerlink" href="#sklearn-classifier-and-regressor" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-rep.estimators.sklearn">
+<span id="sklearn-classifier-and-regressor"></span><h2>Sklearn classifier and regressor<a class="headerlink" href="#module-rep.estimators.sklearn" title="Permalink to this headline">¶</a></h2>
 <p>Sklearn wrapper for users is the same as sklearn model, just has one additional parameter <em>features</em> to choose necessary columns for training.
 If data has <code class="xref py py-class docutils literal"><span class="pre">numpy.array</span></code> type then behaviour will be the same as in sklear.</p>
-<span class="target" id="module-rep.estimators.sklearn"></span><dl class="class">
+<dl class="class">
 <dt id="rep.estimators.sklearn.SklearnBase">
 <em class="property">class </em><code class="descclassname">rep.estimators.sklearn.</code><code class="descname">SklearnBase</code><span class="sig-paren">(</span><em>clf</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.estimators.sklearn.SklearnBase" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
-<p>SklearnBase is base for sklearn-like models. All attributes will be returned for base estimator</p>
+<p>SklearnBase is base for sklearn-like models.
+All attributes will be returned for base estimator</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -415,7 +418,7 @@ If data has <code class="xref py py-class docutils literal"><span class="pre">nu
 <dl class="method">
 <dt id="rep.estimators.sklearn.SklearnBase.predict">
 <code class="descname">predict</code><span class="sig-paren">(</span><em>X</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.estimators.sklearn.SklearnBase.predict" title="Permalink to this definition">¶</a></dt>
-<dd><p>Predict labels for estimators and values for regressors for all events in dataset</p>
+<dd><p>Predict labels for estimators and values for regressors for all events in dataset.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -591,7 +594,8 @@ array-like of shape [n_samples] or None if all weights are equal</li>
 <dl class="method">
 <dt id="rep.estimators.sklearn.SklearnRegressor.staged_predict">
 <code class="descname">staged_predict</code><span class="sig-paren">(</span><em>X</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.estimators.sklearn.SklearnRegressor.staged_predict" title="Permalink to this definition">¶</a></dt>
-<dd><p>Predicts values on each stage</p>
+<dd><p>Predicts regression target at each stage for X.
+This method allows monitoring of error after each stage.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -605,12 +609,14 @@ array-like of shape [n_samples] or None if all weights are equal</li>
 </dd></dl>
 
 </div>
-<div class="section" id="tmva-classifier-and-regressor">
-<h2>TMVA classifier and regressor<a class="headerlink" href="#tmva-classifier-and-regressor" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-rep.estimators.tmva">
+<span id="tmva-classifier-and-regressor"></span><h2>TMVA classifier and regressor<a class="headerlink" href="#module-rep.estimators.tmva" title="Permalink to this headline">¶</a></h2>
 <p>These classes are wrappers for physics machine learning library TMVA used .root format files (c++ library).
 Now you can simply use it in python. TMVA contains classification and regression algorithms, including neural networks.</p>
-<p>TMVA Guide: <a class="reference external" href="http://mirror.yandex.ru/gentoo-distfiles/distfiles/TMVAUsersGuide-v4.03.pdf">http://mirror.yandex.ru/gentoo-distfiles/distfiles/TMVAUsersGuide-v4.03.pdf</a></p>
-<span class="target" id="module-rep.estimators.tmva"></span><p>wrapper for <a class="reference external" href="http://mirror.yandex.ru/gentoo-distfiles/distfiles/TMVAUsersGuide-v4.03.pdf">http://mirror.yandex.ru/gentoo-distfiles/distfiles/TMVAUsersGuide-v4.03.pdf</a></p>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<p class="last">TMVA guide <a class="reference external" href="http://mirror.yandex.ru/gentoo-distfiles/distfiles/TMVAUsersGuide-v4.03.pdf">http://mirror.yandex.ru/gentoo-distfiles/distfiles/TMVAUsersGuide-v4.03.pdf</a></p>
+</div>
 <dl class="class">
 <dt id="rep.estimators.tmva.TMVABase">
 <em class="property">class </em><code class="descclassname">rep.estimators.tmva.</code><code class="descname">TMVABase</code><span class="sig-paren">(</span><em>factory_options=''</em>, <em>method='kBDT'</em>, <em>**method_parameters</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.estimators.tmva.TMVABase" title="Permalink to this definition">¶</a></dt>
@@ -640,7 +646,7 @@ Now you can simply use it in python. TMVA contains classification and regression
 <dt id="rep.estimators.tmva.TMVAClassifier">
 <em class="property">class </em><code class="descclassname">rep.estimators.tmva.</code><code class="descname">TMVAClassifier</code><span class="sig-paren">(</span><em>method='kBDT'</em>, <em>features=None</em>, <em>factory_options=''</em>, <em>sigmoid_function='bdt'</em>, <em>**method_parameters</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.estimators.tmva.TMVAClassifier" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#rep.estimators.tmva.TMVABase" title="rep.estimators.tmva.TMVABase"><code class="xref py py-class docutils literal"><span class="pre">rep.estimators.tmva.TMVABase</span></code></a>, <a class="reference internal" href="#rep.estimators.interface.Classifier" title="rep.estimators.interface.Classifier"><code class="xref py py-class docutils literal"><span class="pre">rep.estimators.interface.Classifier</span></code></a></p>
-<p>TMVAClassifier wraps estimators from TMVA (CERN library for machine learning)</p>
+<p>TMVAClassifier wraps classifiers from TMVA (CERN library for machine learning)</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -648,19 +654,19 @@ Now you can simply use it in python. TMVA contains classification and regression
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>method</strong> (<em>str</em>) &#8211; algorithm method (default=&#8217;kBDT&#8217;)</li>
 <li><strong>features</strong> (<em>list[str] or None</em>) &#8211; features used in training</li>
-<li><strong>factory_options</strong> (<em>str</em>) &#8211; <p>system options, for example:</p>
+<li><strong>factory_options</strong> (<em>str</em>) &#8211; <p>options, for example:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="s">&quot;!V:!Silent:Color:Transformations=I;D;P;G,D&quot;</span>
 </pre></div>
 </div>
 </li>
 <li><strong>sigmoid_function</strong> (<em>str</em>) &#8211; <p>function which is used to convert TMVA output to probabilities;</p>
 <ul>
-<li><em>identity</em> (svm, mlp) &#8212; the same output, use this for methods returning class probabilities</li>
+<li><em>identity</em> (use for svm, mlp) &#8212; the same output, use this for methods returning class probabilities</li>
 <li><em>sigmoid</em> &#8212; sigmoid transformation, use it if output varies in range [-infinity, +infinity]</li>
 <li><em>bdt</em> (for bdt algorithms output varies in range [-1, 1])</li>
 <li><em>sig_eff=0.4</em> &#8212; for rectangular cut optimization methods,</li>
 </ul>
-<p>and 0.4 will be used as signal efficiency to evaluate MVA,
+<p>for instance, here 0.4 will be used as signal efficiency to evaluate MVA,
 (put any float number from [0, 1])</p>
 </li>
 <li><strong>method_parameters</strong> (<em>dict</em>) &#8211; estimator options, example: NTrees=100, BoostType=&#8217;Grad&#8217;</li>
@@ -675,7 +681,7 @@ Now you can simply use it in python. TMVA contains classification and regression
 </div>
 <div class="admonition warning">
 <p class="first admonition-title">Warning</p>
-<p class="last">TMVA doesn&#8217;t support multiclassification, only two-classes classification</p>
+<p class="last">TMVA doesn&#8217;t support multiclassification, only two-class classification</p>
 </div>
 <dl class="method">
 <dt id="rep.estimators.tmva.TMVAClassifier.fit">
@@ -715,7 +721,7 @@ array-like of shape [n_samples] or None if all weights are equal</li>
 <dl class="method">
 <dt id="rep.estimators.tmva.TMVAClassifier.predict_proba">
 <code class="descname">predict_proba</code><span class="sig-paren">(</span><em>X</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.estimators.tmva.TMVAClassifier.predict_proba" title="Permalink to this definition">¶</a></dt>
-<dd><p>Predict data</p>
+<dd><p>Predict probabilities for new data.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -758,7 +764,7 @@ array-like of shape [n_samples] or None if all weights are equal</li>
 </table>
 <div class="admonition warning">
 <p class="first admonition-title">Warning</p>
-<p class="last">Doesn&#8217;t support for TMVA (<strong>AttributeError</strong> will be thrown)</p>
+<p class="last">Not supported for TMVA (<strong>AttributeError</strong> will be thrown)</p>
 </div>
 </dd></dl>
 
@@ -776,7 +782,7 @@ array-like of shape [n_samples] or None if all weights are equal</li>
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>method</strong> (<em>str</em>) &#8211; algorithm method (default=&#8217;kBDT&#8217;)</li>
 <li><strong>features</strong> (<em>list[str] or None</em>) &#8211; features used in training</li>
-<li><strong>factory_options</strong> (<em>str</em>) &#8211; <p>system options, for example:</p>
+<li><strong>factory_options</strong> (<em>str</em>) &#8211; <p>options, for example:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="s">&quot;!V:!Silent:Color:Transformations=I;D;P;G,D&quot;</span>
 </pre></div>
 </div>
@@ -872,7 +878,7 @@ array-like of shape [n_samples] or None if all weights are equal</li>
 </table>
 <div class="admonition warning">
 <p class="first admonition-title">Warning</p>
-<p class="last">Doesn&#8217;t support for TMVA (<strong>AttributeError</strong> will be thrown)</p>
+<p class="last">Not supported for TMVA (<strong>AttributeError</strong> will be thrown)</p>
 </div>
 </dd></dl>
 
@@ -881,6 +887,11 @@ array-like of shape [n_samples] or None if all weights are equal</li>
 </div>
 <div class="section" id="module-rep.estimators.xgboost">
 <span id="xgboost-classifier-and-regressor"></span><h2>XGBoost classifier and regressor<a class="headerlink" href="#module-rep.estimators.xgboost" title="Permalink to this headline">¶</a></h2>
+<p>Wrapper for XGBoost library.</p>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<p class="last"><a class="reference external" href="https://github.com/dmlc/xgboost">https://github.com/dmlc/xgboost</a></p>
+</div>
 <dl class="class">
 <dt id="rep.estimators.xgboost.XGBoostBase">
 <em class="property">class </em><code class="descclassname">rep.estimators.xgboost.</code><code class="descname">XGBoostBase</code><span class="sig-paren">(</span><em>n_estimators=100</em>, <em>nthreads=16</em>, <em>num_feature=None</em>, <em>gamma=None</em>, <em>eta=0.3</em>, <em>max_depth=6</em>, <em>scale_pos_weight=1.0</em>, <em>min_child_weight=1.0</em>, <em>subsample=1.0</em>, <em>colsample=1.0</em>, <em>base_score=0.5</em>, <em>verbose=0</em>, <em>missing=-999.0</em>, <em>random_state=0</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.estimators.xgboost.XGBoostBase" title="Permalink to this definition">¶</a></dt>
@@ -891,7 +902,7 @@ array-like of shape [n_samples] or None if all weights are equal</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>n_estimators</strong> (<em>int</em>) &#8211; the number of round for boosting.</li>
+<li><strong>n_estimators</strong> (<em>int</em>) &#8211; the number of trees built.</li>
 <li><strong>nthreads</strong> (<em>int</em>) &#8211; number of parallel threads used to run xgboost.</li>
 <li><strong>num_feature</strong> (<em>None or int</em>) &#8211; feature dimension used in boosting, set to maximum dimension of the feature
 (set automatically by xgboost, no need to be set by user).</li>
@@ -929,14 +940,14 @@ and this will prevent overfitting.</li>
 <dt id="rep.estimators.xgboost.XGBoostClassifier">
 <em class="property">class </em><code class="descclassname">rep.estimators.xgboost.</code><code class="descname">XGBoostClassifier</code><span class="sig-paren">(</span><em>features=None</em>, <em>n_estimators=100</em>, <em>nthreads=16</em>, <em>num_feature=None</em>, <em>gamma=None</em>, <em>eta=0.3</em>, <em>max_depth=6</em>, <em>scale_pos_weight=1.0</em>, <em>min_child_weight=1.0</em>, <em>subsample=1.0</em>, <em>colsample=1.0</em>, <em>base_score=0.5</em>, <em>verbose=0</em>, <em>missing=-999.0</em>, <em>random_state=0</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.estimators.xgboost.XGBoostClassifier" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#rep.estimators.xgboost.XGBoostBase" title="rep.estimators.xgboost.XGBoostBase"><code class="xref py py-class docutils literal"><span class="pre">rep.estimators.xgboost.XGBoostBase</span></code></a>, <a class="reference internal" href="#rep.estimators.interface.Classifier" title="rep.estimators.interface.Classifier"><code class="xref py py-class docutils literal"><span class="pre">rep.estimators.interface.Classifier</span></code></a></p>
-<p>Implements classification (multiclassification) from XGBoost library.</p>
+<p>Implements classification (and multiclassification) from XGBoost library.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>features</strong> (<em>None or list(str)</em>) &#8211; list of features to train model</li>
-<li><strong>n_estimators</strong> (<em>int</em>) &#8211; the number of round for boosting.</li>
+<li><strong>n_estimators</strong> (<em>int</em>) &#8211; the number of trees built.</li>
 <li><strong>nthreads</strong> (<em>int</em>) &#8211; number of parallel threads used to run xgboost.</li>
 <li><strong>num_feature</strong> (<em>None or int</em>) &#8211; feature dimension used in boosting, set to maximum dimension of the feature
 (set automatically by xgboost, no need to be set by user).</li>
@@ -1015,7 +1026,7 @@ array-like of shape [n_samples] or None if all weights are equal</li>
 <dl class="method">
 <dt id="rep.estimators.xgboost.XGBoostClassifier.predict_proba">
 <code class="descname">predict_proba</code><span class="sig-paren">(</span><em>X</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.estimators.xgboost.XGBoostClassifier.predict_proba" title="Permalink to this definition">¶</a></dt>
-<dd><p>Predict data</p>
+<dd><p>Predict probabilities for data X.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -1031,7 +1042,7 @@ array-like of shape [n_samples] or None if all weights are equal</li>
 <dl class="method">
 <dt id="rep.estimators.xgboost.XGBoostClassifier.staged_predict_proba">
 <code class="descname">staged_predict_proba</code><span class="sig-paren">(</span><em>X</em>, <em>step=10</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.estimators.xgboost.XGBoostClassifier.staged_predict_proba" title="Permalink to this definition">¶</a></dt>
-<dd><p>Predicts probabilities on each stage</p>
+<dd><p>Predicts probabilities on each stage for data X.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -1062,7 +1073,7 @@ array-like of shape [n_samples] or None if all weights are equal</li>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>features</strong> (<em>None or list(str)</em>) &#8211; list of features to train model</li>
-<li><strong>n_estimators</strong> (<em>int</em>) &#8211; the number of round for boosting.</li>
+<li><strong>n_estimators</strong> (<em>int</em>) &#8211; the number of trees built.</li>
 <li><strong>nthreads</strong> (<em>int</em>) &#8211; number of parallel threads used to run xgboost.</li>
 <li><strong>num_feature</strong> (<em>None or int</em>) &#8211; feature dimension used in boosting, set to maximum dimension of the feature
 (set automatically by xgboost, no need to be set by user).</li>
@@ -1109,14 +1120,14 @@ This returned as numpy.array, assuming that initially passed train_features=None
 <dl class="method">
 <dt id="rep.estimators.xgboost.XGBoostRegressor.fit">
 <code class="descname">fit</code><span class="sig-paren">(</span><em>X</em>, <em>y</em>, <em>sample_weight=None</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.estimators.xgboost.XGBoostRegressor.fit" title="Permalink to this definition">¶</a></dt>
-<dd><p>Train the classifier</p>
+<dd><p>Train the classifier on training dataset</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>X</strong> (<em>pandas.DataFrame</em>) &#8211; data shape [n_samples, n_features]</li>
-<li><strong>y</strong> &#8211; labels of events - array-like of shape [n_samples]</li>
+<li><strong>y</strong> &#8211; regression targets of events - array-like of shape [n_samples]</li>
 <li><strong>sample_weight</strong> &#8211; weight of events,
 array-like of shape [n_samples] or None if all weights are equal</li>
 </ul>
@@ -1146,7 +1157,7 @@ array-like of shape [n_samples] or None if all weights are equal</li>
 <dl class="method">
 <dt id="rep.estimators.xgboost.XGBoostRegressor.predict">
 <code class="descname">predict</code><span class="sig-paren">(</span><em>X</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.estimators.xgboost.XGBoostRegressor.predict" title="Permalink to this definition">¶</a></dt>
-<dd><p>Predict data</p>
+<dd><p>Predicts regression target for X.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -1162,7 +1173,7 @@ array-like of shape [n_samples] or None if all weights are equal</li>
 <dl class="method">
 <dt id="rep.estimators.xgboost.XGBoostRegressor.staged_predict">
 <code class="descname">staged_predict</code><span class="sig-paren">(</span><em>X</em>, <em>step=10</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.estimators.xgboost.XGBoostRegressor.staged_predict" title="Permalink to this definition">¶</a></dt>
-<dd><p>Predicts probabilities on each stage</p>
+<dd><p>Predicts regression target at each stage for X.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -1267,8 +1278,8 @@ array-like of shape [n_samples] or None if all weights are equal</li>
 </li>
 </ul>
 </div>
-<div class="section" id="regerssion">
-<h3>Regerssion<a class="headerlink" href="#regerssion" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="regression">
+<h3>Regression<a class="headerlink" href="#regression" title="Permalink to this headline">¶</a></h3>
 <ul>
 <li><dl class="first docutils">
 <dt>Prepare dataset</dt>
@@ -1344,13 +1355,13 @@ array-like of shape [n_samples] or None if all weights are equal</li>
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">Estimators (classification and regression)</a><ul>
-<li><a class="reference internal" href="#estimators-interfaces-for-classification-and-regression">Estimators interfaces (for classification and regression)</a></li>
-<li><a class="reference internal" href="#sklearn-classifier-and-regressor">Sklearn classifier and regressor</a></li>
-<li><a class="reference internal" href="#tmva-classifier-and-regressor">TMVA classifier and regressor</a></li>
+<li><a class="reference internal" href="#module-rep.estimators.interface">Estimators interfaces (for classification and regression)</a></li>
+<li><a class="reference internal" href="#module-rep.estimators.sklearn">Sklearn classifier and regressor</a></li>
+<li><a class="reference internal" href="#module-rep.estimators.tmva">TMVA classifier and regressor</a></li>
 <li><a class="reference internal" href="#module-rep.estimators.xgboost">XGBoost classifier and regressor</a></li>
 <li><a class="reference internal" href="#examples">Examples</a><ul>
 <li><a class="reference internal" href="#classification">Classification</a></li>
-<li><a class="reference internal" href="#regerssion">Regerssion</a></li>
+<li><a class="reference internal" href="#regression">Regression</a></li>
 </ul>
 </li>
 </ul>
@@ -1402,7 +1413,7 @@ array-like of shape [n_samples] or None if all weights are equal</li>
         <li class="right" >
           <a href="data.html" title="Data"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">REP (Reproducible Experiment Platform) 0.6.0 documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">REP (Reproducible Experiment Platform) 0.6.1 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">

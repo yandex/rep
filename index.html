@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Welcome to REP’s documentation! &mdash; REP (Reproducible Experiment Platform) 0.6.0 documentation</title>
+    <title>Welcome to REP’s documentation! &mdash; REP (Reproducible Experiment Platform) 0.6.1 documentation</title>
     
     <link rel="stylesheet" href="_static/nature.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '0.6.0',
+        VERSION:     '0.6.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,7 +24,7 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="REP (Reproducible Experiment Platform) 0.6.0 documentation" href="#" />
+    <link rel="top" title="REP (Reproducible Experiment Platform) 0.6.1 documentation" href="#" />
     <link rel="next" title="Data" href="data.html" /> 
   </head>
   <body role="document">
@@ -40,7 +40,7 @@
         <li class="right" >
           <a href="data.html" title="Data"
              accesskey="N">next</a> |</li>
-        <li class="nav-item nav-item-0"><a href="#">REP (Reproducible Experiment Platform) 0.6.0 documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="#">REP (Reproducible Experiment Platform) 0.6.1 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -55,56 +55,50 @@
 <p>It includes:</p>
 <blockquote>
 <div><ul class="simple">
-<li><a class="reference internal" href="data.html"><em>Data</em></a> support different data transformations, including operations in memory and on the disk</li>
-<li><a class="reference internal" href="estimators.html"><em>Estimators (classification and regression)</em></a> is sklearn-like wrappers for variety of machine learning libraries implementations (<strong>Sklearn, Uboost, XGBoost, TMVA</strong>). You can use them as base estimators in sklearn</li>
+<li><a class="reference internal" href="data.html"><em>Data</em></a> provides operations with data</li>
+<li><a class="reference internal" href="estimators.html"><em>Estimators (classification and regression)</em></a> is sklearn-like wrappers for variety of machine learning libraries (<strong>Sklearn, uBoost, XGBoost, TMVA</strong>). These can be used as base estimators in sklearn.</li>
 <li><a class="reference internal" href="metaml.html"><em>Meta Machine Learning</em></a> contains factory (the set of estimators), grid search, folding algorithm. Also parallel execution on a cluster is supported</li>
 <li><a class="reference internal" href="report.html"><em>Report for models</em></a> contains helpful classes to get model result information on any dataset</li>
 <li><a class="reference internal" href="plotting.html"><em>Plotting</em></a> is  wrapper for different plotting libraries including interactive plots (<strong>matplotlib, bokeh, tmva, plotly</strong>)</li>
 <li><a class="reference internal" href="utils.html"><em>Utilities</em></a>  contains additional functions</li>
 </ul>
 </div></blockquote>
+<p>Main repository: <a class="reference external" href="http://github.com/yandex/REP">http://github.com/yandex/REP</a></p>
 </div>
 <div class="section" id="contents">
 <h1>Contents:<a class="headerlink" href="#contents" title="Permalink to this headline">¶</a></h1>
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="data.html">Data</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="data.html#storage">Storage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data.html#module-rep.data.storage">Storage</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="estimators.html">Estimators (classification and regression)</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="estimators.html#estimators-interfaces-for-classification-and-regression">Estimators interfaces (for classification and regression)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="estimators.html#sklearn-classifier-and-regressor">Sklearn classifier and regressor</a></li>
-<li class="toctree-l2"><a class="reference internal" href="estimators.html#tmva-classifier-and-regressor">TMVA classifier and regressor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="estimators.html#module-rep.estimators.interface">Estimators interfaces (for classification and regression)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="estimators.html#module-rep.estimators.sklearn">Sklearn classifier and regressor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="estimators.html#module-rep.estimators.tmva">TMVA classifier and regressor</a></li>
 <li class="toctree-l2"><a class="reference internal" href="estimators.html#module-rep.estimators.xgboost">XGBoost classifier and regressor</a></li>
 <li class="toctree-l2"><a class="reference internal" href="estimators.html#examples">Examples</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="metaml.html">Meta Machine Learning</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="metaml.html#factory">Factory</a></li>
+<li class="toctree-l2"><a class="reference internal" href="metaml.html#module-rep.metaml.factory">Factory</a></li>
 <li class="toctree-l2"><a class="reference internal" href="metaml.html#factory-examples">Factory Examples</a></li>
-<li class="toctree-l2"><a class="reference internal" href="metaml.html#grid-search">Grid Search</a></li>
-<li class="toctree-l2"><a class="reference internal" href="metaml.html#folding">Folding</a></li>
-<li class="toctree-l2"><a class="reference internal" href="metaml.html#stacking">Stacking</a></li>
+<li class="toctree-l2"><a class="reference internal" href="metaml.html#module-rep.metaml.gridsearch">Grid Search</a></li>
+<li class="toctree-l2"><a class="reference internal" href="metaml.html#module-rep.metaml.folding">Folding</a></li>
+<li class="toctree-l2"><a class="reference internal" href="metaml.html#module-rep.metaml.stacking">Stacking</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="report.html">Report for models</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="report.html#classification-report">Classification Report</a></li>
-<li class="toctree-l2"><a class="reference internal" href="report.html#regression-report">Regression Report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="report.html#module-rep.report.classification">Classification Report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="report.html#module-rep.report.regression">Regression Report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="report.html#module-rep.report.metrics">Metrics</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="plotting.html">Plotting</a></li>
 <li class="toctree-l1"><a class="reference internal" href="utils.html">Utilities</a></li>
 </ul>
 </div>
-</div>
-<div class="section" id="indices-and-tables">
-<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
-<ul class="simple">
-<li><a class="reference internal" href="genindex.html"><span>Index</span></a></li>
-<li><a class="reference internal" href="py-modindex.html"><span>Module Index</span></a></li>
-<li><a class="reference internal" href="search.html"><span>Search Page</span></a></li>
-</ul>
 </div>
 
 
@@ -117,7 +111,6 @@
   <ul>
 <li><a class="reference internal" href="#">Welcome to REP&#8217;s documentation!</a></li>
 <li><a class="reference internal" href="#contents">Contents:</a></li>
-<li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
 </ul>
 
   <h4>Next topic</h4>
@@ -159,7 +152,7 @@
         <li class="right" >
           <a href="data.html" title="Data"
              >next</a> |</li>
-        <li class="nav-item nav-item-0"><a href="#">REP (Reproducible Experiment Platform) 0.6.0 documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="#">REP (Reproducible Experiment Platform) 0.6.1 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
