@@ -75,7 +75,7 @@ class NeurolabBase(object):
             if name.startswith("scaler__"):
                 assert hasattr(self.scaler, 'set_params'), \
                     "Trying to set {} without scaler".format(name)
-                self.scaler.set_params({name.lstrip("scaler__"): value})
+                self.scaler.set_params({name[len("scaler__"):]: value})
             if name in NET_PARAMS:
                 self.net_params[name] = value
             elif name in BASIC_PARAMS:
