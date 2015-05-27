@@ -2,9 +2,11 @@ from __future__ import division, print_function, absolute_import
 
 import numpy
 import pandas
+import warnings
 from scipy.special import expit, logit
-
+from sklearn.base import BaseEstimator, TransformerMixin, clone
 from sklearn.utils.validation import column_or_1d
+
 from ..utils import check_sample_weight, get_columns_in_df
 
 
@@ -96,5 +98,41 @@ def _get_train_features(estimator, X, allow_nans=False):
             for column in X_features.columns:
                 assert numpy.all(numpy.isfinite(X_features[column])), "Does not support NaN: " + str(column)
         return X_features
+
+
+class IdentityTransformer(BaseEstimator, TransformerMixin):
+    """
+    Identity transformer is a very neat technology:
+    it in a constant, reproducible way makes nothing with input.
+    """
+    def fit(self, X, y, **kwargs):
+        pass
+
+    def transform(self, X):
+        return X
+
+
+def check_scaler(scaler):
+    """
+    Used in neural networks. To unify usage in different neural networks.
+    :param scaler:
+    :type scaler: str or False or TransformerMixin
+    :return: TransformerMixin, scaler
+    """
+    from sklearn.preprocessing import StandardScaler, MinMaxScaler
+
+    transformers = {
+        'standard': StandardScaler(),
+        'minmax': MinMaxScaler(),
+        'identity': IdentityTransformer(),
+        False: IdentityTransformer()
+    }
+
+    if scaler in transformers.keys():
+        return transformers[scaler]
+    else:
+        if not isinstance(scaler, TransformerMixin):
+            warnings.warn("Passed scaler wasn't derived from TransformerMixin.")
+        return clone(scaler)
 
 

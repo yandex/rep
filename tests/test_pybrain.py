@@ -24,53 +24,58 @@ from rep.estimators import SklearnClassifier
 
 __author__ = 'Artem Zhirokhov'
 
+classifier_params = {
+    'has_staged_pp': False,
+    'has_importances': False,
+    'supports_weight': False
+}
+
+regressor_params = {
+    'has_staged_predictions': False,
+    'has_importances': False,
+    'supports_weight': False
+}
+
 
 def test_pybrain_classification():
-    check_classifier(PyBrainClassifier(), has_staged_pp=False, has_importances=False, supports_weight=False)
-    check_classifier(PyBrainClassifier(layers=[10, 10]), has_staged_pp=False, has_importances=False, supports_weight=False)
+    check_classifier(PyBrainClassifier(), **classifier_params)
+    check_classifier(PyBrainClassifier(layers=[]), **classifier_params)
+    check_classifier(PyBrainClassifier(layers=[10, 10]), **classifier_params)
 
 
 def test_pybrain_Linear():
-    check_classifier(PyBrainClassifier(layers=[10], hiddenclass=['LinearLayer']),
-                     has_staged_pp=False, has_importances=False, supports_weight=False)
-    check_regression(PyBrainRegressor(layers=[10], hiddenclass=['LinearLayer']),
-                     has_staged_predictions=False, has_importances=False, supports_weight=False)
+    check_classifier(PyBrainClassifier(layers=[10], hiddenclass=['LinearLayer']), **classifier_params)
+    check_regression(PyBrainRegressor(layers=[10], hiddenclass=['LinearLayer']), **regressor_params)
 
 
 def test_pybrain_MDLSTM():
-    check_classifier(PyBrainClassifier(layers=[10], hiddenclass=['MDLSTMLayer']),
-                     has_staged_pp=False, has_importances=False, supports_weight=False)
-    check_regression(PyBrainRegressor(layers=[10], hiddenclass=['MDLSTMLayer']),
-                     has_staged_predictions=False, has_importances=False, supports_weight=False)
+    check_classifier(PyBrainClassifier(layers=[10], hiddenclass=['MDLSTMLayer']), **classifier_params)
+    check_regression(PyBrainRegressor(layers=[10], hiddenclass=['MDLSTMLayer']), **regressor_params)
 
 
 def test_pybrain_SoftMax():
-    check_classifier(PyBrainClassifier(layers=[10], hiddenclass=['SoftmaxLayer']),
-                     has_staged_pp=False, has_importances=False, supports_weight=False)
-    check_regression(PyBrainRegressor(layers=[10], hiddenclass=['SoftmaxLayer']),
-                     has_staged_predictions=False, has_importances=False, supports_weight=False)
+    check_classifier(PyBrainClassifier(layers=[10], hiddenclass=['SoftmaxLayer']), **classifier_params)
+    check_regression(PyBrainRegressor(layers=[10], hiddenclass=['SoftmaxLayer']), **regressor_params)
 
 
 def test_pybrain_Tanh():
-    check_classifier(PyBrainClassifier(layers=[10], hiddenclass=['TanhLayer']),
-                     has_staged_pp=False, has_importances=False, supports_weight=False)
-    check_regression(PyBrainRegressor(layers=[10], hiddenclass=['TanhLayer']),
-                     has_staged_predictions=False, has_importances=False, supports_weight=False)
+    check_classifier(PyBrainClassifier(layers=[10], hiddenclass=['TanhLayer']), **classifier_params)
+    check_regression(PyBrainRegressor(layers=[10], hiddenclass=['TanhLayer']), **regressor_params)
 
 
 def test_pybrain_rprop():
-    check_classifier(PyBrainClassifier(use_rprop=True), has_staged_pp=False, has_importances=False, supports_weight=False)
+    check_classifier(PyBrainClassifier(use_rprop=True), **classifier_params)
 
 
 def test_pybrain_multiclassification():
-    check_classifier(PyBrainClassifier(), has_staged_pp=False, has_importances=False, supports_weight=False, n_classes=4)
+    check_classifier(PyBrainClassifier(), n_classes=4, **classifier_params)
 
 
 def test_pybrain_regression():
-    check_regression(PyBrainRegressor(), has_staged_predictions=False, has_importances=False, supports_weight=False)
+    check_regression(PyBrainRegressor(), **regressor_params)
 
 
 def test_simple_stacking_pybrain():
     base_pybrain = PyBrainClassifier()
-    check_classifier(SklearnClassifier(clf=BaggingClassifier(base_estimator=base_pybrain, n_estimators=3)),
-                     has_staged_pp=False, has_importances=False, supports_weight=False)
+    base_bagging = BaggingClassifier(base_estimator=base_pybrain, n_estimators=3)
+    check_classifier(SklearnClassifier(clf=base_bagging), **classifier_params)
