@@ -17,13 +17,12 @@ from __future__ import division, print_function, absolute_import
 from abc import ABCMeta
 
 from .interface import Classifier, Regressor
-from .utils import check_inputs
+from .utils import check_inputs, check_scaler
 
 import numpy
 import pandas
 
-from sklearn.preprocessing import OneHotEncoder, StandardScaler
-from sklearn.base import clone
+from sklearn.preprocessing import OneHotEncoder
 from pybrain.tools.shortcuts import buildNetwork
 from pybrain.datasets import SupervisedDataSet
 from pybrain.supervised.trainers import BackpropTrainer, RPropMinusTrainer
@@ -55,13 +54,13 @@ class PyBrainBase(object):
     net parameters:
     :param list layers: indicate how many neurons in each hidden(!) layer; default is 1 layer included 10 neurons.
     :param hiddenclass: classes of the hidden layers; default is 'SigmoidLayer'.
-    :type hiddenclass: list of str
-    :param params: other net parameters:
-        :param boolean bias and outputbias: flags to indicate whether the network should have the corresponding biases;
-         both default to True.
-        :param boolean peepholes.
-        :param boolean recurrent: if the `recurrent` flag is set, a :class:`RecurrentNetwork` will be created,
-         otherwise a :class:`FeedForwardNetwork`.
+    :type hiddenclass: list[str]
+    :param params: other net parameters
+        bias and outputbias (boolean) flags to indicate whether the network should have the corresponding biases,
+        both default to True;
+        peepholes (boolean);
+        recurrent (boolean) if the `recurrent` flag is set, a :class:`RecurrentNetwork` will be created,
+        otherwise a :class:`FeedForwardNetwork`.
     :type params: dict
 
     trainer parameters:
@@ -74,10 +73,12 @@ class PyBrainBase(object):
 
     trainUntilConvergence parameters:
     :param int max_epochs: if is given, at most that many epochs are trained.
-    :param int continue_epochs: each time validation error hits a minimum, try for continue_epochs epochs to find a better one.
+    :param int continue_epochs: each time validation error decreased, try for continue_epochs epochs to find a better one.
     :param float validation_proportion: the ratio of the dataset that is used for the validation dataset.
-    See: http://pybrain.org/docs/
+
+    Details about parameters: http://pybrain.org/docs/
     """
+    __metaclass__ = ABCMeta
 
     def __init__(self,
                  layers=None,
@@ -120,7 +121,7 @@ class PyBrainBase(object):
         Checks the input of __init__.
         """
         if layers is not None and hiddenclass is not None and len(layers) != len(hiddenclass):
-            raise ValueError('Number of hidden layers does not match number of classes')
+            raise ValueError('Number of hidden layers does not match number of hidden classes')
 
         if hiddenclass is not None:
             if hiddenclass[0] == 'BiasUnit':
@@ -132,9 +133,8 @@ class PyBrainBase(object):
 
     def set_params(self, **params):
         """
-        A tool to set parameters in estimator.
-
-        Parameters are the same as __init__(...) has.
+        Change estimator's parameters.
+        Names of parameters are the same as in constructor.
         """
         for k, v in params.items():
             if hasattr(self, k):
@@ -181,20 +181,10 @@ class PyBrainBase(object):
 
     def _transform_data(self, X, y=None, fit=True):
         X = self._get_train_features(X)
-
         data_temp = numpy.copy(X)
-        if self.scaler is False:
-            X = data_temp
-            return X
-        elif self.scaler == 'standard':
-            self.scaler = StandardScaler()
-
         if fit:
-            self.scaler = clone(self.scaler)
             self.scaler.fit(data_temp, y)
-
-        X = self.scaler.transform(data_temp)
-        return X
+        return self.scaler.transform(data_temp)
 
     def _prepare_net_and_dataset(self, X, y, model_type):
         X, y, sample_weight = check_inputs(X, y, sample_weight=None, allow_none_weights=True)
@@ -205,9 +195,7 @@ class PyBrainBase(object):
             self.layers = [10]
 
         if self.hiddenclass is None:
-            self.hiddenclass = []
-            for i in range(len(self.layers)):
-                self.hiddenclass.append('SigmoidLayer')
+            self.hiddenclass = ['SigmoidLayer' for layer_size in self.layers]
 
         net_options = {'bias': True,
                        'outputbias': True,
@@ -215,42 +203,35 @@ class PyBrainBase(object):
                        'recurrent': False}
         for key in self.params:
             if key not in net_options.keys():
-                raise ValueError('Unexpected parameter ' + key)
+                raise ValueError('Unexpected parameter: {}'.format(key))
             net_options[key] = self.params[key]
-        net_options['hiddenclass'] = LAYER_CLASS[self.hiddenclass[0]]
+        # This flag says to use native python implementation, not arac.
         net_options['fast'] = False
 
         if model_type == 'classification':
             net_options['outclass'] = structure.SoftmaxLayer
-
             self._set_classes(y)
-            layers_for_net = [X.shape[1], self.layers[0], len(self.classes_)]
-            ds = SupervisedDataSet(X.shape[1], len(self.classes_))
-
             y = y.reshape((len(y), 1))
-            label = numpy.array(OneHotEncoder(n_values=len(self.classes_)).fit_transform(y).todense())
-
-            for i in range(0, len(y)):
-                ds.addSample(tuple(X[i, :]), tuple(label[i]))
+            target = numpy.array(OneHotEncoder(n_values=len(self.classes_)).fit_transform(y).todense())
 
         elif model_type == 'regression':
             net_options['outclass'] = structure.LinearLayer
-
             if len(y.shape) == 1:
-                y = y.reshape((len(y), 1))
-            layers_for_net = [X.shape[1], self.layers[0], y.shape[1]]
-
-            ds = SupervisedDataSet(X.shape[1], y.shape[1])
-            ds.setField('input', X)
-            ds.setField('target', y)
-
+                target = y.reshape((len(y), 1))
+            else:
+                target = y
         else:
             raise ValueError('Wrong model type')
 
+        layers_for_net = [X.shape[1]] + self.layers + [target.shape[1]]
+        ds = SupervisedDataSet(X.shape[1], target.shape[1])
+        ds.setField('input', X)
+        ds.setField('target', target)
+
         self.net = buildNetwork(*layers_for_net, **net_options)
 
-        for i in range(1, len(self.layers)):
-            hid_layer = LAYER_CLASS[self.hiddenclass[i]](self.layers[i])
+        for layer_id in range(1, len(self.layers)):
+            hid_layer = LAYER_CLASS[self.hiddenclass[layer_id]](self.layers[layer_id])
             self.net.addModule(hid_layer)
         self.net.sortModules()
 
@@ -268,21 +249,21 @@ class PyBrainClassifier(PyBrainBase, Classifier):
     :param epochs: number of iterations of training; if < 0 then classifier trains until convergence.
     :param scaler: scaler used to transform data; default is StandardScaler.
     :type scaler: transformer from sklearn.preprocessing or None
-    :param boolean use_rprop: flag to indicate whether we should use rprop trainer.
+    :param boolean use_rprop: flag to indicate whether we should use Rprop or SGD trainer.
 
     net parameters:
     :param list layers: indicate how many neurons in each hidden(!) layer; default is 1 layer included 10 neurons.
     :param hiddenclass: classes of the hidden layers; default is 'SigmoidLayer'.
-    :type hiddenclass: list of str
-    :param params: other net parameters:
-        :param boolean bias and outputbias: flags to indicate whether the network should have the corresponding biases;
-         both default to True.
-        :param boolean peepholes.
-        :param boolean recurrent: if the `recurrent` flag is set, a :class:`RecurrentNetwork` will be created,
-         otherwise a :class:`FeedForwardNetwork`.
+    :type hiddenclass: list[str]
+    :param params: other net parameters
+        bias and outputbias (boolean) flags to indicate whether the network should have the corresponding biases,
+        both default to True;
+        peepholes (boolean);
+        recurrent (boolean) if the `recurrent` flag is set, a :class:`RecurrentNetwork` will be created,
+        otherwise a :class:`FeedForwardNetwork`.
     :type params: dict
 
-    trainer parameters:
+    gradient descent trainer parameters:
     :param float learningrate: gives the ratio of which parameters are changed into the direction of the gradient.
     :param float lrdecay: the learning rate decreases by lrdecay, which is used to multiply the learning rate after each training step.
     :param float momentum: the ratio by which the gradient of the last timestep is used.
@@ -290,7 +271,7 @@ class PyBrainClassifier(PyBrainBase, Classifier):
     :param boolean batchlearning: if batchlearning is set, the parameters are updated only at the end of each epoch. Default is False.
     :param float weightdecay: corresponds to the weightdecay rate, where 0 is no weight decay at all.
 
-    rprop parameters:
+    Rprop parameters:
     :param float etaminus: factor by which step width is decreased when overstepping (0.5).
     :param float etaplus: factor by which step width is increased when following gradient (1.2).
     :param float delta: step width for each weight.
@@ -302,7 +283,8 @@ class PyBrainClassifier(PyBrainBase, Classifier):
     :param int max_epochs: if is given, at most that many epochs are trained.
     :param int continue_epochs: each time validation error hits a minimum, try for continue_epochs epochs to find a better one.
     :param float validation_proportion: the ratio of the dataset that is used for the validation dataset.
-    See: http://pybrain.org/docs/
+
+    Details about parameters: http://pybrain.org/docs/
     """
 
     def __init__(self,
@@ -366,6 +348,7 @@ class PyBrainClassifier(PyBrainBase, Classifier):
             doesn't support sample weights
         """
 
+        self.scaler = check_scaler(self.scaler)
         dataset = self._prepare_net_and_dataset(X, y, 'classification')
 
         if self.use_rprop:
@@ -447,12 +430,12 @@ class PyBrainClassifier(PyBrainBase, Classifier):
 
         .. warning:: Isn't supported for PyBrain (**AttributeError** will be thrown).
         """
-        raise AttributeError("Not supported for PyBrain")
+        raise AttributeError("Staged predict_proba not supported for PyBrain")
 
 
 class PyBrainRegressor(PyBrainBase, Regressor):
     """
-    Implenents regression from PyBrain ML library.
+    Implements regression from PyBrain ML library.
 
     Parameters:
     -----------
@@ -465,14 +448,15 @@ class PyBrainRegressor(PyBrainBase, Regressor):
     net parameters:
     :param list layers: indicate how many neurons in each hidden(!) layer; default is 1 layer included 10 neurons.
     :param hiddenclass: classes of the hidden layers; default is 'SigmoidLayer'.
-    :type hiddenclass: list of str
-    :param params: other net parameters:
-        :param boolean bias and outputbias: flags to indicate whether the network should have the corresponding biases;
-         both default to True.
-        :param boolean peepholes.
-        :param boolean recurrent: if the `recurrent` flag is set, a :class:`RecurrentNetwork` will be created,
-         otherwise a :class:`FeedForwardNetwork`.
+    :type hiddenclass: list[str]
+    :param params: other net parameters
+        bias and outputbias (boolean) flags to indicate whether the network should have the corresponding biases,
+        both default to True;
+        peepholes (boolean);
+        recurrent (boolean) if the `recurrent` flag is set, a :class:`RecurrentNetwork` will be created,
+        otherwise a :class:`FeedForwardNetwork`.
     :type params: dict
+
 
     trainer parameters:
     :param float learningrate: gives the ratio of which parameters are changed into the direction of the gradient.
@@ -486,7 +470,8 @@ class PyBrainRegressor(PyBrainBase, Regressor):
     :param int max_epochs: if is given, at most that many epochs are trained.
     :param int continue_epochs: each time validation error hits a minimum, try for continue_epochs epochs to find a better one.
     :param float validation_proportion: the ratio of the dataset that is used for the validation dataset.
-    See: http://pybrain.org/docs/
+
+    Details about parameters: http://pybrain.org/docs/
     """
 
     def __init__(self,
@@ -534,6 +519,7 @@ class PyBrainRegressor(PyBrainBase, Regressor):
 
         :return: self
         """
+        self.scaler = check_scaler(self.scaler)
 
         dataset = self._prepare_net_and_dataset(X, y, 'regression')
 
@@ -573,8 +559,8 @@ class PyBrainRegressor(PyBrainBase, Regressor):
         ds.setField('input', X)
         ds.setField('target', y_test_dummy)
 
-#       reshaping from (-1, 1) to (-1,)
-        return (self.net.activateOnDataset(ds)).reshape(-1,)
+        # reshaping from (-1, 1) to (-1,)
+        return self.net.activateOnDataset(ds).reshape(-1,)
 
     def staged_predict(self, X):
         """
@@ -585,4 +571,4 @@ class PyBrainRegressor(PyBrainBase, Regressor):
 
         .. warning:: Isn't supported for PyBrain (**AttributeError** will be thrown).
         """
-        raise AttributeError("Not supported for PyBrain")
+        raise AttributeError("Staged predict not supported for PyBrain")
