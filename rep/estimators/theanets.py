@@ -17,10 +17,9 @@ from __future__ import division, print_function, absolute_import
 import numpy
 from abc import abstractmethod
 from .interface import Classifier, Regressor
-from .utils import check_inputs
-from sklearn.preprocessing import StandardScaler
+from .utils import check_inputs, check_scaler
 from sklearn.utils import check_random_state
-from sklearn.base import clone
+
 import os
 import tempfile
 from copy import deepcopy
@@ -28,13 +27,13 @@ from copy import deepcopy
 try:
     import theanets as tnt
 except ImportError as e:
-    raise ImportError("Install theanets before")
+    raise ImportError("Install theanets before (pip install theanets)")
 
 __author__ = 'Lisa Ignatyeva'
 
 UNSUPPORTED_OPTIMIZERS = ['pretrain', 'sample', 'hf']
-# pretrain and sample data formats are too different from what we support here
-# hf now does not work in theanets, see https://github.com/lmjohns3/theanets/issues/62
+# pretrain and sample data formats have too different interface from what we support here
+# currently, hf now does not work in theanets, see https://github.com/lmjohns3/theanets/issues/62
 
 
 class TheanetsBase(object):
@@ -43,8 +42,8 @@ class TheanetsBase(object):
 
     Parameters:
     -----------
-    :param layers: A sequence of values specifying the hidden layer configuration for the network. For more information
-        please see 'Specifying layers' in theanets documentation:
+    :param layers: A sequence of values specifying the **hidden** layer configuration for the network.
+        For more information please see 'Specifying layers' in theanets documentation:
         http://theanets.readthedocs.org/en/latest/creating.html#creating-specifying-layers
         Note that theanets "layers" parameter included input and output layers in the sequence as well.
     :type layers: sequence of int, tuple, dict
@@ -66,9 +65,10 @@ class TheanetsBase(object):
     :type scaler: scaler from sklearn.preprocessing or False
     :param list(dict) or None trainers: parameters to specify training algorithm(s)
     example: [{'optimize': sgd, 'momentum': 0.2}, {'optimize': 'nag'}]
+
     For more information on available trainers and their parameters, see this page
     http://theanets.readthedocs.org/en/latest/training.html?highlight=trainers#gradient-based-methods
-    Note that not pretrain, sample and hf are not supported.
+    Note that not pretrain, nor sample and hf are not supported.
     """
     def __init__(self,
                  layers,
@@ -92,19 +92,18 @@ class TheanetsBase(object):
                                'input_noise': input_noise, 'hidden_noise': hidden_noise,
                                'input_dropouts': input_dropouts, 'hidden_dropouts': hidden_dropouts,
                                'decode_from': decode_from}
-        if scaler is None:
-            self.scaler = StandardScaler()
-        else:
-            self.scaler = scaler
+
+        self.scaler = scaler
         self.trainers = trainers
         if self.trainers is None:
+            # use default trainer with default parameters.
             self.trainers = [{}]
         self.exp = None
         self.features = None
 
     def __getstate__(self):
         """
-        Required for pickle.dump working, because theanets objects can't be pickled by default.
+        Required for copy, pickle.dump working, because theanets objects can't be pickled by default.
 
         :return dict result: the dictionary containing all the object, transformed and therefore picklable.
         """
@@ -133,15 +132,16 @@ class TheanetsBase(object):
                 with open(dump.name, 'wb') as dumpfile:
                     dumpfile.write(dictionary['dumped_exp'])
                 assert os.path.exists(dump.name), 'there is no such file: {}'.format(dump.name)
-                layers = [1] + self.layers + [1]
-                self.exp = tnt.Experiment(tnt.Classifier, layers=layers, rng=self._reproducibilize(),
+                dummy_layers = [1] + self.layers + [1]
+                self.exp = tnt.Experiment(tnt.Classifier, layers=dummy_layers, rng=self._reproducibilize(),
                                           **self.network_params)
                 self.exp.load(dump.name)
         del dictionary['dumped_exp']
 
     def _reproducibilize(self):
         """
-        A magic method which makes theanets calls be reproducible. Should be called when creating an experiment to pass
+        A magic method which makes theanets calls be reproducible.
+        Should be called when creating an experiment to pass
         a proper rng value and before running exp.train in order to fix the seed.
         See https://github.com/lmjohns3/theanets/issues/72
         """
@@ -150,7 +150,12 @@ class TheanetsBase(object):
 
     def set_params(self, **params):
         """
-        Set the parameters of this estimator.
+        Set the parameters of this estimator. Deep parameters of trianers and scaler can be accessed,
+        for instance:
+        trainers__0 = trainers__0 = {'optimize': 'sgd', 'learning_rate': 0.3}
+        trainers__0_optimize = 'sgd'
+        layers__1 = 14
+        scaler__use_std = True
 
         :param dict params: parameters to set in model
         """
@@ -212,18 +217,15 @@ class TheanetsBase(object):
 
     def _transform_data(self, data, y=None):
         """
-        Transforms data using self.scaler, also fits the scaler if needed.
+        Takes the features and transforms data using self.scaler, also fits the scaler if needed.
         :param data: data which should be scaled
         :param y: labels for this data
         :return: transformed data
         """
-        if not self.scaler:
-            return data
         data_backup = data.copy()
-        if self._is_fitted():
-            return self.scaler.transform(data_backup)
-        self.scaler = clone(self.scaler)
-        return self.scaler.fit_transform(data_backup, y)
+        if not self._is_fitted():
+            self.scaler.fit(data_backup, y)
+        return self.scaler.transform(data_backup)
 
     def _is_fitted(self):
         return self.exp is not None
@@ -237,6 +239,7 @@ class TheanetsBase(object):
         :return: self
         """
         self.exp = None
+        self.scaler = check_scaler(self.scaler)
         for trainer in self.trainers:
             for optimizer in UNSUPPORTED_OPTIMIZERS:
                 if 'optimize' in trainer and trainer['optimize'] == optimizer:
@@ -251,7 +254,8 @@ class TheanetsBase(object):
 
         :param pandas.DataFrame X: data shape [n_samples, n_features]
         :param y: values - array-like of shape [n_samples]
-        :param bool new_trainer: True if the trainer is not stored in self.trainers
+        :param bool new_trainer: True if the trainer is not stored in self.trainers.
+            If True, will add it to list of classifiers.
         :param dict trainer: parameters of the training algorithm we want to use now
         :return: self
         """
@@ -266,8 +270,10 @@ class TheanetsBase(object):
         :param dict trainer: parameters of the training algorithm we want to use now
         :return: prepared data and labels
         """
-        sample_weight = None
-        X, y, sample_weight = check_inputs(X, y, sample_weight)
+        X, y, _ = check_inputs(X, y, sample_weight=None)
+        if not self._is_fitted():
+            self.scaler = check_scaler(self.scaler)
+
         X = self._transform_data(self._get_train_features(X, allow_nans=True), y)
         if new_trainer:
             self.trainers.append(trainer)
@@ -296,8 +302,8 @@ class TheanetsClassifier(TheanetsBase, Classifier):
     -----------
     :param features: list of features to train model
     :type features: None or list(str)
-    :param layers: A sequence of values specifying the hidden layer configuration for the network. For more information
-        please see 'Specifying layers' in theanets documentation:
+    :param layers: A sequence of values specifying the **hidden** layer configuration for the network.
+        For more information please see 'Specifying layers' in theanets documentation:
         http://theanets.readthedocs.org/en/latest/creating.html#creating-specifying-layers
         Note that theanets "layers" parameter included input and output layers in the sequence as well.
     :type layers: sequence of int, tuple, dict
@@ -318,10 +324,11 @@ class TheanetsClassifier(TheanetsBase, Classifier):
     :param scaler: scaler used to transform data. If False, scaling will not be used.
     :type scaler: scaler from sklearn.preprocessing or False
     :param list(dict) or None trainers: parameters to specify training algorithm(s)
-    example: [{'optimize': sgd, 'momentum': 0.2}, {'optimize': 'nag'}]
+    example: [{'optimize': sgd, 'momentum': 0.2, }, {'optimize': 'nag'}]
+
     For more information on available trainers and their parameters, see this page
-    http://theanets.readthedocs.org/en/latest/training.html?highlight=trainers#gradient-based-methods
-    Note that not pretrain, sample and hf are not supported.
+    http://theanets.readthedocs.org/en/latest/training.html
+    Note that not pretrain, sample and hf trainers are not supported.
     """
 
     def __init__(self,
@@ -337,7 +344,7 @@ class TheanetsClassifier(TheanetsBase, Classifier):
                  input_dropouts=0,
                  hidden_dropouts=0,
                  decode_from=1,
-                 scaler=None,
+                 scaler='standard',
                  trainers=None):
         TheanetsBase.__init__(self,
                               layers=layers,
@@ -366,10 +373,10 @@ class TheanetsClassifier(TheanetsBase, Classifier):
         :return: self
         """
         X, y = self._prepare_for_partial_fit(X, y, new_trainer, **trainer)
+        # TODO use set_classes?
         self.classes_ = numpy.unique(y)
         if self.exp is None:
             layers = self._construct_layers(X.shape[1], len(self.classes_))
-            print(layers)
             self.exp = tnt.Experiment(tnt.Classifier, layers=layers,
                                       rng=self._reproducibilize(), **self.network_params)
         self._reproducibilize()
@@ -406,8 +413,8 @@ class TheanetsRegressor(TheanetsBase, Regressor):
     -----------
     :param features: list of features to train model
     :type features: None or list(str)
-    :param layers: A sequence of values specifying the hidden layer configuration for the network. For more information
-        please see 'Specifying layers' in theanets documentation:
+    :param layers: A sequence of values specifying the **hidden** layer configuration for the network.
+        For more information please see 'Specifying layers' in theanets documentation:
         http://theanets.readthedocs.org/en/latest/creating.html#creating-specifying-layers
         Note that theanets "layers" parameter included input and output layers in the sequence as well.
     :type layers: sequence of int, tuple, dict
@@ -429,6 +436,7 @@ class TheanetsRegressor(TheanetsBase, Regressor):
     :type scaler: scaler from sklearn.preprocessing or False
     :param list(dict) or None trainers: parameters to specify training algorithm(s)
     example: [{'optimize': sgd, 'momentum': 0.2}, {'optimize': 'nag'}]
+
     For more information on available trainers and their parameters, see this page
     http://theanets.readthedocs.org/en/latest/training.html?highlight=trainers#gradient-based-methods
     Note that not pretrain, sample and hf are not supported.
@@ -446,7 +454,7 @@ class TheanetsRegressor(TheanetsBase, Regressor):
                  input_dropouts=0,
                  hidden_dropouts=0,
                  decode_from=1,
-                 scaler=None,
+                 scaler='standard',
                  trainers=None):
         TheanetsBase.__init__(self,
                               layers=layers,
@@ -469,7 +477,7 @@ class TheanetsRegressor(TheanetsBase, Regressor):
         Train the regressor by training the existing regressor again.
 
         :param pandas.DataFrame X: data shape [n_samples, n_features]
-        :param y: values - array-like of shape [n_samples]
+        :param y: values - array-like of shape [n_samples] (or [n_samples, n_targets])
         :param bool new_trainer: True if the trainer is not stored in self.trainers
         :param dict trainer: parameters of the training algorithm we want to use now
         :return: self
@@ -478,11 +486,12 @@ class TheanetsRegressor(TheanetsBase, Regressor):
 
         if self.exp is None:
             layers = self._construct_layers(X.shape[1], 1)
-            print(layers)
             self.exp = tnt.Experiment(tnt.feedforward.Regressor, layers=layers,
                                       rng=self._reproducibilize(), **self.network_params)
         self._reproducibilize()
-        self.exp.train([X.astype(numpy.float32), y.reshape(len(y), 1)], **trainer)
+        if len(numpy.shape(y)) == 1:
+            y = y.reshape(len(y), 1)
+        self.exp.train([X.astype(numpy.float32), y], **trainer)
         return self
 
     def predict(self, X):
@@ -492,7 +501,7 @@ class TheanetsRegressor(TheanetsBase, Regressor):
         :param pandas.DataFrame X: data shape [n_samples, n_features]
         :rtype: numpy.array of shape [n_samples, n_classes] with probabilities
         """
-        assert self._is_fitted(), 'Regressor wasn`t fitted, please call `fit` first'
+        assert self._is_fitted(), "Regressor wasn't fitted, please call `fit` first"
         X = self._transform_data(self._get_train_features(X, allow_nans=True))
         return self.exp.network.predict(X.astype(numpy.float32))
 
