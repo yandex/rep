@@ -22,34 +22,45 @@ import neurolab as nl
 
 __author__ = 'Sterzhanov Vladislav'
 
-
 N_EPOCHS2 = 100
-N_EPOCHS4 = 800
-N_EPOCHS_REGR = 950
+N_EPOCHS4 = 400
+N_EPOCHS_REGR = 250
+
+classifier_params = {
+    'has_staged_pp': False,
+    'has_importances': False,
+    'supports_weight': False
+}
+
+regressor_params = {
+    'has_staged_predictions': False,
+    'has_importances': False,
+    'supports_weight': False
+}
 
 
 def test_neurolab_single_classification():
     check_classifier(NeurolabClassifier(show=0, layers=[], epochs=N_EPOCHS2, trainf=nl.train.train_rprop),
-                     supports_weight=False, has_staged_pp=False, has_importances=False)
-    check_classifier(NeurolabClassifier(net_type='single-layer', cn='auto', show=0, epochs=N_EPOCHS2, trainf=nl.train.train_delta),
-                     supports_weight=False, has_staged_pp=False, has_importances=False)
+                     **classifier_params)
+    check_classifier(NeurolabClassifier(net_type='single-layer', cn='auto', show=0, epochs=N_EPOCHS2,
+                                        trainf=nl.train.train_delta), **classifier_params)
 
 
-def test_neurolab_multiple_classification():
-    check_classifier(NeurolabClassifier(show=0, layers=[], epochs=N_EPOCHS4, trainf=nl.train.train_rprop),
-                     supports_weight=False, has_staged_pp=False, has_importances=False, n_classes=4)
-    check_classifier(NeurolabClassifier(net_type='single-layer', cn='auto', show=0, epochs=N_EPOCHS4, trainf=nl.train.train_delta),
-                     supports_weight=False, has_staged_pp=False, has_importances=False, n_classes=4)
+def test_neurolab_multiclassification():
+    check_classifier(NeurolabClassifier(show=0, layers=[10], epochs=N_EPOCHS4, trainf=nl.train.train_rprop),
+                     n_classes=4, **classifier_params)
+    check_classifier(NeurolabClassifier(net_type='single-layer', cn='auto', show=0, epochs=N_EPOCHS4,
+                                        trainf=nl.train.train_delta), n_classes=4, **classifier_params)
 
 
 def test_neurolab_regression():
-    check_regression(NeurolabRegressor(layers=[], show=0, epochs=N_EPOCHS_REGR, trainf=nl.train.train_rprop),
-                     supports_weight=False, has_importances=False, has_staged_predictions=False)
-    check_regression(NeurolabRegressor(net_type='single-layer', cn='auto', show=0, epochs=N_EPOCHS_REGR, trainf=nl.train.train_delta),
-                     supports_weight=False, has_importances=False, has_staged_predictions=False)
+    check_regression(NeurolabRegressor(layers=[10], show=0, epochs=N_EPOCHS_REGR, trainf=nl.train.train_delta),
+                     **regressor_params)
+    check_regression(NeurolabRegressor(net_type='single-layer', cn='auto', show=0, epochs=N_EPOCHS_REGR,
+                                       trainf=nl.train.train_delta), **regressor_params)
 
 
 def test_neurolab_stacking():
     base_nlab = NeurolabClassifier(show=0, layers=[], epochs=N_EPOCHS2, trainf=nl.train.train_rprop)
-    check_classifier(SklearnClassifier(clf=BaggingClassifier(base_estimator=base_nlab, n_estimators=3)),
-                     supports_weight=False, has_staged_pp=False, has_importances=False)
+    base_bagging = BaggingClassifier(base_estimator=base_nlab, n_estimators=3)
+    check_classifier(SklearnClassifier(clf=base_bagging), **classifier_params)

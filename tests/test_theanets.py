@@ -14,6 +14,7 @@
 
 
 from __future__ import division, print_function, absolute_import
+from sklearn.preprocessing.data import StandardScaler
 from rep.test.test_estimators import check_classifier, check_regression
 from rep.test.test_estimators import generate_classification_data
 from sklearn.base import clone
@@ -25,34 +26,49 @@ from rep.estimators.theanets import TheanetsClassifier, TheanetsRegressor
 __author__ = 'Lisa Ignatyeva'
 
 
+classifier_params = {
+    'has_staged_pp': False,
+    'has_importances': False,
+    'supports_weight': False
+}
+
+regressor_params = {
+    'has_staged_predictions': False,
+    'has_importances': False,
+    'supports_weight': False
+}
+
+
+def test_theanets_configuration():
+    check_classifier(
+        TheanetsClassifier(layers=[20], scaler=False,
+                           trainers=[{'optimize': 'nag', 'learning_rate': 0.3, 'min_improvement': 0.5}]),
+        **classifier_params)
+    check_classifier(
+        TheanetsClassifier(layers=[5, 5], trainers=[{'optimize': 'nag', 'learning_rate': 0.3, 'min_improvement': 0.5}]),
+        **classifier_params)
+
+
 def test_theanets_single_classification():
-    check_classifier(TheanetsClassifier(),
-                     supports_weight=False, has_staged_pp=False, has_importances=False)
-    check_classifier(TheanetsClassifier(layers=[]),
-                     supports_weight=False, has_staged_pp=False, has_importances=False)
-    check_classifier(TheanetsClassifier(layers=[20], trainers=[{'optimize': 'sgd', 'learning_rate': 0.3}]),
-                     supports_weight=False, has_staged_pp=False, has_importances=False)
-    check_classifier(TheanetsClassifier(layers=[5, 5], trainers=[{'optimize': 'sgd', 'learning_rate': 0.3}]),
-                     supports_weight=False, has_staged_pp=False, has_importances=False)
-    check_classifier(TheanetsClassifier(layers=[5, 5], trainers=[{'optimize': 'sgd', 'learning_rate': 0.3}]),
-                     supports_weight=False, has_staged_pp=False, has_importances=False)
+    check_classifier(TheanetsClassifier(trainers=[{'patience': 0}]), **classifier_params)
+    check_classifier(TheanetsClassifier(layers=[], scaler='minmax',
+                                        trainers=[{'patience': 0}]), **classifier_params)
 
 
 def test_theanets_regression():
-    check_regression(TheanetsRegressor(layers=[20], trainers=[{'optimize': 'rmsprop'}]),
-                     supports_weight=False, has_staged_predictions=False, has_importances=False)
-    check_regression(TheanetsRegressor(),
-                     supports_weight=False, has_staged_predictions=False, has_importances=False)
+    check_regression(TheanetsRegressor(layers=[20], trainers=[{'optimize': 'rmsprop', 'min_improvement': 0.5}]),
+                     **regressor_params)
+    check_regression(TheanetsRegressor(scaler=StandardScaler()), **regressor_params)
 
 
 def test_theanets_multiple_classification():
-    check_classifier(TheanetsClassifier(trainers=[{'optimize': 'adadelta'}, {'optimize': 'nag'}]),
-                     supports_weight=False, has_staged_pp=False, has_importances=False)
+    check_classifier(TheanetsClassifier(trainers=[{'optimize': 'adadelta', 'min_improvement': 0.5}, {'optimize': 'nag'}]),
+                     **classifier_params)
 
 
 def test_theanets_partial_fit():
-    clf_complete = TheanetsClassifier(trainers=[{'optimize': 'rmsprop'}, {'optimize': 'rprop'}])
-    clf_partial = TheanetsClassifier(trainers=[{'optimize': 'rmsprop'}])
+    clf_complete = TheanetsClassifier(trainers=[{'optimize': 'rmsprop', 'patience': 0}, {'optimize': 'rprop'}])
+    clf_partial = TheanetsClassifier(trainers=[{'optimize': 'rmsprop', 'patience': 0}])
     X, y, sample_weight = generate_classification_data()
     clf_complete.fit(X, y)
     clf_partial.fit(X, y)
@@ -67,7 +83,7 @@ def test_theanets_partial_fit():
 
 
 def test_theanets_reproducibility():
-    clf = TheanetsClassifier()
+    clf = TheanetsClassifier(trainers=[{'min_improvement': 1}])
     X, y, sample_weight = generate_classification_data()
     clf.fit(X, y)
     auc = roc_auc_score(y, clf.predict_proba(X)[:, 1])
@@ -83,6 +99,6 @@ def test_theanets_reproducibility():
 
 
 def test_theanets_simple_stacking():
-    base_tnt = TheanetsClassifier()
-    check_classifier(SklearnClassifier(clf=BaggingClassifier(base_estimator=base_tnt, n_estimators=3)),
-                     supports_weight=False, has_staged_pp=False, has_importances=False)
+    base_tnt = TheanetsClassifier(trainers=[{'min_improvement': 0.1}])
+    base_bagging = BaggingClassifier(base_estimator=base_tnt, n_estimators=3)
+    check_classifier(SklearnClassifier(clf=base_bagging), **classifier_params)

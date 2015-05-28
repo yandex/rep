@@ -75,6 +75,10 @@ def test_pybrain_regression():
     check_regression(PyBrainRegressor(), **regressor_params)
 
 
+def test_pybrain_multiclassification():
+    check_regression(PyBrainRegressor(), n_targets=4, **regressor_params)
+
+
 def test_simple_stacking_pybrain():
     base_pybrain = PyBrainClassifier()
     base_bagging = BaggingClassifier(base_estimator=base_pybrain, n_estimators=3)
