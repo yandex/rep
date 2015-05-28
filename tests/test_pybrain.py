@@ -67,7 +67,7 @@ def test_pybrain_rprop():
     check_classifier(PyBrainClassifier(use_rprop=True), **classifier_params)
 
 
-def test_pybrain_multiclassification():
+def test_pybrain_multi_classification():
     check_classifier(PyBrainClassifier(), n_classes=4, **classifier_params)
 
 
@@ -75,7 +75,7 @@ def test_pybrain_regression():
     check_regression(PyBrainRegressor(), **regressor_params)
 
 
-def test_pybrain_multiclassification():
+def test_pybrain_multi_regression():
     check_regression(PyBrainRegressor(), n_targets=4, **regressor_params)
 
 
