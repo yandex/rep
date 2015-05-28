@@ -14,18 +14,15 @@
 
 from __future__ import division, print_function, absolute_import
 from abc import ABCMeta
-
-from .interface import Classifier, Regressor
-from .utils import check_inputs
-
-from copy import deepcopy, copy
+from copy import deepcopy
 
 import neurolab as nl
 import numpy as np
 import scipy
+from sklearn.preprocessing import StandardScaler
 
-from sklearn.preprocessing import OneHotEncoder, StandardScaler
-from sklearn.base import clone
+from .interface import Classifier, Regressor
+from .utils import check_inputs, check_scaler, one_hot_transform
 
 __author__ = 'Vlad Sterzhanov'
 
@@ -61,13 +58,12 @@ class NeurolabBase(object):
 
     def set_params(self, **params):
         """
-        Set the parameters of this estimator
+        Set the parameters of this estimator,
         :param dict params: parameters to set in model
         """
         if 'scaler' in params:
-            scaler = params['scaler']
+            scaler = params.pop('scaler')
             self.scaler = (StandardScaler() if scaler is None else scaler)
-            params.pop('scaler')
 
         for name, value in params.items():
             if name in {'random_state'}:
@@ -95,6 +91,7 @@ class NeurolabBase(object):
         return parameters
 
     def _fit(self, X, y, y_train):
+        self.scaler = check_scaler(self.scaler)
         x_train = self._transform_input(self._get_train_features(X), y)
 
         # Prepare parameters depending on network purpose (classification \ regression)
@@ -118,47 +115,47 @@ class NeurolabBase(object):
         return self
 
     def _sim(self, X):
-        assert self.net is not None, 'Classifier not fitted, predict denied'
+        assert self.net is not None, 'Classifier not fitted, prediction denied'
         transformed_x = self._transform_input(X, fit=False)
         return self.net.sim(transformed_x)
 
     def _transform_input(self, X, y=None, fit=True):
-        if self.scaler is False:
-            return X
-        # FIXME: Need this while using sklearn < 0.16
+        # The following line fights the bug in sklearn < 0.16,
+        # most of transformers there modify X if it is pandas.DataFrame.
         X = np.copy(X)
         if fit:
-            self.scaler = clone(self.scaler)
             self.scaler.fit(X, y)
+        X = self.scaler.transform(X)
+
         # HACK: neurolab requires all features (even those of predicted objects) to be in [min, max]
-        # so this dark magic appeared, seems to work ok for most reasonable usecases
-        return scipy.special.expit(self.scaler.transform(X) / 3)
+        # so this dark magic appeared, seems to work ok for most reasonable use-cases,
+        # while allowing arbitrary inputs.
+        return scipy.special.expit(X / 3)
 
     def _prepare_params(self, net_params, x_train, y_train):
-        params = deepcopy(net_params)
+        net_params = deepcopy(net_params)
         # Network expects features to be [0, 1]-scaled
-        params['minmax'] = [[0, 1]]*(x_train.shape[1])
+        net_params['minmax'] = [[0, 1]] * (x_train.shape[1])
 
         # To unify the layer-description argument with other supported networks
-        if 'layers' in params:
-            params['size'] = params['layers']
-            params.pop('layers')
+        if 'layers' in net_params:
+            net_params['size'] = net_params.pop('layers')
 
         # For some reason Neurolab asks for a separate cn parameter instead of accessing size[-1]
         # (e.g. In case of Single-Layer Perceptron)
-        if 'cn' in params:
-            params['cn'] = y_train.shape[1]
+        if 'cn' in net_params:
+            net_params['cn'] = y_train.shape[1]
 
         # Set output layer size
-        if 'size' in params:
-            params['size'] += [y_train.shape[1]]
+        if 'size' in net_params:
+            net_params['size'] += [y_train.shape[1]]
 
-        return params
+        return net_params
 
     @staticmethod
     def _get_initializers(net_type):
         if net_type not in NET_TYPES:
-            raise AttributeError('Got unexpected network type: \'{}\''.format(net_type))
+            raise AttributeError("Got unexpected network type: '{}'".format(net_type))
         return NET_TYPES.get(net_type)
 
 
@@ -185,7 +182,7 @@ class NeurolabRegressor(NeurolabBase, Regressor):
 
     def __init__(self, net_type='feed-forward',
                  features=None,
-                 initf=nl.init.init_zeros,
+                 initf=nl.init.init_rand,
                  trainf=None,
                  scaler=None,
                  **kwargs):
@@ -197,10 +194,10 @@ class NeurolabRegressor(NeurolabBase, Regressor):
         Fit model on data
 
         :param X: pandas.DataFrame
-        :param y: iterable denoting corresponding value in object
+        :param y: iterable denoting target for each training sample.
         :return: self
         """
-        # TODO Some networks do not support regression?
+        # TODO Check if some networks do not support regression
         X, y, _ = check_inputs(X, y, None)
         y_train = y.reshape(len(y), 1 if len(y.shape) == 1 else y.shape[1])
         return self._fit(X, y, y_train)
@@ -269,7 +266,7 @@ class NeurolabClassifier(NeurolabBase, Classifier):
         assert self.net_type not in CANT_CLASSIFY, 'Network type does not support classification'
         X, y, _ = check_inputs(X, y, None)
         self._set_classes(y)
-        y_train = NeurolabClassifier._one_hot_transform(y)
+        y_train = one_hot_transform(y)
         return self._fit(X, y, y_train)
 
     def predict_proba(self, X):
@@ -291,10 +288,6 @@ class NeurolabClassifier(NeurolabBase, Classifier):
         .. warning:: Doesn't have support in Neurolab (**AttributeError** will be thrown)
         """
         raise AttributeError("Not supported by Neurolab networks")
-
-    @staticmethod
-    def _one_hot_transform(y):
-        return np.array(OneHotEncoder(n_values=len(np.unique(y))).fit_transform(y.reshape((len(y), 1))).todense())
 
     def _prepare_params(self, params, x_train, y_train):
         net_params = super(NeurolabClassifier, self)._prepare_params(params, x_train, y_train)
