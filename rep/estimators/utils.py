@@ -103,13 +103,20 @@ def _get_train_features(estimator, X, allow_nans=False):
 class IdentityTransformer(BaseEstimator, TransformerMixin):
     """
     Identity transformer is a very neat technology:
-    it in a constant, reproducible way makes nothing with input.
+    it in a constant, reproducible manner makes nothing with input,
+    though may convert it to some provided dtype
     """
+    def __init__(self, dtype='float32'):
+        self.dtype = dtype
+
     def fit(self, X, y, **kwargs):
-        pass
+        return self
 
     def transform(self, X):
-        return X
+        if self.dtype is None:
+            return X
+        else:
+            return numpy.array(X, dtype=self.dtype)
 
 
 def check_scaler(scaler):
@@ -136,3 +143,11 @@ def check_scaler(scaler):
         return clone(scaler)
 
 
+def one_hot_transform(y, dtype='float32'):
+    """
+    For neural networks, this function needed only in training.
+    Classes in 'y' should be [0, 1, 2, .. n_classes -1]
+    """
+    target = numpy.zeros([len(y), numpy.max(y) + 1], dtype=dtype)
+    target[numpy.arange(len(y)), y] = 1
+    return target
