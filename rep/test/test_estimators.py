@@ -5,6 +5,8 @@ from copy import deepcopy
 from sklearn.base import clone
 from sklearn.metrics import accuracy_score, roc_auc_score, mean_squared_error
 import numpy
+import pandas
+from scipy.special import expit
 
 from six.moves import cPickle
 from ..estimators import Classifier, Regressor
@@ -16,8 +18,6 @@ __author__ = 'Tatiana Likhomanenko, Alex Rogozhnikov'
 Abstract code to test any classifier or regressor
 """
 
-from scipy.special import expit
-import pandas
 
 
 def generate_classification_sample(n_samples, n_features, distance=1.5, n_classes=2):
@@ -58,12 +58,15 @@ def generate_classification_data(n_classes=2, distance=1.5):
     return X, y, sample_weight
 
 
-def generate_regression_data():
-    """ Generates random number of samples and features. """
+def generate_regression_data(n_targets=1):
+    """ Generates random number of samples and features."""
     n_samples = 1000 + numpy.random.poisson(1000)
     n_features = numpy.random.randint(10, 16)
     sample_weight = numpy.ones(n_samples, dtype=float)
     X, y = generate_regression_sample(n_features=n_features, n_samples=n_samples)
+    if n_targets > 1:
+        y = numpy.vstack([y * numpy.random.random() for _ in range(n_targets)]).T
+    assert len(X) == len(y)
     return X, y, sample_weight
 
 
@@ -166,8 +169,8 @@ def check_classifier(classifier, check_instance=True, has_staged_pp=True, has_im
 
 
 def check_regression(regressor, check_instance=True, has_staged_predictions=True, has_importances=True,
-                     supports_weight=True):
-    X, y, sample_weight = generate_regression_data()
+                     supports_weight=True, n_targets=1):
+    X, y, sample_weight = generate_regression_data(n_targets=n_targets)
     check_deepcopy(regressor)
     fit_on_data(regressor, X, y, sample_weight, supports_weight=supports_weight)
     assert list(regressor.features) == list(X.columns)
