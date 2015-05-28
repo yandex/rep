@@ -17,12 +17,11 @@ from __future__ import division, print_function, absolute_import
 from abc import ABCMeta
 
 from .interface import Classifier, Regressor
-from .utils import check_inputs, check_scaler
+from .utils import check_inputs, check_scaler, one_hot_transform
 
 import numpy
 import pandas
 
-from sklearn.preprocessing import OneHotEncoder
 from pybrain.tools.shortcuts import buildNetwork
 from pybrain.datasets import SupervisedDataSet
 from pybrain.supervised.trainers import BackpropTrainer, RPropMinusTrainer
@@ -81,7 +80,7 @@ class PyBrainBase(object):
     __metaclass__ = ABCMeta
 
     def __init__(self,
-                 layers=None,
+                 layers=(10,),
                  hiddenclass=None,
                  epochs=10,
                  scaler='standard',
@@ -191,8 +190,7 @@ class PyBrainBase(object):
         self._check_init_input(self.layers, self.hiddenclass)
         X = self._transform_data(X, y, fit=True)
 
-        if self.layers is None:
-            self.layers = [10]
+        self.layers = list(self.layers)
 
         if self.hiddenclass is None:
             self.hiddenclass = ['SigmoidLayer' for layer_size in self.layers]
@@ -211,22 +209,22 @@ class PyBrainBase(object):
         if model_type == 'classification':
             net_options['outclass'] = structure.SoftmaxLayer
             self._set_classes(y)
-            y = y.reshape((len(y), 1))
-            target = numpy.array(OneHotEncoder(n_values=len(self.classes_)).fit_transform(y).todense())
+            target = one_hot_transform(y)
 
         elif model_type == 'regression':
             net_options['outclass'] = structure.LinearLayer
             if len(y.shape) == 1:
                 target = y.reshape((len(y), 1))
             else:
+                # multi regression
                 target = y
         else:
             raise ValueError('Wrong model type')
 
         layers_for_net = [X.shape[1]] + self.layers + [target.shape[1]]
-        ds = SupervisedDataSet(X.shape[1], target.shape[1])
-        ds.setField('input', X)
-        ds.setField('target', target)
+        dataset = SupervisedDataSet(X.shape[1], target.shape[1])
+        dataset.setField('input', X)
+        dataset.setField('target', target)
 
         self.net = buildNetwork(*layers_for_net, **net_options)
 
@@ -235,7 +233,7 @@ class PyBrainBase(object):
             self.net.addModule(hid_layer)
         self.net.sortModules()
 
-        return ds
+        return dataset
 
 
 class PyBrainClassifier(PyBrainBase, Classifier):
@@ -288,7 +286,7 @@ class PyBrainClassifier(PyBrainBase, Classifier):
     """
 
     def __init__(self,
-                 layers=None,
+                 layers=(10,),
                  hiddenclass=None,
                  features=None,
                  epochs=10,
@@ -475,7 +473,7 @@ class PyBrainRegressor(PyBrainBase, Regressor):
     """
 
     def __init__(self,
-                 layers=None,
+                 layers=(10,),
                  hiddenclass=None,
                  features=None,
                  epochs=10,
@@ -515,7 +513,7 @@ class PyBrainRegressor(PyBrainBase, Regressor):
         Train the regressor model.
 
         :param X: pandas.DataFrame of shape [n_samples, n_features]
-        :param y: values - array-like of shape [n_samples]
+        :param y: values - array-like of shape [n_samples] or of shape [n_samples, n_targets]
 
         :return: self
         """
@@ -560,6 +558,7 @@ class PyBrainRegressor(PyBrainBase, Regressor):
         ds.setField('target', y_test_dummy)
 
         # reshaping from (-1, 1) to (-1,)
+        # TODO fix for multiregression.
         return self.net.activateOnDataset(ds).reshape(-1,)
 
     def staged_predict(self, X):
