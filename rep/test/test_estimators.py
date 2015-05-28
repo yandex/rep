@@ -149,7 +149,7 @@ def fit_on_data(estimator, X, y, sample_weight, supports_weight):
     else:
         learned = estimator.fit(X, y)
     # checking that fit returns the classifier
-    assert learned == estimator
+    assert learned == estimator, "fitting doesn't return initial classifier"
 
     return estimator
 
