@@ -43,21 +43,21 @@ XGBoost classifier and regressor
     :show-inheritance:
     :undoc-members:
 
-theanets classifier and regressor
+Theanets classifier and regressor
 ---------------------------------
 .. automodule:: rep.estimators.theanets
     :members:
     :show-inheritance:
     :undoc-members:
 
-neurolab classifier and regressor
+Neurolab classifier and regressor
 ---------------------------------
 .. automodule:: rep.estimators.neurolab
     :members:
     :show-inheritance:
     :undoc-members:
 
-pybrain classifier and regressor
+Pybrain classifier and regressor
 --------------------------------
 .. automodule:: rep.estimators.pybrain
     :members:

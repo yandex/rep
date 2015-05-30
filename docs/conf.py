@@ -13,6 +13,7 @@
 # serve to show the default.
 
 import rep
+import sphinx_rtd_theme
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
@@ -29,6 +30,7 @@ import rep
 # ones.
 extensions = [
     'sphinx.ext.autodoc',
+    'sphinx.ext.viewcode',
     'sphinx.ext.coverage',
     'sphinx.ext.mathjax',
 ]
@@ -47,7 +49,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'REP (Reproducible Experiment Platform)'
-copyright = u'2014, Yandex'
+copyright = u'2014-2015, Yandex'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -101,7 +103,8 @@ pygments_style = 'sphinx'
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
-html_theme = 'nature'
+# html_theme = 'nature'
+html_theme = "sphinx_rtd_theme"
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
@@ -109,7 +112,7 @@ html_theme = 'nature'
 # html_theme_options = {'show_sphinx': False}
 
 # Add any paths that contain custom themes here, relative to this directory.
-#html_theme_path = []
+html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
 
 # The name for this set of Sphinx documents.  If None, it defaults to
 # "<project> v<release> documentation".
@@ -229,8 +232,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'rep', u'REP Documentation',
-     [u'Yandex'], 1)
+    ('index', 'rep', u'REP Documentation', [u'Yandex'], 1)
 ]
 
 # If true, show URL addresses after external links.
