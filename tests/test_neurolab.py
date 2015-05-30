@@ -14,8 +14,10 @@
 
 
 from __future__ import division, print_function, absolute_import
-from rep.test.test_estimators import check_classifier, check_regression
+from rep.test.test_estimators import check_classifier, check_regression, generate_classification_data
 from sklearn.ensemble import BaggingClassifier
+from sklearn.metrics import roc_auc_score
+from sklearn.base import clone
 from rep.estimators.sklearn import SklearnClassifier
 from rep.estimators.neurolab import NeurolabClassifier, NeurolabRegressor
 import neurolab as nl
@@ -23,44 +25,63 @@ import neurolab as nl
 __author__ = 'Sterzhanov Vladislav'
 
 N_EPOCHS2 = 100
-N_EPOCHS4 = 400
+N_EPOCHS4 = 200
 N_EPOCHS_REGR = 250
 
 classifier_params = {
     'has_staged_pp': False,
     'has_importances': False,
-    'supports_weight': False
+    'supports_weight': False,
 }
 
 regressor_params = {
     'has_staged_predictions': False,
     'has_importances': False,
-    'supports_weight': False
+    'supports_weight': False,
 }
 
 
 def test_neurolab_single_classification():
-    check_classifier(NeurolabClassifier(show=0, layers=[], epochs=N_EPOCHS2, trainf=nl.train.train_rprop),
+    check_classifier(NeurolabClassifier(layers=[], epochs=N_EPOCHS2, trainf=nl.train.train_rprop),
                      **classifier_params)
-    check_classifier(NeurolabClassifier(net_type='single-layer', cn='auto', show=0, epochs=N_EPOCHS2,
-                                        trainf=nl.train.train_delta), **classifier_params)
+    check_classifier(NeurolabClassifier(layers=[5], epochs=N_EPOCHS2, trainf=nl.train.train_gdx),
+                     **classifier_params)
+    check_classifier(NeurolabClassifier(layers=[4, 1], epochs=N_EPOCHS2, trainf=None),
+                     **classifier_params)
+
+
+def test_neurolab_reproducibility():
+    clf = NeurolabClassifier(layers=[4, 5])
+    X, y, _ = generate_classification_data()
+    clf.fit(X, y)
+    auc = roc_auc_score(y, clf.predict_proba(X)[:, 1])
+    for i in range(2):
+        clf.fit(X, y)
+        curr_auc = roc_auc_score(y, clf.predict_proba(X)[:, 1])
+        assert auc == curr_auc, 'running a network twice produces different results'
+
+    cloned_clf = clone(clf)
+    cloned_clf.fit(X, y)
+    cloned_auc = roc_auc_score(y, cloned_clf.predict_proba(X)[:, 1])
+    assert cloned_auc == auc, 'cloned network produces different result'
 
 
 def test_neurolab_multiclassification():
-    check_classifier(NeurolabClassifier(show=0, layers=[10], epochs=N_EPOCHS4, trainf=nl.train.train_rprop),
+    check_classifier(NeurolabClassifier(layers=[10], epochs=N_EPOCHS4, trainf=nl.train.train_rprop),
                      n_classes=4, **classifier_params)
-    check_classifier(NeurolabClassifier(net_type='single-layer', cn='auto', show=0, epochs=N_EPOCHS4,
-                                        trainf=nl.train.train_delta), n_classes=4, **classifier_params)
 
 
 def test_neurolab_regression():
-    check_regression(NeurolabRegressor(layers=[10], show=0, epochs=N_EPOCHS_REGR, trainf=nl.train.train_delta),
+    check_regression(NeurolabRegressor(layers=[1], epochs=N_EPOCHS_REGR),
                      **regressor_params)
-    check_regression(NeurolabRegressor(net_type='single-layer', cn='auto', show=0, epochs=N_EPOCHS_REGR,
-                                       trainf=nl.train.train_delta), **regressor_params)
+
+
+def test_neurolab_multi_regression():
+    check_regression(NeurolabRegressor(layers=[10], epochs=N_EPOCHS_REGR),
+                     n_targets=3, **regressor_params)
 
 
 def test_neurolab_stacking():
-    base_nlab = NeurolabClassifier(show=0, layers=[], epochs=N_EPOCHS2, trainf=nl.train.train_rprop)
+    base_nlab = NeurolabClassifier(layers=[], epochs=N_EPOCHS2, trainf=nl.train.train_rprop)
     base_bagging = BaggingClassifier(base_estimator=base_nlab, n_estimators=3)
     check_classifier(SklearnClassifier(clf=base_bagging), **classifier_params)
