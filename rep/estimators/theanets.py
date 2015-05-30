@@ -35,13 +35,11 @@ UNSUPPORTED_OPTIMIZERS = ['pretrain', 'sample', 'hf']
 # pretrain and sample data formats have too different interface from what we support here
 # currently, hf now does not work in theanets, see https://github.com/lmjohns3/theanets/issues/62
 
-
-class TheanetsBase(object):
-    """
-    Base class for estimators from Theanets library.
-
+theanets_parameters = """
     Parameters:
     -----------
+    :param features: list of features to train model
+    :type features: None or list(str)
     :param layers: A sequence of values specifying the **hidden** layer configuration for the network.
         For more information please see 'Specifying layers' in theanets documentation:
         http://theanets.readthedocs.org/en/latest/creating.html#creating-specifying-layers
@@ -63,13 +61,21 @@ class TheanetsBase(object):
     :type decode_from: positive int
     :param scaler: scaler used to transform data. If False, scaling will not be used.
     :type scaler: scaler from sklearn.preprocessing or False
-    :param list(dict) or None trainers: parameters to specify training algorithm(s)
-    example: [{'optimize': sgd, 'momentum': 0.2}, {'optimize': 'nag'}]
+    :param trainers: parameters to specify training algorithm(s)
+        example: [{'optimize': sgd, 'momentum': 0.2}, {'optimize': 'nag'}]
+    :type trainers: list(dict) or None
+
 
     For more information on available trainers and their parameters, see this page
-    http://theanets.readthedocs.org/en/latest/training.html?highlight=trainers#gradient-based-methods
-    Note that not pretrain, nor sample and hf are not supported.
-    """
+    http://theanets.readthedocs.org/en/latest/training.html
+    Note that not pretrain, sample and hf are not supported.
+"""
+
+
+class TheanetsBase(object):
+    # TODO delete features parameters from base
+    __doc__ = "Base class for estimators from Theanets library.\n" + theanets_parameters
+
     def __init__(self,
                  layers,
                  input_layer,
@@ -294,42 +300,9 @@ class TheanetsBase(object):
         return layers
 
 
+
 class TheanetsClassifier(TheanetsBase, Classifier):
-    """
-    Classifier from Theanets library.
-
-    Parameters:
-    -----------
-    :param features: list of features to train model
-    :type features: None or list(str)
-    :param layers: A sequence of values specifying the **hidden** layer configuration for the network.
-        For more information please see 'Specifying layers' in theanets documentation:
-        http://theanets.readthedocs.org/en/latest/creating.html#creating-specifying-layers
-        Note that theanets "layers" parameter included input and output layers in the sequence as well.
-    :type layers: sequence of int, tuple, dict
-    :param int input_layer: size of the input layer. If equals -1, the size is taken from the training dataset.
-    :param int output_layer: size of the output layer. If equals -1, the size is taken from the training dataset.
-    :param str hidden_activation: the name of an activation function to use on hidden network layers by default.
-    :param str output_activation: The name of an activation function to use on the output layer by default.
-    :param int random_state: random seed
-    :param float input_noise: Standard deviation of desired noise to inject into input.
-    :param float hidden_noise: Standard deviation of desired noise to inject into hidden unit activation output.
-    :param input_dropouts: Proportion of input units to randomly set to 0.
-    :type input_dropouts: float in [0, 1]
-    :param hidden_dropouts: Proportion of hidden unit activations to randomly set to 0.
-    :type hidden_dropouts: float in [0, 1]
-    :param decode_from: Any of the hidden layers can be tapped at the output. Just specify a value greater than
-        1 to tap the last N hidden layers. The default is 1, which decodes from just the last layer.
-    :type decode_from: positive int
-    :param scaler: scaler used to transform data. If False, scaling will not be used.
-    :type scaler: scaler from sklearn.preprocessing or False
-    :param list(dict) or None trainers: parameters to specify training algorithm(s)
-    example: [{'optimize': sgd, 'momentum': 0.2, }, {'optimize': 'nag'}]
-
-    For more information on available trainers and their parameters, see this page
-    http://theanets.readthedocs.org/en/latest/training.html
-    Note that not pretrain, sample and hf trainers are not supported.
-    """
+    __doc__ = 'Classifier from Theanets library. \n' + theanets_parameters
 
     def __init__(self,
                  features=None,
@@ -373,15 +346,13 @@ class TheanetsClassifier(TheanetsBase, Classifier):
         :return: self
         """
         X, y = self._prepare_for_partial_fit(X, y, new_trainer, **trainer)
-        # TODO use set_classes?
-        self.classes_ = numpy.unique(y)
         if self.exp is None:
+            self._set_classes(y)
             layers = self._construct_layers(X.shape[1], len(self.classes_))
             self.exp = tnt.Experiment(tnt.Classifier, layers=layers,
                                       rng=self._reproducibilize(), **self.network_params)
         self._reproducibilize()
-        self.exp.train((X.astype(numpy.float32), y.astype(numpy.int32)),
-                       **trainer)
+        self.exp.train([X.astype(numpy.float32), y.astype(numpy.int32)], **trainer)
         return self
 
     def predict_proba(self, X):
@@ -406,41 +377,8 @@ class TheanetsClassifier(TheanetsBase, Classifier):
 
 
 class TheanetsRegressor(TheanetsBase, Regressor):
-    """
-    Regressor from Theanets library.
+    __doc__ = 'Regressor from Theanets library. \n' + theanets_parameters
 
-    Parameters:
-    -----------
-    :param features: list of features to train model
-    :type features: None or list(str)
-    :param layers: A sequence of values specifying the **hidden** layer configuration for the network.
-        For more information please see 'Specifying layers' in theanets documentation:
-        http://theanets.readthedocs.org/en/latest/creating.html#creating-specifying-layers
-        Note that theanets "layers" parameter included input and output layers in the sequence as well.
-    :type layers: sequence of int, tuple, dict
-    :param int input_layer: size of the input layer. If equals -1, the size is taken from the training dataset.
-    :param int output_layer: size of the output layer. If equals -1, the size is taken from the training dataset.
-    :param str hidden_activation: the name of an activation function to use on hidden network layers by default.
-    :param str output_activation: The name of an activation function to use on the output layer by default.
-    :param int random_state: random seed
-    :param float input_noise: Standard deviation of desired noise to inject into input.
-    :param float hidden_noise: Standard deviation of desired noise to inject into hidden unit activation output.
-    :param input_dropouts: Proportion of input units to randomly set to 0.
-    :type input_dropouts: float in [0, 1]
-    :param hidden_dropouts: Proportion of hidden unit activations to randomly set to 0.
-    :type hidden_dropouts: float in [0, 1]
-    :param decode_from: Any of the hidden layers can be tapped at the output. Just specify a value greater than
-        1 to tap the last N hidden layers. The default is 1, which decodes from just the last layer.
-    :type decode_from: positive int
-    :param scaler: scaler used to transform data. If False, scaling will not be used.
-    :type scaler: scaler from sklearn.preprocessing or False
-    :param list(dict) or None trainers: parameters to specify training algorithm(s)
-    example: [{'optimize': sgd, 'momentum': 0.2}, {'optimize': 'nag'}]
-
-    For more information on available trainers and their parameters, see this page
-    http://theanets.readthedocs.org/en/latest/training.html?highlight=trainers#gradient-based-methods
-    Note that not pretrain, sample and hf are not supported.
-    """
     def __init__(self,
                  features=None,
                  layers=(10,),

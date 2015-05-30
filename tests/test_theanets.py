@@ -39,7 +39,7 @@ regressor_params = {
 }
 
 
-def test_theanets_configuration():
+def test_theanets_configurations():
     check_classifier(
         TheanetsClassifier(layers=[20], scaler=False,
                            trainers=[{'optimize': 'nag', 'learning_rate': 0.3, 'min_improvement': 0.5}]),
