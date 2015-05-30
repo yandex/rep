@@ -43,14 +43,9 @@ def test_pybrain_classification():
     check_classifier(PyBrainClassifier(layers=[10, 10]), **classifier_params)
 
 
-def test_pybrain_Linear():
-    check_classifier(PyBrainClassifier(layers=[10], hiddenclass=['LinearLayer']), **classifier_params)
-    check_regression(PyBrainRegressor(layers=[10], hiddenclass=['LinearLayer']), **regressor_params)
-
-
-def test_pybrain_MDLSTM():
-    check_classifier(PyBrainClassifier(layers=[10], hiddenclass=['MDLSTMLayer']), **classifier_params)
-    check_regression(PyBrainRegressor(layers=[10], hiddenclass=['MDLSTMLayer']), **regressor_params)
+def test_pybrain_Linear_MDLSTM():
+    check_classifier(PyBrainClassifier(layers=[10, 2], hiddenclass=['LinearLayer', 'MDLSTMLayer']), **classifier_params)
+    check_regression(PyBrainRegressor(layers=[10, 2], hiddenclass=['LinearLayer', 'MDLSTMLayer']), **regressor_params)
 
 
 def test_pybrain_SoftMax():

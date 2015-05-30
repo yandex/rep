@@ -66,8 +66,8 @@ class PyBrainBase(object):
     :param float learningrate: gives the ratio of which parameters are changed into the direction of the gradient.
     :param float lrdecay: the learning rate decreases by lrdecay, which is used to multiply the learning rate after each training step.
     :param float momentum: the ratio by which the gradient of the last timestep is used.
-    :param boolean verbose.
-    :param boolean batchlearning: if batchlearning is set, the parameters are updated only at the end of each epoch. Default is False.
+    :param bool verbose.
+    :param bool batchlearning: if set, the parameters are updated only at the end of each epoch. Default is False.
     :param float weightdecay: corresponds to the weightdecay rate, where 0 is no weight decay at all.
 
     trainUntilConvergence parameters:
@@ -186,7 +186,8 @@ class PyBrainBase(object):
         return self.scaler.transform(data_temp)
 
     def _prepare_net_and_dataset(self, X, y, model_type):
-        X, y, sample_weight = check_inputs(X, y, sample_weight=None, allow_none_weights=True)
+        X, y, sample_weight = check_inputs(X, y, sample_weight=None, allow_none_weights=True,
+                                           allow_multiple_targets=model_type == 'regression')
         self._check_init_input(self.layers, self.hiddenclass)
         X = self._transform_data(X, y, fit=True)
 
@@ -218,6 +219,7 @@ class PyBrainBase(object):
             else:
                 # multi regression
                 target = y
+            self.n_targets = target.shape[1]
         else:
             raise ValueError('Wrong model type')
 
@@ -236,21 +238,20 @@ class PyBrainBase(object):
         return dataset
 
 
-class PyBrainClassifier(PyBrainBase, Classifier):
-    """
-    Implements classification from PyBrain ML library
-
+parameters = """
     Parameters:
     -----------
     :param features: features used in training.
     :type features: list[str] or None
     :param epochs: number of iterations of training; if < 0 then classifier trains until convergence.
     :param scaler: scaler used to transform data; default is StandardScaler.
-    :type scaler: transformer from sklearn.preprocessing or None
-    :param boolean use_rprop: flag to indicate whether we should use Rprop or SGD trainer.
+    :type scaler: transformer from sklearn.preprocessing or str or False
+    :param bool use_rprop: flag to indicate whether we should use Rprop or SGD trainer.
+    :param bool verbose: print train/validation errors.
+    **Net parameters:**
 
-    net parameters:
-    :param list layers: indicate how many neurons in each hidden(!) layer; default is 1 layer included 10 neurons.
+    :param layers: indicate how many neurons in each hidden(!) layer; default is 1 hidden layer with 10 neurons.
+    :type layers: list[int]
     :param hiddenclass: classes of the hidden layers; default is 'SigmoidLayer'.
     :type hiddenclass: list[str]
     :param params: other net parameters
@@ -260,30 +261,33 @@ class PyBrainClassifier(PyBrainBase, Classifier):
         recurrent (boolean) if the `recurrent` flag is set, a :class:`RecurrentNetwork` will be created,
         otherwise a :class:`FeedForwardNetwork`.
     :type params: dict
+    **Gradient descent trainer parameters:**
 
-    gradient descent trainer parameters:
     :param float learningrate: gives the ratio of which parameters are changed into the direction of the gradient.
     :param float lrdecay: the learning rate decreases by lrdecay, which is used to multiply the learning rate after each training step.
     :param float momentum: the ratio by which the gradient of the last timestep is used.
-    :param boolean verbose.
-    :param boolean batchlearning: if batchlearning is set, the parameters are updated only at the end of each epoch. Default is False.
+    :param boolean batchlearning: if set, the parameters are updated only at the end of each epoch. Default is False.
     :param float weightdecay: corresponds to the weightdecay rate, where 0 is no weight decay at all.
+    **Rprop trainer parameters:**
 
-    Rprop parameters:
     :param float etaminus: factor by which step width is decreased when overstepping (0.5).
     :param float etaplus: factor by which step width is increased when following gradient (1.2).
     :param float delta: step width for each weight.
     :param float deltamin: minimum step width (1e-6).
     :param float deltamax: maximum step width (5.0).
     :param float delta0: initial step width (0.1).
+    **Termination parameters**
 
-    trainUntilConvergence parameters:
     :param int max_epochs: if is given, at most that many epochs are trained.
-    :param int continue_epochs: each time validation error hits a minimum, try for continue_epochs epochs to find a better one.
+    :param int continue_epochs: each time validation error decreases, try for continue_epochs epochs to find a better one.
     :param float validation_proportion: the ratio of the dataset that is used for the validation dataset.
 
     Details about parameters: http://pybrain.org/docs/
-    """
+"""
+
+
+class PyBrainClassifier(PyBrainBase, Classifier):
+    __doc__ = "Implements classification from PyBrain library \n\n" + parameters
 
     def __init__(self,
                  layers=(10,),
@@ -432,45 +436,7 @@ class PyBrainClassifier(PyBrainBase, Classifier):
 
 
 class PyBrainRegressor(PyBrainBase, Regressor):
-    """
-    Implements regression from PyBrain ML library.
-
-    Parameters:
-    -----------
-    :param features: features used in training.
-    :type features: list[str] or None
-    :param epochs: number of iterations of training; if < 0 then classifier trains until convergence.
-    :param scaler: scaler used to transform data; default is StandardScaler
-    :type scaler: transformer from sklearn.preprocessing or None
-
-    net parameters:
-    :param list layers: indicate how many neurons in each hidden(!) layer; default is 1 layer included 10 neurons.
-    :param hiddenclass: classes of the hidden layers; default is 'SigmoidLayer'.
-    :type hiddenclass: list[str]
-    :param params: other net parameters
-        bias and outputbias (boolean) flags to indicate whether the network should have the corresponding biases,
-        both default to True;
-        peepholes (boolean);
-        recurrent (boolean) if the `recurrent` flag is set, a :class:`RecurrentNetwork` will be created,
-        otherwise a :class:`FeedForwardNetwork`.
-    :type params: dict
-
-
-    trainer parameters:
-    :param float learningrate: gives the ratio of which parameters are changed into the direction of the gradient.
-    :param float lrdecay: the learning rate decreases by lrdecay, which is used to multiply the learning rate after each training step.
-    :param float momentum: the ratio by which the gradient of the last timestep is used.
-    :param boolean verbose.
-    :param boolean batchlearning: if batchlearning is set, the parameters are updated only at the end of each epoch. Default is False.
-    :param float weightdecay: corresponds to the weightdecay rate, where 0 is no weight decay at all.
-
-    trainUntilConvergence parameters:
-    :param int max_epochs: if is given, at most that many epochs are trained.
-    :param int continue_epochs: each time validation error hits a minimum, try for continue_epochs epochs to find a better one.
-    :param float validation_proportion: the ratio of the dataset that is used for the validation dataset.
-
-    Details about parameters: http://pybrain.org/docs/
-    """
+    __doc__ = "Implements regression from PyBrain library \n\n" + parameters
 
     def __init__(self,
                  layers=(10,),
@@ -557,9 +523,10 @@ class PyBrainRegressor(PyBrainBase, Regressor):
         ds.setField('input', X)
         ds.setField('target', y_test_dummy)
 
-        # reshaping from (-1, 1) to (-1,)
-        # TODO fix for multiregression.
-        return self.net.activateOnDataset(ds).reshape(-1,)
+        predictions = self.net.activateOnDataset(ds)
+        if self.n_targets == 1:
+            predictions = predictions.flatten()
+        return predictions
 
     def staged_predict(self, X):
         """
