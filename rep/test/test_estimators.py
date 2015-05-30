@@ -19,7 +19,6 @@ Abstract code to test any classifier or regressor
 """
 
 
-
 def generate_classification_sample(n_samples, n_features, distance=1.5, n_classes=2):
     """Generates some test distribution,
     distributions are gaussian with centers at (x, x, x, ...  x), where x = class_id * distance

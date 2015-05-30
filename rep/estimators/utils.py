@@ -13,8 +13,11 @@ from ..utils import check_sample_weight, get_columns_in_df
 __author__ = 'Alex Rogozhnikov'
 
 
-def check_inputs(X, y, sample_weight, allow_none_weights=True):
-    y = column_or_1d(y)
+def check_inputs(X, y, sample_weight, allow_none_weights=True, allow_multiple_targets=False):
+    if allow_multiple_targets:
+        y = numpy.array(y)
+    else:
+        y = column_or_1d(y)
     if allow_none_weights and sample_weight is None:
         # checking only X, y
         if len(X) != len(y):
