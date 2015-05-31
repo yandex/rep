@@ -38,28 +38,24 @@ regressor_params = {
 
 
 def test_pybrain_classification():
-    check_classifier(PyBrainClassifier(), **classifier_params)
-    check_classifier(PyBrainClassifier(layers=[]), **classifier_params)
-    check_classifier(PyBrainClassifier(layers=[10, 10]), **classifier_params)
+    check_classifier(PyBrainClassifier(epochs=2), **classifier_params)
+    check_classifier(PyBrainClassifier(epochs=2, layers=[]), **classifier_params)
+    check_classifier(PyBrainClassifier(epochs=-1, layers=[10, 10]), **classifier_params)
 
 
 def test_pybrain_Linear_MDLSTM():
-    check_classifier(PyBrainClassifier(layers=[10, 2], hiddenclass=['LinearLayer', 'MDLSTMLayer']), **classifier_params)
-    check_regression(PyBrainRegressor(layers=[10, 2], hiddenclass=['LinearLayer', 'MDLSTMLayer']), **regressor_params)
+    check_classifier(PyBrainClassifier(epochs=2, layers=[10, 2], hiddenclass=['LinearLayer', 'MDLSTMLayer']), **classifier_params)
+    check_regression(PyBrainRegressor(epochs=3, layers=[10, 2], hiddenclass=['LinearLayer', 'MDLSTMLayer']), **regressor_params)
 
 
 def test_pybrain_SoftMax():
-    check_classifier(PyBrainClassifier(layers=[10], hiddenclass=['SoftmaxLayer']), **classifier_params)
+    check_classifier(PyBrainClassifier(layers=[10], hiddenclass=['SoftmaxLayer'], use_rprop=True), **classifier_params)
     check_regression(PyBrainRegressor(layers=[10], hiddenclass=['SoftmaxLayer']), **regressor_params)
 
 
 def test_pybrain_Tanh():
     check_classifier(PyBrainClassifier(layers=[10], hiddenclass=['TanhLayer']), **classifier_params)
-    check_regression(PyBrainRegressor(layers=[10], hiddenclass=['TanhLayer']), **regressor_params)
-
-
-def test_pybrain_rprop():
-    check_classifier(PyBrainClassifier(use_rprop=True), **classifier_params)
+    check_regression(PyBrainRegressor(layers=[10], hiddenclass=['TanhLayer'], use_rprop=True), **regressor_params)
 
 
 def test_pybrain_multi_classification():

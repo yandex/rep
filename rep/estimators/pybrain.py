@@ -17,7 +17,7 @@ from __future__ import division, print_function, absolute_import
 from abc import ABCMeta
 
 from .interface import Classifier, Regressor
-from .utils import check_inputs, check_scaler, one_hot_transform
+from .utils import check_inputs, check_scaler, one_hot_transform, remove_first_line
 
 import numpy
 import pandas
@@ -30,79 +30,102 @@ from pybrain import structure
 
 __author__ = 'Artem Zhirokhov'
 
-
 LAYER_CLASS = {'BiasUnit': structure.BiasUnit,
                'LinearLayer': structure.LinearLayer,
                'MDLSTMLayer': structure.MDLSTMLayer,
                'SigmoidLayer': structure.SigmoidLayer,
                'SoftmaxLayer': structure.SoftmaxLayer,
                'TanhLayer': structure.TanhLayer}
+
 _PASS_PARAMETERS = {'random_state'}
+
+__all__ = ['PyBrainBase', 'PyBrainClassifier', 'PyBrainRegressor']
 
 
 class PyBrainBase(object):
-    """
-    Base estimator for PyBrain wrappers.
+    """Base class for estimator from PyBrain.
 
     Parameters:
     -----------
-    :param epochs: number of iterations of training; if < 0 then classifier trains until convergence.
-    :param scaler: scaler used to transform data; default is StandardScaler
-    :type scaler: transformer from sklearn.preprocessing or None
+    :param features: features used in training.
+    :type features: list[str] or None
+    :param scaler: scaler used to transform data; default is StandardScaler.
+    :type scaler: transformer from sklearn.preprocessing or str or False
+    :param bool use_rprop: flag to indicate whether we should use Rprop or SGD trainer.
+    :param bool verbose: print train/validation errors.
+    **Net parameters:**
 
-    net parameters:
-    :param list layers: indicate how many neurons in each hidden(!) layer; default is 1 layer included 10 neurons.
+    :param layers: indicate how many neurons in each hidden(!) layer; default is 1 hidden layer with 10 neurons.
+    :type layers: list[int]
     :param hiddenclass: classes of the hidden layers; default is 'SigmoidLayer'.
     :type hiddenclass: list[str]
-    :param params: other net parameters
+    :param dict params: other net parameters:
         bias and outputbias (boolean) flags to indicate whether the network should have the corresponding biases,
         both default to True;
         peepholes (boolean);
         recurrent (boolean) if the `recurrent` flag is set, a :class:`RecurrentNetwork` will be created,
         otherwise a :class:`FeedForwardNetwork`.
-    :type params: dict
+    **Gradient descent trainer parameters:**
 
-    trainer parameters:
     :param float learningrate: gives the ratio of which parameters are changed into the direction of the gradient.
     :param float lrdecay: the learning rate decreases by lrdecay, which is used to multiply the learning rate after each training step.
     :param float momentum: the ratio by which the gradient of the last timestep is used.
-    :param bool verbose.
-    :param bool batchlearning: if set, the parameters are updated only at the end of each epoch. Default is False.
+    :param boolean batchlearning: if set, the parameters are updated only at the end of each epoch. Default is False.
     :param float weightdecay: corresponds to the weightdecay rate, where 0 is no weight decay at all.
+    **Rprop trainer parameters:**
 
-    trainUntilConvergence parameters:
+    :param float etaminus: factor by which step width is decreased when overstepping (0.5).
+    :param float etaplus: factor by which step width is increased when following gradient (1.2).
+    :param float delta: step width for each weight.
+    :param float deltamin: minimum step width (1e-6).
+    :param float deltamax: maximum step width (5.0).
+    :param float delta0: initial step width (0.1).
+    **Training termination parameters**
+
+    :param int epochs: number of iterations of training; if < 0 then classifier trains until convergence.
     :param int max_epochs: if is given, at most that many epochs are trained.
-    :param int continue_epochs: each time validation error decreased, try for continue_epochs epochs to find a better one.
+    :param int continue_epochs: each time validation error decreases, try for continue_epochs epochs to find a better one.
     :param float validation_proportion: the ratio of the dataset that is used for the validation dataset.
 
     Details about parameters: http://pybrain.org/docs/
     """
     __metaclass__ = ABCMeta
+    # to be overriden in descendants.
+    _model_type = None
 
     def __init__(self,
+                 features=None,
                  layers=(10,),
                  hiddenclass=None,
                  epochs=10,
                  scaler='standard',
+                 use_rprop=False,
                  learningrate=0.01,
                  lrdecay=1.0,
                  momentum=0.,
                  verbose=False,
                  batchlearning=False,
                  weightdecay=0.,
+                 etaminus=0.5,
+                 etaplus=1.2,
+                 deltamin=1.0e-6,
+                 deltamax=0.5,
+                 delta0=0.1,
                  max_epochs=None,
-                 continue_epochs=10,
+                 continue_epochs=3,
                  validation_proportion=0.25,
                  **params):
+        self.features = features
         self.epochs = epochs
         self.scaler = scaler
+        self.use_rprop = use_rprop
 
-#       net options
+        # net options
         self.layers = layers
         self.hiddenclass = hiddenclass
         self.params = params
 
-#       trainer options
+        # SGD trainer options
         self.learningrate = learningrate
         self.lrdecay = lrdecay
         self.momentum = momentum
@@ -110,10 +133,63 @@ class PyBrainBase(object):
         self.batchlearning = batchlearning
         self.weightdecay = weightdecay
 
-#       trainUntilConvergence options
+        # Rprop trainer
+        self.etaminus = etaminus
+        self.etaplus = etaplus
+        self.deltamin = deltamin
+        self.deltamax = deltamax
+        self.delta0 = delta0
+
+        # trainUntilConvergence options
         self.max_epochs = max_epochs
         self.continue_epochs = continue_epochs
         self.validation_proportion = validation_proportion
+
+        self._fitted = False
+
+    def fit(self, X, y):
+        """
+        Trains the estimator on data.
+        """
+        self.scaler = check_scaler(self.scaler)
+        self.partial_fit(X, y)
+        self._fitted = True
+        return self
+
+    def partial_fit(self, X, y):
+        dataset = self._prepare_net_and_dataset(X, y, self._model_type)
+
+        if self.use_rprop:
+            trainer = RPropMinusTrainer(self.net,
+                                        etaminus=self.etaminus,
+                                        etaplus=self.etaplus,
+                                        deltamin=self.deltamin,
+                                        deltamax=self.deltamax,
+                                        delta0=self.delta0,
+                                        dataset=dataset,
+                                        learningrate=self.learningrate,
+                                        lrdecay=self.lrdecay,
+                                        momentum=self.momentum,
+                                        verbose=self.verbose,
+                                        batchlearning=self.batchlearning,
+                                        weightdecay=self.weightdecay)
+        else:
+            trainer = BackpropTrainer(self.net,
+                                      dataset,
+                                      learningrate=self.learningrate,
+                                      lrdecay=self.lrdecay,
+                                      momentum=self.momentum,
+                                      verbose=self.verbose,
+                                      batchlearning=self.batchlearning,
+                                      weightdecay=self.weightdecay)
+
+        if self.epochs < 0:
+            trainer.trainUntilConvergence(maxEpochs=self.max_epochs,
+                                          continueEpochs=self.continue_epochs,
+                                          verbose=self.verbose,
+                                          validationProportion=self.validation_proportion)
+        else:
+            trainer.trainEpochs(epochs=self.epochs, )
 
     def _check_init_input(self, layers, hiddenclass):
         """
@@ -129,6 +205,9 @@ class PyBrainBase(object):
             for hid_class in hiddenclass:
                 if hid_class not in LAYER_CLASS:
                     raise ValueError('Wrong class name ' + hid_class)
+
+    def _is_fitted(self):
+        return self._fitted
 
     def set_params(self, **params):
         """
@@ -152,31 +231,7 @@ class PyBrainBase(object):
                     scaler_params = {k[len('scaler__'):]: v}
                     self.scaler.set_params(**scaler_params)
                 else:
-                    self.params[k] = params[k]
-
-    def get_params(self, deep=True):
-        """
-        Gets parameters of the estimator
-
-        :return dict
-        """
-        parameters = self.params.copy()
-        parameters['layers'] = self.layers
-        parameters['hiddenclass'] = self.hiddenclass
-        parameters['features'] = self.features
-        parameters['epochs'] = self.epochs
-        parameters['scaler'] = self.scaler
-        parameters['learningrate'] = self.learningrate
-        parameters['lrdecay'] = self.lrdecay
-        parameters['momentum'] = self.momentum
-        parameters['verbose'] = self.verbose
-        parameters['batchlearning'] = self.batchlearning
-        parameters['weightdecay'] = self.weightdecay
-        parameters['max_epochs'] = self.max_epochs
-        parameters['continue_epochs'] = self.continue_epochs
-        parameters['validation_proportion'] = self.validation_proportion
-
-        return parameters
+                    self.params[k] = v
 
     def _transform_data(self, X, y=None, fit=True):
         X = self._get_train_features(X)
@@ -199,7 +254,8 @@ class PyBrainBase(object):
         net_options = {'bias': True,
                        'outputbias': True,
                        'peepholes': False,
-                       'recurrent': False}
+                       'recurrent': False,
+                       }
         for key in self.params:
             if key not in net_options.keys():
                 raise ValueError('Unexpected parameter: {}'.format(key))
@@ -238,172 +294,9 @@ class PyBrainBase(object):
         return dataset
 
 
-parameters = """
-    Parameters:
-    -----------
-    :param features: features used in training.
-    :type features: list[str] or None
-    :param epochs: number of iterations of training; if < 0 then classifier trains until convergence.
-    :param scaler: scaler used to transform data; default is StandardScaler.
-    :type scaler: transformer from sklearn.preprocessing or str or False
-    :param bool use_rprop: flag to indicate whether we should use Rprop or SGD trainer.
-    :param bool verbose: print train/validation errors.
-    **Net parameters:**
-
-    :param layers: indicate how many neurons in each hidden(!) layer; default is 1 hidden layer with 10 neurons.
-    :type layers: list[int]
-    :param hiddenclass: classes of the hidden layers; default is 'SigmoidLayer'.
-    :type hiddenclass: list[str]
-    :param params: other net parameters
-        bias and outputbias (boolean) flags to indicate whether the network should have the corresponding biases,
-        both default to True;
-        peepholes (boolean);
-        recurrent (boolean) if the `recurrent` flag is set, a :class:`RecurrentNetwork` will be created,
-        otherwise a :class:`FeedForwardNetwork`.
-    :type params: dict
-    **Gradient descent trainer parameters:**
-
-    :param float learningrate: gives the ratio of which parameters are changed into the direction of the gradient.
-    :param float lrdecay: the learning rate decreases by lrdecay, which is used to multiply the learning rate after each training step.
-    :param float momentum: the ratio by which the gradient of the last timestep is used.
-    :param boolean batchlearning: if set, the parameters are updated only at the end of each epoch. Default is False.
-    :param float weightdecay: corresponds to the weightdecay rate, where 0 is no weight decay at all.
-    **Rprop trainer parameters:**
-
-    :param float etaminus: factor by which step width is decreased when overstepping (0.5).
-    :param float etaplus: factor by which step width is increased when following gradient (1.2).
-    :param float delta: step width for each weight.
-    :param float deltamin: minimum step width (1e-6).
-    :param float deltamax: maximum step width (5.0).
-    :param float delta0: initial step width (0.1).
-    **Termination parameters**
-
-    :param int max_epochs: if is given, at most that many epochs are trained.
-    :param int continue_epochs: each time validation error decreases, try for continue_epochs epochs to find a better one.
-    :param float validation_proportion: the ratio of the dataset that is used for the validation dataset.
-
-    Details about parameters: http://pybrain.org/docs/
-"""
-
-
 class PyBrainClassifier(PyBrainBase, Classifier):
-    __doc__ = "Implements classification from PyBrain library \n\n" + parameters
-
-    def __init__(self,
-                 layers=(10,),
-                 hiddenclass=None,
-                 features=None,
-                 epochs=10,
-                 scaler='standard',
-                 use_rprop=False,
-                 learningrate=0.01,
-                 lrdecay=1.0,
-                 momentum=0.,
-                 verbose=False,
-                 batchlearning=False,
-                 weightdecay=0.,
-                 max_epochs=None,
-                 continue_epochs=10,
-                 validation_proportion=0.25,
-                 etaminus=0.5,
-                 etaplus=1.2,
-                 deltamin=1.0e-6,
-                 deltamax=0.5,
-                 delta0=0.1,
-                 **params):
-        Classifier.__init__(self, features=features)
-        PyBrainBase.__init__(self, layers=layers,
-                             hiddenclass=hiddenclass,
-                             epochs=epochs,
-                             scaler=scaler,
-                             learningrate=learningrate,
-                             lrdecay=lrdecay,
-                             momentum=momentum,
-                             verbose=verbose,
-                             batchlearning=batchlearning,
-                             weightdecay=weightdecay,
-                             max_epochs=max_epochs,
-                             continue_epochs=continue_epochs,
-                             validation_proportion=validation_proportion,
-                             **params)
-        self.use_rprop = use_rprop
-
-#       rprop options
-        self.etaminus = etaminus
-        self.etaplus = etaplus
-        self.deltamin = deltamin
-        self.deltamax = deltamax
-        self.delta0 = delta0
-
-        self.__fitted = False
-
-    def _is_fitted(self):
-        return self.__fitted
-
-    def fit(self, X, y):
-        """
-        Trains the classifier
-
-        :param pandas.DataFrame X: data shape [n_samples, n_features]
-        :param y: labels of events - array-like of shape [n_samples]
-        .. note::
-            doesn't support sample weights
-        """
-
-        self.scaler = check_scaler(self.scaler)
-        dataset = self._prepare_net_and_dataset(X, y, 'classification')
-
-        if self.use_rprop:
-            trainer = RPropMinusTrainer(self.net,
-                                        etaminus=self.etaminus,
-                                        etaplus=self.etaplus,
-                                        deltamin=self.deltamin,
-                                        deltamax=self.deltamax,
-                                        delta0=self.delta0,
-                                        dataset=dataset,
-                                        learningrate=self.learningrate,
-                                        lrdecay=self.lrdecay,
-                                        momentum=self.momentum,
-                                        verbose=self.verbose,
-                                        batchlearning=self.batchlearning,
-                                        weightdecay=self.weightdecay)
-        else:
-            trainer = BackpropTrainer(self.net,
-                                      dataset,
-                                      learningrate=self.learningrate,
-                                      lrdecay=self.lrdecay,
-                                      momentum=self.momentum,
-                                      verbose=self.verbose,
-                                      batchlearning=self.batchlearning,
-                                      weightdecay=self.weightdecay)
-
-        if self.epochs < 0:
-            trainer.trainUntilConvergence(maxEpochs=self.max_epochs,
-                                          continueEpochs=self.continue_epochs,
-                                          verbose=self.verbose,
-                                          validationProportion=self.validation_proportion)
-        else:
-            for i in range(self.epochs):
-                trainer.train()
-        self.__fitted = True
-
-        return self
-
-    def get_params(self, deep=True):
-        """
-        Gets parameters of the estimator
-
-        :return dict
-        """
-        parameters = PyBrainBase.get_params(self, deep)
-        parameters['use_rprop'] = self.use_rprop
-        parameters['etaminus'] = self.etaminus
-        parameters['etaplus'] = self.etaplus
-        parameters['deltamin'] = self.deltamin
-        parameters['deltamax'] = self.deltamax
-        parameters['delta0'] = self.delta0
-
-        return parameters
+    __doc__ = "Implements classification from PyBrain library \n" + remove_first_line(PyBrainBase.__doc__)
+    _model_type = 'classification'
 
     def predict_proba(self, X):
         """
@@ -436,76 +329,8 @@ class PyBrainClassifier(PyBrainBase, Classifier):
 
 
 class PyBrainRegressor(PyBrainBase, Regressor):
-    __doc__ = "Implements regression from PyBrain library \n\n" + parameters
-
-    def __init__(self,
-                 layers=(10,),
-                 hiddenclass=None,
-                 features=None,
-                 epochs=10,
-                 scaler='standard',
-                 learningrate=0.01,
-                 lrdecay=1.0,
-                 momentum=0.,
-                 verbose=False,
-                 batchlearning=False,
-                 weightdecay=0.,
-                 max_epochs=None,
-                 continue_epochs=10,
-                 validation_proportion=0.25,
-                 **params):
-        Regressor.__init__(self, features=features)
-        PyBrainBase.__init__(self, layers=layers,
-                             hiddenclass=hiddenclass,
-                             epochs=epochs,
-                             scaler=scaler,
-                             learningrate=learningrate,
-                             lrdecay=lrdecay,
-                             momentum=momentum,
-                             verbose=verbose,
-                             batchlearning=batchlearning,
-                             weightdecay=weightdecay,
-                             max_epochs=max_epochs,
-                             continue_epochs=continue_epochs,
-                             validation_proportion=validation_proportion,
-                             **params)
-        self.__fitted = False
-
-    def _is_fitted(self):
-        return self.__fitted
-
-    def fit(self, X, y):
-        """
-        Train the regressor model.
-
-        :param X: pandas.DataFrame of shape [n_samples, n_features]
-        :param y: values - array-like of shape [n_samples] or of shape [n_samples, n_targets]
-
-        :return: self
-        """
-        self.scaler = check_scaler(self.scaler)
-
-        dataset = self._prepare_net_and_dataset(X, y, 'regression')
-
-        trainer = BackpropTrainer(self.net,
-                                  dataset,
-                                  learningrate=self.learningrate,
-                                  lrdecay=self.lrdecay,
-                                  momentum=self.momentum,
-                                  verbose=self.verbose,
-                                  batchlearning=self.batchlearning,
-                                  weightdecay=self.weightdecay)
-        if self.epochs < 0:
-            trainer.trainUntilConvergence(maxEpochs=self.max_epochs,
-                                          continueEpochs=self.continue_epochs,
-                                          verbose=self.verbose,
-                                          validationProportion=self.validation_proportion)
-        else:
-            for i in range(self.epochs):
-                trainer.train()
-        self.__fitted = True
-
-        return self
+    __doc__ = "Implements regression from PyBrain library \n" + remove_first_line(PyBrainBase.__doc__)
+    _model_type = 'regression'
 
     def predict(self, X):
         """
