@@ -39,6 +39,13 @@ regressor_params = {
 }
 
 
+def test_pretrain():
+    clf = TheanetsClassifier(trainers=[{'optimize': 'pretrain', 'patience': 1}, {'optimize': 'nag', 'patience': 1}])
+    check_classifier(clf, **classifier_params)
+    # X, y, _ = generate_classification_data()
+    # clf.partial_fit(X, y, optimize='pretrain', patience=1)
+
+
 def test_theanets_configurations():
     check_classifier(
         TheanetsClassifier(layers=[20], scaler=False,
@@ -56,7 +63,7 @@ def test_theanets_single_classification():
 
 
 def test_theanets_regression():
-    check_regression(TheanetsRegressor(layers=[20], trainers=[{'optimize': 'rmsprop', 'min_improvement': 0.5}]),
+    check_regression(TheanetsRegressor(layers=[20], trainers=[{'optimize': 'rmsprop', 'min_improvement': 0.1}]),
                      **regressor_params)
     check_regression(TheanetsRegressor(scaler=StandardScaler()), **regressor_params)
 

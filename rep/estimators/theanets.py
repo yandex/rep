@@ -17,12 +17,11 @@ from __future__ import division, print_function, absolute_import
 import numpy
 from abc import abstractmethod
 from .interface import Classifier, Regressor
-from .utils import check_inputs, check_scaler
+from .utils import check_inputs, check_scaler, remove_first_line
 from sklearn.utils import check_random_state
 
 import os
 import tempfile
-from copy import deepcopy
 
 try:
     import theanets as tnt
@@ -30,12 +29,16 @@ except ImportError as e:
     raise ImportError("Install theanets before (pip install theanets)")
 
 __author__ = 'Lisa Ignatyeva'
+__all__ = ['TheanetsClassifier', 'TheanetsRegressor']
 
-UNSUPPORTED_OPTIMIZERS = ['pretrain', 'sample', 'hf']
-# pretrain and sample data formats have too different interface from what we support here
+UNSUPPORTED_OPTIMIZERS = ['sample', 'hf']
+# sample has too different interface from what we support here
 # currently, hf now does not work in theanets, see https://github.com/lmjohns3/theanets/issues/62
 
-theanets_parameters = """
+
+class TheanetsBase(object):
+    """Base class for estimators from Theanets library.
+
     Parameters:
     -----------
     :param features: list of features to train model
@@ -49,7 +52,6 @@ theanets_parameters = """
     :param int output_layer: size of the output layer. If equals -1, the size is taken from the training dataset.
     :param str hidden_activation: the name of an activation function to use on hidden network layers by default.
     :param str output_activation: The name of an activation function to use on the output layer by default.
-    :param int random_state: random seed
     :param float input_noise: Standard deviation of desired noise to inject into input.
     :param float hidden_noise: Standard deviation of desired noise to inject into hidden unit activation output.
     :param input_dropouts: Proportion of input units to randomly set to 0.
@@ -64,48 +66,47 @@ theanets_parameters = """
     :param trainers: parameters to specify training algorithm(s)
         example: [{'optimize': sgd, 'momentum': 0.2}, {'optimize': 'nag'}]
     :type trainers: list(dict) or None
+    :param int random_state: random seed
 
 
     For more information on available trainers and their parameters, see this page
     http://theanets.readthedocs.org/en/latest/training.html
-    Note that not pretrain, sample and hf are not supported.
-"""
-
-
-class TheanetsBase(object):
-    # TODO delete features parameters from base
-    __doc__ = "Base class for estimators from Theanets library.\n" + theanets_parameters
+    Note that pretrain, sample and hf are not supported.
+    """
 
     def __init__(self,
-                 layers,
-                 input_layer,
-                 output_layer,
-                 hidden_activation,
-                 output_activation,
-                 random_state,
-                 input_noise,
-                 hidden_noise,
-                 input_dropouts,
-                 hidden_dropouts,
-                 decode_from,
-                 scaler,
-                 trainers):
+                 features=None,
+                 layers=(10,),
+                 input_layer=-1,
+                 output_layer=-1,
+                 hidden_activation='logistic',
+                 output_activation='linear',
+                 input_noise=0,
+                 hidden_noise=0,
+                 input_dropouts=0,
+                 hidden_dropouts=0,
+                 decode_from=1,
+                 scaler='standard',
+                 trainers=None,
+                 random_state=42,):
+        self.features = features
         self.layers = list(layers)
         self.input_layer = input_layer
         self.output_layer = output_layer
         self.random_state = random_state
-        self.network_params = {'hidden_activation': hidden_activation, 'output_activation': output_activation,
-                               'input_noise': input_noise, 'hidden_noise': hidden_noise,
-                               'input_dropouts': input_dropouts, 'hidden_dropouts': hidden_dropouts,
-                               'decode_from': decode_from}
 
         self.scaler = scaler
         self.trainers = trainers
-        if self.trainers is None:
-            # use default trainer with default parameters.
-            self.trainers = [{}]
         self.exp = None
-        self.features = None
+
+        self.input_noise = input_noise
+        self.hidden_noise = hidden_noise
+        self.input_dropouts = input_dropouts
+        self.hidden_dropouts = hidden_dropouts
+        self.decode_from = decode_from
+
+        self.hidden_activation = hidden_activation
+        self.output_activation = output_activation
 
     def __getstate__(self):
         """
@@ -140,7 +141,7 @@ class TheanetsBase(object):
                 assert os.path.exists(dump.name), 'there is no such file: {}'.format(dump.name)
                 dummy_layers = [1] + self.layers + [1]
                 self.exp = tnt.Experiment(tnt.Classifier, layers=dummy_layers, rng=self._reproducibilize(),
-                                          **self.network_params)
+                                          ** self._prepare_network_params())
                 self.exp.load(dump.name)
         del dictionary['dumped_exp']
 
@@ -156,9 +157,9 @@ class TheanetsBase(object):
 
     def set_params(self, **params):
         """
-        Set the parameters of this estimator. Deep parameters of trianers and scaler can be accessed,
+        Set the parameters of this estimator. Deep parameters of trainers and scaler can be accessed,
         for instance:
-        trainers__0 = trainers__0 = {'optimize': 'sgd', 'learning_rate': 0.3}
+        trainers__0 = {'optimize': 'sgd', 'learning_rate': 0.3}
         trainers__0_optimize = 'sgd'
         layers__1 = 14
         scaler__use_std = True
@@ -171,55 +172,36 @@ class TheanetsBase(object):
                     value = list(value)
                 setattr(self, key, value)
             else:
-                if key in self.network_params:
-                    self.network_params[key] = value
-                else:
-                    param, sep, param_of_param = key.partition('__')
-                    if sep != '__':
-                        raise AttributeError(key + ' is an invalid parameter a Theanets estimator')
-                    if param == 'trainers':
-                        index, sep, param = param_of_param.partition('_')
-                        index = int(index)
-                        if index >= len(self.trainers):
-                            raise AttributeError('{} is an invalid parameter for a Theanets estimator: index '
-                                                 'too big'.format(key))
-                        if param == '':
-                            # e.g. trainers__0 = {'optimize': 'sgd', 'learning_rate': 0.3}
-                            self.trainers[index] = value
-                        else:
-                            # e.g. trainers__0_optimize = 'sgd'
-                            self.trainers[index][param] = value
-                    elif param == 'layers':
-                        index = int(param_of_param)
-                        if index >= len(self.layers):
-                            raise AttributeError('{} is an invalid parameter for a Theanets estimator: index '
-                                                 'too big'.format(key))
-                        self.layers[index] = value
-                    elif param == 'scaler':
-                        if not self.scaler:
-                            raise AttributeError('no scaler')
-                        if hasattr(self.scaler, param_of_param):
-                            setattr(self.scaler, param_of_param, value)
-                        else:
-                            raise AttributeError('scaler does not have parameter `{}`'.format(param_of_param))
+                # accessing deep parameters
+                param, sep, param_of_param = key.partition('__')
+                if sep != '__':
+                    raise ValueError(key + ' is an invalid parameter a Theanets estimator')
+                if param == 'trainers':
+                    index, sep, param = param_of_param.partition('_')
+                    index = int(index)
+                    if index >= len(self.trainers):
+                        raise ValueError('{} is an invalid parameter for a Theanets estimator: index '
+                                         'too big'.format(key))
+                    if param == '':
+                        # e.g. trainers__0 = {'optimize': 'sgd', 'learning_rate': 0.3}
+                        self.trainers[index] = value
                     else:
-                        raise AttributeError(key + ' is an invalid parameter for a Theanets estimator')
-
-    def get_params(self, deep=True):
-        """
-        Get parameters of this estimator
-
-        :return dict
-        """
-        parameters = deepcopy(self.network_params)
-        parameters['layers'] = deepcopy(self.layers)
-        parameters['input_layer'] = self.input_layer
-        parameters['output_layer'] = self.output_layer
-        parameters['trainers'] = deepcopy(self.trainers)
-        parameters['features'] = deepcopy(self.features)
-        parameters['random_state'] = self.random_state
-        parameters['scaler'] = self.scaler
-        return parameters
+                        # e.g. trainers__0_optimize = 'sgd'
+                        self.trainers[index][param] = value
+                elif param == 'layers':
+                    index = int(param_of_param)
+                    if index >= len(self.layers):
+                        raise ValueError('{} is an invalid parameter for a Theanets estimator: index '
+                                         'too big'.format(key))
+                    self.layers[index] = value
+                elif param == 'scaler':
+                    try:
+                        self.scaler.set_params(**{param_of_param: value})
+                    except Exception, e:
+                        raise ValueError('was unable to set parameter {}={} '
+                                         'to scaler {}'.format(param_of_param, value, self.scaler))
+                else:
+                    raise ValueError(key + ' is an invalid parameter for a Theanets estimator')
 
     def _transform_data(self, data, y=None):
         """
@@ -246,6 +228,10 @@ class TheanetsBase(object):
         """
         self.exp = None
         self.scaler = check_scaler(self.scaler)
+        if self.trainers is None:
+            # use default trainer with default parameters.
+            self.trainers = [{}]
+
         for trainer in self.trainers:
             for optimizer in UNSUPPORTED_OPTIMIZERS:
                 if 'optimize' in trainer and trainer['optimize'] == optimizer:
@@ -299,41 +285,19 @@ class TheanetsBase(object):
             layers[-1] = output_layer
         return layers
 
+    def _prepare_network_params(self):
+        return {'hidden_activation': self.hidden_activation,
+                'output_activation': self.output_activation,
+                'input_noise': self.input_noise,
+                'hidden_noise': self.hidden_noise,
+                'input_dropouts': self.input_dropouts,
+                'hidden_dropouts': self.hidden_dropouts,
+                'decode_from': self.decode_from
+        }
 
 
 class TheanetsClassifier(TheanetsBase, Classifier):
-    __doc__ = 'Classifier from Theanets library. \n' + theanets_parameters
-
-    def __init__(self,
-                 features=None,
-                 layers=(10,),
-                 input_layer=-1,
-                 output_layer=-1,
-                 hidden_activation='logistic',
-                 output_activation='linear',
-                 random_state=42,
-                 input_noise=0,
-                 hidden_noise=0,
-                 input_dropouts=0,
-                 hidden_dropouts=0,
-                 decode_from=1,
-                 scaler='standard',
-                 trainers=None):
-        TheanetsBase.__init__(self,
-                              layers=layers,
-                              input_layer=input_layer,
-                              output_layer=output_layer,
-                              hidden_activation=hidden_activation,
-                              output_activation=output_activation,
-                              random_state=random_state,
-                              input_noise=input_noise,
-                              hidden_noise=hidden_noise,
-                              input_dropouts=input_dropouts,
-                              hidden_dropouts=hidden_dropouts,
-                              decode_from=decode_from,
-                              scaler=scaler,
-                              trainers=trainers)
-        Classifier.__init__(self, features=features)
+    __doc__ = 'Classifier from Theanets library. \n' + remove_first_line(TheanetsBase.__doc__)
 
     def partial_fit(self, X, y, new_trainer=True, **trainer):
         """
@@ -350,9 +314,12 @@ class TheanetsClassifier(TheanetsBase, Classifier):
             self._set_classes(y)
             layers = self._construct_layers(X.shape[1], len(self.classes_))
             self.exp = tnt.Experiment(tnt.Classifier, layers=layers,
-                                      rng=self._reproducibilize(), **self.network_params)
+                                      rng=self._reproducibilize(), **self._prepare_network_params())
         self._reproducibilize()
-        self.exp.train([X.astype(numpy.float32), y.astype(numpy.int32)], **trainer)
+        if trainer.get('optimize', None) == 'pretrain':
+            self.exp.train([X.astype(numpy.float32)], **trainer)
+        else:
+            self.exp.train([X.astype(numpy.float32), y.astype(numpy.int32)], **trainer)
         return self
 
     def predict_proba(self, X):
@@ -377,38 +344,7 @@ class TheanetsClassifier(TheanetsBase, Classifier):
 
 
 class TheanetsRegressor(TheanetsBase, Regressor):
-    __doc__ = 'Regressor from Theanets library. \n' + theanets_parameters
-
-    def __init__(self,
-                 features=None,
-                 layers=(10,),
-                 input_layer=-1,
-                 output_layer=-1,
-                 hidden_activation='logistic',
-                 output_activation='linear',
-                 random_state=42,
-                 input_noise=0,
-                 hidden_noise=0,
-                 input_dropouts=0,
-                 hidden_dropouts=0,
-                 decode_from=1,
-                 scaler='standard',
-                 trainers=None):
-        TheanetsBase.__init__(self,
-                              layers=layers,
-                              input_layer=input_layer,
-                              output_layer=output_layer,
-                              hidden_activation=hidden_activation,
-                              output_activation=output_activation,
-                              random_state=random_state,
-                              input_noise=input_noise,
-                              hidden_noise=hidden_noise,
-                              input_dropouts=input_dropouts,
-                              hidden_dropouts=hidden_dropouts,
-                              decode_from=decode_from,
-                              scaler=scaler,
-                              trainers=trainers)
-        Regressor.__init__(self, features=features)
+    __doc__ = 'Regressor from Theanets library. \n' + remove_first_line(TheanetsBase.__doc__)
 
     def partial_fit(self, X, y, sample_weight=None, new_trainer=True, **trainer):
         """
@@ -424,12 +360,15 @@ class TheanetsRegressor(TheanetsBase, Regressor):
 
         if self.exp is None:
             layers = self._construct_layers(X.shape[1], 1)
-            self.exp = tnt.Experiment(tnt.feedforward.Regressor, layers=layers,
-                                      rng=self._reproducibilize(), **self.network_params)
+            self.exp = tnt.Experiment(tnt.Regressor, layers=layers,
+                                      rng=self._reproducibilize(), **self._prepare_network_params())
         self._reproducibilize()
         if len(numpy.shape(y)) == 1:
             y = y.reshape(len(y), 1)
-        self.exp.train([X.astype(numpy.float32), y], **trainer)
+        if trainer.get('optimize') == 'pretrain':
+            self.exp.train([X.astype(numpy.float32)], **trainer)
+        else:
+            self.exp.train([X.astype(numpy.float32), y], **trainer)
         return self
 
     def predict(self, X):
