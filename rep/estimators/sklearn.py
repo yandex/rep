@@ -1,6 +1,7 @@
 """
-Sklearn wrapper for users is the same as sklearn model, just has one additional parameter *features* to choose necessary columns for training.
-If data has :class:`numpy.array` type then behaviour will be the same as in sklear.
+Sklearn wrapper for users is the same as sklearn model,
+has only one additional parameter *features* to choose necessary columns for training.
+If data has :class:`numpy.array` type then behaviour will be the same as in sklearn.
 """
 from __future__ import division, print_function, absolute_import
 from abc import ABCMeta
@@ -88,7 +89,8 @@ class SklearnClassifier(SklearnBase, Classifier):
 
         :param dict params: parameters to set in model
 
-        .. note:: Access to all parameters of base estimator can be done by (for example param `depth`) *model.clf__depth*.
+        .. note:: parameters of base estimator can be accessed (for example param `depth`)
+            by both *depth* and *clf__depth*.
         """
         params_for_clf = {}
         for name, value in params.items():
@@ -113,8 +115,8 @@ class SklearnClassifier(SklearnBase, Classifier):
 
         :return: self
 
-        .. note:: if sklearn classifier doesn't support *sample_weight* then put *sample_weight=None*,
-        else exception will be thrown.
+        .. note:: if sklearn classifier doesn't support *sample_weight*, put *sample_weight=None*,
+            otherwise exception will be thrown.
         """
         X, y, sample_weight = check_inputs(X, y, sample_weight=sample_weight, allow_none_weights=True)
         self._set_classes(y)
