@@ -154,3 +154,12 @@ def one_hot_transform(y, dtype='float32'):
     target = numpy.zeros([len(y), numpy.max(y) + 1], dtype=dtype)
     target[numpy.arange(len(y)), y] = 1
     return target
+
+
+def remove_first_line(string):
+    """
+    Returns the copy of string without first line (needed for descriptions which differ in one line)
+    :param string:
+    :return: copy of string.
+    """
+    return '\n'.join(string.split('\n')[1:])

@@ -17,3 +17,18 @@ try:
     from .nolearn import NolearnClassifier
 except:
     pass
+
+try:
+    from .theanets import TheanetsClassifier, TheanetsRegressor
+except:
+    pass
+
+try:
+    from .neurolab import NeurolabClassifier, NeurolabRegressor
+except:
+    pass
+
+try:
+    from .pybrain import PyBrainClassifier, PyBrainRegressor
+except:
+    pass
