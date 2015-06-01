@@ -16,16 +16,14 @@
 from __future__ import division, print_function, absolute_import
 from abc import ABCMeta
 
-from .interface import Classifier, Regressor
-from .utils import check_inputs, check_scaler, one_hot_transform, remove_first_line
-
 import numpy
-import pandas
-
 from pybrain.tools.shortcuts import buildNetwork
 from pybrain.datasets import SupervisedDataSet
 from pybrain.supervised.trainers import BackpropTrainer, RPropMinusTrainer
 from pybrain import structure
+
+from .interface import Classifier, Regressor
+from .utils import check_inputs, check_scaler, one_hot_transform, remove_first_line
 
 
 __author__ = 'Artem Zhirokhov'
@@ -151,13 +149,17 @@ class PyBrainBase(object):
         """
         Trains the estimator on data.
         """
-        self.scaler = check_scaler(self.scaler)
         self.partial_fit(X, y)
-        self._fitted = True
         return self
 
     def partial_fit(self, X, y):
-        dataset = self._prepare_net_and_dataset(X, y, self._model_type)
+
+        if self._is_fitted():
+            dataset = self._prepare_dataset(X, y, self._model_type)
+        else:
+            self.scaler = check_scaler(self.scaler)
+            dataset = self._prepare_dataset(X, y, self._model_type)
+            self._prepare_net(dataset=dataset, model_type=self._model_type)
 
         if self.use_rprop:
             trainer = RPropMinusTrainer(self.net,
@@ -190,8 +192,10 @@ class PyBrainBase(object):
                                           validationProportion=self.validation_proportion)
         else:
             trainer.trainEpochs(epochs=self.epochs, )
+        self._fitted = True
+        return self
 
-    def _check_init_input(self, layers, hiddenclass):
+    def _check_params(self, layers, hiddenclass):
         """
         Checks the input of __init__.
         """
@@ -240,11 +244,35 @@ class PyBrainBase(object):
             self.scaler.fit(data_temp, y)
         return self.scaler.transform(data_temp)
 
-    def _prepare_net_and_dataset(self, X, y, model_type):
+    def _prepare_dataset(self, X, y, model_type):
         X, y, sample_weight = check_inputs(X, y, sample_weight=None, allow_none_weights=True,
                                            allow_multiple_targets=model_type == 'regression')
-        self._check_init_input(self.layers, self.hiddenclass)
-        X = self._transform_data(X, y, fit=True)
+        X = self._transform_data(X, y, fit=not self._is_fitted())
+
+        if model_type == 'classification':
+            if not self._is_fitted():
+                self._set_classes(y)
+            target = one_hot_transform(y)
+        elif model_type == 'regression':
+            if len(y.shape) == 1:
+                target = y.reshape((len(y), 1))
+            else:
+                # multi regression
+                target = y
+
+            if not self._is_fitted():
+                self.n_targets = target.shape[1]
+        else:
+            raise ValueError('Wrong model type')
+
+        dataset = SupervisedDataSet(X.shape[1], target.shape[1])
+        dataset.setField('input', X)
+        dataset.setField('target', target)
+
+        return dataset
+
+    def _prepare_net(self, dataset, model_type):
+        self._check_params(self.layers, self.hiddenclass)
 
         self.layers = list(self.layers)
 
@@ -265,25 +293,10 @@ class PyBrainBase(object):
 
         if model_type == 'classification':
             net_options['outclass'] = structure.SoftmaxLayer
-            self._set_classes(y)
-            target = one_hot_transform(y)
-
-        elif model_type == 'regression':
-            net_options['outclass'] = structure.LinearLayer
-            if len(y.shape) == 1:
-                target = y.reshape((len(y), 1))
-            else:
-                # multi regression
-                target = y
-            self.n_targets = target.shape[1]
         else:
-            raise ValueError('Wrong model type')
+            net_options['outclass'] = structure.LinearLayer
 
-        layers_for_net = [X.shape[1]] + self.layers + [target.shape[1]]
-        dataset = SupervisedDataSet(X.shape[1], target.shape[1])
-        dataset.setField('input', X)
-        dataset.setField('target', target)
-
+        layers_for_net = [dataset.indim] + self.layers + [dataset.outdim]
         self.net = buildNetwork(*layers_for_net, **net_options)
 
         for layer_id in range(1, len(self.layers)):
@@ -291,7 +304,17 @@ class PyBrainBase(object):
             self.net.addModule(hid_layer)
         self.net.sortModules()
 
-        return dataset
+    def _activate_on_dataset(self, X):
+        assert self._is_fitted(), "regressor isn't fitted, please call 'fit' first"
+
+        X = self._transform_data(X, fit=False)
+        y_test_dummy = numpy.zeros((len(X), 1))
+
+        ds = SupervisedDataSet(X.shape[1], y_test_dummy.shape[1])
+        ds.setField('input', X)
+        ds.setField('target', y_test_dummy)
+
+        return self.net.activateOnDataset(ds)
 
 
 class PyBrainClassifier(PyBrainBase, Classifier):
@@ -299,30 +322,10 @@ class PyBrainClassifier(PyBrainBase, Classifier):
     _model_type = 'classification'
 
     def predict_proba(self, X):
-        """
-        Predict probabilities
-
-        :param pandas.DataFrame X: data shape [n_samples, n_features]
-        :rtype: numpy.array of shape [n_samples, n_classes] with probabilities
-        """
-        assert self._is_fitted(), "classifier isn't fitted, please call 'fit' first"
-
-        X = self._transform_data(X, fit=False)
-        proba = []
-        for values in X:
-            pred = self.net.activate(list(values))
-            np_pred = numpy.asarray(pred)
-            proba.append(np_pred)
-
-        return numpy.asarray(proba)
+        return self._activate_on_dataset(X=X)
 
     def staged_predict_proba(self, X):
         """
-        Predicts probabilities on each stage.
-
-        :param pandas.DataFrame X: data shape [n_samples, n_features].
-        :return: iterator
-
         .. warning:: Isn't supported for PyBrain (**AttributeError** will be thrown).
         """
         raise AttributeError("Staged predict_proba not supported for PyBrain")
@@ -339,27 +342,13 @@ class PyBrainRegressor(PyBrainBase, Regressor):
         :param X: pandas.DataFrame of shape [n_samples, n_features]
         :rtype: numpy.array of shape [n_samples] with predicted values
         """
-        assert self._is_fitted(), "regressor isn't fitted, please call 'fit' first"
-
-        X = self._transform_data(X, fit=False)
-        y_test_dummy = numpy.zeros((len(X), 1))
-
-        ds = SupervisedDataSet(X.shape[1], y_test_dummy.shape[1])
-        ds.setField('input', X)
-        ds.setField('target', y_test_dummy)
-
-        predictions = self.net.activateOnDataset(ds)
+        predictions = self._activate_on_dataset(X)
         if self.n_targets == 1:
             predictions = predictions.flatten()
         return predictions
 
     def staged_predict(self, X):
         """
-        Predicts values on each stage.
-
-        :param X: pandas.DataFrame of shape [n_samples, n_features].
-        :rtype: iterator
-
         .. warning:: Isn't supported for PyBrain (**AttributeError** will be thrown).
         """
         raise AttributeError("Staged predict not supported for PyBrain")
