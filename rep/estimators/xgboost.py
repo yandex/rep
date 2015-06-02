@@ -22,6 +22,7 @@ from .utils import check_inputs
 logger = getLogger(__name__)
 
 __author__ = 'Mikhail Hushchyn, Alex Rogozhnikov'
+__all__ = ['XGBoostBase', 'XGBoostClassifier', 'XGBoostRegressor']
 
 try:
     import xgboost as xgb
@@ -318,10 +319,10 @@ class XGBoostClassifier(XGBoostBase, Classifier):
     def staged_predict_proba(self, X, step=10):
         """
         Predicts probabilities on each stage for data X.
-
         :param pandas.DataFrame X: data shape [n_samples, n_features]
         :param int step: step for returned iterations
         :return: iterator
+        .. warning: this method may be very slow, it takes iterations^2 / step time.
         """
         self._check_fitted()
         X_dmat = xgb.DMatrix(data=self._get_train_features(X))
@@ -376,16 +377,16 @@ class XGBoostRegressor(XGBoostBase, Regressor):
         Setting it to 0.5 means that XGBoost randomly collected half of the data instances to grow trees
         and this will prevent overfitting.
     :param float colsample: subsample ratio of columns when constructing each tree.
+    :param float base_score: the initial prediction score of all instances, global bias.
+    :param int random_state: random number seed.
+    :param boot verbose: if 1, will print messages during training
+    :param float missing: the number considered by xgboost as missing value.
     :param str objective_type: specify the learning task and the corresponding learning objective, and the options are below:
 
         * "linear" -- linear regression
 
         * "logistic" -- logistic regression
 
-    :param float base_score: the initial prediction score of all instances, global bias.
-    :param int random_state: random number seed.
-    :param boot verbose: if 1, will print messages during training
-    :param float missing: the number considered by xgboost as missing value.
     """
 
     def __init__(self, features=None,
@@ -456,6 +457,7 @@ class XGBoostRegressor(XGBoostBase, Regressor):
         :param pandas.DataFrame X: data shape [n_samples, n_features]
         :param int step: step for returned iterations
         :return: iterator
+        .. warning: this method may be very slow, it takes iterations^2 / step time
         """
         self._check_fitted()
         X_dmat = xgb.DMatrix(data=self._get_train_features(X))
