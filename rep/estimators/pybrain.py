@@ -26,7 +26,8 @@ from .interface import Classifier, Regressor
 from .utils import check_inputs, check_scaler, one_hot_transform, remove_first_line
 
 
-__author__ = 'Artem Zhirokhov'
+__author__ = 'Artem Zhirokhov, Alex Rogozhnikov'
+__all__ = ['PyBrainBase', 'PyBrainClassifier', 'PyBrainRegressor']
 
 LAYER_CLASS = {'BiasUnit': structure.BiasUnit,
                'LinearLayer': structure.LinearLayer,
@@ -35,9 +36,7 @@ LAYER_CLASS = {'BiasUnit': structure.BiasUnit,
                'SoftmaxLayer': structure.SoftmaxLayer,
                'TanhLayer': structure.TanhLayer}
 
-_PASS_PARAMETERS = {'random_state'}
-
-__all__ = ['PyBrainBase', 'PyBrainClassifier', 'PyBrainRegressor']
+# TODO resolve pickling issue with pyBrain http://stackoverflow.com/questions/4334941/
 
 
 class PyBrainBase(object):
@@ -51,6 +50,7 @@ class PyBrainBase(object):
     :type scaler: transformer from sklearn.preprocessing or str or False
     :param bool use_rprop: flag to indicate whether we should use Rprop or SGD trainer.
     :param bool verbose: print train/validation errors.
+    :param random_state: ignored parameter, pybrain training isn't reproducible
     **Net parameters:**
 
     :param layers: indicate how many neurons in each hidden(!) layer; default is 1 hidden layer with 10 neurons.
@@ -112,6 +112,7 @@ class PyBrainBase(object):
                  max_epochs=None,
                  continue_epochs=3,
                  validation_proportion=0.25,
+                 random_state=None,
                  **params):
         self.features = features
         self.epochs = epochs
@@ -143,12 +144,15 @@ class PyBrainBase(object):
         self.continue_epochs = continue_epochs
         self.validation_proportion = validation_proportion
 
+        self.random_state = random_state
+
         self._fitted = False
 
     def fit(self, X, y):
         """
         Trains the estimator on data.
         """
+        self._fitted = False
         self.partial_fit(X, y)
         return self
 
@@ -222,9 +226,6 @@ class PyBrainBase(object):
             if hasattr(self, k):
                 setattr(self, k, v)
             else:
-                if k in _PASS_PARAMETERS:
-                    continue
-
                 if k.startswith('layers__'):
                     index = int(k[len('layers__'):])
                     self.layers[index] = v
@@ -252,7 +253,7 @@ class PyBrainBase(object):
         if model_type == 'classification':
             if not self._is_fitted():
                 self._set_classes(y)
-            target = one_hot_transform(y)
+            target = one_hot_transform(y, n_classes=len(self.classes_))
         elif model_type == 'regression':
             if len(y.shape) == 1:
                 target = y.reshape((len(y), 1))
@@ -283,7 +284,7 @@ class PyBrainBase(object):
                        'outputbias': True,
                        'peepholes': False,
                        'recurrent': False,
-                       }
+        }
         for key in self.params:
             if key not in net_options.keys():
                 raise ValueError('Unexpected parameter: {}'.format(key))
@@ -340,7 +341,7 @@ class PyBrainRegressor(PyBrainBase, Regressor):
         Predict values for all events in dataset.
 
         :param X: pandas.DataFrame of shape [n_samples, n_features]
-        :rtype: numpy.array of shape [n_samples] with predicted values
+        :rtype: numpy.array of shape [n_samples] or shape [n_samples, n_targets] with predicted values
         """
         predictions = self._activate_on_dataset(X)
         if self.n_targets == 1:

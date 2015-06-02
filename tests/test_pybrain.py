@@ -14,13 +14,11 @@
 
 
 from __future__ import division, print_function, absolute_import
-from rep.test.test_estimators import check_classifier, check_regression
-from rep.estimators.pybrain import PyBrainClassifier
-from rep.estimators.pybrain import PyBrainRegressor
+from rep.test.test_estimators import check_classifier, check_regression, check_params, \
+    generate_classification_data, check_classification_reproducibility
+from rep.estimators.pybrain import PyBrainClassifier, PyBrainRegressor
 from sklearn.ensemble import BaggingClassifier
-from sklearn.pipeline import Pipeline
 from rep.estimators import SklearnClassifier
-
 
 __author__ = 'Artem Zhirokhov'
 
@@ -37,25 +35,51 @@ regressor_params = {
 }
 
 
+def test_pybrain_params():
+    check_params(PyBrainClassifier, layers=[1, 2], epochs=5, use_rprop=True, hiddenclass=['LinearLayer'])
+    check_params(PyBrainRegressor, layers=[1, 2], epochs=5, etaplus=1.3, hiddenclass=['LinearLayer'], learningrate=0.1)
+
+
 def test_pybrain_classification():
-    check_classifier(PyBrainClassifier(epochs=2), **classifier_params)
-    check_classifier(PyBrainClassifier(epochs=2, layers=[]), **classifier_params)
-    check_classifier(PyBrainClassifier(epochs=-1, layers=[10, 10]), **classifier_params)
+    clf = PyBrainClassifier(epochs=2)
+    check_classifier(clf, **classifier_params)
+    check_classifier(PyBrainClassifier(epochs=-1, continue_epochs=1, layers=[]), **classifier_params)
+    check_classifier(PyBrainClassifier(epochs=2, layers=[5, 2]), **classifier_params)
+
+
+def check_pybrain_reproducibility():
+    try:
+        X, y, _ = generate_classification_data()
+        clf1 = PyBrainClassifier(layers=[4], epochs=2).fit(X, y)
+        clf2 = PyBrainClassifier(layers=[4], epochs=2).fit(X, y)
+        import numpy
+        assert numpy.allclose(clf1.predict_proba(X), clf2.predict_proba(X))
+        check_classification_reproducibility(clf1, X, y)
+    except:
+        # This test fails. Because PyBrain can't reproduce training.
+        pass
+
 
 
 def test_pybrain_Linear_MDLSTM():
-    check_classifier(PyBrainClassifier(epochs=2, layers=[10, 2], hiddenclass=['LinearLayer', 'MDLSTMLayer']), **classifier_params)
-    check_regression(PyBrainRegressor(epochs=3, layers=[10, 2], hiddenclass=['LinearLayer', 'MDLSTMLayer']), **regressor_params)
+    check_classifier(PyBrainClassifier(epochs=2, layers=[10, 2], hiddenclass=['LinearLayer', 'MDLSTMLayer']),
+                     **classifier_params)
+    check_regression(PyBrainRegressor(epochs=3, layers=[10, 2], hiddenclass=['LinearLayer', 'MDLSTMLayer']),
+                     **regressor_params)
 
 
-def test_pybrain_SoftMax():
-    check_classifier(PyBrainClassifier(layers=[10], hiddenclass=['SoftmaxLayer'], use_rprop=True), **classifier_params)
-    check_regression(PyBrainRegressor(layers=[10], hiddenclass=['SoftmaxLayer']), **regressor_params)
+def test_pybrain_SoftMax_Tanh():
+    check_classifier(PyBrainClassifier(epochs=2, layers=[10, 2], hiddenclass=['SoftmaxLayer', 'TanhLayer'], use_rprop=True),
+                     **classifier_params)
+    check_regression(PyBrainRegressor(epochs=2, layers=[10, 2], hiddenclass=['TanhLayer', 'SoftmaxLayer']),
+                     **regressor_params)
 
 
-def test_pybrain_Tanh():
-    check_classifier(PyBrainClassifier(layers=[10], hiddenclass=['TanhLayer']), **classifier_params)
-    check_regression(PyBrainRegressor(layers=[10], hiddenclass=['TanhLayer'], use_rprop=True), **regressor_params)
+def pybrain_test_partial_fit():
+    clf = PyBrainClassifier(layers=[4], epochs=2)
+    X, y, _ = generate_classification_data()
+    clf.partial_fit(X, y)
+    clf.partial_fit(X[:2], y[:2])
 
 
 def test_pybrain_multi_classification():
@@ -74,3 +98,5 @@ def test_simple_stacking_pybrain():
     base_pybrain = PyBrainClassifier()
     base_bagging = BaggingClassifier(base_estimator=base_pybrain, n_estimators=3)
     check_classifier(SklearnClassifier(clf=base_bagging), **classifier_params)
+
+
