@@ -24,6 +24,7 @@ __author__ = 'Tatiana Likhomanenko'
 logger = getLogger(__name__)
 # those parameters that shall not be passed to options of TMVA classifier
 _PASS_PARAMETERS = {'random_state'}
+__all__ = ['TMVABase', 'TMVAClassifier', 'TMVARegressor']
 
 
 class _AdditionalInformation():
@@ -284,7 +285,7 @@ class TMVAClassifier(TMVABase, Classifier):
             self.factory_options = '{}:AnalysisType=Classification'.format(self.factory_options)
         else:
             self.factory_options = '{}:AnalysisType=Multiclass'.format(self.factory_options)
-        #features_names = get_columns_dict(self.features).keys()
+
         return self._fit(X, y, sample_weight=sample_weight)
 
     def predict_proba(self, X):
@@ -395,7 +396,7 @@ class TMVARegressor(TMVABase, Regressor):
         """
         X, y, sample_weight = check_inputs(X, y, sample_weight=sample_weight, allow_none_weights=False)
         X = self._get_train_features(X).copy()
-        #features_names = get_columns_dict(self.features).keys()
+
         self.factory_options = '{}:AnalysisType=Regression'.format(self.factory_options)
         return self._fit(X, y, sample_weight=sample_weight, model_type='regression')
 
