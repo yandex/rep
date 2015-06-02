@@ -14,17 +14,16 @@
 
 
 from __future__ import division, print_function, absolute_import
-from rep.test.test_estimators import check_classifier, check_regression, generate_classification_data
+from rep.test.test_estimators import check_classifier, check_regression, generate_classification_data, \
+    check_params, check_classification_reproducibility
 from sklearn.ensemble import BaggingClassifier
-from sklearn.metrics import roc_auc_score
-from sklearn.base import clone
 from rep.estimators.sklearn import SklearnClassifier
 from rep.estimators.neurolab import NeurolabClassifier, NeurolabRegressor
 import neurolab as nl
 
 __author__ = 'Sterzhanov Vladislav'
 
-N_EPOCHS2 = 40
+N_EPOCHS2 = 20
 N_EPOCHS4 = 60
 N_EPOCHS_REGR = 10
 
@@ -41,6 +40,11 @@ regressor_params = {
 }
 
 
+def test_neurolab_params():
+    check_params(NeurolabClassifier, layers=[1, 2], epochs=5, trainf='blah', cn=2, omnomnom=4)
+    check_params(NeurolabRegressor, layers=[1, 2], epochs=5, trainf='blah', cn=2, omnomnom=4)
+
+
 def test_neurolab_single_classification():
     check_classifier(NeurolabClassifier(layers=[], epochs=N_EPOCHS2, trainf=None),
                      **classifier_params)
@@ -50,26 +54,21 @@ def test_neurolab_single_classification():
                      **classifier_params)
 
 
+def test_partial_fit():
+    clf = NeurolabClassifier(layers=[4, 5], epochs=2, trainf=nl.train.train_gd)
+    X, y, _ = generate_classification_data()
+    clf.fit(X, y)
+    clf.partial_fit(X[:2], y[:2])
+
+
 def test_neurolab_regression():
-    check_regression(NeurolabRegressor(layers=[1], epochs=N_EPOCHS_REGR),
-                     **regressor_params)
+    check_regression(NeurolabRegressor(layers=[1], epochs=N_EPOCHS_REGR), **regressor_params)
 
 
 def test_neurolab_reproducibility():
-    clf = NeurolabClassifier(layers=[4, 5], epochs=5)
+    clf = NeurolabClassifier(layers=[4, 5], epochs=2, trainf=nl.train.train_gd)
     X, y, _ = generate_classification_data()
-    clf.fit(X, y)
-    auc = roc_auc_score(y, clf.predict_proba(X)[:, 1])
-
-    cloned_clf = clone(clf)
-    cloned_clf.fit(X, y)
-    cloned_auc = roc_auc_score(y, cloned_clf.predict_proba(X)[:, 1])
-    assert cloned_auc == auc, 'cloned network produces different result'
-
-    for i in range(2):
-        clf.fit(X, y)
-        refitted_auc = roc_auc_score(y, clf.predict_proba(X)[:, 1])
-        assert auc == refitted_auc, 'running a network twice produces different results'
+    check_classification_reproducibility(clf, X, y)
 
 
 def test_neurolab_multiclassification():

@@ -18,6 +18,7 @@ __author__ = 'Tatiana Likhomanenko, Alex Rogozhnikov'
 Abstract code to test any classifier or regressor
 """
 
+# TODO test of features parameters
 
 def generate_classification_sample(n_samples, n_features, distance=1.5, n_classes=2):
     """Generates some test distribution,
@@ -94,10 +95,10 @@ def check_classification_model(classifier, X, y, check_instance=True, has_staged
 
     labels = classifier.predict(X)
     proba = classifier.predict_proba(X)
-    print(proba)
+    print('PROBABILITIES:', proba)
 
     score = accuracy_score(y, labels)
-    print(score)
+    print('ROC AUC:', score)
     assert score > 0.7
 
     assert numpy.allclose(proba.sum(axis=1), 1), 'probabilities do not sum to 1'
@@ -129,7 +130,8 @@ def check_regression_model(regressor, X, y, check_instance=True, has_stages=True
 
     predictions = regressor.predict(X)
     score = mean_squared_error(y, predictions)
-    assert score < 0.2, 'Too big error: ' + str(score)
+    std = numpy.std(y)
+    assert score < std * 0.5, 'Too big error: ' + str(score)
 
     if has_stages:
         for p in regressor.staged_predict(X):
@@ -176,6 +178,42 @@ def check_regression(regressor, check_instance=True, has_staged_predictions=True
 
     check_regression_model(regressor, X, y, check_instance=check_instance, has_stages=has_staged_predictions,
                            has_importances=has_importances)
+
+
+def check_params(estimator_type, n_attempts=4, **params):
+    """
+    Checking that init, get, set are working normally
+    :param estimator_type: i.e. sklearn.ensemble.AdaBoostRegressor
+    :param n_attempts: how many times to check
+    :param params: parameters that are acceptable for estimator
+    """
+    import numpy
+
+    for _ in range(n_attempts):
+        subparams = {k: v for k, v in params.items() if numpy.random.random() > 0.5}
+        classifier = estimator_type(**subparams)
+        for clf in [classifier, clone(classifier), deepcopy(classifier)]:
+            saved_params = clf.get_params()
+            for name, value in subparams.items():
+                assert saved_params[name] == value, \
+                    'Problem with init/get_params {} {} {}'.format(name, value, saved_params[name])
+
+
+def check_classification_reproducibility(classifier, X, y):
+    """
+    Check if given estimator after refitting / cloning gives same parameters.
+    """
+    classifier.fit(X, y)
+    auc = roc_auc_score(y, classifier.predict_proba(X)[:, 1])
+
+    cloned_clf = clone(classifier)
+    cloned_clf.fit(X, y)
+    cloned_auc = roc_auc_score(y, cloned_clf.predict_proba(X)[:, 1])
+    assert auc == cloned_auc, 'cloned network produces different result, {} {}'.format(auc, cloned_auc)
+
+    classifier.fit(X, y)
+    refitted_auc = roc_auc_score(y, classifier.predict_proba(X)[:, 1])
+    assert auc == refitted_auc, 'running a network twice produces different results, {} {}'.format(auc, refitted_auc)
 
 
 def check_deepcopy(classifier):

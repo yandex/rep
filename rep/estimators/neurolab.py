@@ -24,7 +24,7 @@ from .interface import Classifier, Regressor
 from .utils import check_inputs, check_scaler, one_hot_transform, remove_first_line
 
 
-__author__ = 'Vlad Sterzhanov'
+__author__ = 'Vlad Sterzhanov, Alex Rogozhnikov'
 __all__ = ['NeurolabBase', 'NeurolabClassifier', 'NeurolabRegressor']
 
 NET_TYPES = {'feed-forward': nl.net.newff,
@@ -40,6 +40,7 @@ NET_PARAMS = ('minmax', 'cn', 'layers', 'transf', 'target',
 
 BASIC_PARAMS = ('layers', 'net_type', 'trainf', 'initf', 'scaler', 'random_state')
 
+# Instead of single layer use feed-forward.
 CANT_CLASSIFY = ('hopfield-recurrent', 'competing-layer', 'hemming-recurrent', 'single-layer')
 
 
@@ -61,7 +62,7 @@ class NeurolabBase(object):
     :param scaler: transformer to apply to the input objects
     :type scaler: str or sklearn-like transformer or False (do not scale features)
     :param list layers: list of numbers denoting size of each hidden layer
-    :param random_state: ignored actually, added for uniformity.
+    :param random_state: ignored, added for uniformity.
     :param dict kwargs: additional arguments to net __init__, varies with different net_types
 
     See https://pythonhosted.org/neurolab/lib.html for supported train functions and their parameters.
@@ -91,6 +92,9 @@ class NeurolabBase(object):
         self.net_params = {}
         self.set_params(**other_params)
 
+    def is_fitted(self):
+        return self.net is not None
+
     def set_params(self, **params):
         """
         Set the parameters of this estimator,
@@ -102,7 +106,7 @@ class NeurolabBase(object):
             if name.startswith("scaler__"):
                 assert hasattr(self.scaler, 'set_params'), \
                     "Trying to set {} without scaler".format(name)
-                self.scaler.set_params({name[len("scaler__"):]: value})
+                self.scaler.set_params(**{name[len("scaler__"):]: value})
             elif name in NET_PARAMS:
                 self.net_params[name] = value
             elif name in BASIC_PARAMS:
@@ -121,7 +125,7 @@ class NeurolabBase(object):
             parameters[name] = getattr(self, name)
         return parameters
 
-    def _fit(self, X, y_original, y_train):
+    def _partial_fit(self, X, y_original, y_train):
         """
         y_train is always 2-dimensional (one-hot for classification)
         y_original is what originally was passed to `fit`.
@@ -129,27 +133,30 @@ class NeurolabBase(object):
         # magic reproducibilizer
         np.random.seed(42)
 
-        self.scaler = check_scaler(self.scaler)
-        x_train = self._transform_input(X, y_original)
+        if self.is_fitted():
+            x_train = self._transform_input(X, y_original)
+        else:
+            self.scaler = check_scaler(self.scaler)
+            x_train = self._transform_input(X, y_original)
 
-        # Prepare parameters depending on network purpose (classification / regression)
-        net_params = self._prepare_params(self.net_params, x_train, y_train)
+            # Prepare parameters depending on network purpose (classification / regression)
+            net_params = self._prepare_params(self.net_params, x_train, y_train)
 
-        initializer = self._get_initializer(self.net_type)
-        net = initializer(**net_params)
+            initializer = self._get_initializer(self.net_type)
+            net = initializer(**net_params)
 
-        # To allow similar initf function on all layers
-        initf_iterable = self.initf if hasattr(self.initf, '__iter__') else [self.initf] * len(net.layers)
-        for layer, init_function in zip(net.layers, initf_iterable):
-            layer.initf = init_function
-            net.init()
+            # To allow similar initf function on all layers
+            initf_iterable = self.initf if hasattr(self.initf, '__iter__') else [self.initf] * len(net.layers)
+            for layer, init_function in zip(net.layers, initf_iterable):
+                layer.initf = init_function
+                net.init()
 
-        if self.trainf is not None:
-            net.trainf = self.trainf
+            if self.trainf is not None:
+                net.trainf = self.trainf
 
-        net.train(x_train, y_train, **self.train_params)
+            self.net = net
 
-        self.net = net
+        self.net.train(x_train, y_train, **self.train_params)
         return self
 
     def _sim(self, X):
@@ -213,13 +220,17 @@ class NeurolabClassifier(NeurolabBase, Classifier):
         :param y: iterable denoting corresponding object classes
         :return: self
         """
-        # Some networks do not support classification
+        # erasing results of previous training
+        self.net = None
+        return self.partial_fit(X, y)
+
+    def partial_fit(self, X , y):
         assert self.net_type not in CANT_CLASSIFY, 'Network type does not support classification'
         X, y, _ = check_inputs(X, y, None)
-        self._set_classes(y)
-        y_train = one_hot_transform(y) * 0.98 + 0.01
-        print('TARGET', y_train)
-        return self._fit(X, y, y_train)
+        if not self.is_fitted():
+            self._set_classes(y)
+        y_train = one_hot_transform(y, n_classes=len(self.classes_)) * 0.98 + 0.01
+        return self._partial_fit(X, y, y_train)
 
     def predict_proba(self, X):
         """
@@ -250,14 +261,19 @@ class NeurolabRegressor(NeurolabBase, Regressor):
         """
         Fit model on data
 
-        :param X: pandas.DataFrame
-        :param y: iterable denoting target for each training sample.
+        :param X: pandas.DataFrame of shape [n_samples n_features]
+        :param y: target values - array-like of shape [n_samples] or [n_samples, n_targets].
         :return: self
         """
+        # erasing results of previous training
+        self.net = None
+        return self.partial_fit(X, y)
+
+    def partial_fit(self, X , y):
         assert self.net_type not in CANT_CLASSIFY, 'Network type does not support regression'
         X, y, _ = check_inputs(X, y, None, allow_multiple_targets=True)
         y_train = y.reshape(len(y), 1 if len(y.shape) == 1 else y.shape[1])
-        return self._fit(X, y, y_train)
+        return self._partial_fit(X, y, y_train)
 
     def predict(self, X):
         """
