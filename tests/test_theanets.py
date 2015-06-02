@@ -15,9 +15,9 @@
 
 from __future__ import division, print_function, absolute_import
 from sklearn.preprocessing.data import StandardScaler
-from rep.test.test_estimators import check_classifier, check_regression
+from rep.test.test_estimators import check_classifier, check_regression, check_params, \
+    check_classification_reproducibility
 from rep.test.test_estimators import generate_classification_data
-from sklearn.base import clone
 from sklearn.metrics import roc_auc_score
 from sklearn.ensemble import BaggingClassifier
 from rep.estimators.sklearn import SklearnClassifier
@@ -29,21 +29,25 @@ __author__ = 'Lisa Ignatyeva'
 classifier_params = {
     'has_staged_pp': False,
     'has_importances': False,
-    'supports_weight': False
+    'supports_weight': False,
 }
 
 regressor_params = {
     'has_staged_predictions': False,
     'has_importances': False,
-    'supports_weight': False
+    'supports_weight': False,
 }
 
 
+def test_theanets_params():
+    check_params(TheanetsClassifier, layers=[1, 2], scaler=False, trainers=[{}, {'optimize': 'nag'}])
+    check_params(TheanetsRegressor, layers=[1, 2], scaler=False, trainers=[{}, {'optimize': 'nag'}])
+
+
 def test_pretrain():
-    clf = TheanetsClassifier(trainers=[{'optimize': 'pretrain', 'patience': 1}, {'optimize': 'nag', 'patience': 1}])
+    clf = TheanetsClassifier(trainers=[{'optimize': 'pretrain', 'patience': 1, 'learning_rate': 0.5},
+                                       {'optimize': 'nag', 'patience': 1}])
     check_classifier(clf, **classifier_params)
-    # X, y, _ = generate_classification_data()
-    # clf.partial_fit(X, y, optimize='pretrain', patience=1)
 
 
 def test_theanets_configurations():
@@ -91,18 +95,8 @@ def test_theanets_partial_fit():
 
 def test_theanets_reproducibility():
     clf = TheanetsClassifier(trainers=[{'min_improvement': 1}])
-    X, y, sample_weight = generate_classification_data()
-    clf.fit(X, y)
-    auc = roc_auc_score(y, clf.predict_proba(X)[:, 1])
-    for i in range(2):
-        clf.fit(X, y)
-        curr_auc = roc_auc_score(y, clf.predict_proba(X)[:, 1])
-        assert auc == curr_auc, 'running a network twice produces different results'
-
-    cloned_clf = clone(clf)
-    cloned_clf.fit(X, y)
-    cloned_auc = roc_auc_score(y, cloned_clf.predict_proba(X)[:, 1])
-    assert cloned_auc == auc, 'cloned network produces different result'
+    X, y, _ = generate_classification_data()
+    check_classification_reproducibility(clf, X, y)
 
 
 def test_theanets_simple_stacking():

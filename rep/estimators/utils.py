@@ -146,12 +146,14 @@ def check_scaler(scaler):
         return clone(scaler)
 
 
-def one_hot_transform(y, dtype='float32'):
+def one_hot_transform(y, n_classes=None, dtype='float32'):
     """
     For neural networks, this function needed only in training.
     Classes in 'y' should be [0, 1, 2, .. n_classes -1]
     """
-    target = numpy.zeros([len(y), numpy.max(y) + 1], dtype=dtype)
+    if n_classes is None:
+        n_classes = numpy.max(y) + 1
+    target = numpy.zeros([len(y), n_classes], dtype=dtype)
     target[numpy.arange(len(y)), y] = 1
     return target
 
