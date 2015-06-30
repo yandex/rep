@@ -47,18 +47,18 @@ def test_pybrain_classification():
     check_classifier(PyBrainClassifier(epochs=2, layers=[5, 2]), **classifier_params)
 
 
-def check_pybrain_reproducibility():
+def test_pybrain_reproducibility():
     try:
+        import numpy
         X, y, _ = generate_classification_data()
         clf1 = PyBrainClassifier(layers=[4], epochs=2).fit(X, y)
         clf2 = PyBrainClassifier(layers=[4], epochs=2).fit(X, y)
-        import numpy
-        assert numpy.allclose(clf1.predict_proba(X), clf2.predict_proba(X))
+        print(clf1.predict_proba(X)-clf2.predict_proba(X))
+        assert numpy.allclose(clf1.predict_proba(X), clf2.predict_proba(X)), 'different predicitons'
         check_classification_reproducibility(clf1, X, y)
     except:
         # This test fails. Because PyBrain can't reproduce training.
         pass
-
 
 
 def test_pybrain_Linear_MDLSTM():
@@ -69,9 +69,9 @@ def test_pybrain_Linear_MDLSTM():
 
 
 def test_pybrain_SoftMax_Tanh():
-    check_classifier(PyBrainClassifier(epochs=2, layers=[10, 2], hiddenclass=['SoftmaxLayer', 'TanhLayer'], use_rprop=True),
+    check_classifier(PyBrainClassifier(epochs=2, layers=[10, 2], hiddenclass=['SoftmaxLayer', 'SoftmaxLayer', 'TanhLayer'], use_rprop=True),
                      **classifier_params)
-    check_regression(PyBrainRegressor(epochs=2, layers=[10, 2], hiddenclass=['TanhLayer', 'SoftmaxLayer']),
+    check_regression(PyBrainRegressor(epochs=2, layers=[10, 5, 2], hiddenclass=['SoftmaxLayer', 'TanhLayer', 'TanhLayer']),
                      **regressor_params)
 
 
