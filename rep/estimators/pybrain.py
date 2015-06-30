@@ -1,3 +1,12 @@
+"""
+These classes are wrappers for neural network python library - pybrain.
+
+.. seealso:: http://pybrain.org/docs/
+
+.. warning:: pybrain training isn't reproducible
+
+"""
+
 # Copyright 2014-2015 Yandex LLC and contributors <https://yandex.com/>
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -26,7 +35,7 @@ from .interface import Classifier, Regressor
 from .utils import check_inputs, check_scaler, one_hot_transform, remove_first_line
 
 
-__author__ = 'Artem Zhirokhov, Alex Rogozhnikov'
+__author__ = 'Artem Zhirokhov, Alex Rogozhnikov, Tatiana Likhomanenko'
 __all__ = ['PyBrainBase', 'PyBrainClassifier', 'PyBrainRegressor']
 
 LAYER_CLASS = {'BiasUnit': structure.BiasUnit,
@@ -36,8 +45,6 @@ LAYER_CLASS = {'BiasUnit': structure.BiasUnit,
                'SoftmaxLayer': structure.SoftmaxLayer,
                'TanhLayer': structure.TanhLayer}
 
-# TODO resolve pickling issue with pyBrain http://stackoverflow.com/questions/4334941/
-
 
 class PyBrainBase(object):
     """Base class for estimator from PyBrain.
@@ -46,46 +53,50 @@ class PyBrainBase(object):
     -----------
     :param features: features used in training.
     :type features: list[str] or None
-    :param scaler: scaler used to transform data; default is StandardScaler.
-    :type scaler: transformer from sklearn.preprocessing or str or False
-    :param bool use_rprop: flag to indicate whether we should use Rprop or SGD trainer.
+    :param scaler: transformer to apply to the input objects
+    :type scaler: str or sklearn-like transformer or False (do not scale features)
+    :param bool use_rprop: flag to indicate whether we should use Rprop or SGD trainer
     :param bool verbose: print train/validation errors.
     :param random_state: ignored parameter, pybrain training isn't reproducible
+
     **Net parameters:**
 
-    :param layers: indicate how many neurons in each hidden(!) layer; default is 1 hidden layer with 10 neurons.
-    :type layers: list[int]
-    :param hiddenclass: classes of the hidden layers; default is 'SigmoidLayer'.
-    :type hiddenclass: list[str]
+    :param list[int] layers: indicate how many neurons in each hidden(!) layer; default is 1 hidden layer with 10 neurons
+    :param list[str] hiddenclass: classes of the hidden layers; default is 'SigmoidLayer'
     :param dict params: other net parameters:
         bias and outputbias (boolean) flags to indicate whether the network should have the corresponding biases,
         both default to True;
         peepholes (boolean);
         recurrent (boolean) if the `recurrent` flag is set, a :class:`RecurrentNetwork` will be created,
-        otherwise a :class:`FeedForwardNetwork`.
+        otherwise a :class:`FeedForwardNetwork`
+
     **Gradient descent trainer parameters:**
 
-    :param float learningrate: gives the ratio of which parameters are changed into the direction of the gradient.
-    :param float lrdecay: the learning rate decreases by lrdecay, which is used to multiply the learning rate after each training step.
-    :param float momentum: the ratio by which the gradient of the last timestep is used.
-    :param boolean batchlearning: if set, the parameters are updated only at the end of each epoch. Default is False.
-    :param float weightdecay: corresponds to the weightdecay rate, where 0 is no weight decay at all.
+    :param float learningrate: gives the ratio of which parameters are changed into the direction of the gradient
+    :param float lrdecay: the learning rate decreases by lrdecay, which is used to multiply the learning rate after each training step
+    :param float momentum: the ratio by which the gradient of the last timestep is used
+    :param boolean batchlearning: if set, the parameters are updated only at the end of each epoch. Default is False
+    :param float weightdecay: corresponds to the weightdecay rate, where 0 is no weight decay at all
+
     **Rprop trainer parameters:**
 
-    :param float etaminus: factor by which step width is decreased when overstepping (0.5).
-    :param float etaplus: factor by which step width is increased when following gradient (1.2).
-    :param float delta: step width for each weight.
-    :param float deltamin: minimum step width (1e-6).
-    :param float deltamax: maximum step width (5.0).
-    :param float delta0: initial step width (0.1).
+    :param float etaminus: factor by which step width is decreased when overstepping (0.5)
+    :param float etaplus: factor by which step width is increased when following gradient (1.2)
+    :param float delta: step width for each weight
+    :param float deltamin: minimum step width (1e-6)
+    :param float deltamax: maximum step width (5.0)
+    :param float delta0: initial step width (0.1)
+
     **Training termination parameters**
 
-    :param int epochs: number of iterations of training; if < 0 then classifier trains until convergence.
-    :param int max_epochs: if is given, at most that many epochs are trained.
-    :param int continue_epochs: each time validation error decreases, try for continue_epochs epochs to find a better one.
-    :param float validation_proportion: the ratio of the dataset that is used for the validation dataset.
+    :param int epochs: number of iterations of training; if < 0 then classifier trains until convergence
+    :param int max_epochs: if is given, at most that many epochs are trained
+    :param int continue_epochs: each time validation error decreases, try for continue_epochs epochs to find a better one
+    :param float validation_proportion: the ratio of the dataset that is used for the validation dataset
 
-    Details about parameters: http://pybrain.org/docs/
+    .. note::
+
+        Details about parameters: http://pybrain.org/docs/
     """
     __metaclass__ = ABCMeta
     # to be overriden in descendants.
@@ -114,13 +125,13 @@ class PyBrainBase(object):
                  validation_proportion=0.25,
                  random_state=None,
                  **params):
-        self.features = features
+        self.features = list(features) if features is not None else features
         self.epochs = epochs
         self.scaler = scaler
         self.use_rprop = use_rprop
 
         # net options
-        self.layers = layers
+        self.layers = list(layers)
         self.hiddenclass = hiddenclass
         self.params = params
 
@@ -145,24 +156,48 @@ class PyBrainBase(object):
         self.validation_proportion = validation_proportion
 
         self.random_state = random_state
+        self.net = None
 
-        self._fitted = False
+    def _check_params(self):
+        """
+        Checks the input of __init__.
+        """
+        if self.hiddenclass is not None:
+            assert len(self.layers) == len(
+                self.hiddenclass), 'Number of hidden layers does not match number of hidden classes'
+            if self.hiddenclass[0] == 'BiasUnit':
+                raise ValueError('BiasUnit should not be the first unit class')
+
+            for hid_class in self.hiddenclass:
+                if hid_class not in LAYER_CLASS:
+                    raise ValueError('Wrong class name ' + hid_class)
 
     def fit(self, X, y):
         """
-        Trains the estimator on data.
+        Train the estimator
+
+        :param pandas.DataFrame X: data shape [n_samples, n_features]
+        :param y: labels of events - array-like of shape [n_samples]
+        :param sample_weight: weight of events,
+               array-like of shape [n_samples] or None if all weights are equal
+
+        :return: self
         """
-        self._fitted = False
-        self.partial_fit(X, y)
-        return self
+        self.net = None
+        return self.partial_fit(X, y)
 
     def partial_fit(self, X, y):
+        """
+        Additional training of the estimator
 
-        if self._is_fitted():
-            dataset = self._prepare_dataset(X, y, self._model_type)
-        else:
-            self.scaler = check_scaler(self.scaler)
-            dataset = self._prepare_dataset(X, y, self._model_type)
+        :param pandas.DataFrame X: data shape [n_samples, n_features]
+        :param y: labels of events - array-like of shape [n_samples]
+
+        :return: self
+        """
+        dataset = self._prepare_dataset(X, y, self._model_type)
+
+        if not self.is_fitted():
             self._prepare_net(dataset=dataset, model_type=self._model_type)
 
         if self.use_rprop:
@@ -196,62 +231,56 @@ class PyBrainBase(object):
                                           validationProportion=self.validation_proportion)
         else:
             trainer.trainEpochs(epochs=self.epochs, )
-        self._fitted = True
         return self
 
-    def _check_params(self, layers, hiddenclass):
+    def is_fitted(self):
         """
-        Checks the input of __init__.
+        Check if net is fitted
+
+        :return: If estimator was fitted
+        :rtype: bool
         """
-        if layers is not None and hiddenclass is not None and len(layers) != len(hiddenclass):
-            raise ValueError('Number of hidden layers does not match number of hidden classes')
-
-        if hiddenclass is not None:
-            if hiddenclass[0] == 'BiasUnit':
-                raise ValueError('BiasUnit should not be the first unit class')
-
-            for hid_class in hiddenclass:
-                if hid_class not in LAYER_CLASS:
-                    raise ValueError('Wrong class name ' + hid_class)
-
-    def _is_fitted(self):
-        return self._fitted
+        return self.net is not None
 
     def set_params(self, **params):
         """
-        Change estimator's parameters.
+        Set the parameters of the estimator.
+
         Names of parameters are the same as in constructor.
         """
-        for k, v in params.items():
-            if hasattr(self, k):
-                setattr(self, k, v)
+        for name, value in params.items():
+            if hasattr(self, name):
+                setattr(self, name, value)
             else:
-                if k.startswith('layers__'):
-                    index = int(k[len('layers__'):])
-                    self.layers[index] = v
-                elif k.startswith('hiddenclass__'):
-                    index = int(k[len('hiddenclass__'):])
-                    self.hiddenclass[index] = v
-                elif k.startswith('scaler__'):
-                    scaler_params = {k[len('scaler__'):]: v}
+                if name.startswith('layers__'):
+                    index = int(name[len('layers__'):])
+                    self.layers[index] = value
+                elif name.startswith('hiddenclass__'):
+                    index = int(name[len('hiddenclass__'):])
+                    self.hiddenclass[index] = value
+                elif name.startswith('scaler__'):
+                    scaler_params = {name[len('scaler__'):]: value}
                     self.scaler.set_params(**scaler_params)
                 else:
-                    self.params[k] = v
+                    self.params[name] = value
 
     def _transform_data(self, X, y=None, fit=True):
-        X = self._get_train_features(X)
+        X = self._get_features(X)
+        # The following line fights the bug in sklearn < 0.16,
+        # most of transformers there modify X if it is pandas.DataFrame.
         data_temp = numpy.copy(X)
         if fit:
+            self.scaler = check_scaler(self.scaler)
             self.scaler.fit(data_temp, y)
         return self.scaler.transform(data_temp)
 
     def _prepare_dataset(self, X, y, model_type):
         X, y, sample_weight = check_inputs(X, y, sample_weight=None, allow_none_weights=True,
                                            allow_multiple_targets=model_type == 'regression')
-        X = self._transform_data(X, y, fit=not self._is_fitted())
+        X = self._transform_data(X, y, fit=not self.is_fitted())
 
         if model_type == 'classification':
-            if not self._is_fitted():
+            if not self.is_fitted():
                 self._set_classes(y)
             target = one_hot_transform(y, n_classes=len(self.classes_))
         elif model_type == 'regression':
@@ -261,7 +290,7 @@ class PyBrainBase(object):
                 # multi regression
                 target = y
 
-            if not self._is_fitted():
+            if not self.is_fitted():
                 self.n_targets = target.shape[1]
         else:
             raise ValueError('Wrong model type')
@@ -273,12 +302,10 @@ class PyBrainBase(object):
         return dataset
 
     def _prepare_net(self, dataset, model_type):
-        self._check_params(self.layers, self.hiddenclass)
-
-        self.layers = list(self.layers)
+        self._check_params()
 
         if self.hiddenclass is None:
-            self.hiddenclass = ['SigmoidLayer' for layer_size in self.layers]
+            self.hiddenclass = ['SigmoidLayer'] * len(self.layers)
 
         net_options = {'bias': True,
                        'outputbias': True,
@@ -306,7 +333,7 @@ class PyBrainBase(object):
         self.net.sortModules()
 
     def _activate_on_dataset(self, X):
-        assert self._is_fitted(), "regressor isn't fitted, please call 'fit' first"
+        assert self.is_fitted(), "Net isn't fitted, please call 'fit' first"
 
         X = self._transform_data(X, fit=False)
         y_test_dummy = numpy.zeros((len(X), 1))
@@ -317,12 +344,25 @@ class PyBrainBase(object):
 
         return self.net.activateOnDataset(ds)
 
+    def __setstate__(self, dict):
+        # resolve pickling issue with pyBrain http://stackoverflow.com/questions/4334941/
+        self.__dict__ = dict
+        if self.net is not None:
+            self.net.sorted = False
+            self.net.sortModules()
+
 
 class PyBrainClassifier(PyBrainBase, Classifier):
     __doc__ = "Implements classification from PyBrain library \n" + remove_first_line(PyBrainBase.__doc__)
     _model_type = 'classification'
 
     def predict_proba(self, X):
+        """
+        Predict labels for all events in dataset
+
+        :param X: pandas.DataFrame of shape [n_samples, n_features]
+        :rtype: numpy.array of shape [n_samples] with integer labels
+        """
         return self._activate_on_dataset(X=X)
 
     def staged_predict_proba(self, X):
