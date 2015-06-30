@@ -273,12 +273,17 @@ def get_efficiencies(prediction, spectator, sample_weight=None, bins_number=20,
 
 
 def train_test_split(*arrays, **kw_args):
-    """Does the same thing as train_test_split, but preserves columns in DataFrames.
-    Uses the same parameters: test_size, train_size, random_state, and has the same interface
+    """Does the same thing as train_test_split, but preserves names of columns in DataFrames.
+    Uses the same parameters: test_size, train_size, random_state, and has almost the same interface
 
-    :type arrays: list[numpy.array] or list[pandas.DataFrame]
-    :type bool: allow_none, default False (specially for sample_weight - both to None)
     :param arrays: arrays to split
+    :type arrays: list[numpy.array] or list[pandas.DataFrame]
+
+    :param group_column: array-like of shape [n_samples] with indices of groups,
+    events from one group will be kept together (all events in train or all events in test).
+    If `group_column` is used, train_size and test_size will refer to number of groups, not events
+    :param bool allow_none: default False
+    (specially for sample_weight - after splitting train and test of `None` are `None` too)
     """
     from sklearn import cross_validation
     allow_none = kw_args.pop('allow_none', None)
@@ -287,7 +292,19 @@ def train_test_split(*arrays, **kw_args):
     length = len(arrays[0])
     for array in arrays:
         assert len(array) == length, "different size"
-    train_indices, test_indices = cross_validation.train_test_split(range(length), **kw_args)
+
+    if 'group_column' in kw_args:
+        initial_data = numpy.array(kw_args.pop('group_column'))
+        assert len(initial_data) == length, "group column must have the same length"
+        group_ids = numpy.unique(initial_data)
+    else:
+        initial_data = numpy.arange(length)
+        group_ids = numpy.arange(length)
+
+    train_indices, test_indices = cross_validation.train_test_split(group_ids, **kw_args)
+    train_indices = numpy.in1d(initial_data, train_indices)
+    test_indices = numpy.in1d(initial_data, test_indices)
+
     result = []
     for array in arrays:
         if isinstance(array, pandas.DataFrame):
