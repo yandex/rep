@@ -20,13 +20,17 @@ __author__ = 'Tatiana Likhomanenko'
 class FoldingClassifier(Classifier):
     """
     This meta-classifier implements folding algorithm:
+
     * training data is splitted into n equal parts;
+
     * then n times union of n-1 parts is used to train classifier;
+
     * at the end we have n-estimators, which are used to classify new events
 
+
     To build unbiased predictions for data, pass the **same** dataset (with same order of events)
-     as in training to `predict`, `predict_proba` or `staged_predict_proba`, in which case
-     classifier will use to predict each event that base classifier which didn't use that event during training.
+    as in training to `predict`, `predict_proba` or `staged_predict_proba`, in which case
+    classifier will use to predict each event that base classifier which didn't use that event during training.
 
     To use information from not one, but several classifiers during predictions,
     provide appropriate voting function.

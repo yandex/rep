@@ -16,10 +16,10 @@ __author__ = 'Alex Rogozhnikov'
 class FeatureSplitter(Classifier):
     """
     Dataset is split by values of `split_feature`,
-     for each value of feature, new classifier is trained.
+    for each value of feature, new classifier is trained.
 
     When building predictions, classifier predicts the events with
-     the same value of `split_feature` it was trained on.
+    the same value of `split_feature` it was trained on.
 
     :param str split_feature: the name of key feature,
     :param base_estimator: the classifier, its' copies are trained on parts of dataset
