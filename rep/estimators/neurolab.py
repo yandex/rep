@@ -3,10 +3,11 @@ These classes are wrappers for neural network python library - neurolab.
 
 .. seealso:: https://pythonhosted.org/neurolab/lib.html
 
-.. warning:: To make neurolab reproducible we set::
+.. warning:: To make neurolab reproducible we set
+
+    ::
 
         numpy.random.seed(42)
-
 
 """
 # Copyright 2014-2015 Yandex LLC and contributors <https://yandex.com/>
@@ -28,7 +29,7 @@ from abc import ABCMeta
 from copy import deepcopy
 
 import neurolab as nl
-import numpy as np
+import numpy
 import scipy
 
 from .interface import Classifier, Regressor
@@ -103,6 +104,12 @@ class NeurolabBase(object):
         self.set_params(**other_params)
 
     def is_fitted(self):
+        """
+        Check if net is fitted
+
+        :return: If estimator was fitted
+        :rtype: bool
+        """
         return self.net is not None
 
     def set_params(self, **params):
@@ -116,6 +123,12 @@ class NeurolabBase(object):
                 assert hasattr(self.scaler, 'set_params'), \
                     "Trying to set {} without scaler".format(name)
                 self.scaler.set_params(**{name[len("scaler__"):]: value})
+            elif name.startswith('layers__'):
+                index = int(name[len('layers__'):])
+                self.layers[index] = value
+            elif name.startswith('initf__'):
+                index = int(name[len('initf__'):])
+                self.initf[index] = value
             elif name in NET_PARAMS:
                 self.net_params[name] = value
             elif name in BASIC_PARAMS:
@@ -127,7 +140,7 @@ class NeurolabBase(object):
         """
         Get parameters of this estimator
 
-        :return dict
+        :rtype: dict
         """
         parameters = deepcopy(self.net_params)
         parameters.update(deepcopy(self.train_params))
@@ -141,13 +154,12 @@ class NeurolabBase(object):
         y_original is what originally was passed to `fit`.
         """
         # magic reproducibilizer
-        np.random.seed(42)
+        numpy.random.seed(42)
 
         if self.is_fitted():
-            x_train = self._transform_input(X, y_original)
+            x_train = self._transform_input(X, y_original, fit=False)
         else:
-            self.scaler = check_scaler(self.scaler)
-            x_train = self._transform_input(X, y_original)
+            x_train = self._transform_input(X, y_original, fit=True)
 
             # Prepare parameters depending on network purpose (classification / regression)
             net_params = self._prepare_params(self.net_params, x_train, y_train)
@@ -178,8 +190,9 @@ class NeurolabBase(object):
         X = self._get_features(X)
         # The following line fights the bug in sklearn < 0.16,
         # most of transformers there modify X if it is pandas.DataFrame.
-        X = np.copy(X)
+        X = numpy.copy(X)
         if fit:
+            self.scaler = check_scaler(self.scaler)
             self.scaler.fit(X, y)
         X = self.scaler.transform(X)
 
@@ -320,7 +333,7 @@ class NeurolabRegressor(NeurolabBase, Regressor):
         :rtype: numpy.array of shape [n_samples] with predicted values
         """
         modeled = self._sim(X)
-        return modeled if modeled.shape[1] != 1 else np.ravel(modeled)
+        return modeled if modeled.shape[1] != 1 else numpy.ravel(modeled)
 
     def staged_predict(self, X, step=10):
         """
