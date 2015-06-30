@@ -298,7 +298,7 @@ class XGBoostClassifier(XGBoostBase, Classifier):
         """
         X, y, sample_weight = check_inputs(X, y, sample_weight=sample_weight, allow_none_weights=False)
         sample_weight = normalize_weights(y, sample_weight=sample_weight, per_class=False)
-        X = self._get_train_features(X)
+        X = self._get_features(X)
         self._set_classes(y)
         if self.n_classes_ >= 2:
             return self._fit(X, y, 'multi:softprob', sample_weight=sample_weight, num_class=self.n_classes_)
@@ -311,7 +311,7 @@ class XGBoostClassifier(XGBoostBase, Classifier):
         :rtype: numpy.array of shape [n_samples, n_classes] with probabilities
         """
         self._check_fitted()
-        X_dmat = xgb.DMatrix(data=self._get_train_features(X))
+        X_dmat = xgb.DMatrix(data=self._get_features(X))
         prediction = self.xgboost_classifier.predict(X_dmat, ntree_limit=0)
         if self.n_classes_ >= 2:
             return prediction.reshape(X.shape[0], self.n_classes_)
@@ -325,7 +325,7 @@ class XGBoostClassifier(XGBoostBase, Classifier):
         .. warning: this method may be very slow, it takes iterations^2 / step time.
         """
         self._check_fitted()
-        X_dmat = xgb.DMatrix(data=self._get_train_features(X))
+        X_dmat = xgb.DMatrix(data=self._get_features(X))
 
         # TODO use applying tree-by-tree
         for i in range(1, self.n_estimators // step + 1):
@@ -435,7 +435,7 @@ class XGBoostRegressor(XGBoostBase, Regressor):
         """
         X, y, sample_weight = check_inputs(X, y, sample_weight=sample_weight, allow_none_weights=False)
         sample_weight = normalize_weights(y, sample_weight=sample_weight, per_class=False)
-        X = self._get_train_features(X)
+        X = self._get_features(X)
         assert self.objective_type in {'linear', 'logistic'}, 'Objective parameter is not valid'
         return self._fit(X, y, "reg:{}".format(self.objective_type), sample_weight=sample_weight)
 
@@ -447,7 +447,7 @@ class XGBoostRegressor(XGBoostBase, Regressor):
         :rtype: numpy.array of shape [n_samples, n_classes] with probabilities
         """
         self._check_fitted()
-        X_dmat = xgb.DMatrix(data=self._get_train_features(X))
+        X_dmat = xgb.DMatrix(data=self._get_features(X))
         return self.xgboost_classifier.predict(X_dmat, ntree_limit=0)
 
     def staged_predict(self, X, step=10):
@@ -460,7 +460,7 @@ class XGBoostRegressor(XGBoostBase, Regressor):
         .. warning: this method may be very slow, it takes iterations^2 / step time
         """
         self._check_fitted()
-        X_dmat = xgb.DMatrix(data=self._get_train_features(X))
+        X_dmat = xgb.DMatrix(data=self._get_features(X))
 
         # TODO use applying tree-by-tree
         for i in range(1, self.n_estimators // step + 1):
