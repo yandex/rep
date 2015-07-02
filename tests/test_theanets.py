@@ -45,7 +45,7 @@ def test_theanets_params():
 
 
 def test_pretrain():
-    clf = TheanetsClassifier(trainers=[{'optimize': 'pretrain', 'patience': 1, 'learning_rate': 0.5},
+    clf = TheanetsClassifier(trainers=[{'optimize': 'pretrain', 'patience': 1, 'learning_rate': 0.1},
                                        {'optimize': 'nag', 'patience': 1}])
     check_classifier(clf, **classifier_params)
 
@@ -103,3 +103,12 @@ def test_theanets_simple_stacking():
     base_tnt = TheanetsClassifier(trainers=[{'min_improvement': 0.1}])
     base_bagging = BaggingClassifier(base_estimator=base_tnt, n_estimators=3)
     check_classifier(SklearnClassifier(clf=base_bagging), **classifier_params)
+
+
+def test_theanets_multiclassification():
+    check_classifier(TheanetsClassifier(trainers=[{'patience': 0}]), n_classes=4, **classifier_params)
+
+
+def test_theanets_multi_regression():
+    check_regression(TheanetsRegressor(layers=[20], trainers=[{'optimize': 'rmsprop', 'min_improvement': 0.1}]),
+                     n_targets=3, **regressor_params)
