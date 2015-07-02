@@ -200,7 +200,7 @@ class XGBoostBase(object):
                 with open(dump.name, 'wb') as dumpfile:
                     dumpfile.write(dict['dumped_xgboost'])
                 self._load_model(dump.name)
-            # HUCK error in xgboost reloading
+            # HACK error in xgboost reloading
             if '_num_class' in dict:
                 self.xgboost_classifier.set_param({'num_class': dict['_num_class']})
         del dict['dumped_xgboost']
