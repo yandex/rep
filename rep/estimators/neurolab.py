@@ -67,18 +67,17 @@ class NeurolabBase(object):
 
     Parameters:
     -----------
-    :param tuple[int] layers: sequence of units numbers inside each **hidden** layer.
+    :param features: features used in training
+    :type features: list[str] or None
+    :param list[int] layers: sequence, number of units inside each **hidden** layer.
     :param string net_type: type of network
         One of 'feed-forward', 'single-layer', 'competing-layer', 'learning-vector',
         'elman-recurrent', 'hopfield-recurrent', 'hemming-recurrent'
-    :param features: features used in training
-    :type features: list[str] or None
     :param initf: layer initializers
     :type initf: anything implementing call(layer), e.g. nl.init.* or list[nl.init.*] of shape [n_layers]
     :param trainf: net train function, default value depends on type of network
     :param scaler: transformer to apply to the input objects
     :type scaler: str or sklearn-like transformer or False (do not scale features)
-    :param list[int] layers: list of numbers denoting size of each hidden layer
     :param random_state: ignored, added for uniformity.
     :param dict kwargs: additional arguments to net __init__, varies with different net_types
 
