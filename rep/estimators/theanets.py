@@ -1,14 +1,5 @@
 """
-These classes are wrappers for neural network python library - theanets.
-
-.. seealso:: http://theanets.readthedocs.org/en/latest/training.html
-
-.. note::
-        * we don't support `sample` and `hf` optimizations, besides `hf` now doesn't work in theanets https://github.com/lmjohns3/theanets/issues/62
-
-        * weights aren't supported (maybe will resolve)
-
-        * staged predict operation isn't supported
+These classes are wrappers for `theanets <http://theanets.readthedocs.org/>`_ - neural network python library.
 
 """
 
@@ -355,11 +346,6 @@ class TheanetsClassifier(TheanetsBase, Classifier):
 
     def staged_predict_proba(self, X):
         """
-        Predicts values on each stage
-
-        :param pandas.DataFrame X: data shape [n_samples, n_features]
-        :return: iterator
-
         .. warning:: not supported in Theanets (**NotImplementedError** will be thrown)
         """
         raise NotImplementedError('staged_predict_proba is not supported for theanets classifier')
@@ -412,11 +398,6 @@ class TheanetsRegressor(TheanetsBase, Regressor):
 
     def staged_predict(self, X):
         """
-        Predicts values on each stage
-
-        :param pandas.DataFrame X: data shape [n_samples, n_features]
-        :return: iterator
-
         .. warning:: not supported in Theanets (**NotImplementedError** will be thrown)
         """
         raise NotImplementedError('staged_predict is not supported for theanets regressor')

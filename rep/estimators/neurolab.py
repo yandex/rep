@@ -1,20 +1,11 @@
 """
-These classes are wrappers for neural network python library - neurolab.
+These classes are wrappers for `neurolab <https://pythonhosted.org/neurolab/lib.html>`_ - neural network python library
 
-.. seealso:: https://pythonhosted.org/neurolab/lib.html
-
-.. warning:: To make neurolab reproducible we set
+.. warning:: To make neurolab reproducible we change global random seed
 
     ::
 
         numpy.random.seed(42)
-
-
-.. note::
-        * weights aren't supported (maybe will resolve)
-
-        * staged predict operation isn't supported
-
 """
 # Copyright 2014-2015 Yandex LLC and contributors <https://yandex.com/>
 #
@@ -282,11 +273,6 @@ class NeurolabClassifier(NeurolabBase, Classifier):
 
     def staged_predict_proba(self, X):
         """
-        Predicts probabilities on each stage
-
-        :param X: pandas.DataFrame of shape [n_samples, n_features]
-        :rtype: iterator
-
         .. warning:: not supported in Neurolab (**AttributeError** will be thrown)
         """
         raise AttributeError("staged_predict_proba is not supported by Neurolab networks")
@@ -342,11 +328,6 @@ class NeurolabRegressor(NeurolabBase, Regressor):
 
     def staged_predict(self, X, step=10):
         """
-        Predicts values on each stage
-
-        :param X: pandas.DataFrame of shape [n_samples, n_features]
-        :rtype: iterator
-
         .. warning:: not supported in Neurolab (**AttributeError** will be thrown)
         """
         raise AttributeError("Staged predict is not supported by Neurolab networks")

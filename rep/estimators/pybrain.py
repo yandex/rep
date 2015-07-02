@@ -1,14 +1,8 @@
 """
-These classes are wrappers for neural network python library - pybrain.
+These classes are wrappers for `pybrain <http://pybrain.org/docs/>`_ - neural network python library.
 
-.. seealso:: http://pybrain.org/docs/
-
-.. warning:: pybrain training isn't reproducible
-
-.. note::
-        * weights aren't supported (maybe will resolve)
-
-        * staged predict operation isn't supported
+.. warning:: pybrain training isn't reproducible (training again with same parameters
+will produce different neural network)
 
 
 """
