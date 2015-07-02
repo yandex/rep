@@ -3,7 +3,12 @@ These classes are wrappers for neural network python library - theanets.
 
 .. seealso:: http://theanets.readthedocs.org/en/latest/training.html
 
-.. note:: we don't support `sample` and `hf` optimizations, besides `hf` now doesn't work in theanets https://github.com/lmjohns3/theanets/issues/62
+.. note::
+        * we don't support `sample` and `hf` optimizations, besides `hf` now doesn't work in theanets https://github.com/lmjohns3/theanets/issues/62
+
+        * weights aren't supported (maybe will resolve)
+
+        * staged predict operation isn't supported
 
 """
 
@@ -236,6 +241,9 @@ class TheanetsBase(object):
         :param pandas.DataFrame X: data shape [n_samples, n_features]
         :param y: values - array-like of shape [n_samples]
         :return: self
+
+        .. note:: if `trainer['optimize'] == 'pretrain'` (unsupervised training)
+        `y` can be specific vector, details see in `partial_fit`
         """
         self.exp = None
         if self.trainers is None:
@@ -317,6 +325,9 @@ class TheanetsClassifier(TheanetsBase, Classifier):
         :param bool keep_trainer: True if the trainer is not stored in self.trainers
         :param dict trainer: parameters of the training algorithm we want to use now
         :return: self
+
+        .. note:: if `trainer['optimize'] == 'pretrain'` (unsupervised training)
+        `y` can be any vector just with information `numpy.unique(y) == classes`
         """
         X, y = self._prepare_for_partial_fit(X, y, keep_trainer=keep_trainer, **trainer)
         if self.exp is None:
@@ -368,6 +379,9 @@ class TheanetsRegressor(TheanetsBase, Regressor):
         :param bool keep_trainer: True if the trainer is not stored in self.trainers
         :param dict trainer: parameters of the training algorithm we want to use now
         :return: self
+
+        .. note:: if `trainer['optimize'] == 'pretrain'` (unsupervised training)
+        `y` can be any vector just with information about number of targets `numpy.shape(y)`
         """
         allow_multiple_targets = False if len(numpy.shape(y)) == 1 else True
         X, y = self._prepare_for_partial_fit(X, y, allow_multiple_targets=allow_multiple_targets,

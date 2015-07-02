@@ -5,6 +5,12 @@ These classes are wrappers for neural network python library - pybrain.
 
 .. warning:: pybrain training isn't reproducible
 
+.. note::
+        * weights aren't supported (maybe will resolve)
+
+        * staged predict operation isn't supported
+
+
 """
 
 # Copyright 2014-2015 Yandex LLC and contributors <https://yandex.com/>
