@@ -217,6 +217,8 @@ class TMVAClassifier(TMVABase, Classifier):
 
     .. warning::
         TMVA doesn't support multiclassification, only two-class classification
+
+    .. seealso:: TMVA guide http://mirror.yandex.ru/gentoo-distfiles/distfiles/TMVAUsersGuide-v4.03.pdf
     """
 
     def __init__(self,
@@ -279,7 +281,7 @@ class TMVAClassifier(TMVABase, Classifier):
         :return: self
         """
         X, y, sample_weight = check_inputs(X, y, sample_weight=sample_weight, allow_none_weights=False)
-        X = self._get_train_features(X).copy()
+        X = self._get_features(X).copy()
         self._set_classes_special(y)
         if self.n_classes_ == 2:
             self.factory_options = '{}:AnalysisType=Classification'.format(self.factory_options)
@@ -295,7 +297,7 @@ class TMVAClassifier(TMVABase, Classifier):
         :param pandas.DataFrame X: data shape [n_samples, n_features]
         :rtype: numpy.array of shape [n_samples, n_classes] with probabilities
         """
-        X = self._get_train_features(X)
+        X = self._get_features(X)
         prediction = self._predict(X, model_type=('classification', self.sigmoid_function))
         return self._convert_output(prediction)
 
@@ -341,6 +343,8 @@ class TMVARegressor(TMVABase, Regressor):
 
     .. note::
         TMVA doesn't support *staged_predict()* and *feature_importances__*
+
+    .. seealso:: TMVA guide http://mirror.yandex.ru/gentoo-distfiles/distfiles/TMVAUsersGuide-v4.03.pdf
     """
 
     def __init__(self,
@@ -395,7 +399,7 @@ class TMVARegressor(TMVABase, Regressor):
         :return: self
         """
         X, y, sample_weight = check_inputs(X, y, sample_weight=sample_weight, allow_none_weights=False)
-        X = self._get_train_features(X).copy()
+        X = self._get_features(X).copy()
 
         self.factory_options = '{}:AnalysisType=Regression'.format(self.factory_options)
         return self._fit(X, y, sample_weight=sample_weight, model_type='regression')
@@ -407,7 +411,7 @@ class TMVARegressor(TMVABase, Regressor):
         :param pandas.DataFrame X: data shape [n_samples, n_features]
         :return: numpy.array of shape n_samples with values
         """
-        X = self._get_train_features(X)
+        X = self._get_features(X)
         return self._predict(X, model_type=('regression', None))
 
     def staged_predict(self, X):

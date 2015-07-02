@@ -44,9 +44,9 @@ class SklearnBase(object):
         else exception will be thrown.
         """
         if sample_weight is None:
-            self.clf.fit(self._get_train_features(X), y, **kwargs)
+            self.clf.fit(self._get_features(X), y, **kwargs)
         else:
-            self.clf.fit(self._get_train_features(X), y, sample_weight=sample_weight, **kwargs)
+            self.clf.fit(self._get_features(X), y, sample_weight=sample_weight, **kwargs)
         return self
 
     def predict(self, X):
@@ -56,7 +56,7 @@ class SklearnBase(object):
         :param X: pandas.DataFrame of shape [n_samples, n_features]
         :rtype: numpy.array of shape [n_samples] with labels/values
         """
-        return self.clf.predict(self._get_train_features(X))
+        return self.clf.predict(self._get_features(X))
 
     def __getattr__(self, name):
         if name in ['__getstate__', '__setstate__']:
@@ -129,7 +129,7 @@ class SklearnClassifier(SklearnBase, Classifier):
         :param X: pandas.DataFrame of shape [n_samples, n_features]
         :rtype: numpy.array of shape [n_samples, n_classes] with probabilities
         """
-        return self.clf.predict_proba(self._get_train_features(X))
+        return self.clf.predict_proba(self._get_features(X))
 
     def staged_predict_proba(self, X):
         """
@@ -137,7 +137,7 @@ class SklearnClassifier(SklearnBase, Classifier):
 
         :return: iterator
         """
-        return self.clf.staged_predict_proba(self._get_train_features(X))
+        return self.clf.staged_predict_proba(self._get_features(X))
 
 
 class SklearnRegressor(SklearnBase, Regressor):
@@ -201,4 +201,4 @@ class SklearnRegressor(SklearnBase, Regressor):
 
         :return: iterator
         """
-        return self.clf.staged_predict(self._get_train_features(X))
+        return self.clf.staged_predict(self._get_features(X))

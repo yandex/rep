@@ -20,13 +20,17 @@ __author__ = 'Tatiana Likhomanenko'
 class FoldingClassifier(Classifier):
     """
     This meta-classifier implements folding algorithm:
+
     * training data is splitted into n equal parts;
+
     * then n times union of n-1 parts is used to train classifier;
+
     * at the end we have n-estimators, which are used to classify new events
 
+
     To build unbiased predictions for data, pass the **same** dataset (with same order of events)
-     as in training to `predict`, `predict_proba` or `staged_predict_proba`, in which case
-     classifier will use to predict each event that base classifier which didn't use that event during training.
+    as in training to `predict`, `predict_proba` or `staged_predict_proba`, in which case
+    classifier will use to predict each event that base classifier which didn't use that event during training.
 
     To use information from not one, but several classifiers during predictions,
     provide appropriate voting function.
@@ -79,7 +83,7 @@ class FoldingClassifier(Classifier):
                array-like of shape [n_samples] or None if all weights are equal
         """
         X, y, sample_weight = check_inputs(X, y, sample_weight=sample_weight, allow_none_weights=True)
-        X = self._get_train_features(X)
+        X = self._get_features(X)
         self._set_classes(y)
         folds_column = self._get_folds_column(len(X))
 
@@ -146,7 +150,7 @@ class FoldingClassifier(Classifier):
         """
         if vote_function is not None:
             print('Using voting KFold prediction')
-            X = self._get_train_features(X)
+            X = self._get_features(X)
             probabilities = []
             for classifier in self.estimators:
                 probabilities.append(self._get_estimators_proba(classifier, X))
@@ -155,7 +159,7 @@ class FoldingClassifier(Classifier):
             return vote_function(probabilities)
         else:
             print('KFold prediction using folds column')
-            X = self._get_train_features(X)
+            X = self._get_features(X)
             folds_column = self._get_folds_column(len(X))
             probabilities = numpy.zeros(shape=(len(X), self.n_classes_))
             for fold in range(self.n_folds):
@@ -177,14 +181,14 @@ class FoldingClassifier(Classifier):
         """
         if vote_function is not None:
             print('Using voting KFold prediction')
-            X = self._get_train_features(X)
+            X = self._get_features(X)
             iterators = [estimator.staged_predict_proba(X) for estimator in self.estimators]
             for fold_prob in zip(*iterators):
                 probabilities = numpy.array(fold_prob)
                 yield vote_function(probabilities)
         else:
             print('Default prediction')
-            X = self._get_train_features(X)
+            X = self._get_features(X)
             folds_column = self._get_folds_column(len(X))
             iterators = [self.estimators[fold].staged_predict_proba(X.iloc[folds_column == fold, :])
                          for fold in range(self.n_folds)]

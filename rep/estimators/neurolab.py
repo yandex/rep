@@ -1,3 +1,21 @@
+"""
+These classes are wrappers for neural network python library - neurolab.
+
+.. seealso:: https://pythonhosted.org/neurolab/lib.html
+
+.. warning:: To make neurolab reproducible we set
+
+    ::
+
+        numpy.random.seed(42)
+
+
+.. note::
+        * weights aren't supported (maybe will resolve)
+
+        * staged predict operation isn't supported
+
+"""
 # Copyright 2014-2015 Yandex LLC and contributors <https://yandex.com/>
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,14 +35,14 @@ from abc import ABCMeta
 from copy import deepcopy
 
 import neurolab as nl
-import numpy as np
+import numpy
 import scipy
 
 from .interface import Classifier, Regressor
 from .utils import check_inputs, check_scaler, one_hot_transform, remove_first_line
 
 
-__author__ = 'Vlad Sterzhanov, Alex Rogozhnikov'
+__author__ = 'Vlad Sterzhanov, Alex Rogozhnikov, Tatiana Likhomanenko'
 __all__ = ['NeurolabBase', 'NeurolabClassifier', 'NeurolabRegressor']
 
 NET_TYPES = {'feed-forward': nl.net.newff,
@@ -49,23 +67,22 @@ class NeurolabBase(object):
 
     Parameters:
     -----------
-    :param layers: sequence of units numbers inside each **hidden** layer.
-    :type layers: list[int]
+    :param tuple[int] layers: sequence of units numbers inside each **hidden** layer.
     :param string net_type: type of network
         One of 'feed-forward', 'single-layer', 'competing-layer', 'learning-vector',
         'elman-recurrent', 'hopfield-recurrent', 'hemming-recurrent'
     :param features: features used in training
     :type features: list[str] or None
     :param initf: layer initializers
-    :type initf: anything implementing call(layer). e.g. nl.init.* or list[nl.init.*] of shape [n_layers]
+    :type initf: anything implementing call(layer), e.g. nl.init.* or list[nl.init.*] of shape [n_layers]
     :param trainf: net train function, default value depends on type of network
     :param scaler: transformer to apply to the input objects
     :type scaler: str or sklearn-like transformer or False (do not scale features)
-    :param list layers: list of numbers denoting size of each hidden layer
+    :param list[int] layers: list of numbers denoting size of each hidden layer
     :param random_state: ignored, added for uniformity.
     :param dict kwargs: additional arguments to net __init__, varies with different net_types
 
-    See https://pythonhosted.org/neurolab/lib.html for supported train functions and their parameters.
+    .. seealso:: https://pythonhosted.org/neurolab/lib.html for supported train functions and their parameters.
     """
 
     __metaclass__ = ABCMeta
@@ -79,8 +96,8 @@ class NeurolabBase(object):
                  scaler='standard',
                  random_state=None,
                  **other_params):
-        self.features = features
-        self.layers = layers
+        self.features = list(features) if features is not None else features
+        self.layers = list(layers)
         self.trainf = trainf
         self.initf = initf
         self.net_type = net_type
@@ -93,20 +110,31 @@ class NeurolabBase(object):
         self.set_params(**other_params)
 
     def is_fitted(self):
+        """
+        Check if net is fitted
+
+        :return: If estimator was fitted
+        :rtype: bool
+        """
         return self.net is not None
 
     def set_params(self, **params):
         """
-        Set the parameters of this estimator,
+        Set the parameters of this estimator.
+
         :param dict params: parameters to set in model
         """
         for name, value in params.items():
-            # if name in {'random_state'}:
-                # continue
             if name.startswith("scaler__"):
                 assert hasattr(self.scaler, 'set_params'), \
                     "Trying to set {} without scaler".format(name)
                 self.scaler.set_params(**{name[len("scaler__"):]: value})
+            elif name.startswith('layers__'):
+                index = int(name[len('layers__'):])
+                self.layers[index] = value
+            elif name.startswith('initf__'):
+                index = int(name[len('initf__'):])
+                self.initf[index] = value
             elif name in NET_PARAMS:
                 self.net_params[name] = value
             elif name in BASIC_PARAMS:
@@ -117,7 +145,8 @@ class NeurolabBase(object):
     def get_params(self, deep=True):
         """
         Get parameters of this estimator
-        :return dict
+
+        :rtype: dict
         """
         parameters = deepcopy(self.net_params)
         parameters.update(deepcopy(self.train_params))
@@ -131,13 +160,12 @@ class NeurolabBase(object):
         y_original is what originally was passed to `fit`.
         """
         # magic reproducibilizer
-        np.random.seed(42)
+        numpy.random.seed(42)
 
         if self.is_fitted():
-            x_train = self._transform_input(X, y_original)
+            x_train = self._transform_input(X, y_original, fit=False)
         else:
-            self.scaler = check_scaler(self.scaler)
-            x_train = self._transform_input(X, y_original)
+            x_train = self._transform_input(X, y_original, fit=True)
 
             # Prepare parameters depending on network purpose (classification / regression)
             net_params = self._prepare_params(self.net_params, x_train, y_train)
@@ -165,11 +193,12 @@ class NeurolabBase(object):
         return self.net.sim(transformed_x)
 
     def _transform_input(self, X, y=None, fit=True):
-        X = self._get_train_features(X)
+        X = self._get_features(X)
         # The following line fights the bug in sklearn < 0.16,
         # most of transformers there modify X if it is pandas.DataFrame.
-        X = np.copy(X)
+        X = numpy.copy(X)
         if fit:
+            self.scaler = check_scaler(self.scaler)
             self.scaler.fit(X, y)
         X = self.scaler.transform(X)
 
@@ -214,10 +243,13 @@ class NeurolabClassifier(NeurolabBase, Classifier):
 
     def fit(self, X, y):
         """
-        Fit model on data
+        Train the classifier
 
-        :param X: pandas.DataFrame
-        :param y: iterable denoting corresponding object classes
+        :param pandas.DataFrame X: data shape [n_samples, n_features]
+        :param y: labels of events - array-like of shape [n_samples]
+        :param sample_weight: weight of events,
+               array-like of shape [n_samples] or None if all weights are equal
+
         :return: self
         """
         # erasing results of previous training
@@ -225,6 +257,14 @@ class NeurolabClassifier(NeurolabBase, Classifier):
         return self.partial_fit(X, y)
 
     def partial_fit(self, X , y):
+        """
+        Additional training of the classifier
+
+        :param pandas.DataFrame X: data shape [n_samples, n_features]
+        :param y: labels of events - array-like of shape [n_samples]
+
+        :return: self
+        """
         assert self.net_type not in CANT_CLASSIFY, 'Network type does not support classification'
         X, y, _ = check_inputs(X, y, None)
         if not self.is_fitted():
@@ -234,15 +274,20 @@ class NeurolabClassifier(NeurolabBase, Classifier):
 
     def predict_proba(self, X):
         """
-        Predict probabilities for each class label on dataset
+        Predict labels for all events in dataset
 
         :param X: pandas.DataFrame of shape [n_samples, n_features]
-        :rtype: numpy.array of shape [n_samples, n_classes] with probabilities
+        :rtype: numpy.array of shape [n_samples] with integer labels
         """
         return self._sim(X)
 
     def staged_predict_proba(self, X):
         """
+        Predicts probabilities on each stage
+
+        :param X: pandas.DataFrame of shape [n_samples, n_features]
+        :rtype: iterator
+
         .. warning:: not supported in Neurolab (**AttributeError** will be thrown)
         """
         raise AttributeError("staged_predict_proba is not supported by Neurolab networks")
@@ -259,10 +304,13 @@ class NeurolabRegressor(NeurolabBase, Regressor):
 
     def fit(self, X, y):
         """
-        Fit model on data
+        Train the classifier
 
-        :param X: pandas.DataFrame of shape [n_samples n_features]
-        :param y: target values - array-like of shape [n_samples] or [n_samples, n_targets].
+        :param pandas.DataFrame X: data shape [n_samples, n_features]
+        :param y: labels of events - array-like of shape [n_samples]
+        :param sample_weight: weight of events,
+               array-like of shape [n_samples] or None if all weights are equal
+
         :return: self
         """
         # erasing results of previous training
@@ -270,6 +318,14 @@ class NeurolabRegressor(NeurolabBase, Regressor):
         return self.partial_fit(X, y)
 
     def partial_fit(self, X , y):
+        """
+        Additional training of the classifier
+
+        :param pandas.DataFrame X: data shape [n_samples, n_features]
+        :param y: labels of events - array-like of shape [n_samples]
+
+        :return: self
+        """
         assert self.net_type not in CANT_CLASSIFY, 'Network type does not support regression'
         X, y, _ = check_inputs(X, y, None, allow_multiple_targets=True)
         y_train = y.reshape(len(y), 1 if len(y.shape) == 1 else y.shape[1])
@@ -277,16 +333,21 @@ class NeurolabRegressor(NeurolabBase, Regressor):
 
     def predict(self, X):
         """
-        Predict model
+        Predict values for all events in dataset.
 
-        :param pandas.DataFrame X: data, shape [n_samples, n_features]
-        :return: numpy.array of shape [n_samples] or [n_samples, n_targets] with predicted values,
+        :param X: pandas.DataFrame of shape [n_samples, n_features]
+        :rtype: numpy.array of shape [n_samples] with predicted values
         """
         modeled = self._sim(X)
-        return modeled if modeled.shape[1] != 1 else np.ravel(modeled)
+        return modeled if modeled.shape[1] != 1 else numpy.ravel(modeled)
 
     def staged_predict(self, X, step=10):
         """
+        Predicts values on each stage
+
+        :param X: pandas.DataFrame of shape [n_samples, n_features]
+        :rtype: iterator
+
         .. warning:: not supported in Neurolab (**AttributeError** will be thrown)
         """
         raise AttributeError("Staged predict is not supported by Neurolab networks")

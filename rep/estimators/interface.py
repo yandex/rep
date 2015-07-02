@@ -9,7 +9,7 @@ import numpy
 import pandas
 
 from sklearn.base import BaseEstimator, ClassifierMixin, RegressorMixin
-from .utils import _get_train_features
+from .utils import _get_features
 
 __author__ = 'Tatiana Likhomanenko, Alex Rogozhnikov'
 
@@ -38,16 +38,16 @@ class Classifier(BaseEstimator, ClassifierMixin):
     __metaclass__ = ABCMeta
 
     def __init__(self, features=None):
-        self.features = features
-        self.classes_ = None
+        self.features = list(features) if features is not None else features
 
-    def _get_train_features(self, X, allow_nans=False):
+    def _get_features(self, X, allow_nans=False):
         """
         :param pandas.DataFrame X: train dataset
 
         :return: pandas.DataFrame with used features
         """
-        return _get_train_features(self, X, allow_nans=allow_nans)
+        X_prepared, self.features = _get_features(self.features, X, allow_nans=allow_nans)
+        return X_prepared
 
     def _set_classes(self, y):
         self.classes_, indices = numpy.unique(y, return_index=True)
@@ -144,15 +144,16 @@ class Regressor(BaseEstimator, RegressorMixin):
     __metaclass__ = ABCMeta
 
     def __init__(self, features=None):
-        self.features = features
+        self.features = list(features) if features is not None else features
 
-    def _get_train_features(self, X, allow_nans=False):
+    def _get_features(self, X, allow_nans=False):
         """
         :param pandas.DataFrame X: train dataset
 
         :return: pandas.DataFrame with used features
         """
-        return _get_train_features(self, X, allow_nans=allow_nans)
+        X_prepared, self.features = _get_features(self.features, X, allow_nans=allow_nans)
+        return X_prepared
 
     @abstractmethod
     def fit(self, X, y, sample_weight=None):

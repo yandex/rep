@@ -74,33 +74,35 @@ def normalize_weights(y, sample_weight, per_class=True):
         return sample_weight / numpy.mean(sample_weight)
 
 
-def _get_train_features(estimator, X, allow_nans=False):
+def _get_features(features, X, allow_nans=False):
         """
-        :param pandas.DataFrame X: train dataset
-        :param estimator: classifier or regressor
-        :type estimator: Classifier or Regressor
+        Get data with necessary features
 
-        :return: pandas.DataFrame with used features
+        :param list[str] features: features
+        :param pandas.DataFrame X: train dataset
+
+        :return: pandas.DataFrame with used features, features
         """
+        new_features = features
         if isinstance(X, numpy.ndarray):
             X = pandas.DataFrame(X, columns=['Feature_%d' % index for index in range(X.shape[1])])
         else:
             assert isinstance(X, pandas.DataFrame), 'Support only numpy.ndarray and pandas.DataFrame'
-        if estimator.features is None:
-            estimator.features = list(X.columns)
+        if features is None:
+            new_features = list(X.columns)
             X_features = X
-        elif list(X.columns) == list(estimator.features):
+        elif list(X.columns) == list(features):
             X_features = X
         else:
             # assert set(self.features).issubset(set(X.columns)), "Data doesn't contain all training features"
             # X_features = X.ix[:, self.features]
-            X_features = get_columns_in_df(X, estimator.features)
+            X_features = get_columns_in_df(X, features)
 
         if not allow_nans:
             # do by column to not create copy of all data frame
             for column in X_features.columns:
                 assert numpy.all(numpy.isfinite(X_features[column])), "Does not support NaN: " + str(column)
-        return X_features
+        return X_features, new_features
 
 
 class IdentityTransformer(BaseEstimator, TransformerMixin):
@@ -125,7 +127,8 @@ class IdentityTransformer(BaseEstimator, TransformerMixin):
 def check_scaler(scaler):
     """
     Used in neural networks. To unify usage in different neural networks.
-    :param scaler:
+
+    :param scaler: scaler
     :type scaler: str or False or TransformerMixin
     :return: TransformerMixin, scaler
     """

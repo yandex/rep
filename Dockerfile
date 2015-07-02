@@ -1,5 +1,7 @@
-FROM anaderi/rep-base:latest
+FROM anaderi/rep-base:0.6
 MAINTAINER Andrey Ustyuzhanin <anaderi@yandex-team.ru>
+
+RUN pip install theanets pybrain neurolab
 
 ENV TEMP /tmp
 RUN mkdir $TEMP/build
