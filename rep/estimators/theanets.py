@@ -71,7 +71,7 @@ class TheanetsBase(object):
 
 
     For more information on available trainers and their parameters, see this page
-    http://theanets.readthedocs.org/en/latest/training.html.
+    http://theanets.readthedocs.org/en/latest/training.html
     """
 
     __metaclass__ = ABCMeta
