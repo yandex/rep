@@ -1,5 +1,7 @@
 #!/bin/bash
 
+[ -f "/etc_docker/bash.bashrc" ] && source /etc_docker/bash.bashrc
+
 NOTEBOOK_DIR='/notebooks'
 [ -d '/logdir' ] && LOG_DIR='/logdir'
 
