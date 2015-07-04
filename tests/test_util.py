@@ -32,4 +32,9 @@ def test_calc():
         assert ((yval + threshold - 1) ** 2).mean() < 0.1
 
 
+def test_train_test_split_group():
+    data = range(50) * 2
+    group_column = range(50) * 2
+    train, test = utils.train_test_split_group(group_column, data)
+    assert len(set.intersection(set(test), set(train))) == 0
 

@@ -22,8 +22,8 @@ def test_feature_splitter():
     X[split_column] = splitters
     X.ix[splitters == 1, :] += 4
     X.ix[splitters == 2, :] -= 4
-    fs = FeatureSplitter(base_estimator=XGBoostClassifier(features=list(X.columns[1:]), n_estimators=10, max_depth=3),
-                         split_feature=split_column)
+    fs = FeatureSplitter(base_estimator=XGBoostClassifier(n_estimators=10, max_depth=3),
+                         split_feature=split_column, train_features=list(X.columns[1:]))
     fs.fit(X, y, sample_weight=sample_weight)
     assert fs.score(X, y) > 0.9
     p_final = fs.predict_proba(X)
