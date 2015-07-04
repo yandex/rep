@@ -40,6 +40,7 @@ It includes:
     * plotly
 
   * :doc:`utils`  contains additional functions
+  * `Howto notebooks <http://nbviewer.ipython.org/github/yandex/rep/tree/master/howto/>`_ contains examples
 
 Main repository: http://github.com/yandex/REP
 
@@ -54,4 +55,4 @@ Contents:
     report
     plotting
     utils
-
+    Howto notebooks <http://nbviewer.ipython.org/github/yandex/rep/tree/master/howto/>

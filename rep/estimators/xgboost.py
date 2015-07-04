@@ -1,7 +1,5 @@
 """
-Wrapper for XGBoost library.
-
-.. seealso:: https://github.com/dmlc/xgboost
+Wrapper for `XGBoost <https://github.com/dmlc/xgboost>`_ library.
 """
 from __future__ import division, print_function, absolute_import
 

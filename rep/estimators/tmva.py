@@ -1,8 +1,7 @@
 """
 These classes are wrappers for physics machine learning library TMVA used .root format files (c++ library).
 Now you can simply use it in python. TMVA contains classification and regression algorithms, including neural networks.
-
-.. seealso:: TMVA guide http://mirror.yandex.ru/gentoo-distfiles/distfiles/TMVAUsersGuide-v4.03.pdf
+`TMVA guide <http://mirror.yandex.ru/gentoo-distfiles/distfiles/TMVAUsersGuide-v4.03.pdf>`_
 """
 from __future__ import division, print_function, absolute_import
 from abc import ABCMeta
@@ -218,7 +217,7 @@ class TMVAClassifier(TMVABase, Classifier):
     .. warning::
         TMVA doesn't support multiclassification, only two-class classification
 
-    .. seealso:: TMVA guide http://mirror.yandex.ru/gentoo-distfiles/distfiles/TMVAUsersGuide-v4.03.pdf
+    `TMVA guide <http://mirror.yandex.ru/gentoo-distfiles/distfiles/TMVAUsersGuide-v4.03.pdf>`_
     """
 
     def __init__(self,
@@ -344,7 +343,7 @@ class TMVARegressor(TMVABase, Regressor):
     .. note::
         TMVA doesn't support *staged_predict()* and *feature_importances__*
 
-    .. seealso:: TMVA guide http://mirror.yandex.ru/gentoo-distfiles/distfiles/TMVAUsersGuide-v4.03.pdf
+    `TMVA guide <http://mirror.yandex.ru/gentoo-distfiles/distfiles/TMVAUsersGuide-v4.03.pdf>`_
     """
 
     def __init__(self,
