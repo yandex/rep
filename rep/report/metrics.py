@@ -52,8 +52,8 @@ from __future__ import division, print_function, absolute_import
 import numpy
 from sklearn.base import BaseEstimator
 from sklearn.metrics import roc_auc_score, roc_curve
-from sklearn.utils import check_arrays
-from rep.utils import check_sample_weight, weighted_percentile
+from ..utils import check_arrays
+from ..utils import check_sample_weight, weighted_percentile
 
 
 __author__ = 'Alex Rogozhnikov'

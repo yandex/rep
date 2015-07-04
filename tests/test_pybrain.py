@@ -69,7 +69,7 @@ def test_pybrain_Linear_MDLSTM():
 
 
 def test_pybrain_SoftMax_Tanh():
-    check_classifier(PyBrainClassifier(epochs=2, layers=[10, 2], hiddenclass=['SoftmaxLayer', 'SoftmaxLayer', 'TanhLayer'], use_rprop=True),
+    check_classifier(PyBrainClassifier(epochs=2, layers=[10, 5, 2], hiddenclass=['SoftmaxLayer', 'SoftmaxLayer', 'TanhLayer'], use_rprop=True),
                      **classifier_params)
     check_regression(PyBrainRegressor(epochs=2, layers=[10, 5, 2], hiddenclass=['SoftmaxLayer', 'TanhLayer', 'TanhLayer']),
                      **regressor_params)

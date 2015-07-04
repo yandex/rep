@@ -12,10 +12,17 @@ RUN cd $TEMP/build && \
 
 # system setup
 #
+ENV PORT_IPYTHON=8080
+
 WORKDIR /root/
-RUN ipython profile create
+RUN ipython profile create default &&\
+  echo -e "\n\n\n\n`hostname`\n\n" | openssl req -x509 -nodes -days 365 -newkey rsa:1024 -keyout mycert.pem -out mycert.pem
+\
+  echo -e "# Notebook config\nc.NotebookApp.certfile = u'/root/mycert.pem'\nc.NotebookApp.ip = '*'\nc.NotebookApp.open_browser = False\n# It is a good idea to put it on a known, fixed port\nc.NotebookApp.port = $PORT_IPYTHON\n\nPWDFILE='/root/.ipython/profile_default/nbpasswd.txt'\nc.NotebookApp.password = open(PWDFILE).read().strip()" >> /root/.ipython/profile_default/ipython_notebook_config.py && \
+  python -c "from IPython.lib import passwd; print passwd('rep')"  > /root/.ipython/profile_default/nbpasswd.txt
+
 # COPY ipython-patch/custom.js /root/.ipython/profile_default/static/custom/custom.js
 
-EXPOSE 8080
+EXPOSE $PORT_IPYTHON
 EXPOSE 5000
-CMD ["bash", "run.sh"]
+CMD ["bash", "/root/run.sh"]

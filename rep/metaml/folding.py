@@ -82,6 +82,9 @@ class FoldingClassifier(Classifier):
         :param sample_weight: weight of events,
                array-like of shape [n_samples] or None if all weights are equal
         """
+        if hasattr(self.base_estimator, 'features'):
+            assert self.base_estimator.features is None, 'Base estimator must have None features! ' \
+                                                         'Use features parameter in Folding to fix it'
         X, y, sample_weight = check_inputs(X, y, sample_weight=sample_weight, allow_none_weights=True)
         X = self._get_features(X)
         self._set_classes(y)
@@ -89,10 +92,6 @@ class FoldingClassifier(Classifier):
 
         for _ in range(self.n_folds):
             self.estimators.append(clone(self.base_estimator))
-            try:
-                self.estimators[-1].set_params(features=self.features)
-            except ValueError:
-                pass
 
         if sample_weight is None:
             weights_iterator = (None for _ in range(self.n_folds))
