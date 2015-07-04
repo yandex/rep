@@ -1,4 +1,5 @@
-The following authors have created the source code of "Reproducible Experiment Platform" published and maintained by YANDEX LLC:
+The following authors have created the source code of "Reproducible Experiment Platform"
+published and distributed by YANDEX LLC as the owner:
 
 - Tatiana Likhomanenko
 - Alexey Rogozhnikov
@@ -8,7 +9,13 @@ The following authors have created the source code of "Reproducible Experiment P
 - Egor Khairullin
 - Konstantin Nikitin
 - Andrey Ustyuzhanin
+
+The following authors have licensed their contributions to YANDEX LLC and everyone who
+uses "Reproducible Experiment Platform" under the licensing terms detailed in LICENSE
+available at LICENSE file:
+
 - Artem Zhirokhov
 - Vlad Sterzhanov
 - Alexey Berdnikov
 - Lisa Ignatyeva
+
