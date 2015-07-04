@@ -1,7 +1,7 @@
 from __future__ import division, print_function, absolute_import
 
 from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier
-from sklearn.metrics.metrics import accuracy_score, roc_auc_score
+from sklearn.metrics import accuracy_score, roc_auc_score
 import numpy
 
 from rep.data import LabeledDataStorage
