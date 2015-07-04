@@ -1,57 +1,120 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
 
-<html xmlns="http://www.w3.org/1999/xhtml">
-  <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>Plotting &mdash; REP (Reproducible Experiment Platform) 0.6.1 documentation</title>
-    
-    <link rel="stylesheet" href="_static/nature.css" type="text/css" />
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    './',
-        VERSION:     '0.6.1',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
-      };
-    </script>
-    <script type="text/javascript" src="_static/jquery.js"></script>
-    <script type="text/javascript" src="_static/underscore.js"></script>
-    <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="REP (Reproducible Experiment Platform) 0.6.1 documentation" href="index.html" />
-    <link rel="next" title="Utilities" href="utils.html" />
-    <link rel="prev" title="Report for models" href="report.html" /> 
-  </head>
-  <body role="document">
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="genindex.html" title="General Index"
-             accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="right" >
-          <a href="utils.html" title="Utilities"
-             accesskey="N">next</a> |</li>
-        <li class="right" >
-          <a href="report.html" title="Report for models"
-             accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">REP (Reproducible Experiment Platform) 0.6.1 documentation</a> &raquo;</li> 
-      </ul>
-    </div>  
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Plotting &mdash; REP (Reproducible Experiment Platform) 0.6.2 documentation</title>
+  
 
-    <div class="document">
-      <div class="documentwrapper">
-        <div class="bodywrapper">
-          <div class="body" role="main">
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="REP (Reproducible Experiment Platform) 0.6.2 documentation" href="index.html"/>
+        <link rel="next" title="Utilities" href="utils.html"/>
+        <link rel="prev" title="Report for models" href="report.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-nav-search">
+        
+
+        
+          <a href="index.html" class="icon icon-home"> REP (Reproducible Experiment Platform)
+        
+
+        
+        </a>
+
+        
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+        
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+        
+          
+          
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="data.html">Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="estimators.html">Estimators (classification and regression)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metaml.html">Meta Machine Learning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="report.html">Report for models</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="">Plotting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utils.html">Utilities</a></li>
+</ul>
+
+          
+        
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">REP (Reproducible Experiment Platform)</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+    <li>Plotting</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/plotting.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
             
   <div class="section" id="plotting">
 <span id="id1"></span><h1>Plotting<a class="headerlink" href="#plotting" title="Permalink to this headline">¶</a></h1>
@@ -66,12 +129,12 @@
 </div></blockquote>
 <dl class="class">
 <dt id="rep.plotting.AbstractPlot">
-<em class="property">class </em><code class="descclassname">rep.plotting.</code><code class="descname">AbstractPlot</code><a class="headerlink" href="#rep.plotting.AbstractPlot" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">rep.plotting.</code><code class="descname">AbstractPlot</code><a class="reference internal" href="_modules/rep/plotting.html#AbstractPlot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.plotting.AbstractPlot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
 <p>Abstract class for possible plot objects, which implements plot function.</p>
 <dl class="method">
 <dt id="rep.plotting.AbstractPlot.plot">
-<code class="descname">plot</code><span class="sig-paren">(</span><em>new_plot=False</em>, <em>xlim=None</em>, <em>ylim=None</em>, <em>title=None</em>, <em>figsize=None</em>, <em>xlabel=None</em>, <em>ylabel=None</em>, <em>fontsize=None</em>, <em>show_legend=True</em>, <em>grid=True</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.plotting.AbstractPlot.plot" title="Permalink to this definition">¶</a></dt>
+<code class="descname">plot</code><span class="sig-paren">(</span><em>new_plot=False</em>, <em>xlim=None</em>, <em>ylim=None</em>, <em>title=None</em>, <em>figsize=None</em>, <em>xlabel=None</em>, <em>ylabel=None</em>, <em>fontsize=None</em>, <em>show_legend=True</em>, <em>grid=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/plotting.html#AbstractPlot.plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.plotting.AbstractPlot.plot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot data using matplotlib library. Use show() method for matplotlib to see result or</p>
 <div class="highlight-python"><div class="highlight"><pre>%pylab inline
 </pre></div>
@@ -101,7 +164,7 @@
 
 <dl class="method">
 <dt id="rep.plotting.AbstractPlot.plot_bokeh">
-<code class="descname">plot_bokeh</code><span class="sig-paren">(</span><em>xlim=None</em>, <em>ylim=None</em>, <em>title=None</em>, <em>figsize=None</em>, <em>xlabel=None</em>, <em>ylabel=None</em>, <em>fontsize=None</em>, <em>show_legend=True</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.plotting.AbstractPlot.plot_bokeh" title="Permalink to this definition">¶</a></dt>
+<code class="descname">plot_bokeh</code><span class="sig-paren">(</span><em>xlim=None</em>, <em>ylim=None</em>, <em>title=None</em>, <em>figsize=None</em>, <em>xlabel=None</em>, <em>ylabel=None</em>, <em>fontsize=None</em>, <em>show_legend=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/plotting.html#AbstractPlot.plot_bokeh"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.plotting.AbstractPlot.plot_bokeh" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot data using bokeh library. Use show() method for bokeh to see result.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -126,7 +189,7 @@
 
 <dl class="method">
 <dt id="rep.plotting.AbstractPlot.plot_plotly">
-<code class="descname">plot_plotly</code><span class="sig-paren">(</span><em>plotly_filename=None</em>, <em>mpl_type=False</em>, <em>xlim=None</em>, <em>ylim=None</em>, <em>title=None</em>, <em>figsize=None</em>, <em>xlabel=None</em>, <em>ylabel=None</em>, <em>fontsize=None</em>, <em>show_legend=True</em>, <em>grid=False</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.plotting.AbstractPlot.plot_plotly" title="Permalink to this definition">¶</a></dt>
+<code class="descname">plot_plotly</code><span class="sig-paren">(</span><em>plotly_filename=None</em>, <em>mpl_type=False</em>, <em>xlim=None</em>, <em>ylim=None</em>, <em>title=None</em>, <em>figsize=None</em>, <em>xlabel=None</em>, <em>ylabel=None</em>, <em>fontsize=None</em>, <em>show_legend=True</em>, <em>grid=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/plotting.html#AbstractPlot.plot_plotly"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.plotting.AbstractPlot.plot_plotly" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot data using plotly library in IPython</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -153,7 +216,7 @@
 
 <dl class="method">
 <dt id="rep.plotting.AbstractPlot.plot_tmva">
-<code class="descname">plot_tmva</code><span class="sig-paren">(</span><em>new_plot=False</em>, <em>style_file=None</em>, <em>figsize=None</em>, <em>xlim=None</em>, <em>ylim=None</em>, <em>title=None</em>, <em>xlabel=None</em>, <em>ylabel=None</em>, <em>show_legend=True</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.plotting.AbstractPlot.plot_tmva" title="Permalink to this definition">¶</a></dt>
+<code class="descname">plot_tmva</code><span class="sig-paren">(</span><em>new_plot=False</em>, <em>style_file=None</em>, <em>figsize=None</em>, <em>xlim=None</em>, <em>ylim=None</em>, <em>title=None</em>, <em>xlabel=None</em>, <em>ylabel=None</em>, <em>show_legend=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/plotting.html#AbstractPlot.plot_tmva"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.plotting.AbstractPlot.plot_tmva" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot data using tmva library.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -180,7 +243,7 @@
 
 <dl class="class">
 <dt id="rep.plotting.BarComparePlot">
-<em class="property">class </em><code class="descclassname">rep.plotting.</code><code class="descname">BarComparePlot</code><span class="sig-paren">(</span><em>data</em>, <em>alpha=0.5</em>, <em>sortby=None</em>, <em>step=5</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.plotting.BarComparePlot" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">rep.plotting.</code><code class="descname">BarComparePlot</code><span class="sig-paren">(</span><em>data</em>, <em>alpha=0.5</em>, <em>sortby=None</em>, <em>step=5</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/plotting.html#BarComparePlot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.plotting.BarComparePlot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#rep.plotting.AbstractPlot" title="rep.plotting.AbstractPlot"><code class="xref py py-class docutils literal"><span class="pre">rep.plotting.AbstractPlot</span></code></a></p>
 <p>Implements bar plots</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -201,7 +264,7 @@
 
 <dl class="class">
 <dt id="rep.plotting.BarPlot">
-<em class="property">class </em><code class="descclassname">rep.plotting.</code><code class="descname">BarPlot</code><span class="sig-paren">(</span><em>data</em>, <em>bins=30</em>, <em>normalization=True</em>, <em>value_range=None</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.plotting.BarPlot" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">rep.plotting.</code><code class="descname">BarPlot</code><span class="sig-paren">(</span><em>data</em>, <em>bins=30</em>, <em>normalization=True</em>, <em>value_range=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/plotting.html#BarPlot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.plotting.BarPlot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#rep.plotting.AbstractPlot" title="rep.plotting.AbstractPlot"><code class="xref py py-class docutils literal"><span class="pre">rep.plotting.AbstractPlot</span></code></a></p>
 <p>Implements bar plots for train-test overfit (used in HEP)</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -222,7 +285,7 @@
 
 <dl class="class">
 <dt id="rep.plotting.ColorMap">
-<em class="property">class </em><code class="descclassname">rep.plotting.</code><code class="descname">ColorMap</code><span class="sig-paren">(</span><em>matrix</em>, <em>labels=None</em>, <em>cmap='jet'</em>, <em>vmin=-1</em>, <em>vmax=1</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.plotting.ColorMap" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">rep.plotting.</code><code class="descname">ColorMap</code><span class="sig-paren">(</span><em>matrix</em>, <em>labels=None</em>, <em>cmap='jet'</em>, <em>vmin=-1</em>, <em>vmax=1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/plotting.html#ColorMap"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.plotting.ColorMap" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#rep.plotting.AbstractPlot" title="rep.plotting.AbstractPlot"><code class="xref py py-class docutils literal"><span class="pre">rep.plotting.AbstractPlot</span></code></a></p>
 <p>Implements color map plots</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -266,7 +329,7 @@
 
 <dl class="class">
 <dt id="rep.plotting.CorrelationMapPlot">
-<em class="property">class </em><code class="descclassname">rep.plotting.</code><code class="descname">CorrelationMapPlot</code><span class="sig-paren">(</span><em>data</em>, <em>bins=30</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.plotting.CorrelationMapPlot" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">rep.plotting.</code><code class="descname">CorrelationMapPlot</code><span class="sig-paren">(</span><em>data</em>, <em>bins=30</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/plotting.html#CorrelationMapPlot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.plotting.CorrelationMapPlot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#rep.plotting.AbstractPlot" title="rep.plotting.AbstractPlot"><code class="xref py py-class docutils literal"><span class="pre">rep.plotting.AbstractPlot</span></code></a></p>
 <p>Implements correlations map plots</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -285,7 +348,7 @@
 
 <dl class="class">
 <dt id="rep.plotting.CorrelationPlot">
-<em class="property">class </em><code class="descclassname">rep.plotting.</code><code class="descname">CorrelationPlot</code><span class="sig-paren">(</span><em>data</em>, <em>bins=30</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.plotting.CorrelationPlot" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">rep.plotting.</code><code class="descname">CorrelationPlot</code><span class="sig-paren">(</span><em>data</em>, <em>bins=30</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/plotting.html#CorrelationPlot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.plotting.CorrelationPlot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#rep.plotting.AbstractPlot" title="rep.plotting.AbstractPlot"><code class="xref py py-class docutils literal"><span class="pre">rep.plotting.AbstractPlot</span></code></a></p>
 <p>Implements correlations plots</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -304,7 +367,7 @@
 
 <dl class="class">
 <dt id="rep.plotting.ErrorPlot">
-<em class="property">class </em><code class="descclassname">rep.plotting.</code><code class="descname">ErrorPlot</code><span class="sig-paren">(</span><em>errors</em>, <em>size=2</em>, <em>log=False</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.plotting.ErrorPlot" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">rep.plotting.</code><code class="descname">ErrorPlot</code><span class="sig-paren">(</span><em>errors</em>, <em>size=2</em>, <em>log=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/plotting.html#ErrorPlot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.plotting.ErrorPlot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#rep.plotting.AbstractPlot" title="rep.plotting.AbstractPlot"><code class="xref py py-class docutils literal"><span class="pre">rep.plotting.AbstractPlot</span></code></a></p>
 <p>Implements error bars plots</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -324,7 +387,7 @@
 
 <dl class="class">
 <dt id="rep.plotting.Function2D_Plot">
-<em class="property">class </em><code class="descclassname">rep.plotting.</code><code class="descname">Function2D_Plot</code><span class="sig-paren">(</span><em>function</em>, <em>xlim</em>, <em>ylim</em>, <em>xsteps=100</em>, <em>ysteps=100</em>, <em>cmap='Blues'</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.plotting.Function2D_Plot" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">rep.plotting.</code><code class="descname">Function2D_Plot</code><span class="sig-paren">(</span><em>function</em>, <em>xlim</em>, <em>ylim</em>, <em>xsteps=100</em>, <em>ysteps=100</em>, <em>cmap='Blues'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/plotting.html#Function2D_Plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.plotting.Function2D_Plot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#rep.plotting.AbstractPlot" title="rep.plotting.AbstractPlot"><code class="xref py py-class docutils literal"><span class="pre">rep.plotting.AbstractPlot</span></code></a></p>
 <p>Implements 2d-functions plots</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -369,7 +432,7 @@
 
 <dl class="class">
 <dt id="rep.plotting.FunctionsPlot">
-<em class="property">class </em><code class="descclassname">rep.plotting.</code><code class="descname">FunctionsPlot</code><span class="sig-paren">(</span><em>functions</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.plotting.FunctionsPlot" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">rep.plotting.</code><code class="descname">FunctionsPlot</code><span class="sig-paren">(</span><em>functions</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/plotting.html#FunctionsPlot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.plotting.FunctionsPlot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#rep.plotting.AbstractPlot" title="rep.plotting.AbstractPlot"><code class="xref py py-class docutils literal"><span class="pre">rep.plotting.AbstractPlot</span></code></a></p>
 <p>Implements 1d-function plots</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -384,7 +447,7 @@
 
 <dl class="class">
 <dt id="rep.plotting.GridPlot">
-<em class="property">class </em><code class="descclassname">rep.plotting.</code><code class="descname">GridPlot</code><span class="sig-paren">(</span><em>columns=3</em>, <em>*plots</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.plotting.GridPlot" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">rep.plotting.</code><code class="descname">GridPlot</code><span class="sig-paren">(</span><em>columns=3</em>, <em>*plots</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/plotting.html#GridPlot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.plotting.GridPlot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#rep.plotting.AbstractPlot" title="rep.plotting.AbstractPlot"><code class="xref py py-class docutils literal"><span class="pre">rep.plotting.AbstractPlot</span></code></a></p>
 <p>Implements grid plots</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -403,7 +466,7 @@
 
 <dl class="class">
 <dt id="rep.plotting.HStackPlot">
-<em class="property">class </em><code class="descclassname">rep.plotting.</code><code class="descname">HStackPlot</code><span class="sig-paren">(</span><em>*plots</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.plotting.HStackPlot" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">rep.plotting.</code><code class="descname">HStackPlot</code><span class="sig-paren">(</span><em>*plots</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/plotting.html#HStackPlot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.plotting.HStackPlot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#rep.plotting.AbstractPlot" title="rep.plotting.AbstractPlot"><code class="xref py py-class docutils literal"><span class="pre">rep.plotting.AbstractPlot</span></code></a></p>
 <p>Implements horizontal stack plots</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -418,7 +481,7 @@
 
 <dl class="class">
 <dt id="rep.plotting.ScatterPlot">
-<em class="property">class </em><code class="descclassname">rep.plotting.</code><code class="descname">ScatterPlot</code><span class="sig-paren">(</span><em>scatters</em>, <em>alpha=0.1</em>, <em>size=20</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.plotting.ScatterPlot" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">rep.plotting.</code><code class="descname">ScatterPlot</code><span class="sig-paren">(</span><em>scatters</em>, <em>alpha=0.1</em>, <em>size=20</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/plotting.html#ScatterPlot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.plotting.ScatterPlot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#rep.plotting.AbstractPlot" title="rep.plotting.AbstractPlot"><code class="xref py py-class docutils literal"><span class="pre">rep.plotting.AbstractPlot</span></code></a></p>
 <p>Implements scatters plots</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -438,7 +501,7 @@
 
 <dl class="class">
 <dt id="rep.plotting.VStackPlot">
-<em class="property">class </em><code class="descclassname">rep.plotting.</code><code class="descname">VStackPlot</code><span class="sig-paren">(</span><em>*plots</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.plotting.VStackPlot" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">rep.plotting.</code><code class="descname">VStackPlot</code><span class="sig-paren">(</span><em>*plots</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/plotting.html#VStackPlot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.plotting.VStackPlot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#rep.plotting.AbstractPlot" title="rep.plotting.AbstractPlot"><code class="xref py py-class docutils literal"><span class="pre">rep.plotting.AbstractPlot</span></code></a></p>
 <p>Implements vertical stack plots</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -453,75 +516,84 @@
 
 <dl class="function">
 <dt id="rep.plotting.canvas">
-<code class="descclassname">rep.plotting.</code><code class="descname">canvas</code><span class="sig-paren">(</span><em>name='icanvas'</em>, <em>size=(800</em>, <em>600)</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.plotting.canvas" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">rep.plotting.</code><code class="descname">canvas</code><span class="sig-paren">(</span><em>name='icanvas'</em>, <em>size=(800</em>, <em>600)</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/plotting.html#canvas"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.plotting.canvas" title="Permalink to this definition">¶</a></dt>
 <dd><p>Helper method for creating canvas</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="rep.plotting.default_canvas">
-<code class="descclassname">rep.plotting.</code><code class="descname">default_canvas</code><span class="sig-paren">(</span><em>name='icanvas'</em>, <em>size=(800</em>, <em>600)</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.plotting.default_canvas" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">rep.plotting.</code><code class="descname">default_canvas</code><span class="sig-paren">(</span><em>name='icanvas'</em>, <em>size=(800</em>, <em>600)</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/plotting.html#default_canvas"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.plotting.default_canvas" title="Permalink to this definition">¶</a></dt>
 <dd><p>deprecated</p>
 </dd></dl>
 
 </div>
 
 
+           </div>
           </div>
-        </div>
-      </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper">
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="report.html"
-                        title="previous chapter">Report for models</a></p>
-  <h4>Next topic</h4>
-  <p class="topless"><a href="utils.html"
-                        title="next chapter">Utilities</a></p>
-  <div role="note" aria-label="source link">
-    <h3>This Page</h3>
-    <ul class="this-page-menu">
-      <li><a href="_sources/plotting.txt"
-            rel="nofollow">Show Source</a></li>
-    </ul>
-   </div>
-<div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
-    <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
-    </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="utils.html" class="btn btn-neutral float-right" title="Utilities" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="report.html" class="btn btn-neutral" title="Report for models" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2014-2015, Yandex.
     </p>
-</div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+
+</footer>
+
         </div>
       </div>
-      <div class="clearer"></div>
-    </div>
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="genindex.html" title="General Index"
-             >index</a></li>
-        <li class="right" >
-          <a href="py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="right" >
-          <a href="utils.html" title="Utilities"
-             >next</a> |</li>
-        <li class="right" >
-          <a href="report.html" title="Report for models"
-             >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">REP (Reproducible Experiment Platform) 0.6.1 documentation</a> &raquo;</li> 
-      </ul>
-    </div>
-    <div class="footer" role="contentinfo">
-        &copy; Copyright 2014, Yandex.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
-    </div>
-  </body>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'0.6.2',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
 </html>

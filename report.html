@@ -1,57 +1,129 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
 
-<html xmlns="http://www.w3.org/1999/xhtml">
-  <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>Report for models &mdash; REP (Reproducible Experiment Platform) 0.6.1 documentation</title>
-    
-    <link rel="stylesheet" href="_static/nature.css" type="text/css" />
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    './',
-        VERSION:     '0.6.1',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
-      };
-    </script>
-    <script type="text/javascript" src="_static/jquery.js"></script>
-    <script type="text/javascript" src="_static/underscore.js"></script>
-    <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="REP (Reproducible Experiment Platform) 0.6.1 documentation" href="index.html" />
-    <link rel="next" title="Plotting" href="plotting.html" />
-    <link rel="prev" title="Meta Machine Learning" href="metaml.html" /> 
-  </head>
-  <body role="document">
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="genindex.html" title="General Index"
-             accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="right" >
-          <a href="plotting.html" title="Plotting"
-             accesskey="N">next</a> |</li>
-        <li class="right" >
-          <a href="metaml.html" title="Meta Machine Learning"
-             accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">REP (Reproducible Experiment Platform) 0.6.1 documentation</a> &raquo;</li> 
-      </ul>
-    </div>  
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Report for models &mdash; REP (Reproducible Experiment Platform) 0.6.2 documentation</title>
+  
 
-    <div class="document">
-      <div class="documentwrapper">
-        <div class="bodywrapper">
-          <div class="body" role="main">
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="REP (Reproducible Experiment Platform) 0.6.2 documentation" href="index.html"/>
+        <link rel="next" title="Plotting" href="plotting.html"/>
+        <link rel="prev" title="Meta Machine Learning" href="metaml.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-nav-search">
+        
+
+        
+          <a href="index.html" class="icon icon-home"> REP (Reproducible Experiment Platform)
+        
+
+        
+        </a>
+
+        
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+        
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+        
+          
+          
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="data.html">Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="estimators.html">Estimators (classification and regression)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metaml.html">Meta Machine Learning</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="">Report for models</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#module-rep.report.classification">Classification Report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-rep.report.regression">Regression Report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-rep.report.metrics">Metrics</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#correspondence-between-physical-terms-and-ml-terms">Correspondence between physical terms and ML terms</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="plotting.html">Plotting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utils.html">Utilities</a></li>
+<li class="toctree-l1"><a class="reference external" href="http://nbviewer.ipython.org/github/yandex/rep/tree/master/howto/">Howto notebooks</a></li>
+</ul>
+
+          
+        
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">REP (Reproducible Experiment Platform)</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+    <li>Report for models</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/report.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
             
   <div class="section" id="report-for-models">
 <span id="report"></span><h1>Report for models<a class="headerlink" href="#report-for-models" title="Permalink to this headline">¶</a></h1>
@@ -75,7 +147,7 @@ prediction distribution, ROC curves, learning curves, and others, and compare th
 these objects contain raw information about things to be plotted.</p>
 <dl class="class">
 <dt id="rep.report.classification.ClassificationReport">
-<em class="property">class </em><code class="descclassname">rep.report.classification.</code><code class="descname">ClassificationReport</code><span class="sig-paren">(</span><em>classifiers</em>, <em>lds</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.report.classification.ClassificationReport" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">rep.report.classification.</code><code class="descname">ClassificationReport</code><span class="sig-paren">(</span><em>classifiers</em>, <em>lds</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/report/classification.html#ClassificationReport"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.report.classification.ClassificationReport" title="Permalink to this definition">¶</a></dt>
 <dd><p>Test estimators on any data. Supports ROC curve, prediction distribution, features information
 (correlation matrix, distribution, scatter plots for pairs of features),
 efficiencies for thresholds (evaluate flatness of predictions for important feature),
@@ -119,7 +191,7 @@ correlation with prediction for necessary feature, any metrics of quality.</p>
 
 <dl class="method">
 <dt id="rep.report.classification.ClassificationReport.efficiencies">
-<code class="descname">efficiencies</code><span class="sig-paren">(</span><em>features</em>, <em>thresholds=None</em>, <em>mask=None</em>, <em>bins=30</em>, <em>labels_dict=None</em>, <em>ignored_sideband=0.0</em>, <em>errors=False</em>, <em>grid_columns=2</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.report.classification.ClassificationReport.efficiencies" title="Permalink to this definition">¶</a></dt>
+<code class="descname">efficiencies</code><span class="sig-paren">(</span><em>features</em>, <em>thresholds=None</em>, <em>mask=None</em>, <em>bins=30</em>, <em>labels_dict=None</em>, <em>ignored_sideband=0.0</em>, <em>errors=False</em>, <em>grid_columns=2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/report/classification.html#ClassificationReport.efficiencies"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.report.classification.ClassificationReport.efficiencies" title="Permalink to this definition">¶</a></dt>
 <dd><p>Efficiencies for spectators</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -147,7 +219,7 @@ if None then {0: &#8216;bck&#8217;, &#8216;1&#8217;: &#8216;signal&#8217;}</li>
 
 <dl class="method">
 <dt id="rep.report.classification.ClassificationReport.efficiencies_2d">
-<code class="descname">efficiencies_2d</code><span class="sig-paren">(</span><em>features</em>, <em>efficiency</em>, <em>mask=None</em>, <em>n_bins=20</em>, <em>ignored_sideband=0.0</em>, <em>labels_dict=None</em>, <em>grid_columns=2</em>, <em>signal_label=1</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.report.classification.ClassificationReport.efficiencies_2d" title="Permalink to this definition">¶</a></dt>
+<code class="descname">efficiencies_2d</code><span class="sig-paren">(</span><em>features</em>, <em>efficiency</em>, <em>mask=None</em>, <em>n_bins=20</em>, <em>ignored_sideband=0.0</em>, <em>labels_dict=None</em>, <em>grid_columns=2</em>, <em>signal_label=1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/report/classification.html#ClassificationReport.efficiencies_2d"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.report.classification.ClassificationReport.efficiencies_2d" title="Permalink to this definition">¶</a></dt>
 <dd><p>For binary classification plots the dependence of efficiency on two columns</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -191,7 +263,7 @@ if None then {0: &#8216;bck&#8217;, &#8216;1&#8217;: &#8216;signal&#8217;}</li>
 
 <dl class="method">
 <dt id="rep.report.classification.ClassificationReport.feature_importance_shuffling">
-<code class="descname">feature_importance_shuffling</code><span class="sig-paren">(</span><em>metric=LogLoss(regularization=1e-15)</em>, <em>mask=None</em>, <em>grid_columns=2</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.report.classification.ClassificationReport.feature_importance_shuffling" title="Permalink to this definition">¶</a></dt>
+<code class="descname">feature_importance_shuffling</code><span class="sig-paren">(</span><em>metric=LogLoss(regularization=1e-15)</em>, <em>mask=None</em>, <em>grid_columns=2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/report/classification.html#ClassificationReport.feature_importance_shuffling"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.report.classification.ClassificationReport.feature_importance_shuffling" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get features importance using shuffling method (apply random permutation to one particular column)</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -239,7 +311,7 @@ function(y_true, proba, sample_weight=None)</li>
 
 <dl class="method">
 <dt id="rep.report.classification.ClassificationReport.features_correlation_matrix_by_class">
-<code class="descname">features_correlation_matrix_by_class</code><span class="sig-paren">(</span><em>features=None</em>, <em>mask=None</em>, <em>tick_labels=None</em>, <em>vmin=-1</em>, <em>vmax=1</em>, <em>labels_dict=None</em>, <em>grid_columns=2</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.report.classification.ClassificationReport.features_correlation_matrix_by_class" title="Permalink to this definition">¶</a></dt>
+<code class="descname">features_correlation_matrix_by_class</code><span class="sig-paren">(</span><em>features=None</em>, <em>mask=None</em>, <em>tick_labels=None</em>, <em>vmin=-1</em>, <em>vmax=1</em>, <em>labels_dict=None</em>, <em>grid_columns=2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/report/classification.html#ClassificationReport.features_correlation_matrix_by_class"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.report.classification.ClassificationReport.features_correlation_matrix_by_class" title="Permalink to this definition">¶</a></dt>
 <dd><p>Correlation between features (built separately for each class)</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -266,7 +338,7 @@ if None then {0: &#8216;bck&#8217;, &#8216;1&#8217;: &#8216;signal&#8217;}</li>
 
 <dl class="method">
 <dt id="rep.report.classification.ClassificationReport.features_pdf">
-<code class="descname">features_pdf</code><span class="sig-paren">(</span><em>features=None</em>, <em>mask=None</em>, <em>bins=30</em>, <em>ignored_sideband=0.0</em>, <em>labels_dict=None</em>, <em>grid_columns=2</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.report.classification.ClassificationReport.features_pdf" title="Permalink to this definition">¶</a></dt>
+<code class="descname">features_pdf</code><span class="sig-paren">(</span><em>features=None</em>, <em>mask=None</em>, <em>bins=30</em>, <em>ignored_sideband=0.0</em>, <em>labels_dict=None</em>, <em>grid_columns=2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/report/classification.html#ClassificationReport.features_pdf"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.report.classification.ClassificationReport.features_pdf" title="Permalink to this definition">¶</a></dt>
 <dd><p>Features distribution (with errors)</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -316,7 +388,7 @@ otherwise dict with steps for each estimator</li>
 
 <dl class="method">
 <dt id="rep.report.classification.ClassificationReport.metrics_vs_cut">
-<code class="descname">metrics_vs_cut</code><span class="sig-paren">(</span><em>metric</em>, <em>mask=None</em>, <em>metric_label='metric'</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.report.classification.ClassificationReport.metrics_vs_cut" title="Permalink to this definition">¶</a></dt>
+<code class="descname">metrics_vs_cut</code><span class="sig-paren">(</span><em>metric</em>, <em>mask=None</em>, <em>metric_label='metric'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/report/classification.html#ClassificationReport.metrics_vs_cut"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.report.classification.ClassificationReport.metrics_vs_cut" title="Permalink to this definition">¶</a></dt>
 <dd><p>Draw values of binary metric depending on the threshold on predictions.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -338,7 +410,7 @@ otherwise dict with steps for each estimator</li>
 
 <dl class="method">
 <dt id="rep.report.classification.ClassificationReport.prediction_pdf">
-<code class="descname">prediction_pdf</code><span class="sig-paren">(</span><em>mask=None</em>, <em>target_class=1</em>, <em>bins=30</em>, <em>size=2</em>, <em>log=False</em>, <em>plot_type='error_bar'</em>, <em>normed=True</em>, <em>labels_dict=None</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.report.classification.ClassificationReport.prediction_pdf" title="Permalink to this definition">¶</a></dt>
+<code class="descname">prediction_pdf</code><span class="sig-paren">(</span><em>mask=None</em>, <em>target_class=1</em>, <em>bins=30</em>, <em>size=2</em>, <em>log=False</em>, <em>plot_type='error_bar'</em>, <em>normed=True</em>, <em>labels_dict=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/report/classification.html#ClassificationReport.prediction_pdf"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.report.classification.ClassificationReport.prediction_pdf" title="Permalink to this definition">¶</a></dt>
 <dd><p>Distribution of prediction for signal and bck separately with errors</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -368,7 +440,7 @@ if None then {0: &#8216;bck&#8217;, &#8216;1&#8217;: &#8216;signal&#8217;}</li>
 
 <dl class="method">
 <dt id="rep.report.classification.ClassificationReport.roc">
-<code class="descname">roc</code><span class="sig-paren">(</span><em>mask=None</em>, <em>signal_label=1</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.report.classification.ClassificationReport.roc" title="Permalink to this definition">¶</a></dt>
+<code class="descname">roc</code><span class="sig-paren">(</span><em>mask=None</em>, <em>signal_label=1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/report/classification.html#ClassificationReport.roc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.report.classification.ClassificationReport.roc" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate roc functions for data and return roc plot object</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -389,7 +461,7 @@ if None then {0: &#8216;bck&#8217;, &#8216;1&#8217;: &#8216;signal&#8217;}</li>
 
 <dl class="method">
 <dt id="rep.report.classification.ClassificationReport.scatter">
-<code class="descname">scatter</code><span class="sig-paren">(</span><em>correlation_pairs</em>, <em>mask=None</em>, <em>marker_size=20</em>, <em>alpha=0.1</em>, <em>labels_dict=None</em>, <em>grid_columns=2</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.report.classification.ClassificationReport.scatter" title="Permalink to this definition">¶</a></dt>
+<code class="descname">scatter</code><span class="sig-paren">(</span><em>correlation_pairs</em>, <em>mask=None</em>, <em>marker_size=20</em>, <em>alpha=0.1</em>, <em>labels_dict=None</em>, <em>grid_columns=2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/report/classification.html#ClassificationReport.scatter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.report.classification.ClassificationReport.scatter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Correlation between pairs of features</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -430,7 +502,7 @@ if None then {0: &#8216;bck&#8217;, &#8216;1&#8217;: &#8216;signal&#8217;}</li>
 <p>All methods return objects, which can have plot method (details see in <a class="reference internal" href="plotting.html#module-rep.plotting" title="rep.plotting"><code class="xref py py-class docutils literal"><span class="pre">rep.plotting</span></code></a>)</p>
 <dl class="class">
 <dt id="rep.report.regression.RegressionReport">
-<em class="property">class </em><code class="descclassname">rep.report.regression.</code><code class="descname">RegressionReport</code><span class="sig-paren">(</span><em>regressors</em>, <em>lds</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.report.regression.RegressionReport" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">rep.report.regression.</code><code class="descname">RegressionReport</code><span class="sig-paren">(</span><em>regressors</em>, <em>lds</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/report/regression.html#RegressionReport"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.report.regression.RegressionReport" title="Permalink to this definition">¶</a></dt>
 <dd><p>Report simplifies comparison of regressors on the same dataset.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -487,7 +559,7 @@ if None then {0: &#8216;bck&#8217;, &#8216;1&#8217;: &#8216;signal&#8217;}</li>
 
 <dl class="method">
 <dt id="rep.report.regression.RegressionReport.feature_importance_shuffling">
-<code class="descname">feature_importance_shuffling</code><span class="sig-paren">(</span><em>metric=&lt;function mean_squared_error&gt;</em>, <em>mask=None</em>, <em>grid_columns=2</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.report.regression.RegressionReport.feature_importance_shuffling" title="Permalink to this definition">¶</a></dt>
+<code class="descname">feature_importance_shuffling</code><span class="sig-paren">(</span><em>metric=&lt;function mean_squared_error&gt;</em>, <em>mask=None</em>, <em>grid_columns=2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/report/regression.html#RegressionReport.feature_importance_shuffling"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.report.regression.RegressionReport.feature_importance_shuffling" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get features importance using shuffling method (apply random permutation to one particular column)</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -559,7 +631,7 @@ otherwise dict with steps for each estimator</li>
 
 <dl class="method">
 <dt id="rep.report.regression.RegressionReport.predictions_scatter">
-<code class="descname">predictions_scatter</code><span class="sig-paren">(</span><em>features=None</em>, <em>mask=None</em>, <em>marker_size=20</em>, <em>alpha=0.1</em>, <em>grid_columns=2</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.report.regression.RegressionReport.predictions_scatter" title="Permalink to this definition">¶</a></dt>
+<code class="descname">predictions_scatter</code><span class="sig-paren">(</span><em>features=None</em>, <em>mask=None</em>, <em>marker_size=20</em>, <em>alpha=0.1</em>, <em>grid_columns=2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/report/regression.html#RegressionReport.predictions_scatter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.report.regression.RegressionReport.predictions_scatter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Correlation between predictions and features</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -583,7 +655,7 @@ otherwise dict with steps for each estimator</li>
 
 <dl class="method">
 <dt id="rep.report.regression.RegressionReport.scatter">
-<code class="descname">scatter</code><span class="sig-paren">(</span><em>correlation_pairs</em>, <em>mask=None</em>, <em>marker_size=20</em>, <em>alpha=0.1</em>, <em>grid_columns=2</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.report.regression.RegressionReport.scatter" title="Permalink to this definition">¶</a></dt>
+<code class="descname">scatter</code><span class="sig-paren">(</span><em>correlation_pairs</em>, <em>mask=None</em>, <em>marker_size=20</em>, <em>alpha=0.1</em>, <em>grid_columns=2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/report/regression.html#RegressionReport.scatter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.report.regression.RegressionReport.scatter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Correlation between pairs of features</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -667,14 +739,14 @@ them to particular values of expected amount of s and b.</p>
 </div></blockquote>
 <dl class="class">
 <dt id="rep.report.metrics.FPRatTPR">
-<em class="property">class </em><code class="descclassname">rep.report.metrics.</code><code class="descname">FPRatTPR</code><span class="sig-paren">(</span><em>tpr</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.report.metrics.FPRatTPR" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">rep.report.metrics.</code><code class="descname">FPRatTPR</code><span class="sig-paren">(</span><em>tpr</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/report/metrics.html#FPRatTPR"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.report.metrics.FPRatTPR" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">sklearn.base.BaseEstimator</span></code>, <a class="reference internal" href="#rep.report.metrics.MetricMixin" title="rep.report.metrics.MetricMixin"><code class="xref py py-class docutils literal"><span class="pre">rep.report.metrics.MetricMixin</span></code></a></p>
 <p>Fix TPR value on roc curve and return FPR value.</p>
 </dd></dl>
 
 <dl class="class">
 <dt id="rep.report.metrics.LogLoss">
-<em class="property">class </em><code class="descclassname">rep.report.metrics.</code><code class="descname">LogLoss</code><span class="sig-paren">(</span><em>regularization=1e-15</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.report.metrics.LogLoss" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">rep.report.metrics.</code><code class="descname">LogLoss</code><span class="sig-paren">(</span><em>regularization=1e-15</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/report/metrics.html#LogLoss"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.report.metrics.LogLoss" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">sklearn.base.BaseEstimator</span></code>, <a class="reference internal" href="#rep.report.metrics.MetricMixin" title="rep.report.metrics.MetricMixin"><code class="xref py py-class docutils literal"><span class="pre">rep.report.metrics.MetricMixin</span></code></a></p>
 <p>Log loss,
 which is the same as minus log-likelihood,
@@ -682,7 +754,7 @@ and the same as logistic loss,
 and the same as cross-entropy loss.</p>
 <dl class="method">
 <dt id="rep.report.metrics.LogLoss.fit">
-<code class="descname">fit</code><span class="sig-paren">(</span><em>X</em>, <em>y</em>, <em>sample_weight=None</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.report.metrics.LogLoss.fit" title="Permalink to this definition">¶</a></dt>
+<code class="descname">fit</code><span class="sig-paren">(</span><em>X</em>, <em>y</em>, <em>sample_weight=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/report/metrics.html#LogLoss.fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.report.metrics.LogLoss.fit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Prepare metrics for usage, preprocessing is done in this function.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -707,13 +779,13 @@ array-like of shape [n_samples] or None if all weights are equal</li>
 
 <dl class="class">
 <dt id="rep.report.metrics.MetricMixin">
-<em class="property">class </em><code class="descclassname">rep.report.metrics.</code><code class="descname">MetricMixin</code><a class="headerlink" href="#rep.report.metrics.MetricMixin" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">rep.report.metrics.</code><code class="descname">MetricMixin</code><a class="reference internal" href="_modules/rep/report/metrics.html#MetricMixin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.report.metrics.MetricMixin" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
 <p>Class with helpful methods for metrics,
 metrics are expected (but not obliged) to be derived from it.</p>
 <dl class="method">
 <dt id="rep.report.metrics.MetricMixin.fit">
-<code class="descname">fit</code><span class="sig-paren">(</span><em>X</em>, <em>y</em>, <em>sample_weight=None</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.report.metrics.MetricMixin.fit" title="Permalink to this definition">¶</a></dt>
+<code class="descname">fit</code><span class="sig-paren">(</span><em>X</em>, <em>y</em>, <em>sample_weight=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/report/metrics.html#MetricMixin.fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.report.metrics.MetricMixin.fit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Prepare metrics for usage, preprocessing is done in this function.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -738,7 +810,7 @@ array-like of shape [n_samples] or None if all weights are equal</li>
 
 <dl class="class">
 <dt id="rep.report.metrics.OptimalAMS">
-<em class="property">class </em><code class="descclassname">rep.report.metrics.</code><code class="descname">OptimalAMS</code><span class="sig-paren">(</span><em>expected_s=691.988607712</em>, <em>expected_b=410999.847</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.report.metrics.OptimalAMS" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">rep.report.metrics.</code><code class="descname">OptimalAMS</code><span class="sig-paren">(</span><em>expected_s=691.988607712</em>, <em>expected_b=410999.847</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/report/metrics.html#OptimalAMS"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.report.metrics.OptimalAMS" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#rep.report.metrics.OptimalMetric" title="rep.report.metrics.OptimalMetric"><code class="xref py py-class docutils literal"><span class="pre">rep.report.metrics.OptimalMetric</span></code></a></p>
 <p>Optimal values of AMS (average median significance)</p>
 <p>default values of expected_s and expected_b are from HiggsML challenge.</p>
@@ -758,7 +830,7 @@ array-like of shape [n_samples] or None if all weights are equal</li>
 
 <dl class="class">
 <dt id="rep.report.metrics.OptimalMetric">
-<em class="property">class </em><code class="descclassname">rep.report.metrics.</code><code class="descname">OptimalMetric</code><span class="sig-paren">(</span><em>metric</em>, <em>expected_s=1.0</em>, <em>expected_b=1.0</em>, <em>signal_label=1</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.report.metrics.OptimalMetric" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">rep.report.metrics.</code><code class="descname">OptimalMetric</code><span class="sig-paren">(</span><em>metric</em>, <em>expected_s=1.0</em>, <em>expected_b=1.0</em>, <em>signal_label=1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/report/metrics.html#OptimalMetric"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.report.metrics.OptimalMetric" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">sklearn.base.BaseEstimator</span></code>, <a class="reference internal" href="#rep.report.metrics.MetricMixin" title="rep.report.metrics.MetricMixin"><code class="xref py py-class docutils literal"><span class="pre">rep.report.metrics.MetricMixin</span></code></a></p>
 <p>Class to calculate optimal threshold on predictions using some metric</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -776,7 +848,7 @@ array-like of shape [n_samples] or None if all weights are equal</li>
 </table>
 <dl class="method">
 <dt id="rep.report.metrics.OptimalMetric.compute">
-<code class="descname">compute</code><span class="sig-paren">(</span><em>y_true</em>, <em>proba</em>, <em>sample_weight=None</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.report.metrics.OptimalMetric.compute" title="Permalink to this definition">¶</a></dt>
+<code class="descname">compute</code><span class="sig-paren">(</span><em>y_true</em>, <em>proba</em>, <em>sample_weight=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/report/metrics.html#OptimalMetric.compute"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.report.metrics.OptimalMetric.compute" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute metric for each possible prediction threshold</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -801,7 +873,7 @@ array-like of shape [n_samples] or None if all weights are equal</li>
 
 <dl class="method">
 <dt id="rep.report.metrics.OptimalMetric.plot_vs_cut">
-<code class="descname">plot_vs_cut</code><span class="sig-paren">(</span><em>y_true</em>, <em>proba</em>, <em>sample_weight=None</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.report.metrics.OptimalMetric.plot_vs_cut" title="Permalink to this definition">¶</a></dt>
+<code class="descname">plot_vs_cut</code><span class="sig-paren">(</span><em>y_true</em>, <em>proba</em>, <em>sample_weight=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/report/metrics.html#OptimalMetric.plot_vs_cut"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.report.metrics.OptimalMetric.plot_vs_cut" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute metric for each possible prediction threshold</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -825,7 +897,7 @@ array-like of shape [n_samples] or None if all weights are equal</li>
 
 <dl class="class">
 <dt id="rep.report.metrics.OptimalSignificance">
-<em class="property">class </em><code class="descclassname">rep.report.metrics.</code><code class="descname">OptimalSignificance</code><span class="sig-paren">(</span><em>expected_s=1.0</em>, <em>expected_b=1.0</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.report.metrics.OptimalSignificance" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">rep.report.metrics.</code><code class="descname">OptimalSignificance</code><span class="sig-paren">(</span><em>expected_s=1.0</em>, <em>expected_b=1.0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/report/metrics.html#OptimalSignificance"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.report.metrics.OptimalSignificance" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#rep.report.metrics.OptimalMetric" title="rep.report.metrics.OptimalMetric"><code class="xref py py-class docutils literal"><span class="pre">rep.report.metrics.OptimalMetric</span></code></a></p>
 <dl class="docutils">
 <dt>Optimal values of significance:</dt>
@@ -847,7 +919,7 @@ array-like of shape [n_samples] or None if all weights are equal</li>
 
 <dl class="class">
 <dt id="rep.report.metrics.RocAuc">
-<em class="property">class </em><code class="descclassname">rep.report.metrics.</code><code class="descname">RocAuc</code><span class="sig-paren">(</span><em>positive_label=1</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.report.metrics.RocAuc" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">rep.report.metrics.</code><code class="descname">RocAuc</code><span class="sig-paren">(</span><em>positive_label=1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/report/metrics.html#RocAuc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.report.metrics.RocAuc" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">sklearn.base.BaseEstimator</span></code>, <a class="reference internal" href="#rep.report.metrics.MetricMixin" title="rep.report.metrics.MetricMixin"><code class="xref py py-class docutils literal"><span class="pre">rep.report.metrics.MetricMixin</span></code></a></p>
 <p>Computes area under the ROC curve.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -861,7 +933,7 @@ will compute ROC AUC for this specific class vs others</td>
 </table>
 <dl class="method">
 <dt id="rep.report.metrics.RocAuc.fit">
-<code class="descname">fit</code><span class="sig-paren">(</span><em>X</em>, <em>y</em>, <em>sample_weight=None</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.report.metrics.RocAuc.fit" title="Permalink to this definition">¶</a></dt>
+<code class="descname">fit</code><span class="sig-paren">(</span><em>X</em>, <em>y</em>, <em>sample_weight=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/report/metrics.html#RocAuc.fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.report.metrics.RocAuc.fit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Prepare metrics for usage, preprocessing is done in this function.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -886,14 +958,14 @@ array-like of shape [n_samples] or None if all weights are equal</li>
 
 <dl class="class">
 <dt id="rep.report.metrics.TPRatFPR">
-<em class="property">class </em><code class="descclassname">rep.report.metrics.</code><code class="descname">TPRatFPR</code><span class="sig-paren">(</span><em>fpr</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.report.metrics.TPRatFPR" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">rep.report.metrics.</code><code class="descname">TPRatFPR</code><span class="sig-paren">(</span><em>fpr</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/report/metrics.html#TPRatFPR"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.report.metrics.TPRatFPR" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">sklearn.base.BaseEstimator</span></code>, <a class="reference internal" href="#rep.report.metrics.MetricMixin" title="rep.report.metrics.MetricMixin"><code class="xref py py-class docutils literal"><span class="pre">rep.report.metrics.MetricMixin</span></code></a></p>
 <p>Fix FPR value on roc curve and return TPR value.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="rep.report.metrics.ams">
-<code class="descclassname">rep.report.metrics.</code><code class="descname">ams</code><span class="sig-paren">(</span><em>s</em>, <em>b</em>, <em>br=10.0</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.report.metrics.ams" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">rep.report.metrics.</code><code class="descname">ams</code><span class="sig-paren">(</span><em>s</em>, <em>b</em>, <em>br=10.0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/report/metrics.html#ams"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.report.metrics.ams" title="Permalink to this definition">¶</a></dt>
 <dd><p>Regularized approximate median significance</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -912,7 +984,7 @@ array-like of shape [n_samples] or None if all weights are equal</li>
 
 <dl class="function">
 <dt id="rep.report.metrics.significance">
-<code class="descclassname">rep.report.metrics.</code><code class="descname">significance</code><span class="sig-paren">(</span><em>s</em>, <em>b</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.report.metrics.significance" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">rep.report.metrics.</code><code class="descname">significance</code><span class="sig-paren">(</span><em>s</em>, <em>b</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/report/metrics.html#significance"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.report.metrics.significance" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="docutils">
 <dt>Approximate significance of discovery:</dt>
 <dd>s / sqrt(b).</dd>
@@ -925,75 +997,71 @@ array-like of shape [n_samples] or None if all weights are equal</li>
 </div>
 
 
+           </div>
           </div>
-        </div>
-      </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper">
-  <h3><a href="index.html">Table Of Contents</a></h3>
-  <ul>
-<li><a class="reference internal" href="#">Report for models</a><ul>
-<li><a class="reference internal" href="#module-rep.report.classification">Classification Report</a></li>
-<li><a class="reference internal" href="#module-rep.report.regression">Regression Report</a></li>
-<li><a class="reference internal" href="#module-rep.report.metrics">Metrics</a><ul>
-<li><a class="reference internal" href="#correspondence-between-physical-terms-and-ml-terms">Correspondence between physical terms and ML terms</a></li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="plotting.html" class="btn btn-neutral float-right" title="Plotting" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="metaml.html" class="btn btn-neutral" title="Meta Machine Learning" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
 
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="metaml.html"
-                        title="previous chapter">Meta Machine Learning</a></p>
-  <h4>Next topic</h4>
-  <p class="topless"><a href="plotting.html"
-                        title="next chapter">Plotting</a></p>
-  <div role="note" aria-label="source link">
-    <h3>This Page</h3>
-    <ul class="this-page-menu">
-      <li><a href="_sources/report.txt"
-            rel="nofollow">Show Source</a></li>
-    </ul>
-   </div>
-<div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
-    <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
-    </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2014-2015, Yandex.
     </p>
-</div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+
+</footer>
+
         </div>
       </div>
-      <div class="clearer"></div>
-    </div>
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="genindex.html" title="General Index"
-             >index</a></li>
-        <li class="right" >
-          <a href="py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="right" >
-          <a href="plotting.html" title="Plotting"
-             >next</a> |</li>
-        <li class="right" >
-          <a href="metaml.html" title="Meta Machine Learning"
-             >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">REP (Reproducible Experiment Platform) 0.6.1 documentation</a> &raquo;</li> 
-      </ul>
-    </div>
-    <div class="footer" role="contentinfo">
-        &copy; Copyright 2014, Yandex.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
-    </div>
-  </body>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'0.6.2',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
 </html>

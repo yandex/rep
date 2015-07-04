@@ -1,84 +1,151 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
 
-<html xmlns="http://www.w3.org/1999/xhtml">
-  <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>Utilities &mdash; REP (Reproducible Experiment Platform) 0.6.1 documentation</title>
-    
-    <link rel="stylesheet" href="_static/nature.css" type="text/css" />
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    './',
-        VERSION:     '0.6.1',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
-      };
-    </script>
-    <script type="text/javascript" src="_static/jquery.js"></script>
-    <script type="text/javascript" src="_static/underscore.js"></script>
-    <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="REP (Reproducible Experiment Platform) 0.6.1 documentation" href="index.html" />
-    <link rel="prev" title="Plotting" href="plotting.html" /> 
-  </head>
-  <body role="document">
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="genindex.html" title="General Index"
-             accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="right" >
-          <a href="plotting.html" title="Plotting"
-             accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">REP (Reproducible Experiment Platform) 0.6.1 documentation</a> &raquo;</li> 
-      </ul>
-    </div>  
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Utilities &mdash; REP (Reproducible Experiment Platform) 0.6.2 documentation</title>
+  
 
-    <div class="document">
-      <div class="documentwrapper">
-        <div class="bodywrapper">
-          <div class="body" role="main">
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="REP (Reproducible Experiment Platform) 0.6.2 documentation" href="index.html"/>
+        <link rel="prev" title="Plotting" href="plotting.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-nav-search">
+        
+
+        
+          <a href="index.html" class="icon icon-home"> REP (Reproducible Experiment Platform)
+        
+
+        
+        </a>
+
+        
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+        
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+        
+          
+          
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="data.html">Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="estimators.html">Estimators (classification and regression)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metaml.html">Meta Machine Learning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="report.html">Report for models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plotting.html">Plotting</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="">Utilities</a></li>
+<li class="toctree-l1"><a class="reference external" href="http://nbviewer.ipython.org/github/yandex/rep/tree/master/howto/">Howto notebooks</a></li>
+</ul>
+
+          
+        
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">REP (Reproducible Experiment Platform)</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+    <li>Utilities</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/utils.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
             
   <div class="section" id="module-rep.utils">
 <span id="utilities"></span><span id="utils"></span><h1>Utilities<a class="headerlink" href="#module-rep.utils" title="Permalink to this headline">¶</a></h1>
 <p>Different helpful functions, objects, methods are collected here.</p>
 <dl class="class">
 <dt id="rep.utils.Binner">
-<em class="property">class </em><code class="descclassname">rep.utils.</code><code class="descname">Binner</code><span class="sig-paren">(</span><em>values</em>, <em>bins_number</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.utils.Binner" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">rep.utils.</code><code class="descname">Binner</code><span class="sig-paren">(</span><em>values</em>, <em>bins_number</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/utils.html#Binner"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.utils.Binner" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="method">
 <dt id="rep.utils.Binner.bins_number">
-<code class="descname">bins_number</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#rep.utils.Binner.bins_number" title="Permalink to this definition">¶</a></dt>
+<code class="descname">bins_number</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/utils.html#Binner.bins_number"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.utils.Binner.bins_number" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="rep.utils.Binner.get_bins">
-<code class="descname">get_bins</code><span class="sig-paren">(</span><em>values</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.utils.Binner.get_bins" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_bins</code><span class="sig-paren">(</span><em>values</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/utils.html#Binner.get_bins"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.utils.Binner.get_bins" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="rep.utils.Binner.get_bins_dumb">
-<code class="descname">get_bins_dumb</code><span class="sig-paren">(</span><em>values</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.utils.Binner.get_bins_dumb" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_bins_dumb</code><span class="sig-paren">(</span><em>values</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/utils.html#Binner.get_bins_dumb"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.utils.Binner.get_bins_dumb" title="Permalink to this definition">¶</a></dt>
 <dd><p>This is the sane as previous function, but a bit slower and naive</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="rep.utils.Binner.set_limits">
-<code class="descname">set_limits</code><span class="sig-paren">(</span><em>limits</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.utils.Binner.set_limits" title="Permalink to this definition">¶</a></dt>
+<code class="descname">set_limits</code><span class="sig-paren">(</span><em>limits</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/utils.html#Binner.set_limits"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.utils.Binner.set_limits" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="rep.utils.Binner.split_into_bins">
-<code class="descname">split_into_bins</code><span class="sig-paren">(</span><em>*arrays</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.utils.Binner.split_into_bins" title="Permalink to this definition">¶</a></dt>
+<code class="descname">split_into_bins</code><span class="sig-paren">(</span><em>*arrays</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/utils.html#Binner.split_into_bins"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.utils.Binner.split_into_bins" title="Permalink to this definition">¶</a></dt>
 <dd><p>Splits the data of parallel arrays into bins, the first array is binning variable</p>
 </dd></dl>
 
@@ -86,7 +153,7 @@
 
 <dl class="class">
 <dt id="rep.utils.Flattener">
-<em class="property">class </em><code class="descclassname">rep.utils.</code><code class="descname">Flattener</code><span class="sig-paren">(</span><em>data</em>, <em>sample_weight=None</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.utils.Flattener" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">rep.utils.</code><code class="descname">Flattener</code><span class="sig-paren">(</span><em>data</em>, <em>sample_weight=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/utils.html#Flattener"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.utils.Flattener" title="Permalink to this definition">¶</a></dt>
 <dd><p>Prepares normalization function for some set of values
 transforms it to uniform distribution from [0, 1]. Example of usage:</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -118,7 +185,7 @@ transforms it to uniform distribution from [0, 1]. Example of usage:</p>
 
 <dl class="function">
 <dt id="rep.utils.calc_ROC">
-<code class="descclassname">rep.utils.</code><code class="descname">calc_ROC</code><span class="sig-paren">(</span><em>prediction</em>, <em>signal</em>, <em>sample_weight=None</em>, <em>max_points=10000</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.utils.calc_ROC" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">rep.utils.</code><code class="descname">calc_ROC</code><span class="sig-paren">(</span><em>prediction</em>, <em>signal</em>, <em>sample_weight=None</em>, <em>max_points=10000</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/utils.html#calc_ROC"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.utils.calc_ROC" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate roc curve, returns limited number of points.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -141,7 +208,7 @@ transforms it to uniform distribution from [0, 1]. Example of usage:</p>
 
 <dl class="function">
 <dt id="rep.utils.calc_feature_correlation_matrix">
-<code class="descclassname">rep.utils.</code><code class="descname">calc_feature_correlation_matrix</code><span class="sig-paren">(</span><em>df</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.utils.calc_feature_correlation_matrix" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">rep.utils.</code><code class="descname">calc_feature_correlation_matrix</code><span class="sig-paren">(</span><em>df</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/utils.html#calc_feature_correlation_matrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.utils.calc_feature_correlation_matrix" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate correlation matrix</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -159,7 +226,7 @@ transforms it to uniform distribution from [0, 1]. Example of usage:</p>
 
 <dl class="function">
 <dt id="rep.utils.calc_hist_with_errors">
-<code class="descclassname">rep.utils.</code><code class="descname">calc_hist_with_errors</code><span class="sig-paren">(</span><em>x</em>, <em>weight=None</em>, <em>bins=60</em>, <em>normed=True</em>, <em>x_range=None</em>, <em>ignored_sideband=0.0</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.utils.calc_hist_with_errors" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">rep.utils.</code><code class="descname">calc_hist_with_errors</code><span class="sig-paren">(</span><em>x</em>, <em>weight=None</em>, <em>bins=60</em>, <em>normed=True</em>, <em>x_range=None</em>, <em>ignored_sideband=0.0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/utils.html#calc_hist_with_errors"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.utils.calc_hist_with_errors" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate data for error bar (for plot pdf with errors)</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -179,14 +246,19 @@ transforms it to uniform distribution from [0, 1]. Example of usage:</p>
 </dd></dl>
 
 <dl class="function">
+<dt id="rep.utils.check_arrays">
+<code class="descclassname">rep.utils.</code><code class="descname">check_arrays</code><span class="sig-paren">(</span><em>*arrays</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/utils.html#check_arrays"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.utils.check_arrays" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
 <dt id="rep.utils.check_sample_weight">
-<code class="descclassname">rep.utils.</code><code class="descname">check_sample_weight</code><span class="sig-paren">(</span><em>y_true</em>, <em>sample_weight</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.utils.check_sample_weight" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">rep.utils.</code><code class="descname">check_sample_weight</code><span class="sig-paren">(</span><em>y_true</em>, <em>sample_weight</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/utils.html#check_sample_weight"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.utils.check_sample_weight" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checks the weights, returns normalized version</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="rep.utils.get_columns_dict">
-<code class="descclassname">rep.utils.</code><code class="descname">get_columns_dict</code><span class="sig-paren">(</span><em>columns</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.utils.get_columns_dict" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">rep.utils.</code><code class="descname">get_columns_dict</code><span class="sig-paren">(</span><em>columns</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/utils.html#get_columns_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.utils.get_columns_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get (new column: old column) dict expressions</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -202,7 +274,7 @@ transforms it to uniform distribution from [0, 1]. Example of usage:</p>
 
 <dl class="function">
 <dt id="rep.utils.get_columns_in_df">
-<code class="descclassname">rep.utils.</code><code class="descname">get_columns_in_df</code><span class="sig-paren">(</span><em>df</em>, <em>columns</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.utils.get_columns_in_df" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">rep.utils.</code><code class="descname">get_columns_in_df</code><span class="sig-paren">(</span><em>df</em>, <em>columns</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/utils.html#get_columns_in_df"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.utils.get_columns_in_df" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get columns in data frame using <em>numexpr</em> evaluation</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -224,7 +296,7 @@ transforms it to uniform distribution from [0, 1]. Example of usage:</p>
 
 <dl class="function">
 <dt id="rep.utils.get_efficiencies">
-<code class="descclassname">rep.utils.</code><code class="descname">get_efficiencies</code><span class="sig-paren">(</span><em>prediction</em>, <em>spectator</em>, <em>sample_weight=None</em>, <em>bins_number=20</em>, <em>thresholds=None</em>, <em>errors=False</em>, <em>ignored_sideband=0.0</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.utils.get_efficiencies" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">rep.utils.</code><code class="descname">get_efficiencies</code><span class="sig-paren">(</span><em>prediction</em>, <em>spectator</em>, <em>sample_weight=None</em>, <em>bins_number=20</em>, <em>thresholds=None</em>, <em>errors=False</em>, <em>ignored_sideband=0.0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/utils.html#get_efficiencies"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.utils.get_efficiencies" title="Permalink to this definition">¶</a></dt>
 <dd><p>Construct efficiency function dependent on spectator for each threshold</p>
 <p>Different score functions available: Efficiency, Precision, Recall, F1Score,
 and other things from sklearn.metrics</p>
@@ -256,14 +328,14 @@ OrderedDict threshold -&gt; (x_values, y_values, y_err, x_err)</p>
 
 <dl class="function">
 <dt id="rep.utils.reorder_by_first">
-<code class="descclassname">rep.utils.</code><code class="descname">reorder_by_first</code><span class="sig-paren">(</span><em>*arrays</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.utils.reorder_by_first" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">rep.utils.</code><code class="descname">reorder_by_first</code><span class="sig-paren">(</span><em>*arrays</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/utils.html#reorder_by_first"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.utils.reorder_by_first" title="Permalink to this definition">¶</a></dt>
 <dd><p>Applies the same permutation to all passed arrays,
 permutation sorts the first passed array</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="rep.utils.train_test_split">
-<code class="descclassname">rep.utils.</code><code class="descname">train_test_split</code><span class="sig-paren">(</span><em>*arrays</em>, <em>**kw_args</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.utils.train_test_split" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">rep.utils.</code><code class="descname">train_test_split</code><span class="sig-paren">(</span><em>*arrays</em>, <em>**kw_args</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/utils.html#train_test_split"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.utils.train_test_split" title="Permalink to this definition">¶</a></dt>
 <dd><p>Does the same thing as train_test_split, but preserves columns in DataFrames.
 Uses the same parameters: test_size, train_size, random_state, and has the same interface</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -277,63 +349,99 @@ Uses the same parameters: test_size, train_size, random_state, and has the same 
 </dd></dl>
 
 <dl class="function">
+<dt id="rep.utils.train_test_split_group">
+<code class="descclassname">rep.utils.</code><code class="descname">train_test_split_group</code><span class="sig-paren">(</span><em>group_column</em>, <em>*arrays</em>, <em>**kw_args</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/utils.html#train_test_split_group"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.utils.train_test_split_group" title="Permalink to this definition">¶</a></dt>
+<dd><p>Does the same thing as train_test_split, but preserves names of columns in DataFrames.
+Uses the same parameters: test_size, train_size, random_state, and has almost the same interface</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>arrays</strong> (<em>list[numpy.array] or list[pandas.DataFrame]</em>) &#8211; arrays to split</li>
+<li><strong>group_column</strong> &#8211; array-like of shape [n_samples] with indices of groups,</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>events from one group will be kept together (all events in train or all events in test).
+If <cite>group_column</cite> is used, train_size and test_size will refer to number of groups, not events
+:param bool allow_none: default False
+(specially for sample_weight - after splitting train and test of <cite>None</cite> are <cite>None</cite> too)</p>
+</dd></dl>
+
+<dl class="function">
 <dt id="rep.utils.weighted_percentile">
-<code class="descclassname">rep.utils.</code><code class="descname">weighted_percentile</code><span class="sig-paren">(</span><em>array</em>, <em>percentiles</em>, <em>sample_weight=None</em>, <em>array_sorted=False</em>, <em>old_style=False</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.utils.weighted_percentile" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">rep.utils.</code><code class="descname">weighted_percentile</code><span class="sig-paren">(</span><em>array</em>, <em>percentiles</em>, <em>sample_weight=None</em>, <em>array_sorted=False</em>, <em>old_style=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/utils.html#weighted_percentile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.utils.weighted_percentile" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </div>
 
 
+           </div>
           </div>
-        </div>
-      </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper">
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="plotting.html"
-                        title="previous chapter">Plotting</a></p>
-  <div role="note" aria-label="source link">
-    <h3>This Page</h3>
-    <ul class="this-page-menu">
-      <li><a href="_sources/utils.txt"
-            rel="nofollow">Show Source</a></li>
-    </ul>
-   </div>
-<div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
-    <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
-    </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="plotting.html" class="btn btn-neutral" title="Plotting" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2014-2015, Yandex.
     </p>
-</div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+
+</footer>
+
         </div>
       </div>
-      <div class="clearer"></div>
-    </div>
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="genindex.html" title="General Index"
-             >index</a></li>
-        <li class="right" >
-          <a href="py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="right" >
-          <a href="plotting.html" title="Plotting"
-             >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">REP (Reproducible Experiment Platform) 0.6.1 documentation</a> &raquo;</li> 
-      </ul>
-    </div>
-    <div class="footer" role="contentinfo">
-        &copy; Copyright 2014, Yandex.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
-    </div>
-  </body>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'0.6.2',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
 </html>
