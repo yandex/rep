@@ -75,34 +75,34 @@ def normalize_weights(y, sample_weight, per_class=True):
 
 
 def _get_features(features, X, allow_nans=False):
-        """
-        Get data with necessary features
+    """
+    Get data with necessary features
 
-        :param list[str] features: features
-        :param pandas.DataFrame X: train dataset
+    :param list[str] features: features
+    :param pandas.DataFrame X: train dataset
 
-        :return: pandas.DataFrame with used features, features
-        """
-        new_features = features
-        if isinstance(X, numpy.ndarray):
-            X = pandas.DataFrame(X, columns=['Feature_%d' % index for index in range(X.shape[1])])
-        else:
-            assert isinstance(X, pandas.DataFrame), 'Support only numpy.ndarray and pandas.DataFrame'
-        if features is None:
-            new_features = list(X.columns)
-            X_features = X
-        elif list(X.columns) == list(features):
-            X_features = X
-        else:
-            # assert set(self.features).issubset(set(X.columns)), "Data doesn't contain all training features"
-            # X_features = X.ix[:, self.features]
-            X_features = get_columns_in_df(X, features)
+    :return: pandas.DataFrame with used features, features
+    """
+    new_features = features
+    if isinstance(X, numpy.ndarray):
+        X = pandas.DataFrame(X, columns=['Feature_%d' % index for index in range(X.shape[1])])
+    else:
+        assert isinstance(X, pandas.DataFrame), 'Support only numpy.ndarray and pandas.DataFrame'
+    if features is None:
+        new_features = list(X.columns)
+        X_features = X
+    elif list(X.columns) == list(features):
+        X_features = X
+    else:
+        # assert set(self.features).issubset(set(X.columns)), "Data doesn't contain all training features"
+        # X_features = X.ix[:, self.features]
+        X_features = get_columns_in_df(X, features)
 
-        if not allow_nans:
-            # do by column to not create copy of all data frame
-            for column in X_features.columns:
-                assert numpy.all(numpy.isfinite(X_features[column])), "Does not support NaN: " + str(column)
-        return X_features, new_features
+    if not allow_nans:
+        # do by column to not create copy of all data frame
+        for column in X_features.columns:
+            assert numpy.all(numpy.isfinite(X_features[column])), "Does not support NaN: " + str(column)
+    return X_features, new_features
 
 
 class IdentityTransformer(BaseEstimator, TransformerMixin):
