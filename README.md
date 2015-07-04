@@ -4,7 +4,14 @@ REP is environment for conducting data-driven research in a consistent and repro
 
 Main REP features include:
 
-  * unified classifiers wrapper for variety of implementations (TMVA, Sklearn, XGBoost, uBoost)
+  * unified classifiers wrapper for variety of implementations
+    * TMVA
+    * Sklearn
+    * XGBoost
+    * uBoost
+    * Theanets
+    * Pybrain
+    * Neurolab
   * parallel training of classifiers on cluster 
   * classification/regression reports with plots
   * support for interactive plots
