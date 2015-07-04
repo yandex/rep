@@ -8,7 +8,7 @@ import numexpr
 
 import numpy
 import pandas
-from sklearn.utils.validation import check_arrays, column_or_1d
+from sklearn.utils.validation import column_or_1d
 from sklearn.metrics import roc_curve
 
 
@@ -273,6 +273,37 @@ def get_efficiencies(prediction, spectator, sample_weight=None, bins_number=20,
 
 
 def train_test_split(*arrays, **kw_args):
+    """Does the same thing as train_test_split, but preserves columns in DataFrames.
+    Uses the same parameters: test_size, train_size, random_state, and has the same interface
+
+    :type arrays: list[numpy.array] or list[pandas.DataFrame]
+    :type bool: allow_none, default False (specially for sample_weight - both to None)
+    :param arrays: arrays to split
+    """
+    from sklearn import cross_validation
+    allow_none = kw_args.pop('allow_none', None)
+
+    assert len(arrays) > 0, "at least one array should be passed"
+    length = len(arrays[0])
+    for array in arrays:
+        assert len(array) == length, "different size"
+    train_indices, test_indices = cross_validation.train_test_split(range(length), **kw_args)
+    result = []
+    for array in arrays:
+        if isinstance(array, pandas.DataFrame):
+            result.append(array.iloc[train_indices, :])
+            result.append(array.iloc[test_indices, :])
+        elif (array is None) and allow_none:
+            # specially for checking weights
+            result.append(None)
+            result.append(None)
+        else:
+            result.append(numpy.array(array)[train_indices])
+            result.append(numpy.array(array)[test_indices])
+    return result
+
+
+def train_test_split_group(group_column, *arrays, **kw_args):
     """Does the same thing as train_test_split, but preserves names of columns in DataFrames.
     Uses the same parameters: test_size, train_size, random_state, and has almost the same interface
 
@@ -293,13 +324,9 @@ def train_test_split(*arrays, **kw_args):
     for array in arrays:
         assert len(array) == length, "different size"
 
-    if 'group_column' in kw_args:
-        initial_data = numpy.array(kw_args.pop('group_column'))
-        assert len(initial_data) == length, "group column must have the same length"
-        group_ids = numpy.unique(initial_data)
-    else:
-        initial_data = numpy.arange(length)
-        group_ids = numpy.arange(length)
+    initial_data = numpy.array(group_column)
+    assert len(initial_data) == length, "group column must have the same length"
+    group_ids = numpy.unique(initial_data)
 
     train_indices, test_indices = cross_validation.train_test_split(group_ids, **kw_args)
     train_indices = numpy.in1d(initial_data, train_indices)
@@ -315,8 +342,8 @@ def train_test_split(*arrays, **kw_args):
             result.append(None)
             result.append(None)
         else:
-            result.append(array[train_indices])
-            result.append(array[test_indices])
+            result.append(numpy.array(array)[train_indices])
+            result.append(numpy.array(array)[test_indices])
     return result
 
 
@@ -354,3 +381,18 @@ def get_columns_in_df(df, columns):
     for column_new, column in columns_dict.items():
         df_new[column_new] = numexpr.evaluate(column, local_dict=df)
     return pandas.DataFrame(df_new)
+
+
+def check_arrays(*arrays):
+    assert len(arrays) > 0, 'The number of array must be greater than zero'
+    checked_arrays = []
+    shapes = []
+    for arr in arrays:
+        if arr is not None:
+            checked_arrays.append(numpy.array(arr))
+            print(checked_arrays[-1].shape[0])
+            shapes.append(checked_arrays[-1].shape[0])
+        else:
+            checked_arrays.append(arr)
+    assert numpy.sum(numpy.array(shapes) == shapes[0]) == len(shapes), 'Different shapes of the arrays {}'.format(shapes)
+    return checked_arrays
