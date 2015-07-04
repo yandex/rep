@@ -7,6 +7,14 @@ Welcome to REP's documentation!
 
 REP (Reproducible Experiment Platform) library provides functionality for all your basic needs to deal with machine learning.
 
+.. raw:: html
+
+    <div style='height: 36px;'>
+    <iframe src="https://ghbtns.com/github-btn.html?user=yandex&repo=rep&type=star&count=true" frameborder="0" scrolling="0" width="110px" height="20px"></iframe>
+    <iframe src="https://ghbtns.com/github-btn.html?user=yandex&repo=rep&type=watch&count=true&v=2" frameborder="0" scrolling="0" width="110px" height="20px"></iframe>
+    <div style='clear: both' ></div>
+    </div>
+
 It includes:
 
 
