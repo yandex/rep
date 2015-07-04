@@ -61,6 +61,9 @@ class FeatureSplitter(Classifier):
 
         :return: self
         """
+        if hasattr(self.base_estimator, 'features'):
+            assert self.base_estimator.features is None, 'Base estimator must have None features! ' \
+                                                         'Use features parameter in Folding to fix it'
         X, y, sample_weight = check_inputs(X, y, sample_weight=sample_weight, allow_none_weights=True)
         # TODO cover the case of missing labels in subsets.
         split_column_values, X = self._get_features(X)
