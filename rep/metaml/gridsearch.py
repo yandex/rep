@@ -105,7 +105,7 @@ class AbstractParameterGenerator(object):
         """
         Property, return best score of optimization
         """
-        return numpy.max(self.grid_scores_.values())
+        return numpy.max(list(self.grid_scores_.values()))
 
     @property
     def best_params_(self):

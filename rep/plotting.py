@@ -993,14 +993,14 @@ class BarComparePlot(AbstractPlot):
     def _plot(self):
         length = len(self.data) + self.step
         if self.sortby is not None:
-            inds = numpy.argsort(self.data[self.sortby].values())[::-1]
+            inds = numpy.argsort(list(self.data[self.sortby].values()))[::-1]
         else:
-            inds = numpy.array(range(len(self.data[self.data.keys()[0]])))
-        xticks_labels = numpy.array(self.data[self.data.keys()[0]].keys())[inds]
+            inds = numpy.array(range(len(self.data[list(self.data.keys())[0]])))
+        xticks_labels = numpy.array(list(self.data[list(self.data.keys())[0]].keys()))[inds]
         for move, (label, sample) in enumerate(self.data.items()):
             color = next(_COLOR_CYCLE)
             index = numpy.arange(len(sample))
-            plt.bar(length * index + move, numpy.array(sample.values())[inds], 1., alpha=self.alpha, color=color,
+            plt.bar(length * index + move, numpy.array(list(sample.values()))[inds], 1., alpha=self.alpha, color=color,
                     label=label)
 
         plt.xticks(length * numpy.arange(len(inds)), xticks_labels, rotation=90)
@@ -1009,17 +1009,17 @@ class BarComparePlot(AbstractPlot):
         from plotly import graph_objs
 
         if self.sortby is not None:
-            inds = numpy.argsort(self.data[self.sortby].values())[::-1]
+            inds = numpy.argsort(list(self.data[self.sortby].values()))[::-1]
         else:
-            inds = numpy.range(len(self.data[self.data.keys()[0]]))
+            inds = numpy.range(len(self.data[list(self.data.keys())[0]]))
 
         data = []
         for label, sample in self.data.items():
             color = next(_COLOR_CYCLE)
             data.append({
                 'name': label,
-                'x': numpy.array(sample.keys())[inds],
-                'y': numpy.array(sample.values())[inds],
+                'x': numpy.array(list(sample.keys()))[inds],
+                'y': numpy.array(list(sample.values()))[inds],
                 'type': 'bar',
                 'opacity': 0.5,
                 'marker': {'color': color}
@@ -1033,11 +1033,11 @@ class BarComparePlot(AbstractPlot):
     def _plot_bokeh(self, current_plot, show_legend=True):
         length = len(self.data) + self.step
         if self.sortby is not None:
-            inds = numpy.argsort(self.data[self.sortby].values())[::-1]
+            inds = numpy.argsort(list(self.data[self.sortby].values()))[::-1]
         else:
-            inds = numpy.array(range(len(self.data[self.data.keys()[0]])))
+            inds = numpy.array(range(len(self.data[list(self.data.keys())[0]])))
 
-        xticks_labels = numpy.array(self.data[self.data.keys()[0]].keys())[inds]
+        xticks_labels = numpy.array(list(self.data[list(self.data.keys())[0]].keys()))[inds]
 
         for move, (label, sample) in enumerate(self.data.items()):
             color = next(_COLOR_CYCLE_BOKEH)
@@ -1045,8 +1045,8 @@ class BarComparePlot(AbstractPlot):
             legend_name = None
             if show_legend:
                 legend_name = label
-            current_plot.rect(x=length * index + move, y=numpy.array(sample.values())[inds] / 2,
-                              height=numpy.array(sample.values())[inds], width=1.,
+            current_plot.rect(x=length * index + move, y=numpy.array(list(sample.values()))[inds] / 2,
+                              height=numpy.array(list(sample.values()))[inds], width=1.,
                               alpha=self.alpha, color=color,
                               legend=label)
         return current_plot
