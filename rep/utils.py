@@ -390,7 +390,6 @@ def check_arrays(*arrays):
     for arr in arrays:
         if arr is not None:
             checked_arrays.append(numpy.array(arr))
-            print(checked_arrays[-1].shape[0])
             shapes.append(checked_arrays[-1].shape[0])
         else:
             checked_arrays.append(arr)
