@@ -15,7 +15,7 @@ from itertools import islice
 from collections import OrderedDict
 import itertools
 
-from sklearn.metrics.metrics import mean_squared_error
+from sklearn.metrics import mean_squared_error
 
 from .. import plotting
 from ..utils import get_columns_dict
