@@ -569,7 +569,7 @@ class ErrorPlot(AbstractPlot):
     def _plot_plotly(self, layout):
         data = []
         for name, val in self.errors.items():
-            color = _COLOR_CYCLE.next()
+            color = next(_COLOR_CYCLE)
             x, y, yerr, xerr = val
             yerr_mod = yerr
             if self.log:
@@ -613,7 +613,7 @@ class ErrorPlot(AbstractPlot):
         mg = ROOT.TMultiGraph()
         leg = ROOT.TLegend(0.2, 0.2, 0.5, 0.4)
         for name, val in self.errors.items():
-            color = _COLOR_CYCLE_TMVA.next()
+            color = next(_COLOR_CYCLE_TMVA)
             x, y, yerr, xerr = val
             gr = ROOT.TGraphErrors(len(x), numpy.array(x), numpy.array(y), numpy.array(xerr), numpy.array(yerr))
             gr.SetDrawOption("AP")
@@ -652,7 +652,7 @@ class FunctionsPlot(AbstractPlot):
 
     def _plot_bokeh(self, current_plot, show_legend=True):
         for name, data_xy in self.functions.items():
-            color = _COLOR_CYCLE_BOKEH.next()
+            color = next(_COLOR_CYCLE_BOKEH)
             x_val, y_val = data_xy
             legend_name = None
             if show_legend:
@@ -664,7 +664,7 @@ class FunctionsPlot(AbstractPlot):
         data = []
 
         for name, data_xy in self.functions.items():
-            color = _COLOR_CYCLE.next()
+            color = next(_COLOR_CYCLE)
             x_val, y_val = data_xy
             data.append({
                 'name': name,
@@ -683,7 +683,7 @@ class FunctionsPlot(AbstractPlot):
         mg = ROOT.TMultiGraph()
         leg = ROOT.TLegend(0.2, 0.2, 0.5, 0.4)
         for name, data_xy in self.functions.items():
-            color = _COLOR_CYCLE_TMVA.next()
+            color = next(_COLOR_CYCLE_TMVA)
             x_val, y_val = data_xy
             gr = ROOT.TGraph(len(x_val), numpy.array(x_val), numpy.array(y_val))
             gr.SetTitle(name)
@@ -842,13 +842,13 @@ class ScatterPlot(AbstractPlot):
         sum_elements = sum([len(scatter[0]) for scatter in self.scatters.values()])
         for name, scatter in self.scatters.items():
             alpha_normed = min(float(self.alpha) / len(scatter[0]) * sum_elements, 1.)
-            plt.scatter(scatter[0], scatter[1], s=self.size, c=_COLOR_CYCLE.next(),
+            plt.scatter(scatter[0], scatter[1], s=self.size, c=next(_COLOR_CYCLE),
                         alpha=alpha_normed, label=name)
 
     def _plot_plotly(self, layout):
         data = []
         for name, scatter in self.scatters.items():
-            color = _COLOR_CYCLE.next()
+            color = next(_COLOR_CYCLE)
             data.append({"x": scatter[0],
                          "y": scatter[1],
                          "name": name,
@@ -870,7 +870,7 @@ class ScatterPlot(AbstractPlot):
 
     def _plot_bokeh(self, current_plot, show_legend=True):
         for i, (name, scatter) in enumerate(self.scatters.items()):
-            color = _COLOR_CYCLE_BOKEH.next()
+            color = next(_COLOR_CYCLE_BOKEH)
             x_val, y_val = scatter
             legend_name = None
             if show_legend:
@@ -903,7 +903,7 @@ class BarPlot(AbstractPlot):
 
     def _plot(self):
         for label, sample in self.data.items():
-            color = _COLOR_CYCLE.next()
+            color = next(_COLOR_CYCLE)
             prediction, weight, style = sample
             if self.value_range is None:
                 c_min, c_max = numpy.min(prediction), numpy.max(prediction)
@@ -938,7 +938,7 @@ class BarPlot(AbstractPlot):
         if self.normalization:
             norm = 'probability density'
         for label, sample in self.data.items():
-            color = _COLOR_CYCLE.next()
+            color = next(_COLOR_CYCLE)
             prediction, weight, style = sample
             if self.value_range is None:
                 c_min, c_max = numpy.min(prediction), numpy.max(prediction)
@@ -998,7 +998,7 @@ class BarComparePlot(AbstractPlot):
             inds = numpy.array(range(len(self.data[self.data.keys()[0]])))
         xticks_labels = numpy.array(self.data[self.data.keys()[0]].keys())[inds]
         for move, (label, sample) in enumerate(self.data.items()):
-            color = _COLOR_CYCLE.next()
+            color = next(_COLOR_CYCLE)
             index = numpy.arange(len(sample))
             plt.bar(length * index + move, numpy.array(sample.values())[inds], 1., alpha=self.alpha, color=color,
                     label=label)
@@ -1015,7 +1015,7 @@ class BarComparePlot(AbstractPlot):
 
         data = []
         for label, sample in self.data.items():
-            color = _COLOR_CYCLE.next()
+            color = next(_COLOR_CYCLE)
             data.append({
                 'name': label,
                 'x': numpy.array(sample.keys())[inds],
@@ -1040,7 +1040,7 @@ class BarComparePlot(AbstractPlot):
         xticks_labels = numpy.array(self.data[self.data.keys()[0]].keys())[inds]
 
         for move, (label, sample) in enumerate(self.data.items()):
-            color = _COLOR_CYCLE_BOKEH.next()
+            color = next(_COLOR_CYCLE_BOKEH)
             index = numpy.arange(len(sample))
             legend_name = None
             if show_legend:

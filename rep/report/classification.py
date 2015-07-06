@@ -256,7 +256,7 @@ class ClassificationReport(AbstractReport):
                         prediction[label_mask, target_label],
                         weight[label_mask], bins, normed=normed, x_range=(0, 1))
                 else:
-                    data[plot_name] = (prediction[label_mask, target_label], weight[label_mask], filled_type.next())
+                    data[plot_name] = (prediction[label_mask, target_label], weight[label_mask], next(filled_type))
 
         if plot_type == 'error_bar':
             plot_fig = plotting.ErrorPlot(data, size=size, log=log)
