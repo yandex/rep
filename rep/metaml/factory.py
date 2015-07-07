@@ -47,7 +47,6 @@ class AbstractFactory(OrderedDict):
 
         :return: self
         """
-        assert isinstance(X, pandas.DataFrame), 'The passed '
         if features is not None:
             for name, estimator in self.items():
                 if estimator.features is not None:
