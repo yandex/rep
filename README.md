@@ -2,9 +2,9 @@
 
 __REP__ is ipython-based environment for conducting data-driven research in a consistent and reproducible way.
 
-Main include:
+Main features:
 
-  * unified python wrapper for different ML libraries (wrappers follow __scikit-learn__ interface)
+  * unified python wrapper for different ML libraries (wrappers follow extended __scikit-learn__ interface)
     * TMVA
     * Sklearn
     * XGBoost
@@ -33,13 +33,14 @@ and https://github.com/yandex/rep/wiki/Running-manually
 ### Howto examples
 
 To get started, look at the notebooks in /howto/  <br />
-Notebooks in repository can be viewed (not executed) online at nbviewer: http://nbviewer.ipython.org/github/yandex/rep/tree/master/howto/  <br />
+Notebooks can be viewed (not executed) online at nbviewer: http://nbviewer.ipython.org/github/yandex/rep/tree/master/howto/  <br />
 There are basic introductory notebooks (about python, IPython) and more advanced ones (about the REP itself)
 
 ### License
 Apache 2.0, library is open-source.
 
 ### Links
+* [documentation](http://yandex.github.io/rep/)
 * [bugtracker](https://github.com/yandex/rep/issues)
 * [howto](http://nbviewer.ipython.org/github/yandex/rep/tree/master/howto/)
 * [contributing new estimator](https://github.com/yandex/rep/wiki/Contributing-new-estimator)
