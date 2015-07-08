@@ -1,7 +1,7 @@
 """
 **Factory** provides convenient way to train several classifiers on the same dataset.
 These classifiers can be trained one-by-one in a single thread, or simultaneously
- with IPython cluster or in several threads.
+with IPython cluster or in several threads.
 
 Also `Factory` allows comparison of several classifiers (predictions of which can be used in parallel).
 """

@@ -31,7 +31,6 @@ https://github.com/yandex/rep/wiki/Installing-manually <br />
 and https://github.com/yandex/rep/wiki/Running-manually
 
 ### Howto examples
-
 To get started, look at the notebooks in /howto/  <br />
 Notebooks can be viewed (not executed) online at nbviewer: http://nbviewer.ipython.org/github/yandex/rep/tree/master/howto/  <br />
 There are basic introductory notebooks (about python, IPython) and more advanced ones (about the REP itself)
