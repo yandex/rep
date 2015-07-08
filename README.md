@@ -43,5 +43,6 @@ Apache 2.0, library is open-source.
 * [bugtracker](https://github.com/yandex/rep/issues)
 * [howto](http://nbviewer.ipython.org/github/yandex/rep/tree/master/howto/)
 * [contributing new estimator](https://github.com/yandex/rep/wiki/Contributing-new-estimator)
+* [contributing new metric](https://github.com/yandex/rep/wiki/Contributing-new-metrics)
 
 
