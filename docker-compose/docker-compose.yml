@@ -1,7 +1,7 @@
 rephowto:
   image: anaderi/rep-howto:latest
 rep:
-  image: anaderi/rep:0.6.x
+  image: anaderi/rep:latest
   ports:
     - "0.0.0.0:8000:8080"
     - "0.0.0.0:8086:5000"
