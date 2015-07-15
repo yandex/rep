@@ -18,6 +18,7 @@ DIR=$1 ; shift
 [ -d $DIR ] && halt "ERR: directory $DIR already exists"
 mkdir -p $DIR
 
+$CP_CMD -r $MYDIR/etc $DIR
 $CP_CMD $MYDIR/run.sh $DIR
 $CP_CMD $MYDIR/exec.sh $DIR 
 $CP_CMD $MYDIR/docker-compose.yml $DIR
