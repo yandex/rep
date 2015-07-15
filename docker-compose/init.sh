@@ -21,11 +21,11 @@ mkdir -p $DIR
 $CP_CMD -r $MYDIR/etc $DIR
 $CP_CMD $MYDIR/run.sh $DIR
 $CP_CMD $MYDIR/exec.sh $DIR 
+$CP_CMD $MYDIR/stop.sh $DIR 
 $CP_CMD $MYDIR/docker-compose.yml $DIR
 for f in ipykee log modules notebooks ; do
   mkdir -p $DIR/$f
 done
 
-echo "instance dir is ready at '$DIR'"
-echo "cd $DIR"
-echo "./run.sh"
+echo "instance directory is ready at '$DIR'"
+echo "$DIR/run.sh"
