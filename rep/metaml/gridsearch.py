@@ -9,14 +9,18 @@ from itertools import islice
 from collections import OrderedDict
 import logging
 
+
 from sklearn.base import clone
 import numpy
+import copy
 from sklearn.cross_validation import StratifiedKFold
 from sklearn.ensemble.forest import RandomForestRegressor
 from sklearn.utils.random import check_random_state
 
 from six.moves import zip
 from ..estimators.utils import check_inputs
+from rep.metaml.utils import map_on_cluster
+
 
 __author__ = 'Alex Rogozhnikov, Tatiana Likhomanenko'
 
@@ -427,13 +431,17 @@ class FoldingScorer(object):
             trainX, trainY = X.iloc[train_indices, :], y[train_indices]
             testX, testY = X.iloc[test_indices, :], y[test_indices]
 
+            score_metric = copy.deepcopy(self.score_function)
+
             if sample_weight is not None:
                 train_weights, test_weights = sample_weight[train_indices], sample_weight[test_indices]
                 classifier.fit(trainX, trainY, sample_weight=train_weights)
-                score += self.score_function(testY, classifier.predict_proba(testX), sample_weight=test_weights)
+                score_metric.fit(testX, testY, sample_weight=test_weights)
+                score += score_metric(testY, classifier.predict_proba(testX), sample_weight=test_weights)
             else:
                 classifier.fit(trainX, trainY)
-                score += self.score_function(testY, classifier.predict_proba(testX))
+                score_metric.fit(testX, testY)
+                score += score_metric(testY, classifier.predict_proba(testX))
         return score / self.fold_checks
 
 
@@ -533,6 +541,27 @@ class GridOptimalSearchCV(object):
                 self.evaluations_done += 1
                 state_string = ", ".join([k + '=' + str(v) for k, v in state_dict.items()])
                 self._log('{}: {}'.format(value, state_string))
+        elif str.startswith(self.parallel_profile, 'threads'):
+            _, n_threads = str.split(self.parallel_profile, '-')
+            portion = int(n_threads)
+            print("Performing grid search in {} threads".format(portion))
+
+            while self.evaluations_done < self.params_generator.n_evaluations:
+                state_indices_array, state_dict_array = self.params_generator.generate_batch_points(size=portion)
+                result = map_on_cluster(self.parallel_profile, apply_scorer, [self.scorer] * portion, state_dict_array,
+                                        [self.base_estimator] * portion,
+                                        [X] * portion, [y] * portion, [sample_weight] * portion)
+                assert len(result) == portion, "The length of result is very strange"
+                for state_indices, state_dict, (status, score) in zip(state_indices_array, state_dict_array, result):
+                    params = ", ".join([k + '=' + str(v) for k, v in state_dict.items()])
+                    if status != 'success':
+                        message = 'Fail during training on the node \nException {exc}\n Parameters {params}'
+                        self._log(message.format(exc=score, params=params), level=40)
+                    else:
+                        self.params_generator.add_result(state_indices, score)
+                        self._log("{}: {}".format(score, params))
+                self.evaluations_done += portion
+                print("%i evaluations done" % self.evaluations_done)
         else:
             from IPython.parallel import Client
 
