@@ -101,12 +101,9 @@ class AbstractReport:
 
         if isinstance(metric, type):
             print(metric_label, ' is a type, not instance. Forgot to initialize?')
-        try:
-            metric_func = copy.copy(metric)
-            metric_func.fit(data, labels, sample_weight=weight)
-        except AttributeError:
-            # Metrics doesn't have 'fit' method
-            pass
+
+        metric_func = copy.copy(metric)
+        utils.fit_metric(metric_func, data, labels, sample_weight=weight)
 
         quality = OrderedDict()
         for estimator_name in self.prediction:
@@ -164,11 +161,8 @@ class AbstractReport:
             _, data, labels, weights = self._apply_mask(mask, self._get_features(estimator.features), self.target,
                                                         self.weight)
             metric_copy = copy.deepcopy(metric)
-            try:
-                metric_copy.fit(data, labels, sample_weight=weights)
-            except:
-                # metric doesn't support fitting
-                pass
+            utils.fit_metric(metric_copy, data, labels, sample_weight=weights)
+
             for feature in data.columns:
                 data_modified = data.copy()
                 column = numpy.array(data_modified[feature])
@@ -201,11 +195,7 @@ class AbstractReport:
         if isinstance(metric, type):
             print('Metric is a type, not instance. Forgot to initialize?')
         metric_func = copy.copy(metric)
-        try:
-            metric_func.fit(data, labels, sample_weight=weight)
-        except AttributeError:
-            # Metrics doesn't have 'fit' method
-            pass
+        utils.fit_metric(metric_func, data, labels, sample_weight=weight)
 
         quality = OrderedDict()
         for estimator_name, prediction in self.prediction.items():

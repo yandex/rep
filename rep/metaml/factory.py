@@ -10,8 +10,6 @@ from abc import ABCMeta, abstractmethod
 from collections import OrderedDict
 import time
 
-import pandas
-
 from sklearn.base import BaseEstimator, RegressorMixin, ClassifierMixin
 from ..report import classification, regression
 from ..estimators.interface import Classifier, Regressor

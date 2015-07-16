@@ -2,8 +2,6 @@
 This module does hyper parameters optimization -- find the best parameters for estimator using different optimization models.
 """
 
-# TODO think of pareto-optimization
-
 from __future__ import division, print_function, absolute_import
 from itertools import islice
 from collections import OrderedDict
@@ -19,7 +17,8 @@ from sklearn.utils.random import check_random_state
 
 from six.moves import zip
 from ..estimators.utils import check_inputs
-from rep.metaml.utils import map_on_cluster
+from ..utils import fit_metric
+from .utils import map_on_cluster
 
 
 __author__ = 'Alex Rogozhnikov, Tatiana Likhomanenko'
@@ -179,7 +178,7 @@ class RegressionParameterOptimizer(AbstractParameterGenerator):
         if len(self.queued_tasks_) > numpy.prod(self.dimensions) + self.n_attempts:
             raise RuntimeError("The grid is exhausted, cannot generate more points")
 
-        if len(self.queued_tasks_) < self.start_evaluations:
+        if len(self.grid_scores_) < self.start_evaluations:
             new_state_indices = self._generate_random_point()
             return new_state_indices, self._indices_to_parameters(new_state_indices)
 
@@ -436,11 +435,11 @@ class FoldingScorer(object):
             if sample_weight is not None:
                 train_weights, test_weights = sample_weight[train_indices], sample_weight[test_indices]
                 classifier.fit(trainX, trainY, sample_weight=train_weights)
-                score_metric.fit(testX, testY, sample_weight=test_weights)
+                fit_metric(score_metric, testX, testY, sample_weight=test_weights)
                 score += score_metric(testY, classifier.predict_proba(testX), sample_weight=test_weights)
             else:
                 classifier.fit(trainX, trainY)
-                score_metric.fit(testX, testY)
+                fit_metric(score_metric, testX, testY)
                 score += score_metric(testY, classifier.predict_proba(testX))
         return score / self.fold_checks
 
@@ -468,8 +467,8 @@ def apply_scorer(scorer, params, base_estimator, X, y, sample_weight):
 
 class GridOptimalSearchCV(object):
     """
-    Optimal search over specified parameter values for an estimator. Metropolis-like algorithm is used
-    Important members are fit, scorer.
+    Optimal search over specified parameter values for an estimator.
+    Uses different optimization techniques to use limited number of evaluations without using exhaustive grid scanning.
 
     GridSearchCV implements a "fit" method and a "fit_best_estimator" method to train models.
 

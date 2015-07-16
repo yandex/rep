@@ -395,3 +395,9 @@ def check_arrays(*arrays):
             checked_arrays.append(arr)
     assert numpy.sum(numpy.array(shapes) == shapes[0]) == len(shapes), 'Different shapes of the arrays {}'.format(shapes)
     return checked_arrays
+
+
+def fit_metric(metric, *args, **kargs):
+    """Simple wrapper to fit metrics, which checks if metrics has `fit` method."""
+    if hasattr(metric, 'fit'):
+        metric.fit(*args, **kargs)
