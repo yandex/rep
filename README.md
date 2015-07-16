@@ -21,6 +21,11 @@ Main features:
   * meta-algorithm design (aka 'rep-lego')
 
 
+### Howto examples
+To get started, look at the notebooks in /howto/  <br />
+Notebooks can be viewed (not executed) online at [nbviewer](http://nbviewer.ipython.org/github/yandex/rep/tree/master/howto/)  <br />
+There are basic introductory notebooks (about python, IPython) and more advanced ones (about the REP itself)
+
 ### Running using docker
 We provide the docker container with __REP__ and all it's dependencies <br />
 https://github.com/yandex/rep/wiki/Running-REP-using-Docker/
@@ -29,11 +34,6 @@ https://github.com/yandex/rep/wiki/Running-REP-using-Docker/
 However, if you want to install __REP__ on your machine, follow this manual:  <br />
 https://github.com/yandex/rep/wiki/Installing-manually <br />
 and https://github.com/yandex/rep/wiki/Running-manually
-
-### Howto examples
-To get started, look at the notebooks in /howto/  <br />
-Notebooks can be viewed (not executed) online at nbviewer: http://nbviewer.ipython.org/github/yandex/rep/tree/master/howto/  <br />
-There are basic introductory notebooks (about python, IPython) and more advanced ones (about the REP itself)
 
 ### License
 Apache 2.0, library is open-source.
