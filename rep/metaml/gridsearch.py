@@ -540,38 +540,22 @@ class GridOptimalSearchCV(object):
                 self.evaluations_done += 1
                 state_string = ", ".join([k + '=' + str(v) for k, v in state_dict.items()])
                 self._log('{}: {}'.format(value, state_string))
-        elif str.startswith(self.parallel_profile, 'threads'):
-            _, n_threads = str.split(self.parallel_profile, '-')
-            portion = int(n_threads)
-            print("Performing grid search in {} threads".format(portion))
+        else:
+            if str.startswith(self.parallel_profile, 'threads'):
+                _, n_threads = str.split(self.parallel_profile, '-')
+                portion = int(n_threads)
+                print("Performing grid search in {} threads".format(portion))
+            else:
+                from IPython.parallel import Client
+                direct_view = Client(profile=self.parallel_profile).direct_view()
+                portion = len(direct_view)
+                print("There are {0} cores in cluster, the portion is equal {1}".format(len(direct_view), portion))
 
             while self.evaluations_done < self.params_generator.n_evaluations:
                 state_indices_array, state_dict_array = self.params_generator.generate_batch_points(size=portion)
                 result = map_on_cluster(self.parallel_profile, apply_scorer, [self.scorer] * portion, state_dict_array,
                                         [self.base_estimator] * portion,
                                         [X] * portion, [y] * portion, [sample_weight] * portion)
-                assert len(result) == portion, "The length of result is very strange"
-                for state_indices, state_dict, (status, score) in zip(state_indices_array, state_dict_array, result):
-                    params = ", ".join([k + '=' + str(v) for k, v in state_dict.items()])
-                    if status != 'success':
-                        message = 'Fail during training on the node \nException {exc}\n Parameters {params}'
-                        self._log(message.format(exc=score, params=params), level=40)
-                    else:
-                        self.params_generator.add_result(state_indices, score)
-                        self._log("{}: {}".format(score, params))
-                self.evaluations_done += portion
-                print("%i evaluations done" % self.evaluations_done)
-        else:
-            from IPython.parallel import Client
-
-            direct_view = Client(profile=self.parallel_profile).direct_view()
-            portion = len(direct_view)
-            print("There are {0} cores in cluster, the portion is equal {1}".format(len(direct_view), portion))
-            while self.evaluations_done < self.params_generator.n_evaluations:
-                state_indices_array, state_dict_array = self.params_generator.generate_batch_points(size=portion)
-                result = direct_view.map_sync(apply_scorer, [self.scorer] * portion, state_dict_array,
-                                              [self.base_estimator] * portion,
-                                              [X] * portion, [y] * portion, [sample_weight] * portion)
                 assert len(result) == portion, "The length of result is very strange"
                 for state_indices, state_dict, (status, score) in zip(state_indices_array, state_dict_array, result):
                     params = ", ".join([k + '=' + str(v) for k, v in state_dict.items()])
