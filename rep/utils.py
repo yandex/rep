@@ -379,7 +379,11 @@ def get_columns_in_df(df, columns):
     columns_dict = get_columns_dict(columns)
     df_new = OrderedDict()
     for column_new, column in columns_dict.items():
-        df_new[column_new] = numexpr.evaluate(column, local_dict=df)
+        if column in df.columns:
+            df_new[column_new] = df[column]
+        else:
+            # warning - this thing is known to fail in threads
+            df_new[column_new] = numexpr.evaluate(column, local_dict=df)
     return pandas.DataFrame(df_new)
 
 
