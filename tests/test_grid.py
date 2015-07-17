@@ -62,7 +62,8 @@ def test_gridsearch_sklearn():
                               'features': [['column0', 'column1'], ['column0', 'column1', 'column2']]})
     generator = RegressionParameterOptimizer(grid_param, n_evaluations=4)
 
-    grid = GridOptimalSearchCV(SklearnClassifier(clf=AdaBoostClassifier()), generator, scorer)
+    grid = GridOptimalSearchCV(SklearnClassifier(clf=AdaBoostClassifier()), generator, scorer,
+                               parallel_profile='threads-3')
 
     _ = check_grid(grid, False, False, False, use_weights=True)
     classifier = check_grid(grid, False, False, False, use_weights=False)
