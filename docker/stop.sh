@@ -1,7 +1,4 @@
 #!/bin/bash
-halt() { echo $*
-exit 1
-}
 
 usage() {
   echo "Usage: $0 [--howto]"
@@ -10,17 +7,11 @@ usage() {
   exit
 }
 
-DIR=`cd "$(dirname $0)" && pwd -P`
-CID_FILE=$DIR/docker.cid
-[ ! -f $CID_FILE ] && halt "file with CID not found"
-cid=`cat $CID_FILE`
-[ -z "$cid" ] && halt "Invalid CID: '$cid'"
+REPDIR=`cd "$(dirname $0)" && pwd -P`
+source $REPDIR/_functions.sh
+
+CID=`docker_cid rep`
 [ "$1" = "-h" ] && usage
-docker stop $cid
-docker rm -v $cid
-rm $CID_FILE
-if [ "$1" = "--howto" ] ; then
-  $DIR/_stop_howto.sh || halt "unable to stop REP_howto"
-  shift
-fi
+docker stop $CID > /dev/null || halt "Error stopping container $CID"
+docker rm -v $CID > /dev/null || halt "Erorr removing container $CID"
 echo "Done"

@@ -1,11 +1,6 @@
 #!/bin/bash
-halt() { echo $*
-exit 1
-}
 
-DIR=`cd "$(dirname $0)" && pwd -P`
-CID_FILE=$DIR/docker.cid
-[ ! -f $CID_FILE ] && halt "file with CID not found"
-cid=`cat $CID_FILE`
-[ -z "$cid" ] && halt "Invalid CID: '$cid'"
-docker exec $cid $*
+REPDIR=`cd "$(dirname $0)" && pwd -P`
+source $REPDIR/_functions.sh
+CID=`docker_cid rep`
+docker exec -ti $CID $*

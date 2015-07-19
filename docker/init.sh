@@ -1,21 +1,25 @@
 #!/bin/bash
-halt() { echo $*
-exit 1 
-}
 
-CP_CMD=cp
 MYDIR=`cd "$(dirname $0)" && pwd -P`
-[ -z "$1" ] && halt "Usage: $0 DIRECTORY"
-DIR=$1 ; shift
-[ "$1" == "--ln" ] && CP_CMD="ln -s" && shift
-[ -d $DIR ] && halt "ERR: directory $DIR already exists"
-mkdir -p $DIR
+source $MYDIR/_functions.sh
 
-$CP_CMD $MYDIR/*.sh $DIR  # TODO: exclude init.sh
+[ -z "$1" ] && halt "Usage: $0 REPDIR"
+REPDIR=$1 ; shift
+[ -d $REPDIR ] && halt "ERR: directory $REPDIR already exists"
+
+mkdir -p $REPDIR || halt "Error creating directory $REPDIR"
+cd $REPDIR
+
+if [ "$1" == "--ln" ] ; then
+  find $MYDIR -name "*.sh" -a -not -name "init.sh" | xargs -I % ln -s % .
+else
+  find $MYDIR -name "*.sh" -a -not -name "init.sh" | xargs -I % cp % .
+fi
+[ -f $REPDIR/run.sh ] || halt "Erorr creating 'run.sh' at $REPDIR"
+
 for f in ipykee log modules notebooks ; do
-  mkdir $DIR/$f
+  mkdir $f
 done
 
-echo "REPrc dir is ready at '$DIR'"
-echo "cd $DIR"
-echo "./run.sh"
+echo "REPDIR is ready at '$REPDIR'. To start REP:"
+echo "$REPDIR/run.sh"
