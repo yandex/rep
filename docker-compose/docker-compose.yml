@@ -3,7 +3,7 @@ rephowto:
 rep:
   image: anaderi/rep:latest
   ports:
-    - "0.0.0.0:8000:8080"
+    - "0.0.0.0:8080:8080"
     - "0.0.0.0:8086:5000"
   environment:
     - PASSWD=rep
