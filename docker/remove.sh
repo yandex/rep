@@ -5,5 +5,5 @@ source $REPDIR/_functions.sh
 
 is_instance_dir $REPDIR || halt "ERROR: you should run $0 from REPDIR"
 CID=`docker_cid rep`
-docker stop $CID > /dev/null || halt "Erorr stopping container $CID"
+docker rm -v $CID > /dev/null || halt "Error removing container $CID"
 echo "Done"

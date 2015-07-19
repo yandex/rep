@@ -20,7 +20,19 @@ docker_cid() {
 
 is_container_running() {
   cid=$1
+  docker ps|grep $cid > /dev/null
+  return $?
+}
+
+is_container_created() {
+  cid=$1
   docker ps -a|grep $cid > /dev/null
+  return $?
+}
+
+is_instance_dir() {
+  dir=$1
+  test -d $dir/notebooks
   return $?
 }
 
