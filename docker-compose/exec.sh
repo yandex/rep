@@ -1,7 +1,14 @@
 #!/bin/bash
 
-HERE=`dirname $0`
-[ -f $HERE/rep.cid ] && CID=`cat $HERE/rep.cid`
-[[ -z "$1" && -z "$CID" ]] && echo "Usage: $0 CONTAINER_ID" && exit 1
-[ -n "$1" ] && CID=$1
-docker exec -ti $CID bash
+docker_cid() {
+  image=$1
+  [ -z "$image" ] && image="rep"
+  SCRIPT_NAME=$0
+  [ -z "SCRIPT_NAME" ] && SCRIPT_NAME=$BASH_SOURCE
+  here=`cd $(dirname $SCRIPT_NAME) && pwd -P`
+  prefix=`basename $here`
+  echo "${prefix}_${image}_1"
+}
+
+CID=`docker_cid rep`
+docker exec -ti $CID $*
