@@ -14,7 +14,7 @@ docker_cid() {
   SCRIPT_NAME=$0
   [ -z "SCRIPT_NAME" ] && SCRIPT_NAME=$BASH_SOURCE
   here=`cd $(dirname $SCRIPT_NAME) && pwd -P`
-  prefix=`basename $here`
+  prefix=`basename $here | tr -dc "[:alnum:]"`
   echo "${prefix}_${image}"
 }
 
