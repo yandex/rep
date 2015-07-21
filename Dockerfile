@@ -8,6 +8,7 @@ RUN mkdir $TEMP/build
 COPY setup.py README.md AUTHORS requirements.txt $TEMP/build/
 COPY rep $TEMP/build/rep
 COPY run.sh /root/
+COPY howto /REP_howto
 RUN cd $TEMP/build && \
   pip install . && \
   rm -rf $TEMP/build
