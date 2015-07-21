@@ -12,7 +12,7 @@ from sklearn.utils.validation import column_or_1d
 from sklearn.metrics import roc_curve
 
 
-def weighted_percentile(array, percentiles, sample_weight=None, array_sorted=False, old_style=False):
+def weighted_quantile(array, percentiles, sample_weight=None, array_sorted=False, old_style=False):
     array = numpy.array(array)
     percentiles = numpy.array(percentiles)
     sample_weight = check_sample_weight(array, sample_weight)
@@ -245,7 +245,7 @@ def get_efficiencies(prediction, spectator, sample_weight=None, bins_number=20,
     sample_weight = sample_weight if sample_weight is None else numpy.array(sample_weight)[mask]
 
     if thresholds is None:
-        thresholds = [weighted_percentile(prediction, percentiles=1 - eff, sample_weight=sample_weight)
+        thresholds = [weighted_quantile(prediction, percentiles=1 - eff, sample_weight=sample_weight)
                       for eff in [0.2, 0.4, 0.5, 0.6, 0.8]]
 
     binner = Binner(spectator, bins_number=bins_number)

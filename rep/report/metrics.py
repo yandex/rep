@@ -53,7 +53,7 @@ import numpy
 from sklearn.base import BaseEstimator
 from sklearn.metrics import roc_auc_score, roc_curve
 from ..utils import check_arrays
-from ..utils import check_sample_weight, weighted_percentile
+from ..utils import check_sample_weight, weighted_quantile
 
 
 __author__ = 'Alex Rogozhnikov'
@@ -280,7 +280,7 @@ class FPRatTPR(BaseEstimator, MetricMixin):
         if sample_weight is None:
             sample_weight = numpy.ones(len(proba))
         y, proba, sample_weight = check_arrays(y, proba, sample_weight)
-        threshold = weighted_percentile(proba[y == 1, 1], (1. - self.tpr), sample_weight=sample_weight[y == 1])
+        threshold = weighted_quantile(proba[y == 1, 1], (1. - self.tpr), sample_weight=sample_weight[y == 1])
         return numpy.sum(sample_weight[(y == 0) & (proba[:, 1] >= threshold)]) / sum(sample_weight[y == 0])
 
 
@@ -295,5 +295,5 @@ class TPRatFPR(BaseEstimator, MetricMixin):
         if sample_weight is None:
             sample_weight = numpy.ones(len(proba))
         y, proba, sample_weight = check_arrays(y, proba, sample_weight)
-        threshold = weighted_percentile(proba[y == 0, 1], (1 - self.fpr), sample_weight=sample_weight[y == 0])
+        threshold = weighted_quantile(proba[y == 0, 1], (1 - self.fpr), sample_weight=sample_weight[y == 0])
         return numpy.sum(sample_weight[(y == 1) & (proba[:, 1] > threshold)]) / sum(sample_weight[y == 1])

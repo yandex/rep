@@ -433,9 +433,7 @@ class ClassificationReport(AbstractReport):
         sig_mask = class_labels == signal_label
         for classifier_name, prediction in self.prediction.items():
             prediction = prediction[mask]
-            # important: this isn't completely correct, since we need weighted percentile.
-            # TODO fix
-            threshold_ = numpy.percentile(prediction[sig_mask, signal_label], 100 * (1. - efficiency))
+            threshold_ = utils.weighted_quantile(prediction[sig_mask, signal_label], (1. - efficiency))
             passed = prediction[:, signal_label] > threshold_
             minlength = n_bins ** 2
             for label, label_name in labels_dict.items():
