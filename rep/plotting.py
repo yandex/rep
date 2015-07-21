@@ -1064,6 +1064,8 @@ class Function2D_Plot(AbstractPlot):
     :param int xsteps: count of points for approximation on x-axis
     :param int ysteps: count of points for approximation on y-axis
     :param str cmap: color map
+    :param float vmin: value, corresponding to minimum on cmap
+    :param float vmax: value, corresponding to maximum on cmap
 
     .. note:: for plotly use
 
@@ -1085,7 +1087,8 @@ class Function2D_Plot(AbstractPlot):
         * 'Electric', black to purple to orange to yellow to tan to white
     """
 
-    def __init__(self, function, xlim, ylim, xsteps=100, ysteps=100, cmap='Blues'):
+    def __init__(self, function, xlim, ylim, xsteps=100, ysteps=100, cmap='Blues',
+                 vmin=None, vmax=None):
         super(Function2D_Plot, self).__init__()
 
         x = numpy.linspace(xlim[0], xlim[1], xsteps)
@@ -1095,14 +1098,17 @@ class Function2D_Plot(AbstractPlot):
         self.x, self.y = numpy.meshgrid(x, y)
         self.z = function(self.x, self.y)
         self.cmap = cmap
+        self.vmin = vmin
+        self.vmax = vmax
 
     def _plot(self):
-        colormap = plt.pcolor(self.x, self.y, self.z, cmap=self.cmap)
+        colormap = plt.pcolor(self.x, self.y, self.z, cmap=self.cmap, vmin=self.vmin, vmax=self.vmax)
         cb = plt.colorbar(colormap)
         cb.set_label('value')
 
     def _plot_plotly(self, layout):
         from plotly import graph_objs
+        # TODO add vmin/vmax
 
         colorbar_plotly = graph_objs.ColorBar(
             thickness=15,  # color bar thickness in px
