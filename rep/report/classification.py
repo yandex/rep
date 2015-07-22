@@ -385,7 +385,7 @@ class ClassificationReport(AbstractReport):
         return bin_indices
 
     def efficiencies_2d(self, features, efficiency, mask=None, n_bins=20, ignored_sideband=0.0, labels_dict=None,
-                        grid_columns=2, signal_label=1):
+                        grid_columns=2, signal_label=1, cmap='RdBu'):
         """
         For binary classification plots the dependence of efficiency on two columns
 
@@ -401,6 +401,7 @@ class ClassificationReport(AbstractReport):
         :param int grid_columns: count of columns in grid
         :param float ignored_sideband: (0, 1) percent of plotting data
         :param int signal_label: label to calculate efficiency threshold
+        :param str cmap: name of colormap used
 
         :rtype: plotting.GridPlot
         """
@@ -441,14 +442,23 @@ class ClassificationReport(AbstractReport):
                 label_mask = class_labels == label
                 assert numpy.all(bin_indices < minlength)
 
+                # mean efficiency
+                mean_eff = numpy.sum(label_mask * weight * passed) / numpy.sum(label_mask * weight)
+
                 bin_efficiencies = numpy.bincount(bin_indices, weights=label_mask * weight * passed, minlength=minlength)
-                bin_efficiencies /= numpy.bincount(bin_indices, weights=label_mask * weight, minlength=minlength) + 1e-6
+                denominators = numpy.bincount(bin_indices, weights=label_mask * weight, minlength=minlength)
+                bin_efficiencies /= denominators + 1e-6
+                # For empty bins we will return mean (plots otherwise become ugly)
+                bin_efficiencies[denominators == 0] = mean_eff
 
                 plot_fig = plotting.Function2D_Plot(lambda x, y: 0, xlim=axis_limits[0], ylim=axis_limits[1])
                 plot_fig.x, plot_fig.y = numpy.meshgrid(*bin_centers)
                 plot_fig.z = bin_efficiencies.reshape([n_bins, n_bins])
                 plot_fig.xlabel, plot_fig.ylabel = columns_labels
                 plot_fig.title = 'Estimator {} efficiencies for class {}'.format(classifier_name, label_name)
+                plot_fig.vmin = mean_eff - 0.2
+                plot_fig.vmax = mean_eff + 0.2
+                plot_fig.cmap = cmap
                 plots.append(plot_fig)
 
         return plotting.GridPlot(grid_columns, *plots)
