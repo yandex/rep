@@ -21,13 +21,18 @@ Main REP features include:
   * meta-algorithm design (aka 'rep-lego')
 
 
-### Running using docker
-We provide the docker container with `REP` and all it's dependencies <br />
-https://github.com/yandex/rep/wiki/Running-REP-using-Docker/
 
-### Installation
-However, if you want to install `REP` on your machine, follow this manual:  <br />
-https://github.com/yandex/rep/wiki/Installing-manually <br />
+### Installation with Docker
+
+We provide the [docker image](https://registry.hub.docker.com/u/anaderi/rep/) with `REP` and all it's dependencies 
+* [install with Docker on Mac](https://github.com/yandex/rep/wiki/Instal-REP-with-Docker-(Mac-OS-X))
+* [install with Docker on Linux](https://github.com/yandex/rep/wiki/Install-REP-with-Docker-(Linux))
+* [install with docker-compose on Linux](https://github.com/yandex/rep/wiki/Install-REP-with-docker-compose-(Linux))
+
+
+### Installation with bare hands
+However, if you want to install `REP` and all of its dependencies on your machine yourself, follow this manual:  <br/>
+https://github.com/yandex/rep/wiki/Installing-manually <br/>
 and https://github.com/yandex/rep/wiki/Running-manually
 
 ### First steps
