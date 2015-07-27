@@ -162,7 +162,8 @@ class TMVABase(object):
 
         return prediction
 
-    def _run_tmva_predict(self, info, data):
+    @staticmethod
+    def _run_tmva_predict(info, data):
         """
         Run subprocess to train tmva factory
 

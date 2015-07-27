@@ -59,7 +59,8 @@ class AbstractPlot(object):
         self.canvas = None
         self._tmva_keeper = []
 
-    def _plotly_config(self):
+    @staticmethod
+    def _plotly_config():
         try:
             import ConfigParser
         except ImportError:
@@ -403,7 +404,8 @@ class GridPlot(AbstractPlot):
         grid = mdl.GridPlot(children=lst)
         return grid
 
-    def _get_splts(self, n_row, n_col, n):
+    @staticmethod
+    def _get_splts(n_row, n_col, n):
 
         n_splt = n_row * n_col
         n_empty = n_splt - n
