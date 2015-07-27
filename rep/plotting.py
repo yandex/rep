@@ -1013,7 +1013,7 @@ class BarComparePlot(AbstractPlot):
         if self.sortby is not None:
             inds = numpy.argsort(list(self.data[self.sortby].values()))[::-1]
         else:
-            inds = numpy.range(len(self.data[list(self.data.keys())[0]]))
+            inds = numpy.arange(len(self.data[list(self.data.keys())[0]]))
 
         data = []
         for label, sample in self.data.items():
@@ -1050,7 +1050,7 @@ class BarComparePlot(AbstractPlot):
             current_plot.rect(x=length * index + move, y=numpy.array(list(sample.values()))[inds] / 2,
                               height=numpy.array(list(sample.values()))[inds], width=1.,
                               alpha=self.alpha, color=color,
-                              legend=label)
+                              legend=legend_name)
         return current_plot
 
 
