@@ -89,7 +89,7 @@ class RegressionReport(AbstractReport):
         correlation_plots = []
         corr_pairs = OrderedDict()
         for feature1_c, feature2_c in correlation_pairs:
-            feature1, feature2 = get_columns_dict([feature1_c, feature2_c]).keys()
+            feature1, feature2 = list(get_columns_dict([feature1_c, feature2_c]).keys())
             corr_pairs[(feature1, feature2)] = (df[feature1].values, df[feature2].values)
             plot_fig = plotting.ScatterPlot({'correlation': corr_pairs[(feature1, feature2)]}, alpha=alpha,
                                             size=marker_size)
@@ -108,7 +108,7 @@ class RegressionReport(AbstractReport):
         stage_values = self.estimators[name].staged_predict(data)
         for stage, prediction in islice(enumerate(stage_values), step - 1, None, step):
             curve[stage] = metric_func(labels, prediction, sample_weight=weight)
-        return curve.keys(), curve.values()
+        return list(curve.keys()), list(curve.values())
 
     def feature_importance_shuffling(self, metric=mean_squared_error, mask=None, grid_columns=2):
         """
