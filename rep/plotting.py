@@ -810,7 +810,7 @@ class ColorMap(AbstractPlot):
         current_plot.axis.axis_line_color = None
         current_plot.axis.major_tick_line_color = None
         hover = current_plot.select(dict(type=HoverTool))
-        if hover == []:
+        if not hover:
             hover = HoverTool(plot=current_plot, always_active=True)
         hover.tooltips = OrderedDict([
             ('labels', '@x @y'),
