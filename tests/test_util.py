@@ -33,8 +33,8 @@ def test_calc():
 
 
 def test_train_test_split_group():
-    data = range(50) * 2
-    group_column = range(50) * 2
+    data = list(range(50)) * 2
+    group_column = list(range(50)) * 2
     train, test = utils.train_test_split_group(group_column, data)
     assert len(set.intersection(set(test), set(train))) == 0
 
