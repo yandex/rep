@@ -27,7 +27,7 @@ _PASS_PARAMETERS = {'random_state'}
 __all__ = ['TMVABase', 'TMVAClassifier', 'TMVARegressor']
 
 
-class _AdditionalInformation():
+class _AdditionalInformation:
     """
     Additional information for tmva factory (used in training)
     """
@@ -39,7 +39,7 @@ class _AdditionalInformation():
         self.model_type = model_type
 
 
-class _AdditionalInformationPredict():
+class _AdditionalInformationPredict:
     """
     Additional information for tmva factory (used in predictions)
     """
@@ -162,7 +162,8 @@ class TMVABase(object):
 
         return prediction
 
-    def _run_tmva_predict(self, info, data):
+    @staticmethod
+    def _run_tmva_predict(info, data):
         """
         Run subprocess to train tmva factory
 

@@ -85,7 +85,8 @@ class RegressionReport(AbstractReport):
             correlation_plots += self._scatter_addition(df, correlation_pairs, marker_size=marker_size, alpha=alpha)
         return plotting.GridPlot(grid_columns, *correlation_plots)
 
-    def _scatter_addition(self, df, correlation_pairs, marker_size=20, alpha=0.1):
+    @staticmethod
+    def _scatter_addition(df, correlation_pairs, marker_size=20, alpha=0.1):
         correlation_plots = []
         corr_pairs = OrderedDict()
         for feature1_c, feature2_c in correlation_pairs:
