@@ -59,8 +59,11 @@ def reorder_by_first(*arrays):
 
 
 def check_sample_weight(y_true, sample_weight):
-    """
-    Checks the weights, returns normalized version
+    """Checks the weights, if None, returns array.
+
+    :param y_true: labels (or any array of length [n_samples])
+    :param sample_weight: None or array of length [n_samples]
+    :return numpy.array of shape [n_samples]
     """
     if sample_weight is None:
         return numpy.ones(len(y_true), dtype=numpy.float)
