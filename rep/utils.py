@@ -23,7 +23,8 @@ def weighted_quantile(array, quantiles, sample_weight=None, array_sorted=False, 
     :param old_style: if True
     :return: array of shape [n_quantiles]
 
-    **Example:**
+    Example:
+    ________
 
     >>> weighted_quantile([1, 2, 3, 4, 5], [0.5])
     Out: array([ 3.])
@@ -63,7 +64,7 @@ def check_sample_weight(y_true, sample_weight):
 
     :param y_true: labels (or any array of length [n_samples])
     :param sample_weight: None or array of length [n_samples]
-    :return numpy.array of shape [n_samples]
+    :return: numpy.array of shape [n_samples]
     """
     if sample_weight is None:
         return numpy.ones(len(y_true), dtype=numpy.float)
@@ -94,6 +95,7 @@ class Flattener(object):
 
     :return func: normalization function
     """
+
     def __init__(self, data, sample_weight=None):
         sample_weight = check_sample_weight(data, sample_weight=sample_weight)
         data = column_or_1d(data)
@@ -117,6 +119,7 @@ class Binner:
 
     def get_bins(self, values):
         """Given the values of feature, compute the index of bin
+
         :param values: array of shape [n_samples]
         :return: array of shape [n_samples]
         """
@@ -134,7 +137,7 @@ class Binner:
     def split_into_bins(self, *arrays):
         """
         :param arrays: data to be splitted, the first array corresponds
-        :return: sequence of length [n_bins] with values correspnding to each bin.
+        :return: sequence of length [n_bins] with values corresponding to each bin.
         """
         values = arrays[0]
         for array in arrays:
@@ -260,7 +263,7 @@ def get_efficiencies(prediction, spectator, sample_weight=None, bins_number=20,
     prediction, spectator = \
         check_arrays(prediction, spectator)
 
-    spectator_min, spectator_max = numpy.percentile(spectator, [100 * ignored_sideband, 100 * (1. - ignored_sideband)])
+    spectator_min, spectator_max = weighted_quantile(spectator, [ignored_sideband, (1. - ignored_sideband)])
     mask = (spectator >= spectator_min) & (spectator <= spectator_max)
     spectator = spectator[mask]
     prediction = prediction[mask]
@@ -411,6 +414,9 @@ def get_columns_in_df(df, columns):
 
 
 def check_arrays(*arrays):
+    """Left for consistency version of sklearn.validation.check_arrays
+    :param list[iterable] arrays: arrays with same length of first dimension.
+    """
     assert len(arrays) > 0, 'The number of array must be greater than zero'
     checked_arrays = []
     shapes = []
@@ -420,7 +426,8 @@ def check_arrays(*arrays):
             shapes.append(checked_arrays[-1].shape[0])
         else:
             checked_arrays.append(arr)
-    assert numpy.sum(numpy.array(shapes) == shapes[0]) == len(shapes), 'Different shapes of the arrays {}'.format(shapes)
+    assert numpy.sum(numpy.array(shapes) == shapes[0]) == len(shapes), 'Different shapes of the arrays {}'.format(
+        shapes)
     return checked_arrays
 
 
