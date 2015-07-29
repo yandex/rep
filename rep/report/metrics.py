@@ -4,7 +4,7 @@ In general case, metrics follows standard sklearn convention for **estimators**,
 
     * constructor (you should create instance of metric!):
 
-    >>> metric = RocAuc(parameter=1)
+    >>> metric = RocAuc(positive_label=2)
 
     * fitting, where checks and heavy computations performed
       (this step is needed for ranking metrics, uniformity metrics):
@@ -14,7 +14,7 @@ In general case, metrics follows standard sklearn convention for **estimators**,
     * computation of metrics by probabilities:
 
     >>> proba = classifier.predict_proba(X)
-    >>> metrics(proba)
+    >>> metric(y, proba, sample_weight=None)
 
 
 This way metrics can be used in learning curves, for instance. Once fitted, then for every stage
@@ -42,7 +42,7 @@ them to particular values of expected amount of s and b.
 
     * signal efficiency = tpr = s
 
-    the following line used only in HEP
+the following line used only in HEP
 
     * background efficiency = fpr = b
 """
@@ -93,13 +93,13 @@ class MetricMixin(object):
 
 
 class RocAuc(BaseEstimator, MetricMixin):
-    """
-    Computes area under the ROC curve.
-
-    :param int positive_label: label of class, in case of more then two classes,
-     will compute ROC AUC for this specific class vs others
-    """
     def __init__(self, positive_label=1):
+        """
+        Computes area under the ROC curve.
+
+        :param int positive_label: label of class, in case of more then two classes,
+         will compute ROC AUC for this specific class vs others
+        """
         self.positive_label = positive_label
 
     def fit(self, X, y, sample_weight=None):
@@ -125,13 +125,13 @@ class RocAuc(BaseEstimator, MetricMixin):
 
 
 class LogLoss(BaseEstimator, MetricMixin):
-    """
-    Log loss,
-    which is the same as minus log-likelihood,
-    and the same as logistic loss,
-    and the same as cross-entropy loss.
-    """
     def __init__(self, regularization=1e-15):
+        """
+        Log loss,
+        which is the same as minus log-likelihood,
+        and the same as logistic loss,
+        and the same as cross-entropy loss.
+        """
         self.regularization = regularization
 
     def fit(self, X, y, sample_weight=None):
@@ -157,14 +157,14 @@ class LogLoss(BaseEstimator, MetricMixin):
 
 
 class OptimalMetric(BaseEstimator, MetricMixin):
-    """
-    Class to calculate optimal threshold on predictions using some metric
-
-    :param function metric: metrics(s, b) -> float
-    :param expected_s: float, total weight of signal
-    :param expected_b: float, total weight of background
-    """
     def __init__(self, metric, expected_s=1., expected_b=1., signal_label=1):
+        """
+        Class to calculate optimal threshold on predictions using some metric
+
+        :param function metric: metrics(s, b) -> float
+        :param expected_s: float, total weight of signal
+        :param expected_b: float, total weight of background
+        """
         self.metric = metric
         self.expected_s = expected_s
         self.expected_b = expected_b
@@ -221,8 +221,7 @@ class OptimalMetric(BaseEstimator, MetricMixin):
 
 def significance(s, b):
     """
-    Approximate significance of discovery:
-     s / sqrt(b).
+    Approximate significance of discovery: s / sqrt(b).
     Here we use normalization, so maximal s and b are equal to 1.
     """
     return s / numpy.sqrt(b + 1e-6)
@@ -230,8 +229,7 @@ def significance(s, b):
 
 class OptimalSignificance(OptimalMetric):
     """
-    Optimal values of significance:
-     s / sqrt(b)
+    Optimal values of significance: s / sqrt(b)
 
     :param float expected_s: expected amount of signal
     :param float expected_b: expected amount of background
@@ -258,7 +256,7 @@ class OptimalAMS(OptimalMetric):
     """
     Optimal values of AMS (average median significance)
 
-    default values of expected_s and expected_b are from HiggsML challenge.
+    Default values of expected_s and expected_b are from HiggsML challenge.
 
     :param float expected_s: expected amount of signal
     :param float expected_b: expected amount of background
@@ -270,10 +268,11 @@ class OptimalAMS(OptimalMetric):
 
 
 class FPRatTPR(BaseEstimator, MetricMixin):
-    """
-    Fix TPR value on roc curve and return FPR value.
-    """
     def __init__(self, tpr):
+        """Fix TPR value on roc curve and return FPR value.
+
+        :param float tpr: target value true positive rate, from range (0, 1)
+        """
         self.tpr = tpr
 
     def __call__(self, y, proba, sample_weight=None):
@@ -285,10 +284,11 @@ class FPRatTPR(BaseEstimator, MetricMixin):
 
 
 class TPRatFPR(BaseEstimator, MetricMixin):
-    """
-    Fix FPR value on roc curve and return TPR value.
-    """
     def __init__(self, fpr):
+        """Fix FPR value on roc curve and return corresponding TPR value.
+
+        :param float fpr: target value false positive rate, from range (0, 1)
+        """
         self.fpr = fpr
 
     def __call__(self, y, proba, sample_weight=None):
