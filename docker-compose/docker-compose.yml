@@ -7,6 +7,7 @@ rep:
     - "0.0.0.0:8086:5000"
   environment:
     - PASSWD=rep
+    - SHELL=/bin/bash
     - CERTHOSTNAME=rep01.host
   volumes:
     - ./notebooks:/notebooks
