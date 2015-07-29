@@ -2,7 +2,7 @@ CERT=
 PROFILE_CONFIG=/root/.ipython/profile_default/ipython_notebook_config.py
 PASSWD_FILE=/root/.ipython/profile_default/nbpasswd.txt
 
-[[ ! -d /notebooks/REP_howto ]] && ln -s /REP_howto /notebooks/rep_howto
+[[ -L /notebooks/rep_howto ]] || ln -s /REP_howto /notebooks/rep_howto
 
 if [ -n "$CERTFILE" ] ; then
   if [ -f $CERTFILE ] ; then
