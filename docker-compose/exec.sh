@@ -10,5 +10,8 @@ docker_cid() {
   echo "${prefix}_${image}_1"
 }
 
+CMD=bash
+[ -n "$1" ] && CMD=$*
+
 CID=`docker_cid rep`
-docker exec -ti $CID $*
+docker exec -ti $CID $CMD

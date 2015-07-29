@@ -1,20 +1,20 @@
-rephowto:
-  image: anaderi/rep-howto:latest
+#rephowto:
+#  image: anaderi/rep-howto:latest
 rep:
   image: anaderi/rep:latest
   ports:
-    - "0.0.0.0:8080:8080"
+    - "0.0.0.0:443:8080"
     - "0.0.0.0:8086:5000"
   environment:
     - PASSWD=rep
     - CERTHOSTNAME=rep01.host
-    #- CERTFILE=/etc_docker/mycert.pem
   volumes:
     - ./notebooks:/notebooks
     - ./log:/logdir
     - ./ipykee:/ipykee
     - ./modules:/python_modules
     - ./etc:/etc_docker
-  volumes_from:
-    - rephowto
-  command: bash -c "source /etc_docker/bash.bashrc && /root/run.sh"
+  command: bash -c "/root/run.sh"
+#  command: bash -c "source /etc_docker/bash.bashrc && /root/run.sh"
+#  volumes_from:
+#    - rephowto

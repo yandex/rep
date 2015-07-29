@@ -1,12 +1,11 @@
 CERT=
-if [ -n "$PASSWD" ] ; then
-  python -c "from IPython.lib import passwd; print passwd('$PASSWD')"  > /root/.ipython/profile_default/nbpasswd.txt
-fi
+PROFILE_CONFIG=/root/.ipython/profile_default/ipython_notebook_config.py
+PASSWD_FILE=/root/.ipython/profile_default/nbpasswd.txt
 
 if [ -n "$CERTFILE" ] ; then
   if [ -f $CERTFILE ] ; then
     echo "Certificate for the IPython: $CERTFILE"
-    echo -e "c.NotebookApp.certfile = u'$CERTFILE'\n" >> /root/.ipython/profile_default/ipython_notebook_config.py
+    echo -e "c.NotebookApp.certfile = u'$CERTFILE'\n" >> $PROFILE_CONFIG
     CERT=$CERTFILE
   else
     echo "WARN: \$CERTFILE is specified ($CERTFILE), but cannot be found"
@@ -28,19 +27,17 @@ fi
 umask 0002
 echo umask 0002 >> /etc/bashrc
 
-[ ! -f /notebooks/REP_howto ] && ln -s /REP_howto /notebooks
-
-cat >> /root/.ipython/profile_default/ipython_notebook_config.py << EOF
+cat >> $PROFILE_CONFIG << EOF
 # Notebook config
 c.NotebookApp.certfile = u'$CERT'
 c.NotebookApp.ip = '*'
 c.NotebookApp.open_browser = False
 
-# It is a good idea to put it on a known, fixed port
-c.NotebookApp.port = 8080
-PWDFILE='/root/.ipython/profile_default/nbpasswd.txt'
-c.NotebookApp.password = open(PWDFILE).read().strip()
 c.NotebookApp.base_url = '/'
 c.NotebookApp.webapp_settings = {'static_url_prefix':'/static/'}
-
 EOF
+
+if [ -n "$PASSWD" ] ; then
+  python -c "from IPython.lib import passwd; print passwd('$PASSWD')"  > $PASSWD_FILE
+  echo "c.NotebookApp.password = open('$PASSWD_FILE').read().strip()" >> $PROFILE_CONFIG
+fi
