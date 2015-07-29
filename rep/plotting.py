@@ -59,7 +59,8 @@ class AbstractPlot(object):
         self.canvas = None
         self._tmva_keeper = []
 
-    def _plotly_config(self):
+    @staticmethod
+    def _plotly_config():
         try:
             import ConfigParser
         except ImportError:
@@ -403,7 +404,8 @@ class GridPlot(AbstractPlot):
         grid = mdl.GridPlot(children=lst)
         return grid
 
-    def _get_splts(self, n_row, n_col, n):
+    @staticmethod
+    def _get_splts(n_row, n_col, n):
 
         n_splt = n_row * n_col
         n_empty = n_splt - n
@@ -810,7 +812,7 @@ class ColorMap(AbstractPlot):
         current_plot.axis.axis_line_color = None
         current_plot.axis.major_tick_line_color = None
         hover = current_plot.select(dict(type=HoverTool))
-        if hover == []:
+        if not hover:
             hover = HoverTool(plot=current_plot, always_active=True)
         hover.tooltips = OrderedDict([
             ('labels', '@x @y'),
@@ -1011,7 +1013,7 @@ class BarComparePlot(AbstractPlot):
         if self.sortby is not None:
             inds = numpy.argsort(list(self.data[self.sortby].values()))[::-1]
         else:
-            inds = numpy.range(len(self.data[list(self.data.keys())[0]]))
+            inds = numpy.arange(len(self.data[list(self.data.keys())[0]]))
 
         data = []
         for label, sample in self.data.items():
@@ -1048,7 +1050,7 @@ class BarComparePlot(AbstractPlot):
             current_plot.rect(x=length * index + move, y=numpy.array(list(sample.values()))[inds] / 2,
                               height=numpy.array(list(sample.values()))[inds], width=1.,
                               alpha=self.alpha, color=color,
-                              legend=label)
+                              legend=legend_name)
         return current_plot
 
 

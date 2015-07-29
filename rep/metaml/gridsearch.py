@@ -494,7 +494,8 @@ class GridOptimalSearchCV(object):
         self.parallel_profile = parallel_profile
         self.evaluations_done = 0
 
-    def _log(self, msg, level=20):
+    @staticmethod
+    def _log(msg, level=20):
         logger = logging.getLogger(__name__)
         logger.log(level, msg)
 

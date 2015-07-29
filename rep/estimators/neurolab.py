@@ -203,7 +203,7 @@ class NeurolabBase(object):
         net_params['minmax'] = [[0, 1]] * (x_train.shape[1])
 
         # To unify the layer-description argument with other supported networks
-        if not net_params.has_key('size'):
+        if 'size' not in net_params:
             net_params['size'] = self.layers
         else:
             if self.layers != (10, ):

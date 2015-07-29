@@ -75,7 +75,7 @@ class ClassificationReport(AbstractReport):
                 if key in all_classes:
                     labels_dict_init[key] = value
         assert set(labels_dict_init.keys()).issubset(all_classes), \
-            'Labels must be a subset of {}, but {}'.format(all_classes, labels_dict_init.keys())
+            'Labels must be a subset of {}, but {}'.format(all_classes, list(labels_dict_init.keys()))
         return labels_dict_init
 
     def features_pdf(self, features=None, mask=None, bins=30, ignored_sideband=0.0, labels_dict=None, grid_columns=2):
@@ -177,7 +177,7 @@ class ClassificationReport(AbstractReport):
         correlation_plots = []
         corr_pairs = OrderedDict()
         for feature1_c, feature2_c in correlation_pairs:
-            feature1, feature2 = get_columns_dict([feature1_c, feature2_c]).keys()
+            feature1, feature2 = list(get_columns_dict([feature1_c, feature2_c]).keys())
             corr_pairs[(feature1, feature2)] = OrderedDict()
             for label, name in labels_dict.items():
                 corr_pairs[(feature1, feature2)][name] = (df[feature1][class_labels == label].values,
@@ -358,7 +358,7 @@ class ClassificationReport(AbstractReport):
         stage_proba = self.estimators[name].staged_predict_proba(data)
         for stage, prediction in islice(enumerate(stage_proba), step - 1, None, step):
             curve[stage] = metric_func(labels, prediction, sample_weight=weight)
-        return curve.keys(), curve.values()
+        return list(curve.keys()), list(curve.values())
 
     def feature_importance_shuffling(self, metric=LogLoss(), mask=None, grid_columns=2):
         """
