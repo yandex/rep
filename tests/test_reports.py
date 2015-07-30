@@ -33,9 +33,7 @@ def _test_classification_report(n_classes=2):
     val = numpy.mean(X['column0'])
     labels_dict = None
     if n_classes > 2:
-        labels_dict = {}
-        for i in range(n_classes):
-            labels_dict[i] = str(i)
+        labels_dict = {i: str(i) for i in range(n_classes)}
     _classification_mask_report(report, "column0 > %f" % val, X, labels_dict)
     _classification_mask_report(report, lambda x: numpy.array(x['column0']) < val, X, labels_dict)
     _classification_mask_report(report, None, X, labels_dict)

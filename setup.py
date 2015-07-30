@@ -34,7 +34,9 @@ setup(
     name="rep",
     version=find_version('rep', '__init__.py'),
     description="infrastructure for computational experiments on shared big datasets",
-    long_description="""Reproducible Experiment Platform is a collaborative software infrastructure for computational experiments on shared big datasets, which allows obtaining reproducible, repeatable results and consistent comparisons of the obtained results.""",
+    long_description="Reproducible Experiment Platform is a collaborative software infrastructure for computational " \
+                     "experiments on shared big datasets, which allows obtaining reproducible, repeatable results " \
+                     "and consistent comparisons of the obtained results.",
     url='https://github.com/yandex/rep',
 
     # Author details
@@ -69,17 +71,17 @@ setup(
 
     # You can just specify the packages manually here if your project is
     # simple. Or you can use find_packages.
-    #packages=find_packages(exclude=["cern_utils", "docs", "tests*"]),
+    # packages=find_packages(exclude=["cern_utils", "docs", "tests*"]),
 
     # List run-time dependencies here. These will be installed by pip when your
     # project is installed.
 
-    install_requires=requirements, 
+    install_requires=requirements,
 
     # If there are data files included in your packages that need to be
     # installed, specify them here. If using Python 2.6 or less, then these
     # have to be included in MANIFEST.in as well.
-    #package_data={
+    # package_data={
     #    'sample': ['package_data.dat'],
     #},
 

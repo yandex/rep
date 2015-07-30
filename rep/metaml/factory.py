@@ -52,7 +52,7 @@ class AbstractFactory(OrderedDict):
                 self[name].set_params(features=features)
 
         start_time = time.time()
-        result = utils.map_on_cluster(parallel_profile, train_estimator, self.keys(), self.values(),
+        result = utils.map_on_cluster(parallel_profile, train_estimator, list(self.keys()), list(self.values()),
                                       [X] * len(self), [y] * len(self), [sample_weight] * len(self))
         for status, data in result:
             if status == 'success':
@@ -185,7 +185,7 @@ class ClassifiersFactory(AbstractFactory):
         predictions = OrderedDict()
 
         start_time = time.time()
-        result = utils.map_on_cluster(parallel_profile, predict_estimator, self.keys(), self.values(), [X] * len(self),
+        result = utils.map_on_cluster(parallel_profile, predict_estimator, list(self.keys()), list(self.values()), [X] * len(self),
                                       [prediction_type] * len(self))
 
         for status, data in result:
@@ -263,7 +263,7 @@ class RegressorsFactory(AbstractFactory):
         predictions = OrderedDict()
 
         start_time = time.time()
-        result = utils.map_on_cluster(parallel_profile, predict_estimator, self.keys(), self.values(), [X] * len(self),
+        result = utils.map_on_cluster(parallel_profile, predict_estimator, list(self.keys()), list(self.values()), [X] * len(self),
                                       ['regression'] * len(self))
 
         for status, data in result:
