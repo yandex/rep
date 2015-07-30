@@ -156,7 +156,7 @@ def calc_ROC(prediction, signal, sample_weight=None, max_points=10000):
     This is needed for interactive plots, which suffer
 
     :param prediction: predictions
-    :type prediction: array or list
+    :type prediction: numpy.ndarray or list
     :param signal: true labels
     :type signal: array or list
     :param sample_weight: weights
@@ -191,16 +191,22 @@ def calc_ROC(prediction, signal, sample_weight=None, max_points=10000):
     return (tpr, tnr), (err_tnr, err_tpr), thresholds
 
 
-def calc_feature_correlation_matrix(df):
+def calc_feature_correlation_matrix(df, weights=None):
     """
     Calculate correlation matrix
 
-    :param pandas.DataFrame df: data
-    :return: correlation matrix for dataFrame
+    :param pandas.DataFrame df: data of shape [n_samples, n_features]
+    :param weights: weights of shape [n_samples] (optional)
+    :return: correlation matrix for dataFrame of shape [n_features, n_features]
     :rtype: numpy.ndarray
     """
-    # TODO use weights
-    return numpy.corrcoef(df.values.T)
+    values = numpy.array(df)
+    weights = check_sample_weight(df, sample_weight=weights)
+    means = numpy.average(values, weights=weights, axis=0)
+    values -= means
+    covariation = values.T.dot(values * weights[:, None])
+    diag = covariation.diagonal()
+    return covariation / numpy.sqrt(diag)[:, None] / numpy.sqrt(diag)[None, :]
 
 
 def calc_hist_with_errors(x, weight=None, bins=60, normed=True, x_range=None, ignored_sideband=0.0):
@@ -333,12 +339,14 @@ def train_test_split_group(group_column, *arrays, **kw_args):
     """Does the same thing as train_test_split, but preserves names of columns in DataFrames.
     Uses the same parameters: test_size, train_size, random_state, and has almost the same interface
 
-    :param arrays: arrays to split
-    :type arrays: list[numpy.array] or list[pandas.DataFrame]
 
     :param group_column: array-like of shape [n_samples] with indices of groups,
     events from one group will be kept together (all events in train or all events in test).
     If `group_column` is used, train_size and test_size will refer to number of groups, not events
+
+    :param arrays: arrays to split
+    :type arrays: list[numpy.array] or list[pandas.DataFrame]
+
     :param bool allow_none: default False
     (specially for sample_weight - after splitting train and test of `None` are `None` too)
     """
@@ -375,7 +383,8 @@ def train_test_split_group(group_column, *arrays, **kw_args):
 
 def get_columns_dict(columns):
     """
-    Get (new column: old column) dict expressions
+    Get (new column: old column) dict expressions.
+    This function is used to process names of features, which can contain expressions.
 
     :param list[str] columns: columns names
     :rtype: dict
@@ -415,6 +424,7 @@ def get_columns_in_df(df, columns):
 
 def check_arrays(*arrays):
     """Left for consistency version of sklearn.validation.check_arrays
+
     :param list[iterable] arrays: arrays with same length of first dimension.
     """
     assert len(arrays) > 0, 'The number of array must be greater than zero'
@@ -425,7 +435,7 @@ def check_arrays(*arrays):
             checked_arrays.append(numpy.array(arr))
             shapes.append(checked_arrays[-1].shape[0])
         else:
-            checked_arrays.append(arr)
+            checked_arrays.append(None)
     assert numpy.sum(numpy.array(shapes) == shapes[0]) == len(shapes), 'Different shapes of the arrays {}'.format(
         shapes)
     return checked_arrays
