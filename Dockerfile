@@ -23,25 +23,27 @@ ENV TEMP /tmp
 RUN curl https://raw.githubusercontent.com/yandex/rep/master/requirements.txt > $TEMP/requirements.txt 
 RUN pip install -r $TEMP/requirements.txt
 
-# CERN root
+# root.cern.ch
 #
-WORKDIR $TEMP
-RUN git clone http://root.cern.ch/git/root.git \
-  && cd root \
-  && git checkout v5-34-21 \
-  && ./configure --prefix=/usr/local --gminimal --enable-asimage --enable-x11 \
-          --enable-python --enable-roofit --enable-xml --enable-minuit2 \
-	  --disable-xrootd --fail-on-missing \
-  && make -j2 \
-  && make install \
-  && cd .. \
-  && rm -rf root
-
-
-ENV ROOTSYS /usr/local
-ENV PATH /usr/local/bin:$PATH
-ENV LD_LIBRARY_PATH /usr/local/lib/root:$LD_LIBRARY_PATH
-ENV PYTHONPATH /usr/local/lib/root
+RUN sudo apt-get install -y root-system libroot-bindings-python-dev
+ENV LD_LIBRARY_PATH /usr/lib/x86_64-linux-gnu/root5.34/:$LD_LIBRARY_PATH
+ENV PYTHONPATH=/usr/lib/x86_64-linux-gnu/root5.34:$PYTHONPATH
+ 
+#WORKDIR $TEMP
+#RUN git clone http://root.cern.ch/git/root.git \
+#  && cd root \
+#  && git checkout v5-34-21 \
+#  && ./configure --prefix=/usr/local --gminimal --enable-asimage --enable-x11 \
+#          --enable-python --enable-roofit --enable-xml --enable-minuit2 \
+#	  --disable-xrootd --fail-on-missing \
+#  && make -j2 \
+#  && make install \
+#  && cd .. \
+#  && rm -rf root
+#ENV ROOTSYS /usr/local
+#ENV PATH /usr/local/bin:$PATH
+#ENV LD_LIBRARY_PATH /usr/local/lib/root:$LD_LIBRARY_PATH
+#ENV PYTHONPATH /usr/local/lib/root
 
 RUN easy_install -U pip
 RUN pip install \
@@ -50,10 +52,20 @@ RUN pip install \
 
 # XGboost
 #
-RUN git clone https://github.com/tqchen/xgboost.git /xgboost && cd /xgboost &&\
-  make
 
-ENV PYTHONPATH /usr/local/lib/root:/xgboost/wrapper
+RUN git clone https://github.com/tqchen/xgboost.git $TEMP/xgboost && \
+  cd $TEMP/xgboost && \
+  ./build.sh && \
+  cd wrapper && \
+  python setup.py install && \
+  cd / && \
+  rm -rf $TEMP/xgboost
+
+#RUN git clone https://github.com/tqchen/xgboost.git /xgboost && \
+#  cd /xgboost &&\
+#  make
+#
+#ENV PYTHONPATH /usr/local/lib/root:/xgboost/wrapper
 
 # ipykee preparation
 #
@@ -74,4 +86,6 @@ RUN cd $TEMP &&\
 
 RUN pip install xlrd
 
-CMD ["sh"]
+# TEST
+
+CMD ["bash"]
