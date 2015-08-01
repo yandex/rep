@@ -2,6 +2,8 @@
 
 [ -f "/etc_docker/bash.bashrc" ] && source /etc_docker/bash.bashrc
 
+[[ -L /notebooks/rep_howto ]] || ln -s /REP_howto /notebooks/rep_howto
+
 NOTEBOOK_DIR='/notebooks'
 [ -d '/logdir' ] && LOG_DIR='/logdir'
 
