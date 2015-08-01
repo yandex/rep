@@ -12,8 +12,8 @@ import itertools
 import os
 from IPython import get_ipython
 
-from pylab import plt
 import matplotlib
+import matplotlib.pyplot as plt
 import numpy
 import tempfile
 from IPython.core import display
@@ -639,7 +639,7 @@ class FunctionsPlot(AbstractPlot):
 
     Parameters:
     -----------
-    :param functions: name - x points, y points
+    :param functions: dict which maps label of curve to x, y coordinates of points
     :type functions: dict[str, tuple(array, array)]
     """
 
@@ -883,7 +883,7 @@ class ScatterPlot(AbstractPlot):
 
 class BarPlot(AbstractPlot):
     """
-    Implements bar plots for train-test overfit (used in HEP)
+    Implements bar plots
 
     Parameters:
     -----------

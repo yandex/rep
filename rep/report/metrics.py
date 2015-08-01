@@ -54,6 +54,7 @@ from sklearn.base import BaseEstimator
 from sklearn.metrics import roc_auc_score, roc_curve
 from ..utils import check_arrays
 from ..utils import check_sample_weight, weighted_quantile
+from itertools import product
 
 
 __author__ = 'Alex Rogozhnikov'
@@ -297,3 +298,56 @@ class TPRatFPR(BaseEstimator, MetricMixin):
         y, proba, sample_weight = check_arrays(y, proba, sample_weight)
         threshold = weighted_quantile(proba[y == 0, 1], (1 - self.fpr), sample_weight=sample_weight[y == 0])
         return numpy.sum(sample_weight[(y == 1) & (proba[:, 1] > threshold)]) / sum(sample_weight[y == 1])
+
+
+class OptimalMetricNdim(BaseEstimator, MetricMixin):
+    """
+    Class to calculate optimal threshold on predictions using some metric
+    :param function metric: metrics(s, b) -> float
+    :param expected_s: float, total weight of signal
+    :param expected_b: float, total weight of background
+    """
+    def __init__(self, metric, expected_s=1., expected_b=1., signal_label=1, step=10):
+        self.metric = metric
+        self.expected_s = expected_s
+        self.expected_b = expected_b
+        self.signal_label = signal_label
+        self.step = step
+
+    def compute(self, y_true, sample_weight, *variabels):
+        """
+        Compute metric for each possible prediction threshold
+        :param y_true: array-like true labels
+        :param sample_weight: array-like weight
+        :rtype: tuple(array, array)
+        :return: thresholds and corresponding metric values
+        """
+        all = check_arrays(y_true, sample_weight, *variabels)
+        y_true, sample_weight, variables = all[0], all[1], all[2:]
+        pred = []
+        thresholds = []
+        for array in variables:
+            print(array.shape)
+            pred.append(array[:, self.signal_label])
+            temp = -numpy.sort(-pred[-1])
+            thresholds.append(temp[::self.step])
+        metric_values = []
+        thresholds_all = []
+        for threshold in product(*thresholds):
+            temp = numpy.ones(len(y_true), dtype=bool)
+            for t, arr in zip(threshold, pred):
+                temp *= arr > t
+            thresholds_all.append(threshold)
+            s = numpy.sum(y_true[temp])
+            b = numpy.sum(1 - y_true[temp])
+            metric_values.append(self.metric(s * self.expected_s, b * self.expected_b))
+        return thresholds_all, metric_values
+
+    def __call__(self, y_true, sample_weight, *variables):
+        """ proba is predicted probabilities of shape [n_samples, 2] """
+        thresholds, metrics_val = self.compute(y_true, sample_weight, *variables)
+        ind = numpy.argmax(metrics_val)
+        return metrics_val[ind], thresholds[ind]
+
+
+
