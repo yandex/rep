@@ -10,7 +10,7 @@ RUN apt-get update && apt-get install -y \
 
 RUN apt-get install git dpkg-dev make g++ gcc binutils libx11-dev libxpm-dev libxft-dev libxext-dev libpng3 libjpeg8 gfortran libssl-dev libpcre3-dev libgl1-mesa-dev libglew1.5-dev libftgl-dev libmysqlclient-dev libfftw3-dev libcfitsio3-dev graphviz-dev libavahi-compat-libdnssd-dev libldap2-dev python-dev libxml2-dev libkrb5-dev libgsl0-dev libqt4-dev curl python-pycurl --force-yes -y
 
-RUN apt-get install libcurl4-gnutls-dev -y --force-yes
+RUN apt-get install libcurl4-gnutls-dev libffi-dev wget -y --force-yes
 
 # basic python modules
 #
