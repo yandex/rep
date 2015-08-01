@@ -16,6 +16,8 @@ COPY run.sh /root/
 COPY howto /REP_howto
 RUN cd $TEMP/build && \
   pip install . && \
+  cd tests && \
+  nosetests . && \
   rm -rf $TEMP/build
 
 
