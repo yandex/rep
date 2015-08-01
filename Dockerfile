@@ -25,7 +25,7 @@ RUN pip install -r $TEMP/requirements.txt
 
 # root.cern.ch
 #
-RUN sudo apt-get install -y root-system libroot-bindings-python-dev
+RUN sudo apt-get install -y root-system libroot-bindings-python-dev libroot-roofit5.34
 ENV LD_LIBRARY_PATH /usr/lib/x86_64-linux-gnu/root5.34/:$LD_LIBRARY_PATH
 ENV PYTHONPATH=/usr/lib/x86_64-linux-gnu/root5.34:$PYTHONPATH
  
@@ -53,11 +53,13 @@ RUN pip install \
 # XGboost
 #
 
-RUN git clone https://github.com/tqchen/xgboost.git $TEMP/xgboost && \
+RUN git clone https://github.com/dmlc/xgboost.git $TEMP/xgboost && \
   cd $TEMP/xgboost && \
   ./build.sh && \
-  cd wrapper && \
+  cd python-package && \
   python setup.py install && \
+  cp tests/python/test_basic.py . && \
+  python -c "import test_basic ; test_basic.test_basic()" && \
   cd / && \
   rm -rf $TEMP/xgboost
 
