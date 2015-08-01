@@ -29,7 +29,9 @@ WORKDIR $TEMP
 RUN git clone http://root.cern.ch/git/root.git \
   && cd root \
   && git checkout v5-34-21 \
-  && ./configure --prefix=/usr/local \
+  && ./configure --prefix=/usr/local --gminimal --enable-asimage --enable-x11 \
+          --enable-python --enable-roofit --enable-xml --enable-minuit2 \
+	  --disable-xrootd --fail-on-missing \
   && make -j2 \
   && make install \
   && cd .. \
