@@ -58,6 +58,7 @@ RUN git clone https://github.com/dmlc/xgboost.git $TEMP/xgboost && \
   ./build.sh && \
   cd python-package && \
   python setup.py install && \
+  cd .. && \
   cp tests/python/test_basic.py . && \
   python -c "import test_basic ; test_basic.test_basic()" && \
   cd / && \
