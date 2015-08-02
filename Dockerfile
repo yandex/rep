@@ -1,7 +1,5 @@
-FROM anaderi/rep-base:0.6
+FROM anaderi/rep-base:0.6b
 MAINTAINER Andrey Ustyuzhanin <anaderi@yandex-team.ru>
-
-RUN apt-get install -y libffi-dev wget
 
 ENV TEMP /tmp
 ENV SHELL /bin/bash
@@ -16,8 +14,8 @@ COPY run.sh /root/
 COPY howto /REP_howto
 RUN cd $TEMP/build && \
   pip install . && \
-  cd tests && \
-  nosetests . && \
+#  cd tests && \
+#  nosetests . && \
   rm -rf $TEMP/build
 
 
