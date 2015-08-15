@@ -3,12 +3,15 @@ from collections import OrderedDict
 
 from sklearn import clone
 from sklearn.ensemble import AdaBoostClassifier
-from sklearn.metrics import roc_auc_score
+from sklearn.metrics import roc_auc_score, log_loss
+from sklearn.qda import QDA
+
 from rep.test.test_estimators import check_classification_model
 
 from rep.metaml import GridOptimalSearchCV, SubgridParameterOptimizer, FoldingScorer, \
     RegressionParameterOptimizer
-from rep.report.metrics import OptimalAMS, RocAuc
+from rep.metaml.gridsearch import AnnealingParameterOptimizer, RandomParameterOptimizer
+from rep.report.metrics import OptimalAMS, RocAuc, LogLoss, OptimalSignificance
 from rep.test.test_estimators import generate_classification_data
 from rep.estimators import SklearnClassifier
 import numpy
@@ -98,6 +101,7 @@ def test_grid_with_custom_scorer():
     Introducing here special scorer which always uses all data passed to gridsearch.fit as training
     and tests on another fixed dataset (which was passed to scorer) bu computing roc_auc_score from sklearn.
     """
+
     class CustomScorer(object):
         def __init__(self, testX, testY):
             self.testY = testY
@@ -111,7 +115,6 @@ def test_grid_with_custom_scorer():
             else:
                 cl.fit(X, y)
             return roc_auc_score(self.testY, cl.predict_proba(self.testX)[:, 1])
-
 
     X, y, _ = generate_classification_data()
     custom_scorer = CustomScorer(X, y)
@@ -132,4 +135,30 @@ def test_grid_with_custom_scorer():
             assert params[key] == grid.generator.best_params_[key]
         else:
             assert params['clf__' + key] == grid.generator.best_params_[key]
+
+
+def test_gridsearch_metrics():
+    X, y, sample_weight = generate_classification_data(n_classes=2, distance=0.7)
+    param_grid = OrderedDict({
+        'reg_param': numpy.linspace(0, 1, 20)
+    })
+
+    from itertools import cycle
+    optimizers = cycle([
+        RegressionParameterOptimizer(param_grid=param_grid, n_evaluations=4, start_evaluations=2),
+        AnnealingParameterOptimizer(param_grid=param_grid, n_evaluations=4),
+        SubgridParameterOptimizer(param_grid=param_grid, n_evaluations=4),
+        RandomParameterOptimizer(param_grid=param_grid, n_evaluations=4),
+    ])
+
+    my_roc_auc = lambda x, p, w=None: roc_auc_score(x, p[:, 1], sample_weight=w)
+    for metric in [RocAuc(), LogLoss(), OptimalAMS(), OptimalSignificance(), log_loss, my_roc_auc]:
+        scorer = FoldingScorer(metric)
+        clf = SklearnClassifier(QDA())
+        grid = GridOptimalSearchCV(estimator=clf, params_generator=next(optimizers), scorer=scorer)
+        grid.fit(X, y)
+        print(grid.params_generator.best_score_)
+        print(grid.params_generator.best_params_)
+        grid.params_generator.print_results()
+
 
