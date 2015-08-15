@@ -1,12 +1,82 @@
 """
-This module does hyper parameters optimization -- find the best parameters for estimator using different optimization models.
+This module does hyper parameters optimization -- finds the best parameters for estimator using different optimization models.
+Components of optimization:
+
+* estimator (for which optimal parameters are searched, any REP classifier will work, see :mod:`rep.estimators`)
+* target metric function (which is maximized, anything meeting REP metric interface, see :mod:`rep.report.metrics`)
+* optimization algorithm (introduced in this module)
+* cross-validation technique (kFolding, introduced in this module)
+
+During optimization, many cycles of estimating quality on different sets of parameters is done.
+To speed up the process, threads or IPython cluster can be used.
+
+
+GridOptimalSearchCV
+-------------------
+Main class linking the whole process is :class:`GridOptimalSearchCV`, which takes as parameters:
+
+* estimator to be optimized
+* scorer (which trains classifier and estimates quality using cross-validation)
+* parameter generator (which draws next set of parameters to be checked)
+
+.. autoclass:: GridOptimalSearchCV
+    :members:
+    :inherited-members:
+    :undoc-members:
+    :show-inheritance:
+
+
+Folding Scorer
+--------------
+
+.. autoclass:: FoldingScorer
+    :members:
+    :inherited-members:
+    :undoc-members:
+    :show-inheritance:
+
+
+Available optimization algorithms
+---------------------------------
+
+.. autoclass:: RandomParameterOptimizer
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+.. autoclass:: AnnealingParameterOptimizer
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+.. autoclass:: SubgridParameterOptimizer
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+.. autoclass:: RegressionParameterOptimizer
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
+Interface of parameter optimizer
+--------------------------------
+Each of parameter optimizers has the following interface.
+
+.. autoclass:: AbstractParameterGenerator
+    :members:
+    :inherited-members:
+    :undoc-members:
+    :show-inheritance:
+
+
 """
 
 from __future__ import division, print_function, absolute_import
 from itertools import islice
 from collections import OrderedDict
 import logging
-
 
 from sklearn.base import clone
 import numpy
@@ -19,7 +89,6 @@ from six.moves import zip
 from ..estimators.utils import check_inputs
 from ..utils import fit_metric
 from .utils import map_on_cluster
-
 
 __author__ = 'Alex Rogozhnikov, Tatiana Likhomanenko'
 
@@ -137,6 +206,7 @@ class RandomParameterOptimizer(AbstractParameterGenerator):
     """
     Random generation of new grid point.
     """
+
     def generate_next_point(self):
         """Generating next random point in parameters space"""
         if len(self.queued_tasks_) >= numpy.prod(self.dimensions):
@@ -391,11 +461,12 @@ class FoldingScorer(object):
     """
     Scorer, which implements logic of data folding and scoring. This is a function-like object
 
-    Parameters:
-    ----------
     :param int folds: 'k' used in k-folding while validating
     :param int fold_checks: not greater than folds, the number of checks we do by cross-validating
     :param function score_function: quality. if fold_checks > 1, the average is computed over checks.
+
+
+    Example:
 
     >>> def new_score_function(y_true, proba, sample_weight=None):
     >>>     '''
@@ -404,11 +475,9 @@ class FoldingScorer(object):
     >>>     sample_weight: [n_samples] or None
     >>>     '''
     >>>     ...
-
-    Example:
-    --------
-    >>> fs = FoldingScorer(new_score_function)
-    >>> fs(base_estimator, params, X, y, sample_weight=None)
+    >>>
+    >>> f_scorer = FoldingScorer(new_score_function)
+    >>> f_scorer(base_estimator, params, X, y, sample_weight=None)
     0.5
     """
 
@@ -472,8 +541,6 @@ class GridOptimalSearchCV(object):
 
     GridSearchCV implements a "fit" method and a "fit_best_estimator" method to train models.
 
-    Parameters
-    ----------
     :param BaseEstimator estimator: object of type that implements the "fit" and "fit_best_estimator" methods
         A new object of that type is cloned for each point.
     :param AbstractParameterGenerator params_generator: generator of grid search algorithm
@@ -484,7 +551,7 @@ class GridOptimalSearchCV(object):
 
     Attributes
     ----------
-    generator: return grid generator
+    generator: return grid parameter generator
     """
 
     def __init__(self, estimator, params_generator, scorer, parallel_profile=None):

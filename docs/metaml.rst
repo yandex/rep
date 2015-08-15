@@ -62,11 +62,8 @@ Factory Examples
 
 Grid Search
 -----------
+
 .. automodule:: rep.metaml.gridsearch
-    :members:
-    :inherited-members:
-    :undoc-members:
-    :show-inheritance:
 
 
 Folding
