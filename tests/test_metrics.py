@@ -131,6 +131,5 @@ def test_optimal_metric_function(size=10000):
 
         s = optimal_metric.expected_s * numpy.average(passed, weights=sample_weight * (labels == 1))
         b = optimal_metric.expected_b * numpy.average(passed, weights=sample_weight * (labels == 0))
-        assert numpy.allclose(metric(s, b), values[index]), 'no coincidence {} {} {}'.format(type(optimal_metric),
-                                                                                             metric(s, b),
-                                                                                             values[index])
+        assert numpy.allclose(metric(s, b), values[index]), \
+            'no coincidence {} {} {}'.format(type(optimal_metric), metric(s, b), values[index])
