@@ -40,11 +40,11 @@ There are many ways to denote this things:
 Here we used normalized s and b, while physicists usually normalize
 them to particular values of expected amount of s and b.
 
-    * signal efficiency = tpr = s
+    * signal efficiency = s = tpr
 
 the following line used only in HEP
 
-    * background efficiency = fpr = b
+    * background efficiency = b = fpr
 """
 
 

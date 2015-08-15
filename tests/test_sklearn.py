@@ -22,4 +22,5 @@ def test_sklearn_regression():
     # supports weights
     check_regression(SklearnRegressor(clf=AdaBoostRegressor(n_estimators=50)))
     # doesn't support weights
-    check_regression(SklearnRegressor(clf=GradientBoostingRegressor(n_estimators=50)), supports_weight=False)
+    check_regression(SklearnRegressor(clf=GradientBoostingRegressor(n_estimators=50)),
+                     supports_weight=False)
