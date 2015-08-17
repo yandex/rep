@@ -418,7 +418,8 @@ def get_columns_in_df(df, columns):
             df_new[column_new] = df[column]
         else:
             # warning - this thing is known to fail in threads
-            df_new[column_new] = numexpr.evaluate(column, local_dict=df)
+            # numexpr.evaluate(column, local_dict=df)
+            df_new[column_new] = df.eval(column, engine='python')
     return pandas.DataFrame(df_new)
 
 
