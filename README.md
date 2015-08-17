@@ -22,27 +22,32 @@ Main features:
 
 
 ### Howto examples
-To get started, look at the notebooks in /howto/  <br />
+To get started, look at the notebooks in [/howto/](https://github.com/yandex/rep/tree/master/howto)
+
 Notebooks can be viewed (not executed) online at [nbviewer](http://nbviewer.ipython.org/github/yandex/rep/tree/master/howto/)  <br />
-There are basic introductory notebooks (about python, IPython) and more advanced ones (about the REP itself)
+There are basic introductory notebooks (about python, IPython) and more advanced ones (about the **REP** itself)
 
-### Running using docker
-We provide the docker container with __REP__ and all it's dependencies <br />
-https://github.com/yandex/rep/wiki/Running-REP-using-Docker/
+### Installation with Docker
 
-### Installation
-However, if you want to install __REP__ on your machine, follow this manual:  <br />
-https://github.com/yandex/rep/wiki/Installing-manually <br />
-and https://github.com/yandex/rep/wiki/Running-manually
+We provide the [docker image](https://registry.hub.docker.com/u/anaderi/rep/) with `REP` and all it's dependencies 
+* [install with Docker on Mac](https://github.com/yandex/rep/wiki/Instal-REP-with-Docker-(Mac-OS-X))
+* [install with Docker on Linux](https://github.com/yandex/rep/wiki/Install-REP-with-Docker-(Linux))
+* [install with docker-compose on Linux](https://github.com/yandex/rep/wiki/Install-REP-with-docker-compose-(Linux))
 
-### License
-Apache 2.0, library is open-source.
 
+### Installation with bare hands
+However, if you want to install `REP` and all of its dependencies on your machine yourself, follow this manual: 
+[installing manually](https://github.com/yandex/rep/wiki/Installing-manually) and 
+[running manually](https://github.com/yandex/rep/wiki/Running-manually).
+ 
 ### Links
 * [documentation](http://yandex.github.io/rep/)
 * [howto](http://nbviewer.ipython.org/github/yandex/rep/tree/master/howto/)
 * [bugtracker](https://github.com/yandex/rep/issues)
-* [contributing new estimator](https://github.com/yandex/rep/wiki/Contributing-new-estimator)
-* [contributing new metric](https://github.com/yandex/rep/wiki/Contributing-new-metrics)
+* [API, contributing new estimator](https://github.com/yandex/rep/wiki/Contributing-new-estimator)
+* [API, contributing new metric](https://github.com/yandex/rep/wiki/Contributing-new-metrics)
+
+### License
+Apache 2.0, library is open-source.
 
 
