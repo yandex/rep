@@ -24,6 +24,4 @@ Metrics
 -------
 
 .. automodule:: rep.report.metrics
-    :members:
-    :show-inheritance:
-    :undoc-members:
+
