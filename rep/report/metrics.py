@@ -1,6 +1,6 @@
 """
-This file contains definitions for useful metrics in specific REP format.
-In general case, metrics follows standard sklearn convention for **estimators**, provides
+This file contains definitions for useful metrics in specific **REP** format.
+In general case, metrics follow standard sklearn convention for **estimators**, provides
 
     * constructor (you should create instance of metric!):
 
@@ -11,18 +11,21 @@ In general case, metrics follows standard sklearn convention for **estimators**,
 
     >>> metric.fit(X, y, sample_weight=None)
 
-    * computation of metrics by probabilities:
+    * computation of metrics by probabilities (important: samples passed to probabilities ):
 
     >>> proba = classifier.predict_proba(X)
     >>> metric(y, proba, sample_weight=None)
 
 
-This way metrics can be used in learning curves, for instance. Once fitted, then for every stage
-computation will be very fast.
+This way metrics can be used in learning curves, for instance.
+Once fitted, then for every stage computation will be very fast.
+
+.. seealso::
+    `API of metrics <https://github.com/yandex/rep/wiki/Contributing-new-metrics>`_ for details and explanations on API.
 
 
 Correspondence between physical terms and ML terms
-**************************************************
+--------------------------------------------------
 
 Some notation used below:
 
@@ -45,8 +48,51 @@ them to particular values of expected amount of s and b.
 the following line used only in HEP
 
     * background efficiency = b = fpr
-"""
 
+
+
+Available Metric functions
+--------------------------
+
+.. autoclass:: RocAuc
+    :show-inheritance:
+
+.. autoclass:: LogLoss
+    :show-inheritance:
+
+.. autoclass:: OptimalAccuracy
+    :show-inheritance:
+
+.. autoclass:: OptimalAMS
+    :show-inheritance:
+
+.. autoclass:: OptimalSignificance
+    :show-inheritance:
+
+.. autoclass:: TPRatFPR
+    :show-inheritance:
+
+.. autoclass:: FPRatTPR
+    :show-inheritance:
+
+Supplementary functions
+-----------------------
+
+.. autoclass:: MetricMixin
+    :show-inheritance:
+    :members:
+
+.. autoclass:: OptimalMetric
+    :show-inheritance:
+
+.. autofunction:: ams
+
+.. autofunction:: significance
+
+
+
+
+"""
 
 from __future__ import division, print_function, absolute_import
 import numpy
@@ -56,13 +102,13 @@ from ..utils import check_arrays
 from ..utils import check_sample_weight, weighted_quantile
 from itertools import product
 
-
 __author__ = 'Alex Rogozhnikov'
 
 
 class MetricMixin(object):
     """Class with helpful methods for metrics,
-     metrics are expected (but not obliged) to be derived from it."""
+     metrics are expected (but not obliged) to be derived from this mixin. """
+
     def _prepare(self, X, y, sample_weight):
         """
         Preparation
@@ -97,6 +143,7 @@ class RocAuc(BaseEstimator, MetricMixin):
     def __init__(self, positive_label=1):
         """
         Computes area under the ROC curve.
+        General-purpose quality measure for binary classification
 
         :param int positive_label: label of class, in case of more then two classes,
          will compute ROC AUC for this specific class vs others
@@ -120,7 +167,7 @@ class RocAuc(BaseEstimator, MetricMixin):
         return self
 
     def __call__(self, y, proba, sample_weight=None):
-        assert numpy.all(self.classes_ < proba.shape[1])
+        assert numpy.all(self.classes_ < proba.shape[1]), 'passed probabilities not for all classes'
         return roc_auc_score(self.true_class, proba[:, self.positive_index],
                              sample_weight=self.sample_weight)
 
@@ -132,6 +179,12 @@ class LogLoss(BaseEstimator, MetricMixin):
         which is the same as minus log-likelihood,
         and the same as logistic loss,
         and the same as cross-entropy loss.
+
+        Appropriate metric if algorithm is optimizing log-likelihood.
+
+        :param regularization: minimal value for probability,
+            to avoid high (or infinite) penalty for zero probabilities.
+
         """
         self.regularization = regularization
 
@@ -157,10 +210,66 @@ class LogLoss(BaseEstimator, MetricMixin):
         return - (numpy.log(correct_probabilities + self.regularization) * self.sample_weight).sum()
 
 
+class OptimalAccuracy(BaseEstimator, MetricMixin):
+    def __init__(self, sb_ratio=None):
+        """
+        Estimation of binary classification accuracy for
+
+        :param sb_ratio: ratio of signal (class 1) and background (class 0).
+            If none, the parameter is taken from test data.
+
+        Example:
+        ~~~~~~~~
+
+        """
+        self.sb_ratio = sb_ratio
+
+    def compute(self, y_true, proba, sample_weight=None):
+        """
+        Compute metric for each possible prediction threshold
+
+        :param y_true: array-like true labels
+        :param proba: array-like of shape [n_samples, 2] with predicted probabilities
+        :param sample_weight: array-like weight
+
+        :rtype: tuple(array, array)
+        :return: thresholds and corresponding metric values
+        """
+        sample_weight = check_sample_weight(y_true, sample_weight=sample_weight)
+        sample_weight = sample_weight.copy()
+        assert numpy.in1d(y_true, [0, 1]).all(), 'labels passed should be 0 and 1'
+
+        if self.sb_ratio is not None:
+            sample_weight_s = sample_weight[y_true == 1].sum()
+            sample_weight_b = sample_weight[y_true == 0].sum()
+            sample_weight[y_true == 1] *= self.sb_ratio * sample_weight_b / sample_weight_s
+
+            assert numpy.allclose(self.sb_ratio, sample_weight[y_true == 1].sum() / sample_weight[y_true == 0].sum())
+
+        sample_weight /= sample_weight.sum()
+        signal_weight = sample_weight[y_true == 1].sum()
+        bck_weight = sample_weight[y_true == 0].sum()
+
+        fpr, tpr, thresholds = roc_curve(y_true == 1, proba[:, 1], sample_weight=sample_weight)
+        accuracy_values = tpr * signal_weight + (1. - fpr) * bck_weight
+        return thresholds, accuracy_values
+
+    def __call__(self, y_true, proba, sample_weight=None):
+        """
+        Compute maximal value of accuracy by checking all possible thresholds.
+
+        :param y_true: array-like true labels
+        :param proba: array-like of shape [n_samples, 2] with predicted probabilities
+        :param sample_weight: array-like weight
+        """
+        thresholds, accuracy_values = self.compute(y_true, proba, sample_weight)
+        return numpy.max(accuracy_values)
+
+
 class OptimalMetric(BaseEstimator, MetricMixin):
     def __init__(self, metric, expected_s=1., expected_b=1., signal_label=1):
         """
-        Class to calculate optimal threshold on predictions using some metric
+        Class to calculate optimal threshold on predictions for some binary metric.
 
         :param function metric: metrics(s, b) -> float
         :param expected_s: float, total weight of signal
@@ -224,6 +333,9 @@ def significance(s, b):
     """
     Approximate significance of discovery: s / sqrt(b).
     Here we use normalization, so maximal s and b are equal to 1.
+
+    :param s: amount of signal passed
+    :param b: amount of background passed
     """
     return s / numpy.sqrt(b + 1e-6)
 
@@ -235,6 +347,7 @@ class OptimalSignificance(OptimalMetric):
     :param float expected_s: expected amount of signal
     :param float expected_b: expected amount of background
     """
+
     def __init__(self, expected_s=1., expected_b=1.):
         OptimalMetric.__init__(self, metric=significance,
                                expected_s=expected_s,
@@ -262,6 +375,7 @@ class OptimalAMS(OptimalMetric):
     :param float expected_s: expected amount of signal
     :param float expected_b: expected amount of background
     """
+
     def __init__(self, expected_s=691.988607712, expected_b=410999.847):
         OptimalMetric.__init__(self, metric=ams,
                                expected_s=expected_s,
@@ -270,7 +384,7 @@ class OptimalAMS(OptimalMetric):
 
 class FPRatTPR(BaseEstimator, MetricMixin):
     def __init__(self, tpr):
-        """Fix TPR value on roc curve and return FPR value.
+        """Fix TPR value on roc curve and return corresponding FPR value.
 
         :param float tpr: target value true positive rate, from range (0, 1)
         """
@@ -301,10 +415,12 @@ class TPRatFPR(BaseEstimator, MetricMixin):
 class OptimalMetricNdim(BaseEstimator, MetricMixin):
     """
     Class to calculate optimal threshold on predictions using some metric
+
     :param function metric: metrics(s, b) -> float
     :param expected_s: float, total weight of signal
     :param expected_b: float, total weight of background
     """
+
     def __init__(self, metric, expected_s=1., expected_b=1., signal_label=1, step=10):
         self.metric = metric
         self.expected_s = expected_s
@@ -312,15 +428,16 @@ class OptimalMetricNdim(BaseEstimator, MetricMixin):
         self.signal_label = signal_label
         self.step = step
 
-    def compute(self, y_true, sample_weight, *variabels):
+    def compute(self, y_true, sample_weight, *variables):
         """
         Compute metric for each possible prediction threshold
+
         :param y_true: array-like true labels
         :param sample_weight: array-like weight
         :rtype: tuple(array, array)
         :return: thresholds and corresponding metric values
         """
-        all = check_arrays(y_true, sample_weight, *variabels)
+        all = check_arrays(y_true, sample_weight, *variables)
         y_true, sample_weight, variables = all[0], all[1], all[2:]
         pred = []
         thresholds = []
@@ -346,6 +463,3 @@ class OptimalMetricNdim(BaseEstimator, MetricMixin):
         thresholds, metrics_val = self.compute(y_true, sample_weight, *variables)
         ind = numpy.argmax(metrics_val)
         return metrics_val[ind], thresholds[ind]
-
-
-
