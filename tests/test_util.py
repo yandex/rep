@@ -62,3 +62,15 @@ def test_get_columns(n_samples=10000):
     assert not numpy.allclose(result, df + 1e-3), 'test not working'
 
     assert numpy.allclose(result, df), 'result of evaluation is incorrect'
+
+
+def test_weighted_quantile(size=10000):
+    x = numpy.random.normal(size=size)
+    weights = numpy.random.random(size=size)
+    quantile_level = numpy.random.random()
+
+    quantile_value = utils.weighted_quantile(x, quantile_level, sample_weight=weights)
+
+    passed_weight = numpy.sum((x < quantile_value) * weights)
+    expected_weight = quantile_level * numpy.sum(weights)
+    assert numpy.abs(passed_weight - expected_weight) < 1.1, 'wrong cut'
