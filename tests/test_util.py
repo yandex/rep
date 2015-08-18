@@ -40,7 +40,10 @@ def test_train_test_split_group():
     assert len(set.intersection(set(test), set(train))) == 0
 
 
-def test_corr_coeff(n_samples=1000):
+def test_corr_coeff_with_weights(n_samples=1000):
+    """
+    testing that corrcoeff with equal weights works as default.
+    """
     weights = numpy.ones(n_samples)
     df = pandas.DataFrame(data=numpy.random.random([n_samples, 10]))
     z1 = numpy.corrcoef(df.values.T)
