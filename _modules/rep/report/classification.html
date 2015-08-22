@@ -1,0 +1,636 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>rep.report.classification &mdash; REP (Reproducible Experiment Platform) 0.6.3 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="REP (Reproducible Experiment Platform) 0.6.3 documentation" href="../../../index.html"/>
+        <link rel="up" title="Module code" href="../../index.html"/> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-nav-search">
+        
+
+        
+          <a href="../../../index.html" class="icon icon-home"> REP (Reproducible Experiment Platform)
+        
+
+        
+        </a>
+
+        
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+        
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+        
+          
+          
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../data.html">Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../estimators.html">Estimators (classification and regression)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../metaml.html">Meta Machine Learning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../report.html">Report for models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../plotting.html">Plotting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../utils.html">Utilities</a></li>
+<li class="toctree-l1"><a class="reference external" href="http://nbviewer.ipython.org/github/yandex/rep/tree/master/howto/">Howto notebooks</a></li>
+</ul>
+
+          
+        
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../../index.html">REP (Reproducible Experiment Platform)</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+      
+    <li>rep.report.classification</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for rep.report.classification</h1><div class="highlight"><pre>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module contains report class for classification estimators. Report includes:</span>
+
+<span class="sd">    * features scatter plots, distributions, correlations</span>
+<span class="sd">    * learning curve</span>
+<span class="sd">    * roc curve</span>
+<span class="sd">    * efficiencies</span>
+<span class="sd">    * metric vs cut</span>
+<span class="sd">    * feature importance</span>
+<span class="sd">    * feature importance by shuffling the feature column</span>
+
+<span class="sd">All methods return objects, which have `plot` method (details see in :class:`rep.plotting`),</span>
+<span class="sd">these objects contain raw information about things to be plotted.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">division</span><span class="p">,</span> <span class="n">print_function</span><span class="p">,</span> <span class="n">absolute_import</span>
+<span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">islice</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span><span class="p">,</span> <span class="n">defaultdict</span>
+<span class="kn">import</span> <span class="nn">itertools</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span>
+
+<span class="kn">from</span> <span class="nn">..</span> <span class="kn">import</span> <span class="n">utils</span>
+<span class="kn">from</span> <span class="nn">..</span> <span class="kn">import</span> <span class="n">plotting</span>
+<span class="kn">from</span> <span class="nn">._base</span> <span class="kn">import</span> <span class="n">AbstractReport</span>
+<span class="kn">from</span> <span class="nn">.metrics</span> <span class="kn">import</span> <span class="n">OptimalMetric</span><span class="p">,</span> <span class="n">LogLoss</span>
+<span class="kn">from</span> <span class="nn">..estimators.interface</span> <span class="kn">import</span> <span class="n">Classifier</span>
+<span class="kn">from</span> <span class="nn">..utils</span> <span class="kn">import</span> <span class="n">get_columns_dict</span>
+
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s">&#39;Alex Rogozhnikov, Tatiana Likhomanenko&#39;</span>
+
+<span class="n">BAR_TYPES</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;error_bar&#39;</span><span class="p">,</span> <span class="s">&#39;bar&#39;</span><span class="p">}</span>
+
+
+<div class="viewcode-block" id="ClassificationReport"><a class="viewcode-back" href="../../../report.html#rep.report.classification.ClassificationReport">[docs]</a><span class="k">class</span> <span class="nc">ClassificationReport</span><span class="p">(</span><span class="n">AbstractReport</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Test estimators on any data. Supports ROC curve, prediction distribution, features information</span>
+<span class="sd">    (correlation matrix, distribution, scatter plots for pairs of features),</span>
+<span class="sd">    efficiencies for thresholds (evaluate flatness of predictions for important feature),</span>
+<span class="sd">    correlation with prediction for necessary feature, any metrics of quality.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">    -----------</span>
+<span class="sd">    :param classifiers: estimators</span>
+<span class="sd">    :type classifiers: dict[str, Classifier]</span>
+<span class="sd">    :param LabeledDataStorage lds: data</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">classifiers</span><span class="p">,</span> <span class="n">lds</span><span class="p">):</span>
+
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">classifier</span> <span class="ow">in</span> <span class="n">classifiers</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">classifier</span><span class="p">,</span> <span class="n">Classifier</span><span class="p">),</span> <span class="s">&quot;Object {} doesn&#39;t implement interface&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+
+        <span class="n">AbstractReport</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lds</span><span class="o">=</span><span class="n">lds</span><span class="p">,</span> <span class="n">estimators</span><span class="o">=</span><span class="n">classifiers</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">estimator</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">estimator</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_check_labels</span><span class="p">(</span><span class="n">labels_dict</span><span class="p">,</span> <span class="n">class_labels</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Normalizes the names for labels.</span>
+
+<span class="sd">        :param labels_dict: dict(label -&gt; name) or None,</span>
+<span class="sd">            if None, the classes will be named 0: bck and 1: signal</span>
+<span class="sd">        :param class_labels: array of shape [n_samples] with labels of events,</span>
+<span class="sd">            used here to define the set of used labels.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">labels_dict_init</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
+        <span class="n">all_classes</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">class_labels</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">labels_dict</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">labels_dict_init</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39;bck&#39;</span>
+            <span class="n">labels_dict_init</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39;signal&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">labels_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">all_classes</span><span class="p">:</span>
+                    <span class="n">labels_dict_init</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="k">assert</span> <span class="nb">set</span><span class="p">(</span><span class="n">labels_dict_init</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span><span class="o">.</span><span class="n">issubset</span><span class="p">(</span><span class="n">all_classes</span><span class="p">),</span> \
+            <span class="s">&#39;Labels must be a subset of {}, but {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">all_classes</span><span class="p">,</span> <span class="n">labels_dict_init</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+        <span class="k">return</span> <span class="n">labels_dict_init</span>
+
+<div class="viewcode-block" id="ClassificationReport.features_pdf"><a class="viewcode-back" href="../../../report.html#rep.report.classification.ClassificationReport.features_pdf">[docs]</a>    <span class="k">def</span> <span class="nf">features_pdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">ignored_sideband</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">labels_dict</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">grid_columns</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Features distribution (with errors)</span>
+
+<span class="sd">        :param features: using features (if None then use classifier&#39;s features)</span>
+<span class="sd">        :type features: None or list[str]</span>
+<span class="sd">        :param mask: mask for data, which will be used</span>
+<span class="sd">        :type mask: None or numbers.Number or array-like or str or function(pandas.DataFrame)</span>
+<span class="sd">        :param bins: count of bins or array with boarders</span>
+<span class="sd">        :type bins: int or array-like</span>
+<span class="sd">        :param labels_dict: label -- name for class label</span>
+<span class="sd">            if None then {0: &#39;bck&#39;, &#39;1&#39;: &#39;signal&#39;}</span>
+<span class="sd">        :type labels_dict: None or OrderedDict(int: str)</span>
+<span class="sd">        :param int grid_columns: count of columns in grid</span>
+<span class="sd">        :param float ignored_sideband: float from (0, 1), part of events ignored from the left and from the right</span>
+<span class="sd">        :rtype: plotting.GridPlot</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">features</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">common_features</span> <span class="k">if</span> <span class="n">features</span> <span class="ow">is</span> <span class="bp">None</span> <span class="k">else</span> <span class="n">features</span>
+        <span class="n">pdf</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="n">OrderedDict</span><span class="p">)</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="n">class_labels</span><span class="p">,</span> <span class="n">weight</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_apply_mask</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_features</span><span class="p">(</span><span class="n">features</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">weight</span><span class="p">)</span>
+        <span class="n">labels_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_labels</span><span class="p">(</span><span class="n">labels_dict</span><span class="p">,</span> <span class="n">class_labels</span><span class="p">)</span>
+
+        <span class="n">pdf_plots</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">feature</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">label</span><span class="p">,</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">labels_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">pdf</span><span class="p">[</span><span class="n">feature</span><span class="p">][</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> \
+                    <span class="n">utils</span><span class="o">.</span><span class="n">calc_hist_with_errors</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">feature</span><span class="p">][</span><span class="n">class_labels</span> <span class="o">==</span> <span class="n">label</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+                                                <span class="n">weight</span><span class="p">[</span><span class="n">class_labels</span> <span class="o">==</span> <span class="n">label</span><span class="p">],</span> <span class="n">bins</span><span class="p">,</span> <span class="n">ignored_sideband</span><span class="o">=</span><span class="n">ignored_sideband</span><span class="p">)</span>
+            <span class="n">plot_fig</span> <span class="o">=</span> <span class="n">plotting</span><span class="o">.</span><span class="n">ErrorPlot</span><span class="p">(</span><span class="n">pdf</span><span class="p">[</span><span class="n">feature</span><span class="p">])</span>
+            <span class="n">plot_fig</span><span class="o">.</span><span class="n">xlabel</span> <span class="o">=</span> <span class="n">feature</span>
+            <span class="n">plot_fig</span><span class="o">.</span><span class="n">ylabel</span> <span class="o">=</span> <span class="s">&#39;Normed event counts&#39;</span>
+            <span class="n">plot_fig</span><span class="o">.</span><span class="n">figsize</span> <span class="o">=</span> <span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">6</span><span class="p">)</span>
+            <span class="n">pdf_plots</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">plot_fig</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">plotting</span><span class="o">.</span><span class="n">GridPlot</span><span class="p">(</span><span class="n">grid_columns</span><span class="p">,</span> <span class="o">*</span><span class="n">pdf_plots</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="ClassificationReport.features_correlation_matrix_by_class"><a class="viewcode-back" href="../../../report.html#rep.report.classification.ClassificationReport.features_correlation_matrix_by_class">[docs]</a>    <span class="k">def</span> <span class="nf">features_correlation_matrix_by_class</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">tick_labels</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">vmin</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                                             <span class="n">labels_dict</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">grid_columns</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Correlation between features (built separately for each class)</span>
+
+<span class="sd">        :param features: using features (if None then use classifier&#39;s features)</span>
+<span class="sd">        :type features: None or list[str]</span>
+<span class="sd">        :param mask: mask for data, which will be used</span>
+<span class="sd">        :type mask: None or numbers.Number or array-like or str or function(pandas.DataFrame)</span>
+<span class="sd">        :param labels_dict: label -- name for class label</span>
+<span class="sd">            if None then {0: &#39;bck&#39;, &#39;1&#39;: &#39;signal&#39;}</span>
+<span class="sd">        :type labels_dict: None or OrderedDict(int: str)</span>
+<span class="sd">        :param tick_labels: names for features in matrix</span>
+<span class="sd">        :type tick_labels: None or array-like</span>
+<span class="sd">        :param int vmin: min of value for min color</span>
+<span class="sd">        :param int vmax: max of value for max color</span>
+<span class="sd">        :param int grid_columns: count of columns in grid</span>
+
+<span class="sd">        :rtype: plotting.GridPlot</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">features</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">common_features</span> <span class="k">if</span> <span class="n">features</span> <span class="ow">is</span> <span class="bp">None</span> <span class="k">else</span> <span class="n">features</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="n">class_labels</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_apply_mask</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_features</span><span class="p">(</span><span class="n">features</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="p">)</span>
+        <span class="n">features_names</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">tick_labels</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">tick_labels</span> <span class="o">=</span> <span class="n">features_names</span>
+        <span class="n">labels_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_labels</span><span class="p">(</span><span class="n">labels_dict</span><span class="p">,</span> <span class="n">class_labels</span><span class="p">)</span>
+
+        <span class="n">correlation_plots</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">color_map</span> <span class="o">=</span> <span class="n">itertools</span><span class="o">.</span><span class="n">cycle</span><span class="p">([</span><span class="s">&#39;Reds&#39;</span><span class="p">,</span> <span class="s">&#39;Blues&#39;</span><span class="p">,</span> <span class="s">&#39;Oranges&#39;</span><span class="p">])</span>
+        <span class="k">for</span> <span class="n">label</span><span class="p">,</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">labels_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">plot_corr</span> <span class="o">=</span> <span class="n">plotting</span><span class="o">.</span><span class="n">ColorMap</span><span class="p">(</span>
+                <span class="n">utils</span><span class="o">.</span><span class="n">calc_feature_correlation_matrix</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">features_names</span><span class="p">][</span><span class="n">class_labels</span> <span class="o">==</span> <span class="n">label</span><span class="p">]),</span>
+                <span class="n">labels</span><span class="o">=</span><span class="n">tick_labels</span><span class="p">,</span> <span class="n">vmin</span><span class="o">=</span><span class="n">vmin</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="n">vmax</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="nb">next</span><span class="p">(</span><span class="n">color_map</span><span class="p">))</span>
+            <span class="n">plot_corr</span><span class="o">.</span><span class="n">title</span> <span class="o">=</span> <span class="s">&#39;Correlation for </span><span class="si">%s</span><span class="s"> events&#39;</span> <span class="o">%</span> <span class="n">name</span>
+            <span class="n">plot_corr</span><span class="o">.</span><span class="n">fontsize</span> <span class="o">=</span> <span class="mi">10</span>
+            <span class="n">plot_corr</span><span class="o">.</span><span class="n">figsize</span> <span class="o">=</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">features</span><span class="p">)</span> <span class="o">//</span> <span class="mi">5</span> <span class="o">+</span> <span class="mi">2</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">features</span><span class="p">)</span> <span class="o">//</span> <span class="mi">5</span><span class="p">)</span>
+            <span class="n">correlation_plots</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">plot_corr</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">plotting</span><span class="o">.</span><span class="n">GridPlot</span><span class="p">(</span><span class="n">grid_columns</span><span class="p">,</span> <span class="o">*</span><span class="n">correlation_plots</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="ClassificationReport.scatter"><a class="viewcode-back" href="../../../report.html#rep.report.classification.ClassificationReport.scatter">[docs]</a>    <span class="k">def</span> <span class="nf">scatter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">correlation_pairs</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">marker_size</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">labels_dict</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">grid_columns</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Correlation between pairs of features</span>
+
+<span class="sd">        :param list[tuple] correlation_pairs: pairs of features along which scatter plot will be build.</span>
+<span class="sd">        :param mask: mask for data, which will be used</span>
+<span class="sd">        :type mask: None or array-like or str or function(pandas.DataFrame)</span>
+<span class="sd">        :param int marker_size: size of marker for each event on the plot</span>
+<span class="sd">        :param float alpha: blending parameter for scatter</span>
+<span class="sd">        :param labels_dict: label -- name for class label</span>
+<span class="sd">            if None then {0: &#39;bck&#39;, &#39;1&#39;: &#39;signal&#39;}</span>
+<span class="sd">        :type labels_dict: None or OrderedDict(int: str)</span>
+<span class="sd">        :param int grid_columns: count of columns in grid</span>
+
+<span class="sd">        :rtype: plotting.GridPlot</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">features</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">from_iterable</span><span class="p">(</span><span class="n">correlation_pairs</span><span class="p">)))</span>
+
+        <span class="n">_</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="n">class_labels</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_apply_mask</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_features</span><span class="p">(</span><span class="n">features</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="p">)</span>
+        <span class="n">labels_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_labels</span><span class="p">(</span><span class="n">labels_dict</span><span class="p">,</span> <span class="n">class_labels</span><span class="p">)</span>
+
+        <span class="n">correlation_plots</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">corr_pairs</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">feature1_c</span><span class="p">,</span> <span class="n">feature2_c</span> <span class="ow">in</span> <span class="n">correlation_pairs</span><span class="p">:</span>
+            <span class="n">feature1</span><span class="p">,</span> <span class="n">feature2</span> <span class="o">=</span> <span class="n">get_columns_dict</span><span class="p">([</span><span class="n">feature1_c</span><span class="p">,</span> <span class="n">feature2_c</span><span class="p">])</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+            <span class="n">corr_pairs</span><span class="p">[(</span><span class="n">feature1</span><span class="p">,</span> <span class="n">feature2</span><span class="p">)]</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">label</span><span class="p">,</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">labels_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">corr_pairs</span><span class="p">[(</span><span class="n">feature1</span><span class="p">,</span> <span class="n">feature2</span><span class="p">)][</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">feature1</span><span class="p">][</span><span class="n">class_labels</span> <span class="o">==</span> <span class="n">label</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+                                                          <span class="n">df</span><span class="p">[</span><span class="n">feature2</span><span class="p">][</span><span class="n">class_labels</span> <span class="o">==</span> <span class="n">label</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+            <span class="n">plot_fig</span> <span class="o">=</span> <span class="n">plotting</span><span class="o">.</span><span class="n">ScatterPlot</span><span class="p">(</span><span class="n">corr_pairs</span><span class="p">[(</span><span class="n">feature1</span><span class="p">,</span> <span class="n">feature2</span><span class="p">)],</span> <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">marker_size</span><span class="p">)</span>
+            <span class="n">plot_fig</span><span class="o">.</span><span class="n">xlabel</span> <span class="o">=</span> <span class="n">feature1</span>
+            <span class="n">plot_fig</span><span class="o">.</span><span class="n">ylabel</span> <span class="o">=</span> <span class="n">feature2</span>
+            <span class="n">plot_fig</span><span class="o">.</span><span class="n">figsize</span> <span class="o">=</span> <span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">6</span><span class="p">)</span>
+            <span class="n">correlation_plots</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">plot_fig</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">plotting</span><span class="o">.</span><span class="n">GridPlot</span><span class="p">(</span><span class="n">grid_columns</span><span class="p">,</span> <span class="o">*</span><span class="n">correlation_plots</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="ClassificationReport.roc"><a class="viewcode-back" href="../../../report.html#rep.report.classification.ClassificationReport.roc">[docs]</a>    <span class="k">def</span> <span class="nf">roc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">signal_label</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculate roc functions for data and return roc plot object</span>
+
+<span class="sd">        :param mask: mask for data, which will be used</span>
+<span class="sd">        :type mask: None or numbers.Number or array-like or str or function(pandas.DataFrame)</span>
+<span class="sd">        :param int grid_columns: count of columns for multi-rocs</span>
+
+<span class="sd">        :rtype: plotting.FunctionsPlot</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">roc_curves</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
+        <span class="n">mask</span><span class="p">,</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_apply_mask</span><span class="p">(</span><span class="n">mask</span><span class="p">)</span>
+
+        <span class="n">classes_labels</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="p">[</span><span class="n">mask</span><span class="p">]))</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">classes_labels</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span> <span class="ow">and</span> <span class="n">signal_label</span> <span class="ow">in</span> <span class="n">classes_labels</span><span class="p">,</span> \
+            <span class="s">&#39;Classes must be 2 instead of {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">classes_labels</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">prediction</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">prediction</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">labels_active</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span> <span class="o">==</span> <span class="n">signal_label</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+            <span class="n">roc_curves</span><span class="p">[</span><span class="n">name</span><span class="p">],</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">calc_ROC</span><span class="p">(</span><span class="n">prediction</span><span class="p">[</span><span class="n">mask</span><span class="p">,</span> <span class="n">signal_label</span><span class="p">],</span> <span class="n">labels_active</span><span class="p">,</span>
+                                                    <span class="n">sample_weight</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">weight</span><span class="p">[</span><span class="n">mask</span><span class="p">])</span>
+        <span class="n">plot_fig</span> <span class="o">=</span> <span class="n">plotting</span><span class="o">.</span><span class="n">FunctionsPlot</span><span class="p">(</span><span class="n">roc_curves</span><span class="p">)</span>
+        <span class="n">plot_fig</span><span class="o">.</span><span class="n">xlabel</span> <span class="o">=</span> <span class="s">&#39;Signal sensitivity&#39;</span>
+        <span class="n">plot_fig</span><span class="o">.</span><span class="n">ylabel</span> <span class="o">=</span> <span class="s">&#39;Bg rejection eff (specificity)&#39;</span>
+        <span class="n">plot_fig</span><span class="o">.</span><span class="n">title</span> <span class="o">=</span> <span class="s">&#39;ROC curves&#39;</span>
+        <span class="k">return</span> <span class="n">plot_fig</span>
+</div>
+<div class="viewcode-block" id="ClassificationReport.prediction_pdf"><a class="viewcode-back" href="../../../report.html#rep.report.classification.ClassificationReport.prediction_pdf">[docs]</a>    <span class="k">def</span> <span class="nf">prediction_pdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">target_class</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">log</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">plot_type</span><span class="o">=</span><span class="s">&#39;error_bar&#39;</span><span class="p">,</span>
+                       <span class="n">normed</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">labels_dict</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Distribution of prediction for signal and bck separately with errors</span>
+
+<span class="sd">        :param mask: mask for data, which will be used</span>
+<span class="sd">        :type mask: None or numbers.Number or array-like or str or function(pandas.DataFrame)</span>
+<span class="sd">        :param target_class: draw probabilities of being classified as target_class</span>
+<span class="sd">            (default 1, will draw signal probabilities).</span>
+<span class="sd">            If None, will draw probability corresponding to right class of each event.</span>
+<span class="sd">        :type target_class: int or None</span>
+<span class="sd">        :param bins: number of bins in histogram</span>
+<span class="sd">        :type bins: int or array-like</span>
+<span class="sd">        :param int size: points size on plots</span>
+<span class="sd">        :param bool log: use logarithmic scale</span>
+<span class="sd">        :param bool normed: draw normed pdf or not (normed by default)</span>
+<span class="sd">        :param str plot_type: &#39;error_bar&#39; for error type and &#39;bar&#39; for hist type</span>
+<span class="sd">        :param labels_dict: names for class labels as dictionary</span>
+<span class="sd">            if None then {0: &#39;bck&#39;, &#39;1&#39;: &#39;signal&#39;}</span>
+<span class="sd">        :type labels_dict: None or OrderedDict(int: str)</span>
+<span class="sd">        :rtype: plotting.ErrorPlot or plotting.BarPlot</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="n">plot_type</span> <span class="ow">in</span> <span class="n">BAR_TYPES</span><span class="p">,</span> <span class="s">&#39;Value for plot_type must be in &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">BAR_TYPES</span><span class="p">)</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
+        <span class="n">mask</span><span class="p">,</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_apply_mask</span><span class="p">(</span><span class="n">mask</span><span class="p">)</span>
+        <span class="n">class_labels</span><span class="p">,</span> <span class="n">weight</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="p">[</span><span class="n">mask</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">weight</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span>
+        <span class="n">labels_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_labels</span><span class="p">(</span><span class="n">labels_dict</span><span class="p">,</span> <span class="n">class_labels</span><span class="p">)</span>
+
+        <span class="n">filled_type</span> <span class="o">=</span> <span class="n">itertools</span><span class="o">.</span><span class="n">cycle</span><span class="p">([</span><span class="s">&#39;not_filled&#39;</span><span class="p">,</span> <span class="s">&#39;filled&#39;</span><span class="p">])</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">prediction</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">prediction</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">prediction</span> <span class="o">=</span> <span class="n">prediction</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">label</span><span class="p">,</span> <span class="n">name_label</span> <span class="ow">in</span> <span class="n">labels_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">label_mask</span> <span class="o">=</span> <span class="n">class_labels</span> <span class="o">==</span> <span class="n">label</span>
+                <span class="n">target_label</span> <span class="o">=</span> <span class="n">label</span> <span class="k">if</span> <span class="n">target_class</span> <span class="ow">is</span> <span class="bp">None</span> <span class="k">else</span> <span class="n">target_class</span>
+                <span class="n">plot_name</span> <span class="o">=</span> <span class="s">&#39;{name} for {cl}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name_label</span><span class="p">,</span> <span class="n">cl</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">plot_type</span> <span class="o">==</span> <span class="s">&#39;error_bar&#39;</span><span class="p">:</span>
+                    <span class="n">data</span><span class="p">[</span><span class="n">plot_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">calc_hist_with_errors</span><span class="p">(</span>
+                        <span class="n">prediction</span><span class="p">[</span><span class="n">label_mask</span><span class="p">,</span> <span class="n">target_label</span><span class="p">],</span>
+                        <span class="n">weight</span><span class="p">[</span><span class="n">label_mask</span><span class="p">],</span> <span class="n">bins</span><span class="p">,</span> <span class="n">normed</span><span class="o">=</span><span class="n">normed</span><span class="p">,</span> <span class="n">x_range</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">data</span><span class="p">[</span><span class="n">plot_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">prediction</span><span class="p">[</span><span class="n">label_mask</span><span class="p">,</span> <span class="n">target_label</span><span class="p">],</span> <span class="n">weight</span><span class="p">[</span><span class="n">label_mask</span><span class="p">],</span> <span class="nb">next</span><span class="p">(</span><span class="n">filled_type</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="n">plot_type</span> <span class="o">==</span> <span class="s">&#39;error_bar&#39;</span><span class="p">:</span>
+            <span class="n">plot_fig</span> <span class="o">=</span> <span class="n">plotting</span><span class="o">.</span><span class="n">ErrorPlot</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">size</span><span class="p">,</span> <span class="n">log</span><span class="o">=</span><span class="n">log</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">plot_fig</span> <span class="o">=</span> <span class="n">plotting</span><span class="o">.</span><span class="n">BarPlot</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="n">bins</span><span class="p">,</span> <span class="n">normalization</span><span class="o">=</span><span class="n">normed</span><span class="p">,</span> <span class="n">value_range</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="n">plot_fig</span><span class="o">.</span><span class="n">xlabel</span> <span class="o">=</span> <span class="s">&#39;prediction&#39;</span>
+        <span class="n">plot_fig</span><span class="o">.</span><span class="n">ylabel</span> <span class="o">=</span> <span class="s">&#39;density&#39;</span> <span class="k">if</span> <span class="n">normed</span> <span class="k">else</span> <span class="s">&#39;Event count&#39;</span>
+        <span class="k">return</span> <span class="n">plot_fig</span>
+</div>
+<div class="viewcode-block" id="ClassificationReport.efficiencies"><a class="viewcode-back" href="../../../report.html#rep.report.classification.ClassificationReport.efficiencies">[docs]</a>    <span class="k">def</span> <span class="nf">efficiencies</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="p">,</span> <span class="n">thresholds</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">labels_dict</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">ignored_sideband</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+                     <span class="n">errors</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">grid_columns</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Efficiencies for spectators</span>
+
+<span class="sd">        :param features: using features (if None then use classifier&#39;s spectators)</span>
+<span class="sd">        :type features: None or list[str]</span>
+<span class="sd">        :param bins: bins for histogram</span>
+<span class="sd">        :type bins: int or array-like</span>
+<span class="sd">        :param mask: mask for data, which will be used</span>
+<span class="sd">        :type mask: None or numbers.Number or array-like or str or function(pandas.DataFrame)</span>
+<span class="sd">        :param list[float] thresholds: thresholds on prediction</span>
+<span class="sd">        :param bool errors: if True then use errorbar, else interpolate function</span>
+<span class="sd">        :param labels_dict: label -- name for class label</span>
+<span class="sd">            if None then {0: &#39;bck&#39;, &#39;1&#39;: &#39;signal&#39;}</span>
+<span class="sd">        :type labels_dict: None or OrderedDict(int: str)</span>
+<span class="sd">        :param int grid_columns: count of columns in grid</span>
+<span class="sd">        :param float ignored_sideband: (0, 1) percent of plotting data</span>
+
+<span class="sd">        :rtype: plotting.GridPlot</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">mask</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">class_labels</span><span class="p">,</span> <span class="n">weight</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_apply_mask</span><span class="p">(</span>
+            <span class="n">mask</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_features</span><span class="p">(</span><span class="n">features</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">weight</span><span class="p">)</span>
+        <span class="n">labels_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_labels</span><span class="p">(</span><span class="n">labels_dict</span><span class="p">,</span> <span class="n">class_labels</span><span class="p">)</span>
+
+        <span class="n">plots</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">feature</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">prediction</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">prediction</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">prediction</span> <span class="o">=</span> <span class="n">prediction</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span>
+                <span class="n">eff</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
+                <span class="k">for</span> <span class="n">label</span><span class="p">,</span> <span class="n">label_name</span> <span class="ow">in</span> <span class="n">labels_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="n">label_mask</span> <span class="o">=</span> <span class="n">class_labels</span> <span class="o">==</span> <span class="n">label</span>
+                    <span class="n">eff</span><span class="p">[</span><span class="n">label_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">get_efficiencies</span><span class="p">(</span><span class="n">prediction</span><span class="p">[</span><span class="n">label_mask</span><span class="p">,</span> <span class="n">label</span><span class="p">],</span>
+                                                             <span class="n">data</span><span class="p">[</span><span class="n">feature</span><span class="p">][</span><span class="n">label_mask</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+                                                             <span class="n">bins_number</span><span class="o">=</span><span class="n">bins</span><span class="p">,</span>
+                                                             <span class="n">sample_weight</span><span class="o">=</span><span class="n">weight</span><span class="p">[</span><span class="n">label_mask</span><span class="p">],</span>
+                                                             <span class="n">thresholds</span><span class="o">=</span><span class="n">thresholds</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="n">errors</span><span class="p">,</span>
+                                                             <span class="n">ignored_sideband</span><span class="o">=</span><span class="n">ignored_sideband</span><span class="p">)</span>
+
+                <span class="k">for</span> <span class="n">label_name</span><span class="p">,</span> <span class="n">eff_data</span> <span class="ow">in</span> <span class="n">eff</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="k">if</span> <span class="n">errors</span><span class="p">:</span>
+                        <span class="n">plot_fig</span> <span class="o">=</span> <span class="n">plotting</span><span class="o">.</span><span class="n">ErrorPlot</span><span class="p">(</span><span class="n">eff_data</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">plot_fig</span> <span class="o">=</span> <span class="n">plotting</span><span class="o">.</span><span class="n">FunctionsPlot</span><span class="p">(</span><span class="n">eff_data</span><span class="p">)</span>
+                    <span class="n">plot_fig</span><span class="o">.</span><span class="n">xlabel</span> <span class="o">=</span> <span class="n">feature</span>
+                    <span class="n">plot_fig</span><span class="o">.</span><span class="n">ylabel</span> <span class="o">=</span> <span class="s">&#39;Efficiency for {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+                    <span class="n">plot_fig</span><span class="o">.</span><span class="n">title</span> <span class="o">=</span> <span class="s">&#39;{} flatness&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">label_name</span><span class="p">)</span>
+                    <span class="n">plot_fig</span><span class="o">.</span><span class="n">ylim</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+                    <span class="n">plots</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">plot_fig</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">plotting</span><span class="o">.</span><span class="n">GridPlot</span><span class="p">(</span><span class="n">grid_columns</span><span class="p">,</span> <span class="o">*</span><span class="n">plots</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="ClassificationReport.metrics_vs_cut"><a class="viewcode-back" href="../../../report.html#rep.report.classification.ClassificationReport.metrics_vs_cut">[docs]</a>    <span class="k">def</span> <span class="nf">metrics_vs_cut</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">metric</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">metric_label</span><span class="o">=</span><span class="s">&#39;metric&#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Draw values of binary metric depending on the threshold on predictions.</span>
+
+<span class="sd">        :param metric: binary metric (AMS, f1 or so - shall use only tpr and fpr)</span>
+<span class="sd">        :param mask: mask for data used in comparison</span>
+<span class="sd">        :type mask: None or numbers.Number or array-like or str or function(pandas.DataFrame)</span>
+<span class="sd">        :param str metric_label: name for metric on plot</span>
+
+<span class="sd">        :rtype: plotting.FunctionsPlot</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">mask</span><span class="p">,</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_apply_mask</span><span class="p">(</span><span class="n">mask</span><span class="p">)</span>
+        <span class="n">class_labels</span><span class="p">,</span> <span class="n">weight</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="p">[</span><span class="n">mask</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">weight</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span>
+
+        <span class="c"># assert len(numpy.unique(class_labels)) == 2, &#39;This function supports only for 2-classification&#39;</span>
+
+        <span class="n">quality</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
+        <span class="n">opt_metrics</span> <span class="o">=</span> <span class="n">OptimalMetric</span><span class="p">(</span><span class="n">metric</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">classifier_name</span><span class="p">,</span> <span class="n">prediction</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">prediction</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">prediction</span> <span class="o">=</span> <span class="n">prediction</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span>
+            <span class="n">quality</span><span class="p">[</span><span class="n">classifier_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">opt_metrics</span><span class="o">.</span><span class="n">compute</span><span class="p">(</span><span class="n">class_labels</span><span class="p">,</span> <span class="n">prediction</span><span class="p">,</span> <span class="n">weight</span><span class="p">)</span>
+        <span class="n">plot_fig</span> <span class="o">=</span> <span class="n">plotting</span><span class="o">.</span><span class="n">FunctionsPlot</span><span class="p">(</span><span class="n">quality</span><span class="p">)</span>
+        <span class="n">plot_fig</span><span class="o">.</span><span class="n">xlabel</span> <span class="o">=</span> <span class="s">&#39;predictions thresholds&#39;</span>
+        <span class="n">plot_fig</span><span class="o">.</span><span class="n">ylabel</span> <span class="o">=</span> <span class="n">metric_label</span>
+        <span class="k">return</span> <span class="n">plot_fig</span>
+</div>
+    <span class="k">def</span> <span class="nf">_learning_curve_additional</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">metric_func</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">mask</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Compute values of RocAuc (or some other metric) for particular classifier, mask and metric function.</span>
+<span class="sd">        :return: tuple(stages, values) with numbers of stages and corresponding</span>
+<span class="sd">        computed values of metric after each stage.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">weight</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_apply_mask</span><span class="p">(</span>
+            <span class="n">mask</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_features</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">weight</span><span class="p">)</span>
+
+        <span class="n">curve</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
+        <span class="n">stage_proba</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">estimators</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">staged_predict_proba</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">stage</span><span class="p">,</span> <span class="n">prediction</span> <span class="ow">in</span> <span class="n">islice</span><span class="p">(</span><span class="nb">enumerate</span><span class="p">(</span><span class="n">stage_proba</span><span class="p">),</span> <span class="n">step</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="n">step</span><span class="p">):</span>
+            <span class="n">curve</span><span class="p">[</span><span class="n">stage</span><span class="p">]</span> <span class="o">=</span> <span class="n">metric_func</span><span class="p">(</span><span class="n">labels</span><span class="p">,</span> <span class="n">prediction</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="n">weight</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">curve</span><span class="o">.</span><span class="n">keys</span><span class="p">(),</span> <span class="n">curve</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
+
+<div class="viewcode-block" id="ClassificationReport.feature_importance_shuffling"><a class="viewcode-back" href="../../../report.html#rep.report.classification.ClassificationReport.feature_importance_shuffling">[docs]</a>    <span class="k">def</span> <span class="nf">feature_importance_shuffling</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">metric</span><span class="o">=</span><span class="n">LogLoss</span><span class="p">(),</span> <span class="n">mask</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">grid_columns</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get features importance using shuffling method (apply random permutation to one particular column)</span>
+
+<span class="sd">        :param metric: function to measure quality</span>
+<span class="sd">            function(y_true, proba, sample_weight=None)</span>
+<span class="sd">        :param mask: mask which points the data we should train on</span>
+<span class="sd">        :type mask: None or numbers.Number or array-like or str or function(pandas.DataFrame)</span>
+<span class="sd">        :param int grid_columns: number of columns in grid</span>
+<span class="sd">        :rtype: plotting.GridPlot</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_feature_importance_shuffling</span><span class="p">(</span><span class="n">metric</span><span class="o">=</span><span class="n">metric</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="n">mask</span><span class="p">,</span> <span class="n">grid_columns</span><span class="o">=</span><span class="n">grid_columns</span><span class="p">)</span>
+</div>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_compute_bin_indices</span><span class="p">(</span><span class="n">columns</span><span class="p">,</span> <span class="n">bin_limits</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Compute bin indices. For each axis, first and last value are ignored &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">columns</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">bin_limits</span><span class="p">),</span> <span class="s">&#39;Indices are the same&#39;</span>
+        <span class="n">bin_indices</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">columns</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">column</span><span class="p">,</span> <span class="n">axis_limits</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">columns</span><span class="p">,</span> <span class="n">bin_limits</span><span class="p">):</span>
+            <span class="n">bin_indices</span> <span class="o">*=</span> <span class="nb">len</span><span class="p">(</span><span class="n">axis_limits</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
+            <span class="n">axis_indices</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">searchsorted</span><span class="p">(</span><span class="n">axis_limits</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">column</span><span class="p">)</span>
+            <span class="n">bin_indices</span> <span class="o">+=</span> <span class="n">axis_indices</span>
+        <span class="k">return</span> <span class="n">bin_indices</span>
+
+<div class="viewcode-block" id="ClassificationReport.efficiencies_2d"><a class="viewcode-back" href="../../../report.html#rep.report.classification.ClassificationReport.efficiencies_2d">[docs]</a>    <span class="k">def</span> <span class="nf">efficiencies_2d</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="p">,</span> <span class="n">efficiency</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">n_bins</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">ignored_sideband</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">labels_dict</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+                        <span class="n">grid_columns</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">signal_label</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        For binary classification plots the dependence of efficiency on two columns</span>
+
+<span class="sd">        :param features: tuple of list with names of two features</span>
+<span class="sd">        :param float efficiency: efficiency, float</span>
+<span class="sd">        :param n_bins: bins for histogram</span>
+<span class="sd">        :type n_bins: int or array-like</span>
+<span class="sd">        :param mask: mask for data, which will be used</span>
+<span class="sd">        :type mask: None or numbers.Number or array-like or str or function(pandas.DataFrame)</span>
+<span class="sd">        :param labels_dict: label -- name for class label</span>
+<span class="sd">            if None then {0: &#39;bck&#39;, &#39;1&#39;: &#39;signal&#39;}</span>
+<span class="sd">        :type labels_dict: None or OrderedDict(int: str)</span>
+<span class="sd">        :param int grid_columns: count of columns in grid</span>
+<span class="sd">        :param float ignored_sideband: (0, 1) percent of plotting data</span>
+<span class="sd">        :param int signal_label: label to calculate efficiency threshold</span>
+
+<span class="sd">        :rtype: plotting.GridPlot</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">features</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">,</span> <span class="s">&#39;you should provide two columns&#39;</span>
+        <span class="k">assert</span> <span class="mf">0.</span> <span class="o">&lt;=</span> <span class="n">efficiency</span> <span class="o">&lt;=</span> <span class="mf">1.</span><span class="p">,</span> <span class="s">&#39;efficiency should be in range (0, 1)&#39;</span>
+
+        <span class="n">mask</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">class_labels</span><span class="p">,</span> <span class="n">weight</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_apply_mask</span><span class="p">(</span>
+            <span class="n">mask</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_features</span><span class="p">(</span><span class="n">features</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">weight</span><span class="p">)</span>
+        <span class="n">labels_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_labels</span><span class="p">(</span><span class="n">labels_dict</span><span class="p">,</span> <span class="n">class_labels</span><span class="p">)</span>
+
+        <span class="n">plots</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">columns</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">axis_limits</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">bin_limits</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">bin_centers</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">feature</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="n">column</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">feature</span><span class="p">])</span>
+            <span class="n">columns</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">column</span><span class="p">)</span>
+            <span class="n">axis_min</span><span class="p">,</span> <span class="n">axis_max</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span><span class="n">column</span><span class="p">,</span> <span class="p">[</span><span class="mi">100</span> <span class="o">*</span> <span class="n">ignored_sideband</span><span class="p">,</span> <span class="mi">100</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">-</span> <span class="n">ignored_sideband</span><span class="p">)])</span>
+            <span class="n">axis_limits</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">axis_min</span><span class="p">,</span> <span class="n">axis_max</span><span class="p">])</span>
+            <span class="n">bin_limits</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">axis_min</span><span class="p">,</span> <span class="n">axis_max</span><span class="p">,</span> <span class="n">n_bins</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+            <span class="n">bin_centers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">axis_min</span><span class="p">,</span> <span class="n">axis_max</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">n_bins</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">1</span><span class="p">::</span><span class="mi">2</span><span class="p">])</span>
+            <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">bin_limits</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">==</span> <span class="n">n_bins</span> <span class="o">+</span> <span class="mi">1</span>
+            <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">bin_centers</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">==</span> <span class="n">n_bins</span>
+        <span class="n">columns_labels</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+        <span class="n">bin_indices</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compute_bin_indices</span><span class="p">(</span><span class="n">columns</span><span class="p">,</span> <span class="n">bin_limits</span><span class="o">=</span><span class="n">bin_limits</span><span class="p">)</span>
+
+        <span class="n">sig_mask</span> <span class="o">=</span> <span class="n">class_labels</span> <span class="o">==</span> <span class="n">signal_label</span>
+        <span class="k">for</span> <span class="n">classifier_name</span><span class="p">,</span> <span class="n">prediction</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">prediction</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">prediction</span> <span class="o">=</span> <span class="n">prediction</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span>
+            <span class="c"># important: this isn&#39;t completely correct, since we need weighted percentile.</span>
+            <span class="c"># TODO fix</span>
+            <span class="n">threshold_</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span><span class="n">prediction</span><span class="p">[</span><span class="n">sig_mask</span><span class="p">,</span> <span class="n">signal_label</span><span class="p">],</span> <span class="mi">100</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">-</span> <span class="n">efficiency</span><span class="p">))</span>
+            <span class="n">passed</span> <span class="o">=</span> <span class="n">prediction</span><span class="p">[:,</span> <span class="n">signal_label</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">threshold_</span>
+            <span class="n">minlength</span> <span class="o">=</span> <span class="n">n_bins</span> <span class="o">**</span> <span class="mi">2</span>
+            <span class="k">for</span> <span class="n">label</span><span class="p">,</span> <span class="n">label_name</span> <span class="ow">in</span> <span class="n">labels_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="c"># recompute threshold</span>
+                <span class="n">label_mask</span> <span class="o">=</span> <span class="n">class_labels</span> <span class="o">==</span> <span class="n">label</span>
+                <span class="k">assert</span> <span class="n">numpy</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">bin_indices</span> <span class="o">&lt;</span> <span class="n">minlength</span><span class="p">)</span>
+
+                <span class="n">bin_efficiencies</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">bincount</span><span class="p">(</span><span class="n">bin_indices</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="n">label_mask</span> <span class="o">*</span> <span class="n">weight</span> <span class="o">*</span> <span class="n">passed</span><span class="p">,</span> <span class="n">minlength</span><span class="o">=</span><span class="n">minlength</span><span class="p">)</span>
+                <span class="n">bin_efficiencies</span> <span class="o">/=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">bincount</span><span class="p">(</span><span class="n">bin_indices</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="n">label_mask</span> <span class="o">*</span> <span class="n">weight</span><span class="p">,</span> <span class="n">minlength</span><span class="o">=</span><span class="n">minlength</span><span class="p">)</span> <span class="o">+</span> <span class="mf">1e-6</span>
+
+                <span class="n">plot_fig</span> <span class="o">=</span> <span class="n">plotting</span><span class="o">.</span><span class="n">Function2D_Plot</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="n">xlim</span><span class="o">=</span><span class="n">axis_limits</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">ylim</span><span class="o">=</span><span class="n">axis_limits</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+                <span class="n">plot_fig</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">plot_fig</span><span class="o">.</span><span class="n">y</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="o">*</span><span class="n">bin_centers</span><span class="p">)</span>
+                <span class="n">plot_fig</span><span class="o">.</span><span class="n">z</span> <span class="o">=</span> <span class="n">bin_efficiencies</span><span class="o">.</span><span class="n">reshape</span><span class="p">([</span><span class="n">n_bins</span><span class="p">,</span> <span class="n">n_bins</span><span class="p">])</span>
+                <span class="n">plot_fig</span><span class="o">.</span><span class="n">xlabel</span><span class="p">,</span> <span class="n">plot_fig</span><span class="o">.</span><span class="n">ylabel</span> <span class="o">=</span> <span class="n">columns_labels</span>
+                <span class="n">plot_fig</span><span class="o">.</span><span class="n">title</span> <span class="o">=</span> <span class="s">&#39;Estimator {} efficiencies for class {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">classifier_name</span><span class="p">,</span> <span class="n">label_name</span><span class="p">)</span>
+                <span class="n">plots</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">plot_fig</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">plotting</span><span class="o">.</span><span class="n">GridPlot</span><span class="p">(</span><span class="n">grid_columns</span><span class="p">,</span> <span class="o">*</span><span class="n">plots</span><span class="p">)</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2014-2015, Yandex.
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../',
+            VERSION:'0.6.3',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

@@ -1,0 +1,299 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>rep.metaml.stacking &mdash; REP (Reproducible Experiment Platform) 0.6.3 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="REP (Reproducible Experiment Platform) 0.6.3 documentation" href="../../../index.html"/>
+        <link rel="up" title="Module code" href="../../index.html"/> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-nav-search">
+        
+
+        
+          <a href="../../../index.html" class="icon icon-home"> REP (Reproducible Experiment Platform)
+        
+
+        
+        </a>
+
+        
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+        
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+        
+          
+          
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../data.html">Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../estimators.html">Estimators (classification and regression)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../metaml.html">Meta Machine Learning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../report.html">Report for models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../plotting.html">Plotting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../utils.html">Utilities</a></li>
+<li class="toctree-l1"><a class="reference external" href="http://nbviewer.ipython.org/github/yandex/rep/tree/master/howto/">Howto notebooks</a></li>
+</ul>
+
+          
+        
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../../index.html">REP (Reproducible Experiment Platform)</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+      
+    <li>rep.metaml.stacking</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for rep.metaml.stacking</h1><div class="highlight"><pre>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module contains stacking strategies (meta-algorithms of machine learning).</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">division</span><span class="p">,</span> <span class="n">print_function</span><span class="p">,</span> <span class="n">absolute_import</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span>
+<span class="kn">from</span> <span class="nn">sklearn.base</span> <span class="kn">import</span> <span class="n">clone</span>
+
+<span class="kn">from</span> <span class="nn">..estimators</span> <span class="kn">import</span> <span class="n">Classifier</span>
+<span class="kn">from</span> <span class="nn">..estimators.utils</span> <span class="kn">import</span> <span class="n">check_inputs</span><span class="p">,</span> <span class="n">_get_features</span>
+
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s">&#39;Alex Rogozhnikov&#39;</span>
+
+
+<div class="viewcode-block" id="FeatureSplitter"><a class="viewcode-back" href="../../../metaml.html#rep.metaml.stacking.FeatureSplitter">[docs]</a><span class="k">class</span> <span class="nc">FeatureSplitter</span><span class="p">(</span><span class="n">Classifier</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Dataset is split by values of `split_feature`,</span>
+<span class="sd">    for each value of feature, new classifier is trained.</span>
+
+<span class="sd">    When building predictions, classifier predicts the events with</span>
+<span class="sd">    the same value of `split_feature` it was trained on.</span>
+
+<span class="sd">    :param str split_feature: the name of key feature,</span>
+<span class="sd">    :param base_estimator: the classifier, its&#39; copies are trained on parts of dataset</span>
+<span class="sd">    :param list[str] features: list of columns classifier uses</span>
+
+<span class="sd">    .. note:: `split_feature` must be in list of `features`</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">split_feature</span><span class="p">,</span> <span class="n">base_estimator</span><span class="p">,</span> <span class="n">train_features</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">base_estimator</span> <span class="o">=</span> <span class="n">base_estimator</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">split_feature</span> <span class="o">=</span> <span class="n">split_feature</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">train_features</span> <span class="o">=</span> <span class="n">train_features</span>
+        <span class="n">Classifier</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_features</span><span class="p">())</span>
+
+    <span class="k">def</span> <span class="nf">_features</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">train_features</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">train_features</span><span class="p">)</span> <span class="o">+</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">split_feature</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">_get_features</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">allow_nans</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param pandas.DataFrame X: train dataset</span>
+
+<span class="sd">        :return: pandas.DataFrame with used features</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">split_column_values</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">_get_features</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">split_feature</span><span class="p">],</span> <span class="n">X</span><span class="p">,</span> <span class="n">allow_nans</span><span class="o">=</span><span class="n">allow_nans</span><span class="p">)</span>
+        <span class="n">split_column_values</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ravel</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">split_column_values</span><span class="p">))</span>
+        <span class="n">X_prepared</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">train_features</span> <span class="o">=</span> <span class="n">_get_features</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">train_features</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">allow_nans</span><span class="o">=</span><span class="n">allow_nans</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">features</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_features</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">split_column_values</span><span class="p">,</span> <span class="n">X_prepared</span>
+
+<div class="viewcode-block" id="FeatureSplitter.fit"><a class="viewcode-back" href="../../../metaml.html#rep.metaml.stacking.FeatureSplitter.fit">[docs]</a>    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Fit dataset.</span>
+
+<span class="sd">        :param X: pandas.DataFrame of shape [n_samples, n_features] with features</span>
+<span class="sd">        :param y: array-like of shape [n_samples] with targets</span>
+<span class="sd">        :param sample_weight: array-like of shape [n_samples] with events weights or None.</span>
+
+<span class="sd">        :return: self</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">base_estimator</span><span class="p">,</span> <span class="s">&#39;features&#39;</span><span class="p">):</span>
+            <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_estimator</span><span class="o">.</span><span class="n">features</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">,</span> <span class="s">&#39;Base estimator must have None features! &#39;</span> \
+                                                         <span class="s">&#39;Use features parameter in Folding to fix it&#39;</span>
+        <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span> <span class="o">=</span> <span class="n">check_inputs</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="n">sample_weight</span><span class="p">,</span> <span class="n">allow_none_weights</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+        <span class="c"># TODO cover the case of missing labels in subsets.</span>
+        <span class="n">split_column_values</span><span class="p">,</span> <span class="n">X</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_features</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_classes</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">base_estimators</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">numpy</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">split_column_values</span><span class="p">):</span>
+            <span class="n">rows</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">split_column_values</span><span class="p">)</span> <span class="o">==</span> <span class="n">value</span>
+            <span class="n">base_classifier</span> <span class="o">=</span> <span class="n">clone</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">base_estimator</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">sample_weight</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="n">base_classifier</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">rows</span><span class="p">,</span> <span class="p">:],</span> <span class="n">y</span><span class="p">[</span><span class="n">rows</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">base_classifier</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">rows</span><span class="p">,</span> <span class="p">:],</span> <span class="n">y</span><span class="p">[</span><span class="n">rows</span><span class="p">],</span> <span class="n">sample_weight</span><span class="o">=</span><span class="n">sample_weight</span><span class="p">[</span><span class="n">rows</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">base_estimators</span><span class="p">[</span><span class="n">value</span><span class="p">]</span> <span class="o">=</span> <span class="n">base_classifier</span>
+        <span class="k">return</span> <span class="bp">self</span>
+</div>
+<div class="viewcode-block" id="FeatureSplitter.predict_proba"><a class="viewcode-back" href="../../../metaml.html#rep.metaml.stacking.FeatureSplitter.predict_proba">[docs]</a>    <span class="k">def</span> <span class="nf">predict_proba</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Predict probabilities. Each event will be predicted by the classifier</span>
+<span class="sd">         with trained on corresponding value of `split_feature`</span>
+
+<span class="sd">        :param X: pandas.DataFrame of shape [n_samples, n_features]</span>
+<span class="sd">        :return: probabilities of shape [n_samples, n_classes]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">split_column_values</span><span class="p">,</span> <span class="n">X</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_features</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="nb">len</span><span class="p">(</span><span class="n">X</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_classes_</span><span class="p">])</span>
+        <span class="k">for</span> <span class="n">value</span><span class="p">,</span> <span class="n">estimator</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_estimators</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">mask</span> <span class="o">=</span> <span class="n">split_column_values</span> <span class="o">==</span> <span class="n">value</span>
+            <span class="n">result</span><span class="p">[</span><span class="n">mask</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">estimator</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">mask</span><span class="p">,</span> <span class="p">:])</span>
+        <span class="k">return</span> <span class="n">result</span>
+</div>
+<div class="viewcode-block" id="FeatureSplitter.staged_predict_proba"><a class="viewcode-back" href="../../../metaml.html#rep.metaml.stacking.FeatureSplitter.staged_predict_proba">[docs]</a>    <span class="k">def</span> <span class="nf">staged_predict_proba</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Predict probabilities after each stage of base classifier.</span>
+<span class="sd">        Each event will be predicted by the classifier</span>
+<span class="sd">         with trained on corresponding value of `split_feature`</span>
+
+<span class="sd">        :param X: pandas.DataFrame of shape [n_samples, n_features]</span>
+<span class="sd">        :return: iterable sequence of numpy.arrays of shape [n_samples, n_classes]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">split_column_values</span><span class="p">,</span> <span class="n">X</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_features</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="nb">len</span><span class="p">(</span><span class="n">X</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_classes_</span><span class="p">])</span>
+        <span class="n">masks_iterators</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">value</span><span class="p">,</span> <span class="n">estimator</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_estimators</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">mask</span> <span class="o">=</span> <span class="n">split_column_values</span> <span class="o">==</span> <span class="n">value</span>
+            <span class="n">prediction_iterator</span> <span class="o">=</span> <span class="n">estimator</span><span class="o">.</span><span class="n">staged_predict_proba</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">mask</span><span class="p">,</span> <span class="p">:])</span>
+            <span class="n">masks_iterators</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">mask</span><span class="p">,</span> <span class="n">prediction_iterator</span><span class="p">])</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">mask</span><span class="p">,</span> <span class="n">prediction_iterator</span> <span class="ow">in</span> <span class="n">masks_iterators</span><span class="p">:</span>
+                    <span class="n">result</span><span class="p">[</span><span class="n">mask</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">prediction_iterator</span><span class="p">)</span>
+                <span class="k">yield</span> <span class="n">result</span>
+        <span class="k">except</span> <span class="ne">StopIteration</span><span class="p">:</span>
+            <span class="k">pass</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2014-2015, Yandex.
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../',
+            VERSION:'0.6.3',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

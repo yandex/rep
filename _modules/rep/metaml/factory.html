@@ -1,0 +1,551 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>rep.metaml.factory &mdash; REP (Reproducible Experiment Platform) 0.6.3 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="REP (Reproducible Experiment Platform) 0.6.3 documentation" href="../../../index.html"/>
+        <link rel="up" title="Module code" href="../../index.html"/> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-nav-search">
+        
+
+        
+          <a href="../../../index.html" class="icon icon-home"> REP (Reproducible Experiment Platform)
+        
+
+        
+        </a>
+
+        
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+        
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+        
+          
+          
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../data.html">Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../estimators.html">Estimators (classification and regression)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../metaml.html">Meta Machine Learning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../report.html">Report for models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../plotting.html">Plotting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../utils.html">Utilities</a></li>
+<li class="toctree-l1"><a class="reference external" href="http://nbviewer.ipython.org/github/yandex/rep/tree/master/howto/">Howto notebooks</a></li>
+</ul>
+
+          
+        
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../../index.html">REP (Reproducible Experiment Platform)</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+      
+    <li>rep.metaml.factory</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for rep.metaml.factory</h1><div class="highlight"><pre>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">**Factory** provides convenient way to train several classifiers on the same dataset.</span>
+<span class="sd">These classifiers can be trained one-by-one in a single thread, or simultaneously</span>
+<span class="sd"> with IPython cluster or in several threads.</span>
+
+<span class="sd">Also `Factory` allows comparison of several classifiers (predictions of which can be used in parallel).</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">division</span><span class="p">,</span> <span class="n">print_function</span><span class="p">,</span> <span class="n">absolute_import</span>
+<span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABCMeta</span><span class="p">,</span> <span class="n">abstractmethod</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span>
+<span class="kn">import</span> <span class="nn">time</span>
+
+<span class="kn">import</span> <span class="nn">pandas</span>
+
+<span class="kn">from</span> <span class="nn">sklearn.base</span> <span class="kn">import</span> <span class="n">BaseEstimator</span><span class="p">,</span> <span class="n">RegressorMixin</span><span class="p">,</span> <span class="n">ClassifierMixin</span>
+<span class="kn">from</span> <span class="nn">..report</span> <span class="kn">import</span> <span class="n">classification</span><span class="p">,</span> <span class="n">regression</span>
+<span class="kn">from</span> <span class="nn">..estimators.interface</span> <span class="kn">import</span> <span class="n">Classifier</span><span class="p">,</span> <span class="n">Regressor</span>
+<span class="kn">from</span> <span class="nn">..estimators.sklearn</span> <span class="kn">import</span> <span class="n">SklearnClassifier</span><span class="p">,</span> <span class="n">SklearnRegressor</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">utils</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s">&#39;Tatiana Likhomanenko&#39;</span>
+
+
+<div class="viewcode-block" id="AbstractFactory"><a class="viewcode-back" href="../../../metaml.html#rep.metaml.factory.AbstractFactory">[docs]</a><span class="k">class</span> <span class="nc">AbstractFactory</span><span class="p">(</span><span class="n">OrderedDict</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Factory provides interface to train simultaneously several estimators (classifiers or regressors).</span>
+<span class="sd">    Later their quality can be compared.</span>
+
+<span class="sd">        .. Note: don&#39;t use this class, but it&#39;s ancestors.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">__metaclass__</span> <span class="o">=</span> <span class="n">ABCMeta</span>
+
+<div class="viewcode-block" id="AbstractFactory.fit"><a class="viewcode-back" href="../../../metaml.html#rep.metaml.factory.AbstractFactory.fit">[docs]</a>    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">parallel_profile</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Train all estimators on the same data.</span>
+
+<span class="sd">        :param X: pandas.DataFrame of shape [n_samples, n_features] with features</span>
+<span class="sd">        :param y: array-like of shape [n_samples] with labels of samples</span>
+<span class="sd">        :param sample_weight: weights of events,</span>
+<span class="sd">               array-like of shape [n_samples] or None if all weights are equal</span>
+<span class="sd">        :param features: features to train estimators</span>
+<span class="sd">            If None, estimators will be trained on `estimator.features`</span>
+<span class="sd">        :type features: None or list[str]</span>
+<span class="sd">        :param parallel_profile: profile of parallel execution system or None</span>
+<span class="sd">        :type parallel_profile: None or str</span>
+
+<span class="sd">        :return: self</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">),</span> <span class="s">&#39;The passed &#39;</span>
+        <span class="k">if</span> <span class="n">features</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">estimator</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">estimator</span><span class="o">.</span><span class="n">features</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+                    <span class="k">print</span><span class="p">(</span><span class="s">&#39;Overwriting features of estimator &#39;</span> <span class="o">+</span> <span class="n">name</span><span class="p">)</span>
+                <span class="bp">self</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">set_params</span><span class="p">(</span><span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">)</span>
+
+        <span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">map_on_cluster</span><span class="p">(</span><span class="n">parallel_profile</span><span class="p">,</span> <span class="n">train_estimator</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">keys</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">(),</span>
+                                      <span class="p">[</span><span class="n">X</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span> <span class="p">[</span><span class="n">y</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span> <span class="p">[</span><span class="n">sample_weight</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">status</span><span class="p">,</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">result</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">status</span> <span class="o">==</span> <span class="s">&#39;success&#39;</span><span class="p">:</span>
+                <span class="n">name</span><span class="p">,</span> <span class="n">estimator</span><span class="p">,</span> <span class="n">spent_time</span> <span class="o">=</span> <span class="n">data</span>
+                <span class="bp">self</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">estimator</span>
+                <span class="k">print</span><span class="p">(</span><span class="s">&#39;model {:12} was trained in {:.2f} seconds&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">spent_time</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">print</span><span class="p">(</span><span class="s">&#39;Problem while training on the node, report:</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+
+        <span class="k">print</span><span class="p">(</span><span class="s">&quot;Totally spent {:.2f} seconds on training&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start_time</span><span class="p">))</span>
+        <span class="k">return</span> <span class="bp">self</span>
+</div>
+<div class="viewcode-block" id="AbstractFactory.fit_lds"><a class="viewcode-back" href="../../../metaml.html#rep.metaml.factory.AbstractFactory.fit_lds">[docs]</a>    <span class="k">def</span> <span class="nf">fit_lds</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lds</span><span class="p">,</span> <span class="n">parallel_profile</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Fit all estimators on the same dataset.</span>
+
+<span class="sd">        :param LabeledDataStorage lds: dataset</span>
+<span class="sd">        :param features: features to train estimators</span>
+<span class="sd">            If None, estimators will be trained on `estimator.features`</span>
+<span class="sd">        :param parallel_profile: profile of parallel execution system or None</span>
+<span class="sd">        :type parallel_profile: None or str</span>
+
+<span class="sd">        :return: self</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span> <span class="o">=</span> <span class="n">lds</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="n">features</span><span class="p">),</span> <span class="n">lds</span><span class="o">.</span><span class="n">get_targets</span><span class="p">(),</span> <span class="n">lds</span><span class="o">.</span><span class="n">get_weights</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="n">sample_weight</span><span class="p">,</span> <span class="n">parallel_profile</span><span class="o">=</span><span class="n">parallel_profile</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">)</span>
+</div>
+    <span class="nd">@abstractmethod</span>
+<div class="viewcode-block" id="AbstractFactory.predict"><a class="viewcode-back" href="../../../metaml.html#rep.metaml.factory.AbstractFactory.predict">[docs]</a>    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">parallel_profile</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Predict labels (or values for regressors) for all events in dataset.</span>
+
+<span class="sd">        :param X: pandas.DataFrame of shape [n_samples, n_features]</span>
+<span class="sd">        :param parallel_profile: profile of parallel execution system or None</span>
+<span class="sd">        :type parallel_profile: None or str</span>
+
+<span class="sd">        :rtype: OrderedDict[numpy.array of shape [n_samples] with integer labels (or values)]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span>
+</div>
+    <span class="nd">@abstractmethod</span>
+<div class="viewcode-block" id="AbstractFactory.test_on_lds"><a class="viewcode-back" href="../../../metaml.html#rep.metaml.factory.AbstractFactory.test_on_lds">[docs]</a>    <span class="k">def</span> <span class="nf">test_on_lds</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lds</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Prepare report for factory (comparison of all models).</span>
+
+<span class="sd">        :param LabeledDataStorage lds: data</span>
+<span class="sd">        :rtype: rep.report.classification.ClassificationReport or rep.report.regression.RegressionReport</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span>
+</div>
+<div class="viewcode-block" id="AbstractFactory.test_on"><a class="viewcode-back" href="../../../metaml.html#rep.metaml.factory.AbstractFactory.test_on">[docs]</a>    <span class="k">def</span> <span class="nf">test_on</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Prepare report for factory (comparison of all models).</span>
+
+<span class="sd">        :param X: pandas.DataFrame of shape [n_samples, n_features] with features</span>
+<span class="sd">        :param y: numpy.array of shape [n_samples] with targets</span>
+<span class="sd">        :param sample_weight: weight of events,</span>
+<span class="sd">               array-like of shape [n_samples] or None if all weights are equal</span>
+
+<span class="sd">        :rtype: rep.report.classification.ClassificationReport or rep.report.regression.RegressionReport</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">from</span> <span class="nn">..data</span> <span class="kn">import</span> <span class="n">LabeledDataStorage</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">test_on_lds</span><span class="p">(</span><span class="n">LabeledDataStorage</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="n">sample_weight</span><span class="p">))</span>
+
+</div></div>
+<div class="viewcode-block" id="ClassifiersFactory"><a class="viewcode-back" href="../../../metaml.html#rep.metaml.factory.ClassifiersFactory">[docs]</a><span class="k">class</span> <span class="nc">ClassifiersFactory</span><span class="p">(</span><span class="n">AbstractFactory</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Factory provides training of several classifiers in parallel.</span>
+<span class="sd">    Quality of trained classifiers can be compared.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="ClassifiersFactory.add_classifier"><a class="viewcode-back" href="../../../metaml.html#rep.metaml.factory.ClassifiersFactory.add_classifier">[docs]</a>    <span class="k">def</span> <span class="nf">add_classifier</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">classifier</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add classifier to factory.</span>
+<span class="sd">        Automatically wraps classifier with :class:`SklearnClassifier`</span>
+
+<span class="sd">        :param str name: unique name for classifier.</span>
+<span class="sd">            If name coincides with one already used, the old classifier will be replaced by one passed.</span>
+<span class="sd">        :param  classifier: classifier object</span>
+
+<span class="sd">            .. note:: if type == sklearn.base.BaseEstimator, then features=None is used,</span>
+<span class="sd">            to specify features used by classifier, wrap it with `SklearnClassifier`</span>
+<span class="sd">        :type classifier: sklearn.base.BaseEstimator or estimators.interface.Classifier</span>
+
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">classifier</span><span class="p">,</span> <span class="n">Classifier</span><span class="p">):</span>
+            <span class="bp">self</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">classifier</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">classifier</span><span class="p">,</span> <span class="n">BaseEstimator</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">classifier</span><span class="p">,</span> <span class="n">ClassifierMixin</span><span class="p">):</span>
+            <span class="bp">self</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">SklearnClassifier</span><span class="p">(</span><span class="n">classifier</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
+                <span class="s">&#39;Supports only instances of sklearn.base.BaseEstimator or rep.estimators.interface.Classifier&#39;</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="ClassifiersFactory.predict"><a class="viewcode-back" href="../../../metaml.html#rep.metaml.factory.ClassifiersFactory.predict">[docs]</a>    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">parallel_profile</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Predict labels for all events in dataset.</span>
+
+<span class="sd">        :param X: pandas.DataFrame of shape [n_samples, n_features]</span>
+<span class="sd">        :param parallel_profile: profile for IPython cluster</span>
+<span class="sd">        :type parallel_profile: None or str</span>
+
+<span class="sd">        :rtype: OrderedDict[numpy.array of shape [n_samples] with integer labels]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_predict_method</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">parallel_profile</span><span class="o">=</span><span class="n">parallel_profile</span><span class="p">,</span> <span class="n">prediction_type</span><span class="o">=</span><span class="s">&#39;classification&#39;</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="ClassifiersFactory.predict_proba"><a class="viewcode-back" href="../../../metaml.html#rep.metaml.factory.ClassifiersFactory.predict_proba">[docs]</a>    <span class="k">def</span> <span class="nf">predict_proba</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">parallel_profile</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Predict probabilities for all events in dataset.</span>
+
+<span class="sd">        :param X: pandas.DataFrame of shape [n_samples, n_features]</span>
+<span class="sd">        :param parallel_profile: profile</span>
+<span class="sd">        :type parallel_profile: None or str</span>
+
+<span class="sd">        :rtype: OrderedDict[numpy.array of shape [n_samples] with float predictions]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_predict_method</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">parallel_profile</span><span class="o">=</span><span class="n">parallel_profile</span><span class="p">,</span> <span class="n">prediction_type</span><span class="o">=</span><span class="s">&#39;classification-proba&#39;</span><span class="p">)</span>
+</div>
+    <span class="k">def</span> <span class="nf">_predict_method</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">parallel_profile</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">prediction_type</span><span class="o">=</span><span class="s">&#39;classification&#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Predict probabilities for all events in dataset.</span>
+
+<span class="sd">        :param X: pandas.DataFrame of shape [n_samples, n_features]</span>
+<span class="sd">        :param parallel_profile: profile</span>
+<span class="sd">        :type parallel_profile: None or str</span>
+<span class="sd">        :param str prediction_type: &#39;classification&#39; or &#39;regression&#39; or &#39;classification-proba&#39;</span>
+
+<span class="sd">        :rtype: OrderedDict[numpy.array of shape [n_samples] with float predictions]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">predictions</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
+
+        <span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">map_on_cluster</span><span class="p">(</span><span class="n">parallel_profile</span><span class="p">,</span> <span class="n">predict_estimator</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">keys</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">(),</span> <span class="p">[</span><span class="n">X</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span>
+                                      <span class="p">[</span><span class="n">prediction_type</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
+
+        <span class="k">for</span> <span class="n">status</span><span class="p">,</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">result</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">status</span> <span class="o">==</span> <span class="s">&#39;success&#39;</span><span class="p">:</span>
+                <span class="n">name</span><span class="p">,</span> <span class="n">prob</span><span class="p">,</span> <span class="n">spent_time</span> <span class="o">=</span> <span class="n">data</span>
+                <span class="n">predictions</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">prob</span>
+                <span class="k">print</span><span class="p">(</span><span class="s">&#39;data was predicted by {:12} in {:.2f} seconds&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">spent_time</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">print</span><span class="p">(</span><span class="s">&#39;Problem while predicting on the node, report:</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+
+        <span class="k">print</span><span class="p">(</span><span class="s">&quot;Totally spent {:.2f} seconds on prediction&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start_time</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">predictions</span>
+
+<div class="viewcode-block" id="ClassifiersFactory.staged_predict_proba"><a class="viewcode-back" href="../../../metaml.html#rep.metaml.factory.ClassifiersFactory.staged_predict_proba">[docs]</a>    <span class="k">def</span> <span class="nf">staged_predict_proba</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Predict probabilities on each stage (attention: returns dictionary of generators)</span>
+
+<span class="sd">        :param X: pandas.DataFrame of shape [n_samples, n_features]</span>
+<span class="sd">        :rtype: dict[iterator]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">generators_dict</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">classifier</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">generators_dict</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">classifier</span><span class="o">.</span><span class="n">staged_predict_proba</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+                <span class="k">pass</span>
+        <span class="k">return</span> <span class="n">generators_dict</span>
+</div>
+<div class="viewcode-block" id="ClassifiersFactory.test_on_lds"><a class="viewcode-back" href="../../../metaml.html#rep.metaml.factory.ClassifiersFactory.test_on_lds">[docs]</a>    <span class="k">def</span> <span class="nf">test_on_lds</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lds</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Prepare report for factory of estimators</span>
+
+<span class="sd">        :param LabeledDataStorage lds: data</span>
+<span class="sd">        :rtype: rep.report.classification.ClassificationReport</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">classification</span><span class="o">.</span><span class="n">ClassificationReport</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lds</span><span class="p">)</span>
+
+</div></div>
+<div class="viewcode-block" id="RegressorsFactory"><a class="viewcode-back" href="../../../metaml.html#rep.metaml.factory.RegressorsFactory">[docs]</a><span class="k">class</span> <span class="nc">RegressorsFactory</span><span class="p">(</span><span class="n">AbstractFactory</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Factory provides training of several classifiers in parallel.</span>
+<span class="sd">    Quality of trained regressors can be compared.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="RegressorsFactory.add_regressor"><a class="viewcode-back" href="../../../metaml.html#rep.metaml.factory.RegressorsFactory.add_regressor">[docs]</a>    <span class="k">def</span> <span class="nf">add_regressor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">regressor</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add regressor to factory</span>
+
+<span class="sd">        :param str name: unique name for regressor.</span>
+<span class="sd">            If name coincides with one already used, the old regressor will be replaced by one passed.</span>
+<span class="sd">        :param regressor: regressor object</span>
+
+<span class="sd">            .. note:: if type == sklearn.base.BaseEstimator, then features=None is used</span>
+<span class="sd">        :type regressor: sklearn.base.BaseEstimator or estimators.interface.Regressor</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">regressor</span><span class="p">,</span> <span class="n">Regressor</span><span class="p">):</span>
+            <span class="bp">self</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">regressor</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">regressor</span><span class="p">,</span> <span class="n">BaseEstimator</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">regressor</span><span class="p">,</span> <span class="n">RegressorMixin</span><span class="p">):</span>
+            <span class="bp">self</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">SklearnRegressor</span><span class="p">(</span><span class="n">regressor</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
+                <span class="s">&#39;Supports only instances of sklearn.base.BaseEstimator or rep.estimators.interface.Regressor&#39;</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="RegressorsFactory.predict"><a class="viewcode-back" href="../../../metaml.html#rep.metaml.factory.RegressorsFactory.predict">[docs]</a>    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">parallel_profile</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Predict values for all events in dataset.</span>
+
+<span class="sd">        :param X: pandas.DataFrame of shape [n_samples, n_features]</span>
+<span class="sd">        :param parallel_profile: profile</span>
+<span class="sd">        :type parallel_profile: None or name of profile to parallelize computations.</span>
+
+<span class="sd">        :rtype: OrderedDict[numpy.array of shape [n_samples] with float values]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">predictions</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
+
+        <span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">map_on_cluster</span><span class="p">(</span><span class="n">parallel_profile</span><span class="p">,</span> <span class="n">predict_estimator</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">keys</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">(),</span> <span class="p">[</span><span class="n">X</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span>
+                                      <span class="p">[</span><span class="s">&#39;regression&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
+
+        <span class="k">for</span> <span class="n">status</span><span class="p">,</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">result</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">status</span> <span class="o">==</span> <span class="s">&#39;success&#39;</span><span class="p">:</span>
+                <span class="n">name</span><span class="p">,</span> <span class="n">values</span><span class="p">,</span> <span class="n">spent_time</span> <span class="o">=</span> <span class="n">data</span>
+                <span class="n">predictions</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">values</span>
+                <span class="k">print</span><span class="p">(</span><span class="s">&#39;data was predicted by {:12} in {:.2f} seconds&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">spent_time</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">print</span><span class="p">(</span><span class="s">&#39;Problem while predicting on the node, report:</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+
+        <span class="k">print</span><span class="p">(</span><span class="s">&quot;Totally spent {:.2f} seconds on prediction&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start_time</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">predictions</span>
+</div>
+<div class="viewcode-block" id="RegressorsFactory.staged_predict"><a class="viewcode-back" href="../../../metaml.html#rep.metaml.factory.RegressorsFactory.staged_predict">[docs]</a>    <span class="k">def</span> <span class="nf">staged_predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Predicts probabilities on each stage</span>
+
+<span class="sd">        :param X: pandas.DataFrame of shape [n_samples, n_features]</span>
+<span class="sd">        :rtype: dict[iterator]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">generators_dict</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">regressor</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">generators_dict</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">regressor</span><span class="o">.</span><span class="n">staged_predict</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+                <span class="k">pass</span>
+        <span class="k">return</span> <span class="n">generators_dict</span>
+</div>
+<div class="viewcode-block" id="RegressorsFactory.test_on_lds"><a class="viewcode-back" href="../../../metaml.html#rep.metaml.factory.RegressorsFactory.test_on_lds">[docs]</a>    <span class="k">def</span> <span class="nf">test_on_lds</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lds</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Report for factory of estimators</span>
+
+<span class="sd">        :param LabeledDataStorage lds: data</span>
+<span class="sd">        :rtype: rep.report.regression.RegressionReport</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">regression</span><span class="o">.</span><span class="n">RegressionReport</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lds</span><span class="p">)</span>
+
+</div></div>
+<div class="viewcode-block" id="train_estimator"><a class="viewcode-back" href="../../../metaml.html#rep.metaml.factory.train_estimator">[docs]</a><span class="k">def</span> <span class="nf">train_estimator</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">estimator</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Supplementary function.</span>
+<span class="sd">    Trains estimator on a separate node (or in a separate thread)</span>
+
+<span class="sd">    :param str name: classifier name</span>
+<span class="sd">    :param estimator: estimator</span>
+<span class="sd">    :type estimator: Classifier or Regressor</span>
+<span class="sd">    :param X: pandas.DataFrame of shape [n_samples, n_features]</span>
+<span class="sd">    :param y: labels of events - array-like of shape [n_samples]</span>
+<span class="sd">    :param sample_weight: weight of events,</span>
+<span class="sd">           array-like of shape [n_samples] or None if all weights are equal</span>
+
+<span class="sd">    :return: (&#39;success&#39;, (name (str), estimator (Classifier or Regressor), time (int) )) or</span>
+<span class="sd">             (&#39;fail&#39;, (name (str), pid (int), socket (int), error (Exception) ))</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">sample_weight</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">estimator</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">estimator</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="n">sample_weight</span><span class="p">)</span>
+        <span class="k">return</span> <span class="s">&#39;success&#39;</span><span class="p">,</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">estimator</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="kn">import</span> <span class="nn">socket</span>
+        <span class="kn">import</span> <span class="nn">os</span>
+
+        <span class="n">pid</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getpid</span><span class="p">()</span>
+        <span class="n">hostname</span> <span class="o">=</span> <span class="n">socket</span><span class="o">.</span><span class="n">gethostname</span><span class="p">()</span>
+        <span class="k">return</span> <span class="s">&#39;fail&#39;</span><span class="p">,</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">pid</span><span class="p">,</span> <span class="n">hostname</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="predict_estimator"><a class="viewcode-back" href="../../../metaml.html#rep.metaml.factory.predict_estimator">[docs]</a><span class="k">def</span> <span class="nf">predict_estimator</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">estimator</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">prediction_type</span><span class="o">=</span><span class="s">&#39;classification&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Supplementary function.</span>
+<span class="sd">    Builds predictions for one estimator on a separate node (or in a separate thread)</span>
+
+<span class="sd">    :param str name: classifier name</span>
+<span class="sd">    :param estimator: estimator</span>
+<span class="sd">    :type estimator: Classifier or Regressor</span>
+<span class="sd">    :param X: pandas.DataFrame of shape [n_samples, n_features]</span>
+<span class="sd">    :param str prediction_type: &#39;classification&#39; or &#39;regression&#39; or &#39;classification-proba&#39;</span>
+
+<span class="sd">    :return: (&#39;success&#39;, (name (str), probabilities (numpy.array), time (int) )) or</span>
+<span class="sd">             (&#39;fail&#39;, (name (str), pid (int), socket (int), error (Exception) ))</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">prediction_type</span> <span class="o">==</span> <span class="s">&#39;classification&#39;</span><span class="p">:</span>
+            <span class="n">prediction</span> <span class="o">=</span> <span class="n">estimator</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">prediction_type</span> <span class="o">==</span> <span class="s">&#39;classification-proba&#39;</span><span class="p">:</span>
+            <span class="n">prediction</span> <span class="o">=</span> <span class="n">estimator</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">prediction_type</span> <span class="o">==</span> <span class="s">&#39;regression&#39;</span><span class="p">:</span>
+            <span class="n">prediction</span> <span class="o">=</span> <span class="n">estimator</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s">&quot;Unknown problem type: {}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">prediction_type</span><span class="p">))</span>
+        <span class="k">return</span> <span class="s">&#39;success&#39;</span><span class="p">,</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">prediction</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="kn">import</span> <span class="nn">socket</span>
+        <span class="kn">import</span> <span class="nn">os</span>
+        <span class="n">pid</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getpid</span><span class="p">()</span>
+        <span class="n">hostname</span> <span class="o">=</span> <span class="n">socket</span><span class="o">.</span><span class="n">gethostname</span><span class="p">()</span>
+        <span class="k">return</span> <span class="s">&#39;fail&#39;</span><span class="p">,</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">pid</span><span class="p">,</span> <span class="n">hostname</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2014-2015, Yandex.
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../',
+            VERSION:'0.6.3',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

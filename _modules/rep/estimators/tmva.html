@@ -1,0 +1,605 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>rep.estimators.tmva &mdash; REP (Reproducible Experiment Platform) 0.6.3 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="REP (Reproducible Experiment Platform) 0.6.3 documentation" href="../../../index.html"/>
+        <link rel="up" title="Module code" href="../../index.html"/> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-nav-search">
+        
+
+        
+          <a href="../../../index.html" class="icon icon-home"> REP (Reproducible Experiment Platform)
+        
+
+        
+        </a>
+
+        
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+        
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+        
+          
+          
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../data.html">Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../estimators.html">Estimators (classification and regression)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../metaml.html">Meta Machine Learning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../report.html">Report for models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../plotting.html">Plotting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../utils.html">Utilities</a></li>
+<li class="toctree-l1"><a class="reference external" href="http://nbviewer.ipython.org/github/yandex/rep/tree/master/howto/">Howto notebooks</a></li>
+</ul>
+
+          
+        
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../../index.html">REP (Reproducible Experiment Platform)</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+      
+    <li>rep.estimators.tmva</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for rep.estimators.tmva</h1><div class="highlight"><pre>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">These classes are wrappers for physics machine learning library TMVA used .root format files (c++ library).</span>
+<span class="sd">Now you can simply use it in python. TMVA contains classification and regression algorithms, including neural networks.</span>
+<span class="sd">`TMVA guide &lt;http://mirror.yandex.ru/gentoo-distfiles/distfiles/TMVAUsersGuide-v4.03.pdf&gt;`_</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">division</span><span class="p">,</span> <span class="n">print_function</span><span class="p">,</span> <span class="n">absolute_import</span>
+<span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABCMeta</span>
+<span class="kn">from</span> <span class="nn">logging</span> <span class="kn">import</span> <span class="n">getLogger</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">tempfile</span>
+<span class="kn">import</span> <span class="nn">subprocess</span>
+<span class="kn">from</span> <span class="nn">subprocess</span> <span class="kn">import</span> <span class="n">PIPE</span>
+<span class="kn">import</span> <span class="nn">shutil</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+
+<span class="kn">from</span> <span class="nn">.interface</span> <span class="kn">import</span> <span class="n">Classifier</span><span class="p">,</span> <span class="n">Regressor</span>
+<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">check_inputs</span><span class="p">,</span> <span class="n">score_to_proba</span><span class="p">,</span> <span class="n">proba_to_two_dimension</span>
+<span class="kn">from</span> <span class="nn">six.moves</span> <span class="kn">import</span> <span class="n">cPickle</span>
+
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s">&#39;Tatiana Likhomanenko&#39;</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">getLogger</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span>
+<span class="c"># those parameters that shall not be passed to options of TMVA classifier</span>
+<span class="n">_PASS_PARAMETERS</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;random_state&#39;</span><span class="p">}</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;TMVABase&#39;</span><span class="p">,</span> <span class="s">&#39;TMVAClassifier&#39;</span><span class="p">,</span> <span class="s">&#39;TMVARegressor&#39;</span><span class="p">]</span>
+
+
+<span class="k">class</span> <span class="nc">_AdditionalInformation</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Additional information for tmva factory (used in training)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">directory</span><span class="p">,</span> <span class="n">model_type</span><span class="o">=</span><span class="s">&#39;classification&#39;</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">directory</span> <span class="o">=</span> <span class="n">directory</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tmva_root</span> <span class="o">=</span> <span class="s">&#39;result.root&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tmva_job</span> <span class="o">=</span> <span class="s">&quot;TMVAEstimation&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model_type</span> <span class="o">=</span> <span class="n">model_type</span>
+
+
+<span class="k">class</span> <span class="nc">_AdditionalInformationPredict</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Additional information for tmva factory (used in predictions)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">directory</span><span class="p">,</span> <span class="n">xml_file</span><span class="p">,</span> <span class="n">method_name</span><span class="p">,</span> <span class="n">model_type</span><span class="o">=</span><span class="p">(</span><span class="s">&#39;classification&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">directory</span> <span class="o">=</span> <span class="n">directory</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">xml_file</span> <span class="o">=</span> <span class="n">xml_file</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">method_name</span> <span class="o">=</span> <span class="n">method_name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model_type</span> <span class="o">=</span> <span class="n">model_type</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">result_filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="s">&#39;dump_predictions.pkl&#39;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="TMVABase"><a class="viewcode-back" href="../../../estimators.html#rep.estimators.tmva.TMVABase">[docs]</a><span class="k">class</span> <span class="nc">TMVABase</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    TMVABase - base estimator for tmva wrappers.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">    -----------</span>
+<span class="sd">    :param str method: algorithm method (default=&#39;kBDT&#39;)</span>
+<span class="sd">    :param features: features used in training</span>
+<span class="sd">    :type features: list[str] or None</span>
+<span class="sd">    :param str factory_options: system options</span>
+<span class="sd">    :param dict method_parameters: estimator options</span>
+
+<span class="sd">    .. note:: TMVA doesn&#39;t support staged predictions and features importances =((</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">__metaclass__</span> <span class="o">=</span> <span class="n">ABCMeta</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                 <span class="n">factory_options</span><span class="o">=</span><span class="s">&quot;&quot;</span><span class="p">,</span>
+                 <span class="n">method</span><span class="o">=</span><span class="s">&#39;kBDT&#39;</span><span class="p">,</span>
+                 <span class="o">**</span><span class="n">method_parameters</span><span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">method</span> <span class="o">=</span> <span class="n">method</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_method_name</span> <span class="o">=</span> <span class="s">&#39;REP_Estimator&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">factory_options</span> <span class="o">=</span> <span class="n">factory_options</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">method_parameters</span> <span class="o">=</span> <span class="n">method_parameters</span>
+
+        <span class="c"># contents of xml file with formula, read into memory</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">formula_xml</span> <span class="o">=</span> <span class="bp">None</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_create_tmp_directory</span><span class="p">():</span>
+        <span class="k">return</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">mkdtemp</span><span class="p">(</span><span class="nb">dir</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">())</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_remove_tmp_directory</span><span class="p">(</span><span class="n">directory</span><span class="p">):</span>
+        <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">ignore_errors</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">model_type</span><span class="o">=</span><span class="s">&#39;classification&#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Train the classifier</span>
+
+<span class="sd">        :param pandas.DataFrame X: data shape [n_samples, n_features]</span>
+<span class="sd">        :param list | numpy.array y: values - array-like of shape [n_samples]</span>
+<span class="sd">        :param list | numpy.array sample_weight: weight of events,</span>
+<span class="sd">               array-like of shape [n_samples] or None if all weights are equal</span>
+<span class="sd">        :return: self</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># saving data to 2 different root files.</span>
+        <span class="n">directory</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_tmp_directory</span><span class="p">()</span>
+        <span class="n">add_info</span> <span class="o">=</span> <span class="n">_AdditionalInformation</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">model_type</span><span class="o">=</span><span class="n">model_type</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_run_tmva_training</span><span class="p">(</span><span class="n">add_info</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="p">)</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_remove_tmp_directory</span><span class="p">(</span><span class="n">directory</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">def</span> <span class="nf">_run_tmva_training</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">info</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Run subprocess to train tmva factory</span>
+
+<span class="sd">        :param info: class with additional information</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">tmva_process</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">(</span>
+            <span class="s">&#39;cd {directory}; {executable} -c &quot;from rep.estimators import _tmvaFactory; _tmvaFactory.main()&quot;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">directory</span><span class="o">=</span><span class="n">info</span><span class="o">.</span><span class="n">directory</span><span class="p">,</span>
+                <span class="n">executable</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">executable</span><span class="p">),</span>
+            <span class="n">stdin</span><span class="o">=</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">stdout</span><span class="o">=</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">STDOUT</span><span class="p">,</span>
+            <span class="n">shell</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+        <span class="n">cPickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmva_process</span><span class="o">.</span><span class="n">stdin</span><span class="p">)</span>
+        <span class="n">cPickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">info</span><span class="p">,</span> <span class="n">tmva_process</span><span class="o">.</span><span class="n">stdin</span><span class="p">)</span>
+        <span class="n">cPickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">tmva_process</span><span class="o">.</span><span class="n">stdin</span><span class="p">)</span>
+        <span class="n">cPickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">tmva_process</span><span class="o">.</span><span class="n">stdin</span><span class="p">)</span>
+        <span class="n">cPickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">sample_weight</span><span class="p">,</span> <span class="n">tmva_process</span><span class="o">.</span><span class="n">stdin</span><span class="p">)</span>
+        <span class="n">stdout</span><span class="p">,</span> <span class="n">stderr</span> <span class="o">=</span> <span class="n">tmva_process</span><span class="o">.</span><span class="n">communicate</span><span class="p">()</span>
+        <span class="k">assert</span> <span class="n">tmva_process</span><span class="o">.</span><span class="n">returncode</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> \
+            <span class="s">&#39;ERROR: TMVA process is incorrect finished </span><span class="se">\n</span><span class="s"> LOG: </span><span class="si">%s</span><span class="s"> </span><span class="se">\n</span><span class="s"> </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">stderr</span><span class="p">,</span> <span class="n">stdout</span><span class="p">)</span>
+
+        <span class="n">xml_filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">info</span><span class="o">.</span><span class="n">directory</span><span class="p">,</span> <span class="s">&#39;weights&#39;</span><span class="p">,</span>
+                                    <span class="s">&#39;{job}_{name}.weights.xml&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">job</span><span class="o">=</span><span class="n">info</span><span class="o">.</span><span class="n">tmva_job</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_method_name</span><span class="p">))</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">xml_filename</span><span class="p">,</span> <span class="s">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">xml_file</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">formula_xml</span> <span class="o">=</span> <span class="n">xml_file</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_check_fitted</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">formula_xml</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">,</span> <span class="s">&quot;Classifier wasn&#39;t fitted, please call `fit` first&quot;</span>
+
+    <span class="k">def</span> <span class="nf">_predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">model_type</span><span class="o">=</span><span class="p">(</span><span class="s">&#39;classification&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Predict data</span>
+
+<span class="sd">        :param pandas.DataFrame X: data shape [n_samples, n_features]</span>
+<span class="sd">        :return: predicted values of shape n_samples</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_fitted</span><span class="p">()</span>
+
+        <span class="n">directory</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_tmp_directory</span><span class="p">()</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">NamedTemporaryFile</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s">&quot;w&quot;</span><span class="p">,</span> <span class="n">suffix</span><span class="o">=</span><span class="s">&#39;.xml&#39;</span><span class="p">,</span> <span class="nb">dir</span><span class="o">=</span><span class="n">directory</span><span class="p">,</span> <span class="n">delete</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span> <span class="k">as</span> <span class="n">file_xml</span><span class="p">:</span>
+                <span class="n">file_xml</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">formula_xml</span><span class="p">)</span>
+                <span class="n">file_xml</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+                <span class="n">add_info</span> <span class="o">=</span> <span class="n">_AdditionalInformationPredict</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">file_xml</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_method_name</span><span class="p">,</span>
+                                                         <span class="n">model_type</span><span class="o">=</span><span class="n">model_type</span><span class="p">)</span>
+                <span class="n">prediction</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_run_tmva_predict</span><span class="p">(</span><span class="n">add_info</span><span class="p">,</span> <span class="n">X</span><span class="p">)</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_remove_tmp_directory</span><span class="p">(</span><span class="n">directory</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">prediction</span>
+
+    <span class="k">def</span> <span class="nf">_run_tmva_predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">info</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Run subprocess to train tmva factory</span>
+
+<span class="sd">        :param info: class with additional information</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">tmva_process</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">(</span>
+            <span class="s">&#39;cd {directory}; {executable} -c &quot;from rep.estimators import _tmvaReader; _tmvaReader.main()&quot;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">directory</span><span class="o">=</span><span class="n">info</span><span class="o">.</span><span class="n">directory</span><span class="p">,</span>
+                <span class="n">executable</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">executable</span><span class="p">),</span>
+            <span class="n">stdin</span><span class="o">=</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">stdout</span><span class="o">=</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">STDOUT</span><span class="p">,</span>
+            <span class="n">shell</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+        <span class="n">cPickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">info</span><span class="p">,</span> <span class="n">tmva_process</span><span class="o">.</span><span class="n">stdin</span><span class="p">)</span>
+        <span class="n">cPickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">tmva_process</span><span class="o">.</span><span class="n">stdin</span><span class="p">)</span>
+        <span class="n">stdout</span><span class="p">,</span> <span class="n">stderr</span> <span class="o">=</span> <span class="n">tmva_process</span><span class="o">.</span><span class="n">communicate</span><span class="p">()</span>
+        <span class="k">assert</span> <span class="n">tmva_process</span><span class="o">.</span><span class="n">returncode</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> \
+            <span class="s">&#39;ERROR: TMVA process is incorrect finished </span><span class="se">\n</span><span class="s"> LOG: </span><span class="si">%s</span><span class="s"> </span><span class="se">\n</span><span class="s"> </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">stderr</span><span class="p">,</span> <span class="n">stdout</span><span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">info</span><span class="o">.</span><span class="n">result_filename</span><span class="p">,</span> <span class="s">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">predictions_file</span><span class="p">:</span>
+            <span class="n">predictions</span> <span class="o">=</span> <span class="n">cPickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">predictions_file</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">predictions</span>
+
+</div>
+<div class="viewcode-block" id="TMVAClassifier"><a class="viewcode-back" href="../../../estimators.html#rep.estimators.tmva.TMVAClassifier">[docs]</a><span class="k">class</span> <span class="nc">TMVAClassifier</span><span class="p">(</span><span class="n">TMVABase</span><span class="p">,</span> <span class="n">Classifier</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    TMVAClassifier wraps classifiers from TMVA (CERN library for machine learning)</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">    -----------</span>
+<span class="sd">    :param str method: algorithm method (default=&#39;kBDT&#39;)</span>
+<span class="sd">    :param features: features used in training</span>
+<span class="sd">    :type features: list[str] or None</span>
+<span class="sd">    :param str factory_options: options, for example::</span>
+
+<span class="sd">        &quot;!V:!Silent:Color:Transformations=I;D;P;G,D&quot;</span>
+
+<span class="sd">    :param str sigmoid_function: function which is used to convert TMVA output to probabilities;</span>
+
+<span class="sd">        * *identity* (use for svm, mlp) --- the same output, use this for methods returning class probabilities</span>
+
+<span class="sd">        * *sigmoid* --- sigmoid transformation, use it if output varies in range [-infinity, +infinity]</span>
+
+<span class="sd">        * *bdt* (for bdt algorithms output varies in range [-1, 1])</span>
+
+<span class="sd">        * *sig_eff=0.4* --- for rectangular cut optimization methods,</span>
+<span class="sd">        for instance, here 0.4 will be used as signal efficiency to evaluate MVA,</span>
+<span class="sd">        (put any float number from [0, 1])</span>
+
+<span class="sd">    :param dict method_parameters: estimator options, example: NTrees=100, BoostType=&#39;Grad&#39;</span>
+
+<span class="sd">    .. warning::</span>
+<span class="sd">        TMVA doesn&#39;t support *staged_predict_proba()* and *feature_importances__*</span>
+
+<span class="sd">    .. warning::</span>
+<span class="sd">        TMVA doesn&#39;t support multiclassification, only two-class classification</span>
+
+<span class="sd">    `TMVA guide &lt;http://mirror.yandex.ru/gentoo-distfiles/distfiles/TMVAUsersGuide-v4.03.pdf&gt;`_</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                 <span class="n">method</span><span class="o">=</span><span class="s">&#39;kBDT&#39;</span><span class="p">,</span>
+                 <span class="n">features</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+                 <span class="n">factory_options</span><span class="o">=</span><span class="s">&quot;&quot;</span><span class="p">,</span>
+                 <span class="n">sigmoid_function</span><span class="o">=</span><span class="s">&#39;bdt&#39;</span><span class="p">,</span>
+                 <span class="o">**</span><span class="n">method_parameters</span><span class="p">):</span>
+
+        <span class="c"># !V:!Silent:Color:Transformations=I;D;P;G,D</span>
+        <span class="n">TMVABase</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">factory_options</span><span class="o">=</span><span class="n">factory_options</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">,</span> <span class="o">**</span><span class="n">method_parameters</span><span class="p">)</span>
+        <span class="n">Classifier</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sigmoid_function</span> <span class="o">=</span> <span class="n">sigmoid_function</span>
+
+    <span class="k">def</span> <span class="nf">_set_classes_special</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_classes</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_classes_</span> <span class="o">==</span> <span class="mi">2</span><span class="p">,</span> <span class="s">&quot;Support only 2 classes (data contain {})&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_classes_</span><span class="p">)</span>
+
+<div class="viewcode-block" id="TMVAClassifier.set_params"><a class="viewcode-back" href="../../../estimators.html#rep.estimators.tmva.TMVAClassifier.set_params">[docs]</a>    <span class="k">def</span> <span class="nf">set_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the parameters of this estimator.</span>
+
+<span class="sd">        :param dict params: parameters to set in model</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">params</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">k</span><span class="p">):</span>
+                <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">_PASS_PARAMETERS</span><span class="p">:</span>
+                    <span class="k">continue</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">method_parameters</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
+</div>
+<div class="viewcode-block" id="TMVAClassifier.get_params"><a class="viewcode-back" href="../../../estimators.html#rep.estimators.tmva.TMVAClassifier.get_params">[docs]</a>    <span class="k">def</span> <span class="nf">get_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">deep</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get parameters for this estimator.</span>
+
+<span class="sd">        deep: boolean, optional</span>
+
+<span class="sd">            If True, will return the parameters for this estimator and contained subobjects that are estimators.</span>
+
+<span class="sd">        params : mapping of string to any</span>
+
+<span class="sd">            Parameter names mapped to their values.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">parameters</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">method_parameters</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">parameters</span><span class="p">[</span><span class="s">&#39;method&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">method</span>
+        <span class="n">parameters</span><span class="p">[</span><span class="s">&#39;factory_options&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">factory_options</span>
+        <span class="n">parameters</span><span class="p">[</span><span class="s">&#39;features&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">features</span>
+        <span class="k">return</span> <span class="n">parameters</span>
+</div>
+<div class="viewcode-block" id="TMVAClassifier.fit"><a class="viewcode-back" href="../../../estimators.html#rep.estimators.tmva.TMVAClassifier.fit">[docs]</a>    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Train the classifier</span>
+
+<span class="sd">        :param pandas.DataFrame X: data shape [n_samples, n_features]</span>
+<span class="sd">        :param y: labels of events - array-like of shape [n_samples]</span>
+<span class="sd">        :param sample_weight: weight of events,</span>
+<span class="sd">               array-like of shape [n_samples] or None if all weights are equal</span>
+
+<span class="sd">        :return: self</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span> <span class="o">=</span> <span class="n">check_inputs</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="n">sample_weight</span><span class="p">,</span> <span class="n">allow_none_weights</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+        <span class="n">X</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_features</span><span class="p">(</span><span class="n">X</span><span class="p">)</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_classes_special</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_classes_</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">factory_options</span> <span class="o">=</span> <span class="s">&#39;{}:AnalysisType=Classification&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">factory_options</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">factory_options</span> <span class="o">=</span> <span class="s">&#39;{}:AnalysisType=Multiclass&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">factory_options</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="n">sample_weight</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="TMVAClassifier.predict_proba"><a class="viewcode-back" href="../../../estimators.html#rep.estimators.tmva.TMVAClassifier.predict_proba">[docs]</a>    <span class="k">def</span> <span class="nf">predict_proba</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Predict probabilities for new data.</span>
+
+<span class="sd">        :param pandas.DataFrame X: data shape [n_samples, n_features]</span>
+<span class="sd">        :rtype: numpy.array of shape [n_samples, n_classes] with probabilities</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">X</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_features</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+        <span class="n">prediction</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_predict</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">model_type</span><span class="o">=</span><span class="p">(</span><span class="s">&#39;classification&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sigmoid_function</span><span class="p">))</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_convert_output</span><span class="p">(</span><span class="n">prediction</span><span class="p">)</span>
+</div>
+    <span class="k">def</span> <span class="nf">_convert_output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prediction</span><span class="p">):</span>
+        <span class="n">variants</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;bdt&#39;</span><span class="p">,</span> <span class="s">&#39;sigmoid&#39;</span><span class="p">,</span> <span class="s">&#39;identity&#39;</span><span class="p">}</span>
+        <span class="k">if</span> <span class="s">&#39;sig_eff&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sigmoid_function</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">proba_to_two_dimension</span><span class="p">(</span><span class="n">prediction</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">sigmoid_function</span> <span class="ow">in</span> <span class="n">variants</span><span class="p">,</span> \
+            <span class="s">&#39;sigmoid_function parameter must be one of {}, instead of {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">variants</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sigmoid_function</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sigmoid_function</span> <span class="o">==</span> <span class="s">&#39;sigmoid&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">score_to_proba</span><span class="p">(</span><span class="n">prediction</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">sigmoid_function</span> <span class="o">==</span> <span class="s">&#39;bdt&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">proba_to_two_dimension</span><span class="p">((</span><span class="n">prediction</span> <span class="o">+</span> <span class="mf">1.</span><span class="p">)</span> <span class="o">/</span> <span class="mf">2.</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">proba_to_two_dimension</span><span class="p">(</span><span class="n">prediction</span><span class="p">)</span>
+
+<div class="viewcode-block" id="TMVAClassifier.staged_predict_proba"><a class="viewcode-back" href="../../../estimators.html#rep.estimators.tmva.TMVAClassifier.staged_predict_proba">[docs]</a>    <span class="k">def</span> <span class="nf">staged_predict_proba</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Predicts probabilities on each stage</span>
+
+<span class="sd">        :param pandas.DataFrame X: data shape [n_samples, n_features]</span>
+<span class="sd">        :return: iterator</span>
+
+<span class="sd">        .. warning:: Not supported for TMVA (**AttributeError** will be thrown)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s">&quot;Not supported for TMVA&quot;</span><span class="p">)</span>
+
+</div></div>
+<div class="viewcode-block" id="TMVARegressor"><a class="viewcode-back" href="../../../estimators.html#rep.estimators.tmva.TMVARegressor">[docs]</a><span class="k">class</span> <span class="nc">TMVARegressor</span><span class="p">(</span><span class="n">TMVABase</span><span class="p">,</span> <span class="n">Regressor</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    TMVARegressor wraps regressors from TMVA (CERN library for machine learning)</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">    -----------</span>
+<span class="sd">    :param str method: algorithm method (default=&#39;kBDT&#39;)</span>
+<span class="sd">    :param features: features used in training</span>
+<span class="sd">    :type features: list[str] or None</span>
+<span class="sd">    :param str factory_options: options, for example::</span>
+
+<span class="sd">        &quot;!V:!Silent:Color:Transformations=I;D;P;G,D&quot;</span>
+
+<span class="sd">    :param dict method_parameters: estimator options, example: NTrees=100, BoostType=Grad</span>
+
+<span class="sd">    .. note::</span>
+<span class="sd">        TMVA doesn&#39;t support *staged_predict()* and *feature_importances__*</span>
+
+<span class="sd">    `TMVA guide &lt;http://mirror.yandex.ru/gentoo-distfiles/distfiles/TMVAUsersGuide-v4.03.pdf&gt;`_</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                 <span class="n">method</span><span class="o">=</span><span class="s">&#39;kBDT&#39;</span><span class="p">,</span>
+                 <span class="n">features</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+                 <span class="n">factory_options</span><span class="o">=</span><span class="s">&quot;&quot;</span><span class="p">,</span>
+                 <span class="o">**</span><span class="n">method_parameters</span><span class="p">):</span>
+
+        <span class="n">TMVABase</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">factory_options</span><span class="o">=</span><span class="n">factory_options</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">,</span> <span class="o">**</span><span class="n">method_parameters</span><span class="p">)</span>
+        <span class="n">Regressor</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">)</span>
+
+<div class="viewcode-block" id="TMVARegressor.set_params"><a class="viewcode-back" href="../../../estimators.html#rep.estimators.tmva.TMVARegressor.set_params">[docs]</a>    <span class="k">def</span> <span class="nf">set_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the parameters of this estimator.</span>
+
+<span class="sd">        :param dict params: parameters to set in model</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">params</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">k</span><span class="p">):</span>
+                <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">_PASS_PARAMETERS</span><span class="p">:</span>
+                    <span class="k">continue</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">method_parameters</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
+</div>
+<div class="viewcode-block" id="TMVARegressor.get_params"><a class="viewcode-back" href="../../../estimators.html#rep.estimators.tmva.TMVARegressor.get_params">[docs]</a>    <span class="k">def</span> <span class="nf">get_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">deep</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get parameters for this estimator.</span>
+
+<span class="sd">        deep: boolean, optional</span>
+
+<span class="sd">            If True, will return the parameters for this estimator and contained subobjects that are estimators.</span>
+
+<span class="sd">        params : mapping of string to any</span>
+
+<span class="sd">            Parameter names mapped to their values.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">parameters</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">method_parameters</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">parameters</span><span class="p">[</span><span class="s">&#39;method&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">method</span>
+        <span class="n">parameters</span><span class="p">[</span><span class="s">&#39;factory_options&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">factory_options</span>
+        <span class="n">parameters</span><span class="p">[</span><span class="s">&#39;features&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">features</span>
+        <span class="k">return</span> <span class="n">parameters</span>
+</div>
+<div class="viewcode-block" id="TMVARegressor.fit"><a class="viewcode-back" href="../../../estimators.html#rep.estimators.tmva.TMVARegressor.fit">[docs]</a>    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Train the classifier</span>
+
+<span class="sd">        :param pandas.DataFrame X: data shape [n_samples, n_features]</span>
+<span class="sd">        :param y: values - array-like of shape [n_samples]</span>
+<span class="sd">        :param sample_weight: weight of events,</span>
+<span class="sd">               array-like of shape [n_samples] or None if all weights are equal</span>
+<span class="sd">        :return: self</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span> <span class="o">=</span> <span class="n">check_inputs</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="n">sample_weight</span><span class="p">,</span> <span class="n">allow_none_weights</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+        <span class="n">X</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_features</span><span class="p">(</span><span class="n">X</span><span class="p">)</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">factory_options</span> <span class="o">=</span> <span class="s">&#39;{}:AnalysisType=Regression&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">factory_options</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="n">sample_weight</span><span class="p">,</span> <span class="n">model_type</span><span class="o">=</span><span class="s">&#39;regression&#39;</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="TMVARegressor.predict"><a class="viewcode-back" href="../../../estimators.html#rep.estimators.tmva.TMVARegressor.predict">[docs]</a>    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Predict data</span>
+
+<span class="sd">        :param pandas.DataFrame X: data shape [n_samples, n_features]</span>
+<span class="sd">        :return: numpy.array of shape n_samples with values</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">X</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_features</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_predict</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">model_type</span><span class="o">=</span><span class="p">(</span><span class="s">&#39;regression&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">))</span>
+</div>
+<div class="viewcode-block" id="TMVARegressor.staged_predict"><a class="viewcode-back" href="../../../estimators.html#rep.estimators.tmva.TMVARegressor.staged_predict">[docs]</a>    <span class="k">def</span> <span class="nf">staged_predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Predicts values on each stage</span>
+
+<span class="sd">        :param pandas.DataFrame X: data shape [n_samples, n_features]</span>
+<span class="sd">        :return: iterator</span>
+
+<span class="sd">        .. warning:: Not supported for TMVA (**AttributeError** will be thrown)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s">&quot;Not supported for TMVA&quot;</span><span class="p">)</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2014-2015, Yandex.
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../',
+            VERSION:'0.6.3',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

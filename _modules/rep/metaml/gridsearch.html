@@ -1,0 +1,738 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>rep.metaml.gridsearch &mdash; REP (Reproducible Experiment Platform) 0.6.3 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="REP (Reproducible Experiment Platform) 0.6.3 documentation" href="../../../index.html"/>
+        <link rel="up" title="Module code" href="../../index.html"/> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-nav-search">
+        
+
+        
+          <a href="../../../index.html" class="icon icon-home"> REP (Reproducible Experiment Platform)
+        
+
+        
+        </a>
+
+        
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+        
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+        
+          
+          
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../data.html">Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../estimators.html">Estimators (classification and regression)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../metaml.html">Meta Machine Learning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../report.html">Report for models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../plotting.html">Plotting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../utils.html">Utilities</a></li>
+<li class="toctree-l1"><a class="reference external" href="http://nbviewer.ipython.org/github/yandex/rep/tree/master/howto/">Howto notebooks</a></li>
+</ul>
+
+          
+        
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../../index.html">REP (Reproducible Experiment Platform)</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+      
+    <li>rep.metaml.gridsearch</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for rep.metaml.gridsearch</h1><div class="highlight"><pre>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module does hyper parameters optimization -- find the best parameters for estimator using different optimization models.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="c"># TODO think of pareto-optimization</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">division</span><span class="p">,</span> <span class="n">print_function</span><span class="p">,</span> <span class="n">absolute_import</span>
+<span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">islice</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+
+<span class="kn">from</span> <span class="nn">sklearn.base</span> <span class="kn">import</span> <span class="n">clone</span>
+<span class="kn">import</span> <span class="nn">numpy</span>
+<span class="kn">from</span> <span class="nn">sklearn.cross_validation</span> <span class="kn">import</span> <span class="n">StratifiedKFold</span>
+<span class="kn">from</span> <span class="nn">sklearn.ensemble.forest</span> <span class="kn">import</span> <span class="n">RandomForestRegressor</span>
+<span class="kn">from</span> <span class="nn">sklearn.utils.random</span> <span class="kn">import</span> <span class="n">check_random_state</span>
+
+<span class="kn">from</span> <span class="nn">six.moves</span> <span class="kn">import</span> <span class="nb">zip</span>
+<span class="kn">from</span> <span class="nn">..estimators.utils</span> <span class="kn">import</span> <span class="n">check_inputs</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s">&#39;Alex Rogozhnikov, Tatiana Likhomanenko&#39;</span>
+
+
+<div class="viewcode-block" id="AbstractParameterGenerator"><a class="viewcode-back" href="../../../metaml.html#rep.metaml.gridsearch.AbstractParameterGenerator">[docs]</a><span class="k">class</span> <span class="nc">AbstractParameterGenerator</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Abstract class for grid search algorithm.</span>
+<span class="sd">    The aim of this class is to generate new points, where the function (estimator) will be computed.</span>
+<span class="sd">    You can define your own algorithm of step location of parameters grid.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">    ----------</span>
+<span class="sd">    :param OrderedDict param_grid: the grid with parameters to optimize on</span>
+<span class="sd">    :param int n_evaluations: the number of evaluations to do</span>
+<span class="sd">    :param random_state: random generator</span>
+<span class="sd">    :type random_state: int or RandomState or None</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param_grid</span><span class="p">,</span> <span class="n">n_evaluations</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">param_grid</span><span class="p">,</span> <span class="nb">dict</span><span class="p">),</span> <span class="s">&#39;the passed param_grid should be of OrderedDict class&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">param_grid</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">(</span><span class="n">param_grid</span><span class="p">)</span>
+        <span class="n">_check_param_grid</span><span class="p">(</span><span class="n">param_grid</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">dimensions</span> <span class="o">=</span> <span class="nb">list</span><span class="p">([</span><span class="nb">len</span><span class="p">(</span><span class="n">param_values</span><span class="p">)</span> <span class="k">for</span> <span class="n">param</span><span class="p">,</span> <span class="n">param_values</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">param_grid</span><span class="o">.</span><span class="n">items</span><span class="p">()])</span>
+        <span class="n">size</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">prod</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dimensions</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">size</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">,</span> <span class="s">&#39;The space of parameters contains only </span><span class="si">%i</span><span class="s"> points&#39;</span> <span class="o">%</span> <span class="n">size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_evaluations</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">n_evaluations</span><span class="p">,</span> <span class="n">size</span><span class="p">)</span>
+
+        <span class="c"># results on different parameters</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">grid_scores_</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
+
+        <span class="c"># all the tasks that are being computed or already computed</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">queued_tasks_</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">random_state</span> <span class="o">=</span> <span class="n">check_random_state</span><span class="p">(</span><span class="n">random_state</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">evaluations_done</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">def</span> <span class="nf">_indices_to_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state_indices</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Point in parameter space kept as sequence of indices, i.e.:</span>
+<span class="sd">        max_depth: 1, 2, 4, 8</span>
+<span class="sd">        learning_rate = 0.01, 0.1, 0.2</span>
+
+<span class="sd">        Then max_depth=4, learning_rate=0.1 has internal representation as (2, 1)</span>
+
+<span class="sd">        :param state_indices: sequence of integers, i.e. (1, 2)</span>
+<span class="sd">        :return: OrderedDict, like {max_depth=4, learning_rate=0.1}</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">OrderedDict</span><span class="p">([(</span><span class="n">name</span><span class="p">,</span> <span class="n">values</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">values</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">state_indices</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">param_grid</span><span class="o">.</span><span class="n">items</span><span class="p">())])</span>
+
+    <span class="k">def</span> <span class="nf">_generate_random_point</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">enqueue</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+        <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">random_state</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">size</span><span class="p">)</span> <span class="k">for</span> <span class="n">size</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimensions</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">result</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">queued_tasks_</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">enqueue</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">queued_tasks_</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">result</span>
+
+<div class="viewcode-block" id="AbstractParameterGenerator.generate_next_point"><a class="viewcode-back" href="../../../metaml.html#rep.metaml.gridsearch.AbstractParameterGenerator.generate_next_point">[docs]</a>    <span class="k">def</span> <span class="nf">generate_next_point</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Generating next random point in parameters space&quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s">&#39;Should be overriden by descendant&#39;</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="AbstractParameterGenerator.generate_batch_points"><a class="viewcode-back" href="../../../metaml.html#rep.metaml.gridsearch.AbstractParameterGenerator.generate_batch_points">[docs]</a>    <span class="k">def</span> <span class="nf">generate_batch_points</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">size</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generate several points in parameter space at once (needed when using parallel computations)</span>
+
+<span class="sd">        :param size: how many points we shall generate</span>
+<span class="sd">        :return: sequence of tuples, each tuple representing it&#39;s own</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># may be overriden in descendants</span>
+        <span class="n">state_indices</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">size</span><span class="p">):</span>
+            <span class="n">state_indices</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">generate_next_point</span><span class="p">())</span>
+        <span class="k">return</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">state_indices</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="AbstractParameterGenerator.add_result"><a class="viewcode-back" href="../../../metaml.html#rep.metaml.gridsearch.AbstractParameterGenerator.add_result">[docs]</a>    <span class="k">def</span> <span class="nf">add_result</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state_indices</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        After the model was trained and evaluated for specific set of parameters,</span>
+<span class="sd">        we use this function to store result</span>
+<span class="sd">        :param state_indices: tuple, which represents the space</span>
+<span class="sd">        :param value: quality at this point</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">grid_scores_</span><span class="p">[</span><span class="n">state_indices</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+</div>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">best_score_</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Property, return best score of optimization</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">numpy</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">grid_scores_</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">best_params_</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Property, return point of parameters grid with the best score</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_indices_to_parameters</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">grid_scores_</span><span class="o">.</span><span class="n">items</span><span class="p">(),</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">])[</span><span class="mi">0</span><span class="p">])</span>
+
+<div class="viewcode-block" id="AbstractParameterGenerator.print_results"><a class="viewcode-back" href="../../../metaml.html#rep.metaml.gridsearch.AbstractParameterGenerator.print_results">[docs]</a>    <span class="k">def</span> <span class="nf">print_results</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reorder</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Prints the results of training</span>
+
+<span class="sd">        :param bool reorder: if reorder==True, best results go earlier,</span>
+<span class="sd">         otherwise the results are printed in the order of computation</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">sequence</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid_scores_</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">reorder</span><span class="p">:</span>
+            <span class="n">sequence</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">sequence</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="o">-</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="k">for</span> <span class="n">state_indices</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">sequence</span><span class="p">:</span>
+            <span class="n">state_string</span> <span class="o">=</span> <span class="s">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">name_value</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="s">&#39;=&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">name_value</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="k">for</span> <span class="n">name_value</span>
+                                      <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_indices_to_parameters</span><span class="p">(</span><span class="n">state_indices</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">()])</span>
+            <span class="k">print</span><span class="p">(</span><span class="s">&quot;{0:.3f}:  {1}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">state_string</span><span class="p">))</span>
+
+</div></div>
+<div class="viewcode-block" id="RandomParameterOptimizer"><a class="viewcode-back" href="../../../metaml.html#rep.metaml.gridsearch.RandomParameterOptimizer">[docs]</a><span class="k">class</span> <span class="nc">RandomParameterOptimizer</span><span class="p">(</span><span class="n">AbstractParameterGenerator</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Random generation of new grid point.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="RandomParameterOptimizer.generate_next_point"><a class="viewcode-back" href="../../../metaml.html#rep.metaml.gridsearch.RandomParameterOptimizer.generate_next_point">[docs]</a>    <span class="k">def</span> <span class="nf">generate_next_point</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Generating next random point in parameters space&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">queued_tasks_</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">prod</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dimensions</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s">&quot;The grid is exhausted, cannot generate more points&quot;</span><span class="p">)</span>
+        <span class="n">new_state_indices</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generate_random_point</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">new_state_indices</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_indices_to_parameters</span><span class="p">(</span><span class="n">new_state_indices</span><span class="p">)</span>
+
+</div></div>
+<div class="viewcode-block" id="RegressionParameterOptimizer"><a class="viewcode-back" href="../../../metaml.html#rep.metaml.gridsearch.RegressionParameterOptimizer">[docs]</a><span class="k">class</span> <span class="nc">RegressionParameterOptimizer</span><span class="p">(</span><span class="n">AbstractParameterGenerator</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    To generate next point of grid regressor will be used to estimate score for all next point in such way</span>
+<span class="sd">    that the point with the best estimated score will be chosen</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">    ----------</span>
+<span class="sd">    :param OrderedDict param_grid: the grid with parameters to optimize on</span>
+<span class="sd">    :param int n_evaluations: the number of evaluations to do</span>
+<span class="sd">    :param random_state: random generator</span>
+<span class="sd">    :type random_state: int or RandomState or None</span>
+
+<span class="sd">    :param int start_evaluations: count of random point generation on start</span>
+<span class="sd">    :param int n_attempts:</span>
+<span class="sd">    :param regressor: regressor to choose appropriate next point with potential best score</span>
+<span class="sd">        (estimated this score by regressor); If None them RandomForest algorithm will be used.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param_grid</span><span class="p">,</span> <span class="n">n_evaluations</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+                 <span class="n">start_evaluations</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">n_attempts</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">regressor</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="n">AbstractParameterGenerator</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param_grid</span><span class="o">=</span><span class="n">param_grid</span><span class="p">,</span> <span class="n">n_evaluations</span><span class="o">=</span><span class="n">n_evaluations</span><span class="p">,</span>
+                                            <span class="n">random_state</span><span class="o">=</span><span class="n">random_state</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">regressor</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">regressor</span> <span class="o">=</span> <span class="n">RandomForestRegressor</span><span class="p">(</span><span class="n">max_depth</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">n_estimators</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">max_features</span><span class="o">=</span><span class="mf">0.7</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">regressor</span> <span class="o">=</span> <span class="n">regressor</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_attempts</span> <span class="o">=</span> <span class="n">n_attempts</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">start_evaluations</span> <span class="o">=</span> <span class="n">start_evaluations</span>
+
+<div class="viewcode-block" id="RegressionParameterOptimizer.generate_next_point"><a class="viewcode-back" href="../../../metaml.html#rep.metaml.gridsearch.RegressionParameterOptimizer.generate_next_point">[docs]</a>    <span class="k">def</span> <span class="nf">generate_next_point</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Generating next random point in parameters space&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">queued_tasks_</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">numpy</span><span class="o">.</span><span class="n">prod</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dimensions</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_attempts</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s">&quot;The grid is exhausted, cannot generate more points&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">queued_tasks_</span><span class="p">)</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_evaluations</span><span class="p">:</span>
+            <span class="n">new_state_indices</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generate_random_point</span><span class="p">()</span>
+            <span class="k">return</span> <span class="n">new_state_indices</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_indices_to_parameters</span><span class="p">(</span><span class="n">new_state_indices</span><span class="p">)</span>
+
+        <span class="c"># Training regressor</span>
+        <span class="n">X</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="nb">list</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid_scores_</span><span class="o">.</span><span class="n">keys</span><span class="p">()],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">grid_scores_</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+        <span class="n">regressor</span> <span class="o">=</span> <span class="n">clone</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">regressor</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+
+        <span class="c"># generating candidates</span>
+        <span class="n">candidates</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_generate_random_point</span><span class="p">(</span><span class="n">enqueue</span><span class="o">=</span><span class="bp">False</span><span class="p">))</span>
+                                  <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_attempts</span><span class="p">)],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+        <span class="c"># winning candidate index</span>
+        <span class="n">index</span> <span class="o">=</span> <span class="n">regressor</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">candidates</span><span class="p">)</span><span class="o">.</span><span class="n">argmax</span><span class="p">()</span>
+
+        <span class="n">new_state_indices</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">candidates</span><span class="p">[</span><span class="n">index</span><span class="p">,</span> <span class="p">:])</span>
+
+        <span class="c"># remember the task</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">queued_tasks_</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">new_state_indices</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">new_state_indices</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_indices_to_parameters</span><span class="p">(</span><span class="n">new_state_indices</span><span class="p">)</span>
+
+</div></div>
+<div class="viewcode-block" id="AnnealingParameterOptimizer"><a class="viewcode-back" href="../../../metaml.html#rep.metaml.gridsearch.AnnealingParameterOptimizer">[docs]</a><span class="k">class</span> <span class="nc">AnnealingParameterOptimizer</span><span class="p">(</span><span class="n">AbstractParameterGenerator</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param_grid</span><span class="p">,</span> <span class="n">n_evaluations</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">temperature</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Implementation if annealing algorithm</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        :param param_grid: the grid with parameters to optimize on</span>
+<span class="sd">        :param int n_evaluations: the number od evaluations</span>
+<span class="sd">        :param temperature: float, how tolerant we are to worse results.</span>
+<span class="sd">        If it is very small, will never step to point with worse predictions.</span>
+
+<span class="sd">        Doesn&#39;t support parallel execution, so cannot be used in optimization on cluster.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">AbstractParameterGenerator</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param_grid</span><span class="o">=</span><span class="n">param_grid</span><span class="p">,</span>
+                                            <span class="n">n_evaluations</span><span class="o">=</span><span class="n">n_evaluations</span><span class="p">,</span>
+                                            <span class="n">random_state</span><span class="o">=</span><span class="n">random_state</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">temperature</span> <span class="o">=</span> <span class="n">temperature</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">actual_state</span> <span class="o">=</span> <span class="bp">None</span>
+
+<div class="viewcode-block" id="AnnealingParameterOptimizer.generate_next_point"><a class="viewcode-back" href="../../../metaml.html#rep.metaml.gridsearch.AnnealingParameterOptimizer.generate_next_point">[docs]</a>    <span class="k">def</span> <span class="nf">generate_next_point</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Generating next random point in parameters space&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">actual_state</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">new_state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generate_random_point</span><span class="p">(</span><span class="n">enqueue</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">actual_state</span> <span class="o">=</span> <span class="n">new_state</span>
+            <span class="k">return</span> <span class="n">new_state</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_indices_to_parameters</span><span class="p">(</span><span class="n">new_state</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">actual_score</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid_scores_</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">actual_state</span><span class="p">]</span>
+
+            <span class="c"># checking if needed to jump after previous evaluation</span>
+            <span class="n">last_state</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">grid_scores_</span><span class="o">.</span><span class="n">keys</span><span class="p">())[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">last_score</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid_scores_</span><span class="p">[</span><span class="n">last_state</span><span class="p">]</span>
+
+            <span class="c"># probability of transition</span>
+            <span class="n">std</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">grid_scores_</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span> <span class="o">+</span> <span class="mf">1e-5</span>
+            <span class="n">p</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="mf">1.</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">temperature</span> <span class="o">*</span> <span class="p">(</span><span class="n">last_score</span> <span class="o">-</span> <span class="n">actual_score</span><span class="p">)</span> <span class="o">/</span> <span class="n">std</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">p</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">random_state</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">actual_state</span> <span class="o">=</span> <span class="n">last_state</span>
+
+            <span class="k">for</span> <span class="n">attempt</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">100</span><span class="p">):</span>
+                <span class="c"># trying to change only one of parameters</span>
+                <span class="n">axis</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">random_state</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dimensions</span><span class="p">))</span>
+                <span class="n">new_state_indices</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">actual_state</span><span class="p">)</span>
+                <span class="n">new_state_indices</span><span class="p">[</span><span class="n">axis</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">random_state</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimensions</span><span class="p">[</span><span class="n">axis</span><span class="p">])</span>
+                <span class="n">new_state_indices</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">new_state_indices</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">new_state_indices</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">queued_tasks_</span><span class="p">:</span>
+                    <span class="k">break</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">print</span><span class="p">(</span><span class="s">&#39;failed to generate the simple way&#39;</span><span class="p">)</span>
+                <span class="n">new_state_indices</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generate_random_point</span><span class="p">(</span><span class="n">enqueue</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">queued_tasks_</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">new_state_indices</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">new_state_indices</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_indices_to_parameters</span><span class="p">(</span><span class="n">new_state_indices</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="AnnealingParameterOptimizer.generate_batch_points"><a class="viewcode-back" href="../../../metaml.html#rep.metaml.gridsearch.AnnealingParameterOptimizer.generate_batch_points">[docs]</a>    <span class="k">def</span> <span class="nf">generate_batch_points</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">size</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s">&quot;Annealing optimization doesn&#39;t support batch-based optimization (on cluster)&quot;</span><span class="p">)</span>
+
+</div></div>
+<div class="viewcode-block" id="SubgridParameterOptimizer"><a class="viewcode-back" href="../../../metaml.html#rep.metaml.gridsearch.SubgridParameterOptimizer">[docs]</a><span class="k">class</span> <span class="nc">SubgridParameterOptimizer</span><span class="p">(</span><span class="n">AbstractParameterGenerator</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Uses Metropolis-like optimization.</span>
+<span class="sd">    If the parameter grid is large, first performs optimization on subgrid.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">    ----------</span>
+<span class="sd">    :param OrderedDict param_grid: the grid with parameters to optimize on</span>
+<span class="sd">    :param int n_evaluations: the number of evaluations to do</span>
+<span class="sd">    :param random_state: random generator</span>
+<span class="sd">    :type random_state: int or RandomState or None</span>
+
+<span class="sd">    :param int start_evaluations: count of random point generation on start</span>
+<span class="sd">    :param int subgrid_size: if the size of mesh too large, first we will optimize</span>
+<span class="sd">        on subgrid with not more then subgrid_size possible values for each parameter.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param_grid</span><span class="p">,</span> <span class="n">n_evaluations</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">start_evaluations</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+                 <span class="n">subgrid_size</span><span class="o">=</span><span class="mi">3</span><span class="p">):</span>
+        <span class="n">AbstractParameterGenerator</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param_grid</span><span class="o">=</span><span class="n">param_grid</span><span class="p">,</span> <span class="n">n_evaluations</span><span class="o">=</span><span class="n">n_evaluations</span><span class="p">,</span>
+                                            <span class="n">random_state</span><span class="o">=</span><span class="n">random_state</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">start_evaluations</span> <span class="o">=</span> <span class="n">start_evaluations</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">subgrid_size</span> <span class="o">=</span> <span class="n">subgrid_size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dimensions_sum</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dimensions</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">subgrid_parameter_generator</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">numpy</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dimensions</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">2</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">subgrid_size</span><span class="p">):</span>
+            <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Optimizing on subgrid&quot;</span><span class="p">)</span>
+            <span class="n">param_subgrid</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">subgrid_indices</span> <span class="o">=</span> <span class="n">_create_subgrid</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">param_grid</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">subgrid_size</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">subgrid_parameter_generator</span> <span class="o">=</span> \
+                <span class="n">SubgridParameterOptimizer</span><span class="p">(</span><span class="n">param_subgrid</span><span class="p">,</span> <span class="n">n_evaluations</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n_evaluations</span> <span class="o">//</span> <span class="mi">2</span><span class="p">,</span>
+                                          <span class="n">subgrid_size</span><span class="o">=</span><span class="n">subgrid_size</span><span class="p">)</span>
+
+<div class="viewcode-block" id="SubgridParameterOptimizer.generate_next_point"><a class="viewcode-back" href="../../../metaml.html#rep.metaml.gridsearch.SubgridParameterOptimizer.generate_next_point">[docs]</a>    <span class="k">def</span> <span class="nf">generate_next_point</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Generating next point in parameters space&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">queued_tasks_</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">prod</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dimensions</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s">&quot;The grid is exhausted, cannot generate more points&quot;</span><span class="p">)</span>
+
+        <span class="c"># trying to generate from subgrid</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">subgrid_parameter_generator</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">queued_tasks_</span><span class="p">)</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">subgrid_parameter_generator</span><span class="o">.</span><span class="n">n_evaluations</span><span class="p">:</span>
+                <span class="n">indices</span><span class="p">,</span> <span class="n">parameters</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">subgrid_parameter_generator</span><span class="o">.</span><span class="n">generate_next_point</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">queued_tasks_</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">_translate_key_from_subgrid</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">subgrid_indices</span><span class="p">,</span> <span class="n">indices</span><span class="p">))</span>
+                <span class="k">return</span> <span class="p">(</span><span class="s">&#39;subgrid&#39;</span><span class="p">,</span> <span class="n">indices</span><span class="p">),</span> <span class="n">parameters</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">grid_scores_</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">4</span><span class="p">:</span>
+            <span class="n">indices</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generate_random_point</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">queued_tasks_</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">indices</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">indices</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_indices_to_parameters</span><span class="p">(</span><span class="n">indices</span><span class="p">)</span>
+
+        <span class="n">results</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">grid_scores_</span><span class="o">.</span><span class="n">values</span><span class="p">()),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+        <span class="n">std</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">results</span><span class="p">)</span> <span class="o">+</span> <span class="mf">1e-5</span>
+        <span class="n">probabilities</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">clip</span><span class="p">((</span><span class="n">results</span> <span class="o">-</span> <span class="n">numpy</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">results</span><span class="p">))</span> <span class="o">*</span> <span class="mf">3.</span> <span class="o">/</span> <span class="n">std</span><span class="p">,</span> <span class="o">-</span><span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
+        <span class="n">probabilities</span> <span class="o">/=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">probabilities</span><span class="p">)</span>
+        <span class="n">temperature_p</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="mf">1.</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">queued_tasks_</span><span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_evaluations</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+            <span class="n">start</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">random_state</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">probabilities</span><span class="p">),</span> <span class="n">p</span><span class="o">=</span><span class="n">probabilities</span><span class="p">)</span>
+            <span class="n">start_indices</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">grid_scores_</span><span class="o">.</span><span class="n">keys</span><span class="p">())[</span><span class="n">start</span><span class="p">]</span>
+            <span class="n">new_state_indices</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">start_indices</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dimensions_sum</span> <span class="o">//</span> <span class="mi">6</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">random_state</span><span class="o">.</span><span class="n">uniform</span><span class="p">()</span> <span class="o">&lt;</span> <span class="n">temperature_p</span><span class="p">:</span>
+                    <span class="n">axis</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">random_state</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dimensions</span><span class="p">))</span>
+                    <span class="n">new_state_indices</span><span class="p">[</span><span class="n">axis</span><span class="p">]</span> <span class="o">+=</span> <span class="nb">int</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">random_state</span><span class="o">.</span><span class="n">uniform</span><span class="p">()</span> <span class="o">-</span> <span class="mf">0.5</span><span class="p">))</span>
+            <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">new_state_indices</span><span class="p">[</span><span class="n">axis</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">new_state_indices</span><span class="p">[</span><span class="n">axis</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimensions</span><span class="p">[</span><span class="n">axis</span><span class="p">]</span>
+                   <span class="k">for</span> <span class="n">axis</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dimensions</span><span class="p">))):</span>
+                <span class="k">continue</span>
+            <span class="n">new_state_indices</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">new_state_indices</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">new_state_indices</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">queued_tasks_</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">queued_tasks_</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">new_state_indices</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">new_state_indices</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_indices_to_parameters</span><span class="p">(</span><span class="n">new_state_indices</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="SubgridParameterOptimizer.add_result"><a class="viewcode-back" href="../../../metaml.html#rep.metaml.gridsearch.SubgridParameterOptimizer.add_result">[docs]</a>    <span class="k">def</span> <span class="nf">add_result</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state_indices</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">state_indices</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s">&#39;subgrid&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">grid_scores_</span><span class="p">[</span><span class="n">_translate_key_from_subgrid</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">subgrid_indices</span><span class="p">,</span> <span class="n">state_indices</span><span class="p">[</span><span class="mi">1</span><span class="p">])]</span> <span class="o">=</span> <span class="n">value</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">subgrid_parameter_generator</span><span class="o">.</span><span class="n">add_result</span><span class="p">(</span><span class="n">state_indices</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">value</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">grid_scores_</span><span class="p">[</span><span class="n">state_indices</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+
+
+<span class="c"># region supplementary functions</span>
+</div></div>
+<span class="k">def</span> <span class="nf">_check_param_grid</span><span class="p">(</span><span class="n">param_grid</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Checks parameters of grid &quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">param_grid</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="s">&#39;Name of feature should be string&#39;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="ow">and</span> <span class="n">v</span><span class="o">.</span><span class="n">ndim</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Parameter array should be one-dimensional.&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">([</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)]):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Parameter values should be a list.&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Parameter values should be a non-empty list.&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_create_subgrid</span><span class="p">(</span><span class="n">param_grid</span><span class="p">,</span> <span class="n">n_values</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Additional function to generate subgrid</span>
+
+<span class="sd">    :type param_grid: OrderedDict,</span>
+<span class="sd">    :type n_values: int, the maximal number of values along each axis</span>
+<span class="sd">    :rtype: (OrderedDict, OrderedDict), the subgrid and the indices of values that form subgrid</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">subgrid</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
+    <span class="n">subgrid_indices</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">values</span> <span class="ow">in</span> <span class="n">param_grid</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">values</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">n_values</span><span class="p">:</span>
+            <span class="n">subgrid</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>
+            <span class="n">subgrid_indices</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">values</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c"># numpy.rint rounds to the nearest integer</span>
+            <span class="n">axis_indices</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">rint</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mf">0.5</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">values</span><span class="p">)</span> <span class="o">-</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">n_values</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">1</span><span class="p">::</span><span class="mi">2</span><span class="p">])</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+            <span class="n">subgrid</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">values</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="n">axis_indices</span><span class="p">]</span>
+            <span class="n">subgrid_indices</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">axis_indices</span>
+    <span class="k">return</span> <span class="n">subgrid</span><span class="p">,</span> <span class="n">subgrid_indices</span>
+
+
+<span class="k">def</span> <span class="nf">_translate_key_from_subgrid</span><span class="p">(</span><span class="n">subgrid_indices</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    :type key: tuple, the indices (describing the point) in subgrid</span>
+<span class="sd">    :type subgrid_indices: OrderedDict, the indices of values taken to form subgrid</span>
+<span class="sd">    :rtype: tuple, the indices in grid</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="nb">tuple</span><span class="p">([</span><span class="n">subgrid_indices</span><span class="p">[</span><span class="n">var_name</span><span class="p">][</span><span class="n">index</span><span class="p">]</span> <span class="k">for</span> <span class="n">var_name</span><span class="p">,</span> <span class="n">index</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">subgrid_indices</span><span class="p">,</span> <span class="n">key</span><span class="p">)])</span>
+
+
+<span class="c"># endregion</span>
+
+
+<div class="viewcode-block" id="FoldingScorer"><a class="viewcode-back" href="../../../metaml.html#rep.metaml.gridsearch.FoldingScorer">[docs]</a><span class="k">class</span> <span class="nc">FoldingScorer</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Scorer, which implements logic of data folding and scoring. This is a function-like object</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">    ----------</span>
+<span class="sd">    :param int folds: &#39;k&#39; used in k-folding while validating</span>
+<span class="sd">    :param int fold_checks: not greater than folds, the number of checks we do by cross-validating</span>
+<span class="sd">    :param function score_function: quality. if fold_checks &gt; 1, the average is computed over checks.</span>
+
+<span class="sd">    &gt;&gt;&gt; def new_score_function(y_true, proba, sample_weight=None):</span>
+<span class="sd">    &gt;&gt;&gt;     &#39;&#39;&#39;</span>
+<span class="sd">    &gt;&gt;&gt;     y_true: [n_samples]</span>
+<span class="sd">    &gt;&gt;&gt;     proba: [n_samples, n_classes]</span>
+<span class="sd">    &gt;&gt;&gt;     sample_weight: [n_samples] or None</span>
+<span class="sd">    &gt;&gt;&gt;     &#39;&#39;&#39;</span>
+<span class="sd">    &gt;&gt;&gt;     ...</span>
+
+<span class="sd">    Example:</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; fs = FoldingScorer(new_score_function)</span>
+<span class="sd">    &gt;&gt;&gt; fs(base_estimator, params, X, y, sample_weight=None)</span>
+<span class="sd">    0.5</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">score_function</span><span class="p">,</span> <span class="n">folds</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">fold_checks</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">folds</span> <span class="o">=</span> <span class="n">folds</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fold_checks</span> <span class="o">=</span> <span class="n">fold_checks</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">score_function</span> <span class="o">=</span> <span class="n">score_function</span>
+
+    <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">base_estimator</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return float: quality</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">k_folder</span> <span class="o">=</span> <span class="n">StratifiedKFold</span><span class="p">(</span><span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="p">,</span> <span class="n">n_folds</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">folds</span><span class="p">)</span>
+        <span class="n">score</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">ind</span><span class="p">,</span> <span class="p">(</span><span class="n">train_indices</span><span class="p">,</span> <span class="n">test_indices</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">islice</span><span class="p">(</span><span class="n">k_folder</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">fold_checks</span><span class="p">)):</span>
+            <span class="n">classifier</span> <span class="o">=</span> <span class="n">clone</span><span class="p">(</span><span class="n">base_estimator</span><span class="p">)</span>
+            <span class="n">classifier</span><span class="o">.</span><span class="n">set_params</span><span class="p">(</span><span class="o">**</span><span class="n">params</span><span class="p">)</span>
+
+            <span class="n">trainX</span><span class="p">,</span> <span class="n">trainY</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">train_indices</span><span class="p">,</span> <span class="p">:],</span> <span class="n">y</span><span class="p">[</span><span class="n">train_indices</span><span class="p">]</span>
+            <span class="n">testX</span><span class="p">,</span> <span class="n">testY</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">test_indices</span><span class="p">,</span> <span class="p">:],</span> <span class="n">y</span><span class="p">[</span><span class="n">test_indices</span><span class="p">]</span>
+
+            <span class="k">if</span> <span class="n">sample_weight</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="n">train_weights</span><span class="p">,</span> <span class="n">test_weights</span> <span class="o">=</span> <span class="n">sample_weight</span><span class="p">[</span><span class="n">train_indices</span><span class="p">],</span> <span class="n">sample_weight</span><span class="p">[</span><span class="n">test_indices</span><span class="p">]</span>
+                <span class="n">classifier</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">trainX</span><span class="p">,</span> <span class="n">trainY</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="n">train_weights</span><span class="p">)</span>
+                <span class="n">score</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">score_function</span><span class="p">(</span><span class="n">testY</span><span class="p">,</span> <span class="n">classifier</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">testX</span><span class="p">),</span> <span class="n">sample_weight</span><span class="o">=</span><span class="n">test_weights</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">classifier</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">trainX</span><span class="p">,</span> <span class="n">trainY</span><span class="p">)</span>
+                <span class="n">score</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">score_function</span><span class="p">(</span><span class="n">testY</span><span class="p">,</span> <span class="n">classifier</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">testX</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">score</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">fold_checks</span>
+
+</div>
+<div class="viewcode-block" id="apply_scorer"><a class="viewcode-back" href="../../../metaml.html#rep.metaml.gridsearch.apply_scorer">[docs]</a><span class="k">def</span> <span class="nf">apply_scorer</span><span class="p">(</span><span class="n">scorer</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">base_estimator</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Application of scorer algorithm.</span>
+
+<span class="sd">    :param scorer: algorithm to train estimator and get quality (see FoldingScorer for example)</span>
+<span class="sd">    :param dict params: parameters for estimator</span>
+<span class="sd">    :param base.BaseEstimator base_estimator: estimator</span>
+<span class="sd">    :param X: pandas.DataFrame of shape [n_samples, n_features], data</span>
+<span class="sd">    :param y: labels of events - array-like of shape [n_samples]</span>
+<span class="sd">    :param sample_weight: weight of events,</span>
+<span class="sd">           array-like of shape [n_samples] or None if all weights are equal</span>
+
+<span class="sd">    :return: (&#39;success&#39;, float) or (&#39;fail&#39;, Exception), float will contain result.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">estimator</span> <span class="o">=</span> <span class="n">clone</span><span class="p">(</span><span class="n">base_estimator</span><span class="p">)</span>
+        <span class="k">return</span> <span class="s">&#39;success&#39;</span><span class="p">,</span> <span class="n">scorer</span><span class="p">(</span><span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span> <span class="n">base_estimator</span><span class="o">=</span><span class="n">estimator</span><span class="p">,</span> <span class="n">X</span><span class="o">=</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="n">sample_weight</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s">&#39;fail&#39;</span><span class="p">,</span> <span class="n">e</span>
+
+</div>
+<div class="viewcode-block" id="GridOptimalSearchCV"><a class="viewcode-back" href="../../../metaml.html#rep.metaml.gridsearch.GridOptimalSearchCV">[docs]</a><span class="k">class</span> <span class="nc">GridOptimalSearchCV</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Optimal search over specified parameter values for an estimator. Metropolis-like algorithm is used</span>
+<span class="sd">    Important members are fit, scorer.</span>
+
+<span class="sd">    GridSearchCV implements a &quot;fit&quot; method and a &quot;fit_best_estimator&quot; method to train models.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    :param BaseEstimator estimator: object of type that implements the &quot;fit&quot; and &quot;fit_best_estimator&quot; methods</span>
+<span class="sd">        A new object of that type is cloned for each point.</span>
+<span class="sd">    :param AbstractParameterGenerator params_generator: generator of grid search algorithm</span>
+<span class="sd">    :param object scorer: which implement method __call__ with kwargs:</span>
+<span class="sd">        &quot;base_estimator&quot;, &quot;params&quot;, &quot;X&quot;, &quot;y&quot;, &quot;sample_weight&quot;</span>
+<span class="sd">    :param parallel_profile: name of profile</span>
+<span class="sd">    :type parallel_profile: None or str</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    generator: return grid generator</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">estimator</span><span class="p">,</span> <span class="n">params_generator</span><span class="p">,</span> <span class="n">scorer</span><span class="p">,</span> <span class="n">parallel_profile</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">base_estimator</span> <span class="o">=</span> <span class="n">estimator</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">params_generator</span> <span class="o">=</span> <span class="n">params_generator</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scorer</span> <span class="o">=</span> <span class="n">scorer</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parallel_profile</span> <span class="o">=</span> <span class="n">parallel_profile</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">evaluations_done</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">def</span> <span class="nf">_log</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="mi">20</span><span class="p">):</span>
+        <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">level</span><span class="p">,</span> <span class="n">msg</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">generator</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Property for params_generator&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">params_generator</span>
+
+<div class="viewcode-block" id="GridOptimalSearchCV.fit_best_estimator"><a class="viewcode-back" href="../../../metaml.html#rep.metaml.gridsearch.GridOptimalSearchCV.fit_best_estimator">[docs]</a>    <span class="k">def</span> <span class="nf">fit_best_estimator</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Train estimator with the best parameters</span>
+
+<span class="sd">        :param X: pandas.DataFrame of shape [n_samples, n_features]</span>
+<span class="sd">        :param y: labels of events - array-like of shape [n_samples]</span>
+<span class="sd">        :param sample_weight: weight of events,</span>
+<span class="sd">               array-like of shape [n_samples] or None if all weights are equal</span>
+
+<span class="sd">        :return: the best estimator</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">best_estimator_</span> <span class="o">=</span> <span class="n">clone</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">base_estimator</span><span class="p">)</span>
+        <span class="n">best_estimator_</span><span class="o">.</span><span class="n">set_params</span><span class="p">(</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">generator</span><span class="o">.</span><span class="n">best_params_</span><span class="p">)</span>
+        <span class="n">best_estimator_</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="n">sample_weight</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">best_estimator_</span>
+</div>
+<div class="viewcode-block" id="GridOptimalSearchCV.fit"><a class="viewcode-back" href="../../../metaml.html#rep.metaml.gridsearch.GridOptimalSearchCV.fit">[docs]</a>    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Run fit with all sets of parameters.</span>
+
+<span class="sd">        :param X: array-like, shape = [n_samples, n_features]</span>
+<span class="sd">            Training vector, where n_samples is the number of samples and n_features is the number of features.</span>
+
+<span class="sd">        :param y: array-like, shape = [n_samples] or [n_samples, n_output], optional</span>
+<span class="sd">        :param sample_weight: array-like, shape = [n_samples], weight</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span> <span class="o">=</span> <span class="n">check_inputs</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="n">sample_weight</span><span class="p">,</span> <span class="n">allow_none_weights</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">parallel_profile</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">evaluations_done</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">params_generator</span><span class="o">.</span><span class="n">n_evaluations</span><span class="p">:</span>
+                <span class="n">state_indices</span><span class="p">,</span> <span class="n">state_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params_generator</span><span class="o">.</span><span class="n">generate_next_point</span><span class="p">()</span>
+                <span class="n">status</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="n">apply_scorer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">scorer</span><span class="p">,</span> <span class="n">state_dict</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_estimator</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="p">)</span>
+                <span class="k">assert</span> <span class="n">status</span> <span class="o">==</span> <span class="s">&#39;success&#39;</span><span class="p">,</span> <span class="s">&#39;Error during grid search &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">params_generator</span><span class="o">.</span><span class="n">add_result</span><span class="p">(</span><span class="n">state_indices</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">evaluations_done</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="n">state_string</span> <span class="o">=</span> <span class="s">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">k</span> <span class="o">+</span> <span class="s">&#39;=&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">state_dict</span><span class="o">.</span><span class="n">items</span><span class="p">()])</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_log</span><span class="p">(</span><span class="s">&#39;{}: {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">state_string</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="kn">from</span> <span class="nn">IPython.parallel</span> <span class="kn">import</span> <span class="n">Client</span>
+
+            <span class="n">direct_view</span> <span class="o">=</span> <span class="n">Client</span><span class="p">(</span><span class="n">profile</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">parallel_profile</span><span class="p">)</span><span class="o">.</span><span class="n">direct_view</span><span class="p">()</span>
+            <span class="n">portion</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">direct_view</span><span class="p">)</span>
+            <span class="k">print</span><span class="p">(</span><span class="s">&quot;There are {0} cores in cluster, the portion is equal {1}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">direct_view</span><span class="p">),</span> <span class="n">portion</span><span class="p">))</span>
+            <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">evaluations_done</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">params_generator</span><span class="o">.</span><span class="n">n_evaluations</span><span class="p">:</span>
+                <span class="n">state_indices_array</span><span class="p">,</span> <span class="n">state_dict_array</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params_generator</span><span class="o">.</span><span class="n">generate_batch_points</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="n">portion</span><span class="p">)</span>
+                <span class="n">result</span> <span class="o">=</span> <span class="n">direct_view</span><span class="o">.</span><span class="n">map_sync</span><span class="p">(</span><span class="n">apply_scorer</span><span class="p">,</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">scorer</span><span class="p">]</span> <span class="o">*</span> <span class="n">portion</span><span class="p">,</span> <span class="n">state_dict_array</span><span class="p">,</span>
+                                              <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">base_estimator</span><span class="p">]</span> <span class="o">*</span> <span class="n">portion</span><span class="p">,</span>
+                                              <span class="p">[</span><span class="n">X</span><span class="p">]</span> <span class="o">*</span> <span class="n">portion</span><span class="p">,</span> <span class="p">[</span><span class="n">y</span><span class="p">]</span> <span class="o">*</span> <span class="n">portion</span><span class="p">,</span> <span class="p">[</span><span class="n">sample_weight</span><span class="p">]</span> <span class="o">*</span> <span class="n">portion</span><span class="p">)</span>
+                <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">result</span><span class="p">)</span> <span class="o">==</span> <span class="n">portion</span><span class="p">,</span> <span class="s">&quot;The length of result is very strange&quot;</span>
+                <span class="k">for</span> <span class="n">state_indices</span><span class="p">,</span> <span class="n">state_dict</span><span class="p">,</span> <span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">score</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">state_indices_array</span><span class="p">,</span> <span class="n">state_dict_array</span><span class="p">,</span> <span class="n">result</span><span class="p">):</span>
+                    <span class="n">params</span> <span class="o">=</span> <span class="s">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">k</span> <span class="o">+</span> <span class="s">&#39;=&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">state_dict</span><span class="o">.</span><span class="n">items</span><span class="p">()])</span>
+                    <span class="k">if</span> <span class="n">status</span> <span class="o">!=</span> <span class="s">&#39;success&#39;</span><span class="p">:</span>
+                        <span class="n">message</span> <span class="o">=</span> <span class="s">&#39;Fail during training on the node </span><span class="se">\n</span><span class="s">Exception {exc}</span><span class="se">\n</span><span class="s"> Parameters {params}&#39;</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_log</span><span class="p">(</span><span class="n">message</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">exc</span><span class="o">=</span><span class="n">score</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">),</span> <span class="n">level</span><span class="o">=</span><span class="mi">40</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">params_generator</span><span class="o">.</span><span class="n">add_result</span><span class="p">(</span><span class="n">state_indices</span><span class="p">,</span> <span class="n">score</span><span class="p">)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_log</span><span class="p">(</span><span class="s">&quot;{}: {}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">score</span><span class="p">,</span> <span class="n">params</span><span class="p">))</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">evaluations_done</span> <span class="o">+=</span> <span class="n">portion</span>
+                <span class="k">print</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%i</span><span class="s"> evaluations done&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">evaluations_done</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2014-2015, Yandex.
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../',
+            VERSION:'0.6.3',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

@@ -1,0 +1,395 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>rep.estimators.interface &mdash; REP (Reproducible Experiment Platform) 0.6.3 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="REP (Reproducible Experiment Platform) 0.6.3 documentation" href="../../../index.html"/>
+        <link rel="up" title="Module code" href="../../index.html"/> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-nav-search">
+        
+
+        
+          <a href="../../../index.html" class="icon icon-home"> REP (Reproducible Experiment Platform)
+        
+
+        
+        </a>
+
+        
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+        
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+        
+          
+          
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../data.html">Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../estimators.html">Estimators (classification and regression)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../metaml.html">Meta Machine Learning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../report.html">Report for models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../plotting.html">Plotting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../utils.html">Utilities</a></li>
+<li class="toctree-l1"><a class="reference external" href="http://nbviewer.ipython.org/github/yandex/rep/tree/master/howto/">Howto notebooks</a></li>
+</ul>
+
+          
+        
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../../index.html">REP (Reproducible Experiment Platform)</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+      
+    <li>rep.estimators.interface</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for rep.estimators.interface</h1><div class="highlight"><pre>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">There are interfaces for **classification** and **regression** wrappers.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">division</span><span class="p">,</span> <span class="n">print_function</span><span class="p">,</span> <span class="n">absolute_import</span>
+<span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABCMeta</span><span class="p">,</span> <span class="n">abstractmethod</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span>
+<span class="kn">import</span> <span class="nn">pandas</span>
+
+<span class="kn">from</span> <span class="nn">sklearn.base</span> <span class="kn">import</span> <span class="n">BaseEstimator</span><span class="p">,</span> <span class="n">ClassifierMixin</span><span class="p">,</span> <span class="n">RegressorMixin</span>
+<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">_get_features</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s">&#39;Tatiana Likhomanenko, Alex Rogozhnikov&#39;</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="Classifier"><a class="viewcode-back" href="../../../estimators.html#rep.estimators.interface.Classifier">[docs]</a><span class="k">class</span> <span class="nc">Classifier</span><span class="p">(</span><span class="n">BaseEstimator</span><span class="p">,</span> <span class="n">ClassifierMixin</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Interface to train different **classification** model from different</span>
+<span class="sd">    machine learning libraries, like **Sklearn, TMVA, XGBoost**...</span>
+
+<span class="sd">    :param features: features used to train model</span>
+<span class="sd">    :type features: list[str] or None</span>
+
+<span class="sd">    .. note::</span>
+<span class="sd">        * Classes must be from 0 to n_classes-1!!!</span>
+
+<span class="sd">        * if `features` aren&#39;t set (**None**), then all features in training dataset will be used</span>
+
+<span class="sd">        * Datasets should be `pandas.DataFrame`, `not numpy.array`.</span>
+<span class="sd">          Provided this, you&#39;ll be able to choose features used in training by setting e.g.</span>
+<span class="sd">          `features=[&#39;FlightTime&#39;, &#39;p&#39;]` in constructor.</span>
+
+<span class="sd">        * It works fine with `numpy.array` as well, but in this case all the features will be used.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">__metaclass__</span> <span class="o">=</span> <span class="n">ABCMeta</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">features</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">features</span><span class="p">)</span> <span class="k">if</span> <span class="n">features</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="k">else</span> <span class="n">features</span>
+
+    <span class="k">def</span> <span class="nf">_get_features</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">allow_nans</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param pandas.DataFrame X: train dataset</span>
+
+<span class="sd">        :return: pandas.DataFrame with used features</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">X_prepared</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">features</span> <span class="o">=</span> <span class="n">_get_features</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">features</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">allow_nans</span><span class="o">=</span><span class="n">allow_nans</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">X_prepared</span>
+
+    <span class="k">def</span> <span class="nf">_set_classes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">classes_</span><span class="p">,</span> <span class="n">indices</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">return_index</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_classes_</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classes_</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_classes_</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">,</span> <span class="s">&quot;Number of labels must be &gt;= 2 (data contain {})&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_classes_</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">numpy</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classes_</span> <span class="o">==</span> <span class="n">numpy</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_classes_</span><span class="p">)),</span> \
+            <span class="s">&#39;Labels must be from 0..n_classes-1, instead of {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classes_</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">indices</span>
+
+    <span class="nd">@abstractmethod</span>
+<div class="viewcode-block" id="Classifier.fit"><a class="viewcode-back" href="../../../estimators.html#rep.estimators.interface.Classifier.fit">[docs]</a>    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Train the classifier model on dataset</span>
+
+<span class="sd">        :param X: pandas.DataFrame of shape [n_samples, n_features]</span>
+<span class="sd">        :param y: labels of events - array-like of shape [n_samples]</span>
+<span class="sd">        :param sample_weight: weight of events,</span>
+<span class="sd">               array-like of shape [n_samples] or None if all weights are equal</span>
+
+<span class="sd">        :return: self</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span>
+</div>
+<div class="viewcode-block" id="Classifier.predict"><a class="viewcode-back" href="../../../estimators.html#rep.estimators.interface.Classifier.predict">[docs]</a>    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Predict labels for all events in dataset</span>
+
+<span class="sd">        :param X: pandas.DataFrame of shape [n_samples, n_features]</span>
+<span class="sd">        :rtype: numpy.array of shape [n_samples] with integer labels</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">proba</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">classes_</span><span class="o">.</span><span class="n">take</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">proba</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+</div>
+    <span class="nd">@abstractmethod</span>
+<div class="viewcode-block" id="Classifier.predict_proba"><a class="viewcode-back" href="../../../estimators.html#rep.estimators.interface.Classifier.predict_proba">[docs]</a>    <span class="k">def</span> <span class="nf">predict_proba</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Predict probabilities for each class label on dataset</span>
+
+<span class="sd">        :param X: pandas.DataFrame of shape [n_samples, n_features]</span>
+<span class="sd">        :rtype: numpy.array of shape [n_samples, n_classes] with probabilities</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span>
+</div>
+    <span class="nd">@abstractmethod</span>
+<div class="viewcode-block" id="Classifier.staged_predict_proba"><a class="viewcode-back" href="../../../estimators.html#rep.estimators.interface.Classifier.staged_predict_proba">[docs]</a>    <span class="k">def</span> <span class="nf">staged_predict_proba</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Predicts probabilities on each stage</span>
+
+<span class="sd">        :param X: pandas.DataFrame of shape [n_samples, n_features]</span>
+<span class="sd">        :rtype: iterator</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span>
+</div>
+<div class="viewcode-block" id="Classifier.get_feature_importances"><a class="viewcode-back" href="../../../estimators.html#rep.estimators.interface.Classifier.get_feature_importances">[docs]</a>    <span class="k">def</span> <span class="nf">get_feature_importances</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get features importance</span>
+
+<span class="sd">        :rtype: pandas.DataFrame with `index=self.features`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s">&quot;effect&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">feature_importances_</span><span class="p">},</span> <span class="n">index</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">features</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s">&quot;Haven&#39;t feature_importances_ property&quot;</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="Classifier.fit_lds"><a class="viewcode-back" href="../../../estimators.html#rep.estimators.interface.Classifier.fit_lds">[docs]</a>    <span class="k">def</span> <span class="nf">fit_lds</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lds</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Train the classifier on specific type dataset</span>
+
+<span class="sd">        :param LabeledDataStorage lds: data</span>
+
+<span class="sd">        :return: self</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span> <span class="o">=</span> <span class="n">lds</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">features</span><span class="p">),</span> <span class="n">lds</span><span class="o">.</span><span class="n">get_targets</span><span class="p">(),</span> <span class="n">lds</span><span class="o">.</span><span class="n">get_weights</span><span class="p">(</span><span class="n">allow_nones</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="n">sample_weight</span><span class="p">)</span>
+
+</div></div>
+<div class="viewcode-block" id="Regressor"><a class="viewcode-back" href="../../../estimators.html#rep.estimators.interface.Regressor">[docs]</a><span class="k">class</span> <span class="nc">Regressor</span><span class="p">(</span><span class="n">BaseEstimator</span><span class="p">,</span> <span class="n">RegressorMixin</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Interface to train different **regression** model from different</span>
+<span class="sd">     machine learning libraries, like **TMVA, Sklearn, XGBoost**...</span>
+
+<span class="sd">    :param features: features used to train model</span>
+<span class="sd">    :type features: list[str] or None</span>
+
+<span class="sd">    .. note::</span>
+<span class="sd">        * if `features` aren&#39;t set (**None**), then all features in training dataset will be used</span>
+
+<span class="sd">        * Datasets should be `pandas.DataFrame`, `not numpy.array`.</span>
+<span class="sd">          Provided this, you&#39;ll be able to choose features used in training by setting e.g.</span>
+<span class="sd">          `features=[&#39;FlightTime&#39;, &#39;p&#39;]` in constructor.</span>
+
+<span class="sd">        * It works fine with `numpy.array` as well, but in this case all the features will be used.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">__metaclass__</span> <span class="o">=</span> <span class="n">ABCMeta</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">features</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">features</span><span class="p">)</span> <span class="k">if</span> <span class="n">features</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="k">else</span> <span class="n">features</span>
+
+    <span class="k">def</span> <span class="nf">_get_features</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">allow_nans</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param pandas.DataFrame X: train dataset</span>
+
+<span class="sd">        :return: pandas.DataFrame with used features</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">X_prepared</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">features</span> <span class="o">=</span> <span class="n">_get_features</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">features</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">allow_nans</span><span class="o">=</span><span class="n">allow_nans</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">X_prepared</span>
+
+    <span class="nd">@abstractmethod</span>
+<div class="viewcode-block" id="Regressor.fit"><a class="viewcode-back" href="../../../estimators.html#rep.estimators.interface.Regressor.fit">[docs]</a>    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Train the regressor model</span>
+
+<span class="sd">        :param X: pandas.DataFrame of shape [n_samples, n_features]</span>
+<span class="sd">        :param y: values - array-like of shape [n_samples]</span>
+<span class="sd">        :param sample_weight: weight of events,</span>
+<span class="sd">               array-like of shape [n_samples] or None if all weights are equal</span>
+
+<span class="sd">        :return: self</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span>
+</div>
+    <span class="nd">@abstractmethod</span>
+<div class="viewcode-block" id="Regressor.predict"><a class="viewcode-back" href="../../../estimators.html#rep.estimators.interface.Regressor.predict">[docs]</a>    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Predict values for all events in dataset.</span>
+
+<span class="sd">        :param X: pandas.DataFrame of shape [n_samples, n_features]</span>
+<span class="sd">        :rtype: numpy.array of shape [n_samples] with predicted values</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span>
+</div>
+    <span class="nd">@abstractmethod</span>
+<div class="viewcode-block" id="Regressor.staged_predict"><a class="viewcode-back" href="../../../estimators.html#rep.estimators.interface.Regressor.staged_predict">[docs]</a>    <span class="k">def</span> <span class="nf">staged_predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Predicts values on each stage</span>
+
+<span class="sd">        :param X: pandas.DataFrame of shape [n_samples, n_features]</span>
+<span class="sd">        :rtype: iterator</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span>
+</div>
+<div class="viewcode-block" id="Regressor.fit_lds"><a class="viewcode-back" href="../../../estimators.html#rep.estimators.interface.Regressor.fit_lds">[docs]</a>    <span class="k">def</span> <span class="nf">fit_lds</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lds</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Train the regressor model on specific dataset</span>
+
+<span class="sd">        :param LabeledDataStorage lds: data</span>
+
+<span class="sd">        :return: self</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span> <span class="o">=</span> <span class="n">lds</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">features</span><span class="p">),</span> <span class="n">lds</span><span class="o">.</span><span class="n">get_targets</span><span class="p">(),</span> <span class="n">lds</span><span class="o">.</span><span class="n">get_weights</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">sample_weight</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="n">sample_weight</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="Regressor.get_feature_importances"><a class="viewcode-back" href="../../../estimators.html#rep.estimators.interface.Regressor.get_feature_importances">[docs]</a>    <span class="k">def</span> <span class="nf">get_feature_importances</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get features importances</span>
+
+<span class="sd">        :rtype: pandas.DataFrame with `index=self.features`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s">&quot;effect&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">feature_importances_</span><span class="p">},</span> <span class="n">index</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">features</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s">&quot;Classifier doesn&#39;t provide feature_importances_ property&quot;</span><span class="p">)</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2014-2015, Yandex.
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../',
+            VERSION:'0.6.3',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>
