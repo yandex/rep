@@ -1,3 +1,4 @@
 include requirements.txt
 include AUTHORS
 include README.md
+include LICENSE
