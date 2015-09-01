@@ -59,7 +59,7 @@ docs/tmp*
 .DS_Store
 
 # Debian things
-debian/rep
+debian/reproducible-experiment-platform
 debian/files
 *.substvars
 *.debhelper.log
