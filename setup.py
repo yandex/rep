@@ -9,25 +9,26 @@ here = os.path.abspath(os.path.dirname(__file__))
 def find_version(*file_paths):
     # Open in Latin-1 so that we avoid encoding errors.
     # Use codecs.open for Python 2 compatibility
-    with codecs.open(os.path.join(here, *file_paths), 'r', 'latin1') as f:
+    with codecs.open(os.path.join(here, *file_paths), 'r') as f:
         version_file = f.read()
 
     # The version line must have the form
     # __version__ = 'ver'
     version_match = re.search(r"^__version__ = ['\"]([^'\"]*)['\"]",
                               version_file, re.M)
+    assert str.startswith(version_match.group(1), '0.6')
     if version_match:
         return version_match.group(1)
     raise RuntimeError("Unable to find version string.")
 
 
-with codecs.open('README.md', encoding='utf-8') as f:
+with open(os.path.join(here, 'README.md')) as f:
     long_description = f.read()
 
-with codecs.open('AUTHORS', encoding='utf-8') as f:
+with open(os.path.join(here, 'AUTHORS')) as f:
     authors = f.read()
 
-with codecs.open('requirements.txt', encoding='utf-8') as f:
+with open(os.path.join(here, 'requirements.txt')) as f:
     requirements = f.read().split('\n')
 
 setup(
@@ -77,8 +78,8 @@ setup(
     # installed, specify them here. If using Python 2.6 or less, then these
     # have to be included in MANIFEST.in as well.
     # package_data={
-    #    'sample': ['package_data.dat'],
-    #},
+    # 'sample': ['package_data.dat'],
+    # },
 
     # Although 'package_data' is the preferred approach, in some case you may
     # need to place data files outside of your packages.
