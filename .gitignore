@@ -57,3 +57,9 @@ docs/tmp*
 
 # OS X garbage
 .DS_Store
+
+# Debian things
+debian/rep
+debian/files
+*.substvars
+*.debhelper.log

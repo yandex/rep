@@ -1,0 +1,12 @@
+Source: rep
+Priority: extra
+Maintainer: Alexander Baranov <sashab1@yandex-team.ru>
+Build-Depends: debhelper (>= 8.0.0), python, python-all, python-dev, python-setuptools, dh-virtualenv, libatlas-base-dev, gfortran, gfortran, dpkg-dev, make, g++, gcc, binutils, libx11-dev, libxpm-dev, libxft-dev, libxext-dev, libpng3, libjpeg8, gfortran, libssl-dev, libpcre3-dev, libgl1-mesa-dev, libglew1.5-dev, libftgl-dev, libmysqlclient-dev, libfftw3-dev, libcfitsio3-dev, graphviz-dev, libavahi-compat-libdnssd-dev, libldap2-dev, python-dev, libxml2-dev, libkrb5-dev, libgsl0-dev, libqt4-dev, libcurl4-gnutls-dev, libffi-dev
+X-Python-Version: all
+Standards-Version: 3.9.3
+
+Package: rep
+Architecture: any
+Depends: ${python:Depends}, ${misc:Depends}, libatlas-base-dev, gfortran, gfortran, dpkg-dev, make, g++, gcc, binutils, libx11-dev, libxpm-dev, libxft-dev, libxext-dev, libpng3, libjpeg8, gfortran, libssl-dev, libpcre3-dev, libgl1-mesa-dev, libglew1.5-dev, libftgl-dev, libmysqlclient-dev, libfftw3-dev, libcfitsio3-dev, graphviz-dev, libavahi-compat-libdnssd-dev, libldap2-dev, python-dev, libxml2-dev, libkrb5-dev, libgsl0-dev, libqt4-dev, libcurl4-gnutls-dev, libffi-dev, root-system, libroot-bindings-python-dev, libroot-roofit5.34
+X-Python-Version: all
+Description: Reproducible Experiment Platform (REP) https://github.com/yandex/rep
