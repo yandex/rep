@@ -10,6 +10,7 @@ ENV PORT_IPYTHON=8080
 RUN mkdir $TEMP/build
 COPY setup.py README.md AUTHORS requirements.txt $TEMP/build/
 COPY rep $TEMP/build/rep
+COPY tests $TEMP/build/tests
 COPY run.sh /root/
 COPY howto /REP_howto
 RUN cd $TEMP/build && \
