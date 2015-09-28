@@ -100,14 +100,19 @@ class RegressionReport(AbstractReport):
             correlation_plots.append(plot_fig)
         return correlation_plots
 
-    def _learning_curve_additional(self, name, metric_func, step, mask):
+    def _learning_curve_additional(self, name, metric_func, step, mask, predict_only_masked):
         """Returns values of roc curve for particular classifier, mask and metric function. """
-        _, data, labels, weight = self._apply_mask(
-            mask, self._get_features(), self.target, self.weight)
+        _, labels, weight = self._apply_mask(mask, self.target, self.weight)
+        data = self._get_features()
+        if predict_only_masked:
+            _, data = self._apply_mask(mask, data)
+        evaled_mask = self.lds.eval_column(mask)
 
         curve = OrderedDict()
         stage_values = self.estimators[name].staged_predict(data)
         for stage, prediction in islice(enumerate(stage_values), step - 1, None, step):
+            if not predict_only_masked:
+                prediction = prediction[evaled_mask]
             curve[stage] = metric_func(labels, prediction, sample_weight=weight)
         return list(curve.keys()), list(curve.values())
 

@@ -84,7 +84,7 @@ class AbstractReport:
 
         return plot_corr
 
-    def learning_curve(self, metric, mask=None, steps=10, metric_label='metric'):
+    def learning_curve(self, metric, mask=None, steps=10, metric_label='metric', predict_only_masked=True):
         """
         Get learning curves
 
@@ -94,6 +94,9 @@ class AbstractReport:
             otherwise dict with steps for each estimator
         :type steps: int or dict
         :param str metric_label: name for metric on plot
+        :param bool predict_only_masked: if True, will predict only for needed events.
+          When you build learning curves for FoldingClassifier/FoldingRegressor on the same dataset,
+          set this to False to get unbiased predictions.
 
         :rtype: plotting.FunctionsPlot
         """
@@ -112,7 +115,8 @@ class AbstractReport:
             else:
                 step = steps[estimator_name]
             try:
-                quality[estimator_name] = self._learning_curve_additional(estimator_name, metric_func, step, mask)
+                quality[estimator_name] = self._learning_curve_additional(estimator_name, metric_func, step, mask,
+                                                                          predict_only_masked=predict_only_masked)
             except (AttributeError, NotImplementedError):
                 print("Estimator {} doesn't support stage predictions".format(estimator_name))
         plot_fig = plotting.FunctionsPlot(quality)
@@ -121,7 +125,8 @@ class AbstractReport:
         plot_fig.title = 'Learning curves'
         return plot_fig
 
-    def _learning_curve_additional(self, name, metric_func, step, mask):
+    def _learning_curve_additional(self, name, metric_func, step, mask, predict_only_masked):
+        """ returns tuple (x_values, quality_values), which describe the learning curve """
         raise NotImplementedError('Should be implemented in descendants')
 
     def feature_importance(self, grid_columns=2):
