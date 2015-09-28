@@ -44,6 +44,7 @@ However, if you want to install `REP` and all of its dependencies on your machin
 * [documentation](http://yandex.github.io/rep/)
 * [howto](http://nbviewer.ipython.org/github/yandex/rep/tree/master/howto/)
 * [bugtracker](https://github.com/yandex/rep/issues)
+* [gitter chat, troubleshooting](https://gitter.im/yandex/rep)
 * [API, contributing new estimator](https://github.com/yandex/rep/wiki/Contributing-new-estimator)
 * [API, contributing new metric](https://github.com/yandex/rep/wiki/Contributing-new-metrics)
 
