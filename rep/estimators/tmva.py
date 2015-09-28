@@ -117,7 +117,7 @@ class TMVABase(object):
         :param info: class with additional information
         """
         tmva_process = subprocess.Popen(
-            'cd {directory}; {executable} -c "from rep.estimators import _tmvaFactory; _tmvaFactory.main()"'.format(
+            'cd "{directory}"; {executable} -c "from rep.estimators import _tmvaFactory; _tmvaFactory.main()"'.format(
                 directory=info.directory,
                 executable=sys.executable),
             stdin=PIPE, stdout=PIPE, stderr=subprocess.STDOUT,
@@ -170,7 +170,7 @@ class TMVABase(object):
         :param info: class with additional information
         """
         tmva_process = subprocess.Popen(
-            'cd {directory}; {executable} -c "from rep.estimators import _tmvaReader; _tmvaReader.main()"'.format(
+            'cd "{directory}"; {executable} -c "from rep.estimators import _tmvaReader; _tmvaReader.main()"'.format(
                 directory=info.directory,
                 executable=sys.executable),
             stdin=PIPE, stdout=PIPE, stderr=subprocess.STDOUT,
