@@ -123,11 +123,15 @@ class TMVABase(object):
             stdin=PIPE, stdout=PIPE, stderr=subprocess.STDOUT,
             shell=True)
 
-        cPickle.dump(self, tmva_process.stdin)
-        cPickle.dump(info, tmva_process.stdin)
-        cPickle.dump(X, tmva_process.stdin)
-        cPickle.dump(y, tmva_process.stdin)
-        cPickle.dump(sample_weight, tmva_process.stdin)
+        try:
+            cPickle.dump(self, tmva_process.stdin)
+            cPickle.dump(info, tmva_process.stdin)
+            cPickle.dump(X, tmva_process.stdin)
+            cPickle.dump(y, tmva_process.stdin)
+            cPickle.dump(sample_weight, tmva_process.stdin)
+        except:
+            # continuing, next we check the output of process
+            pass
         stdout, stderr = tmva_process.communicate()
         assert tmva_process.returncode == 0, \
             'ERROR: TMVA process is incorrect finished \n LOG: %s \n %s' % (stderr, stdout)
@@ -176,8 +180,12 @@ class TMVABase(object):
             stdin=PIPE, stdout=PIPE, stderr=subprocess.STDOUT,
             shell=True)
 
-        cPickle.dump(info, tmva_process.stdin)
-        cPickle.dump(data, tmva_process.stdin)
+        try:
+            cPickle.dump(info, tmva_process.stdin)
+            cPickle.dump(data, tmva_process.stdin)
+        except:
+            # Doing nothing, there is check later.
+            pass
         stdout, stderr = tmva_process.communicate()
         assert tmva_process.returncode == 0, \
             'ERROR: TMVA process is incorrect finished \n LOG: %s \n %s' % (stderr, stdout)
