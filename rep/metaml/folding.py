@@ -40,10 +40,6 @@ def get_classifier_staged_proba(classifier, data):
     return classifier.staged_predict_proba(data)
 
 
-def get_classifier_prediction(classifier, data):
-    return classifier.predict(data)
-
-
 class FoldingBase(object):
     """
     Base class for FoldingClassifier and FoldingRegressor
@@ -102,7 +98,7 @@ class FoldingBase(object):
             self.estimators.append(clone(self.base_estimator))
 
         if sample_weight is None:
-            weights_iterator = (None for _ in range(self.n_folds))
+            weights_iterator = [None] * self.n_folds
         else:
             weights_iterator = (sample_weight[folds_column != index] for index in range(self.n_folds))
 
@@ -150,8 +146,9 @@ class FoldingBase(object):
 
             result_shape = [len(X)] + list(numpy.shape(parts[0])[1:])
             results = numpy.zeros(shape=result_shape)
+            folds_indices = [numpy.where(folds_column == fold)[0] for fold in range(self.n_folds)]
             for fold, part in enumerate(parts):
-                results[folds_column == fold] = part
+                results[folds_indices[fold]] = part
             return results
 
     def _staged_folding_prediction(self, X, prediction_function, vote_function=None):
@@ -168,13 +165,14 @@ class FoldingBase(object):
             else:
                 print('KFold prediction using folds column')
             folds_column = self._get_folds_column(len(X))
-            iterators = [self.estimators[fold].staged_predict_proba(X.iloc[folds_column == fold, :])
+            iterators = [prediction_function(self.estimators[fold], X.iloc[folds_column == fold, :])
                          for fold in range(self.n_folds)]
+            folds_indices = [numpy.where(folds_column == fold)[0] for fold in range(self.n_folds)]
             for stage_results in zip(*iterators):
                 result_shape = [len(X)] + list(numpy.shape(stage_results[0])[1:])
                 result = numpy.zeros(result_shape)
                 for fold in range(self.n_folds):
-                    result[folds_column == fold] = stage_results[fold]
+                    result[folds_indices[fold]] = stage_results[fold]
                 yield result
 
 
