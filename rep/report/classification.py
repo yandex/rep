@@ -352,11 +352,10 @@ class ClassificationReport(AbstractReport):
         computed values of metric after each stage.
         """
 
-        _, labels, weight = self._apply_mask(mask, self.target, self.weight)
+        evaled_mask, labels, weight = self._apply_mask(mask, self.target, self.weight)
         data = self._get_features()
         if predict_only_masked:
             _, data = self._apply_mask(mask, data)
-        evaled_mask = self.lds.eval_column(mask)
 
         curve = OrderedDict()
         stage_proba = self.estimators[name].staged_predict_proba(data)

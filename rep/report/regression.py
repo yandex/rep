@@ -102,11 +102,10 @@ class RegressionReport(AbstractReport):
 
     def _learning_curve_additional(self, name, metric_func, step, mask, predict_only_masked):
         """Returns values of roc curve for particular classifier, mask and metric function. """
-        _, labels, weight = self._apply_mask(mask, self.target, self.weight)
+        evaled_mask, labels, weight = self._apply_mask(mask, self.target, self.weight)
         data = self._get_features()
         if predict_only_masked:
             _, data = self._apply_mask(mask, data)
-        evaled_mask = self.lds.eval_column(mask)
 
         curve = OrderedDict()
         stage_values = self.estimators[name].staged_predict(data)
