@@ -1,7 +1,7 @@
 from __future__ import division, print_function, absolute_import
 
 from sklearn.ensemble import RandomForestRegressor, AdaBoostRegressor
-from sklearn.metrics.metrics import mean_squared_error
+from sklearn.metrics import mean_squared_error
 import numpy
 
 from rep.data import LabeledDataStorage
