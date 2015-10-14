@@ -50,9 +50,9 @@ class FoldingBase(object):
                  n_folds=2,
                  random_state=None,
                  features=None,
-                 ipc_profile=None):
+                 parallel_profile=None):
         self.estimators = []
-        self.ipc_profile = ipc_profile
+        self.parallel_profile = parallel_profile
         self.n_folds = n_folds
         self.base_estimator = base_estimator
         self._folds_indices = None
@@ -102,7 +102,7 @@ class FoldingBase(object):
         else:
             weights_iterator = (sample_weight[folds_column != index] for index in range(self.n_folds))
 
-        result = utils.map_on_cluster(self.ipc_profile, train_estimator,
+        result = utils.map_on_cluster(self.parallel_profile, train_estimator,
                                       range(len(self.estimators)),
                                       self.estimators,
                                       (X.iloc[folds_column != index, :].copy() for index in range(self.n_folds)),
@@ -199,8 +199,8 @@ class FoldingRegressor(FoldingBase, Regressor):
     :param int n_folds: count of folds
     :param features: features used in training
     :type features: None or list[str]
-    :param ipc_profile: profile for IPython cluster, None to compute locally.
-    :type ipc_profile: None or str
+    :param parallel_profile: profile for IPython cluster, None to compute locally.
+    :type parallel_profile: None or str
     :param random_state: random state for reproducibility
     :type random_state: None or int or RandomState
     """
@@ -265,8 +265,8 @@ class FoldingClassifier(FoldingBase, Classifier):
     :param int n_folds: count of folds
     :param features: features used in training
     :type features: None or list[str]
-    :param ipc_profile: profile for IPython cluster, None to compute locally.
-    :type ipc_profile: None or str
+    :param parallel_profile: profile for IPython cluster, None to compute locally.
+    :type parallel_profile: None or str
     :param random_state: random state for reproducibility
     :type random_state: None or int or RandomState
     """
