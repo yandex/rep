@@ -13,6 +13,7 @@ from sklearn.utils.validation import check_random_state
 from .factory import train_estimator
 from ..estimators.interface import Classifier, Regressor
 from ..estimators.utils import check_inputs
+import pandas
 
 __author__ = 'Tatiana Likhomanenko, Alex Rogozhnikov'
 __all__ = ['FoldingClassifier', 'FoldingRegressor']
@@ -175,6 +176,17 @@ class FoldingBase(object):
                     result[folds_indices[fold]] = stage_results[fold]
                 yield result
 
+    def _get_feature_importances(self):
+        """
+        Get features importance
+
+        :return: pandas.DataFrame with column effect and `index=features`
+        """
+        importances = numpy.sum([est.feature_importances_ for est in self.estimators], axis=0)
+        # to get train_features, not features
+        one_importances = self.estimators[0].get_feature_importances()
+        return pandas.DataFrame({'effect': importances / numpy.max(importances)}, index=one_importances.index)
+
 
 class FoldingRegressor(FoldingBase, Regressor):
     """
@@ -239,6 +251,21 @@ class FoldingRegressor(FoldingBase, Regressor):
         """
         return self._folding_prediction(X, prediction_function=get_regressor_staged_predict,
                                         vote_function=vote_function)
+
+    def get_feature_importances(self):
+        """
+        Get features importance
+
+        :rtype: pandas.DataFrame with column effect and `index=features`
+        """
+        return self._get_feature_importances()
+
+    @property
+    def feature_importances_(self):
+        """Sklearn-way of returning feature importance.
+        This returned as numpy.array, assuming that initially passed train_features=None """
+        return self.get_feature_importances().ix[self.features, 'effect'].values
+
 
 
 class FoldingClassifier(FoldingBase, Classifier):
@@ -319,4 +346,18 @@ class FoldingClassifier(FoldingBase, Classifier):
         for proba in self._staged_folding_prediction(X, prediction_function=get_classifier_staged_proba,
                                                      vote_function=vote_function):
             yield proba / numpy.sum(proba, axis=1, keepdims=True)
+
+    def get_feature_importances(self):
+        """
+        Get features importance
+
+        :rtype: pandas.DataFrame with column effect and `index=features`
+        """
+        return self._get_feature_importances()
+
+    @property
+    def feature_importances_(self):
+        """Sklearn-way of returning feature importance.
+        This returned as numpy.array, assuming that initially passed train_features=None """
+        return self.get_feature_importances().ix[self.features, 'effect'].values
 
