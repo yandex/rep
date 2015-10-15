@@ -74,7 +74,7 @@ def test_folding_regressor(n_samples=100, n_features=3):
 def test_folding_classifier():
     base_ada = SklearnClassifier(AdaBoostClassifier())
     folding_str = FoldingClassifier(base_ada, n_folds=2)
-    check_folding(folding_str, True, True, False)
+    check_folding(folding_str, True, True, True)
 
     base_svm = SklearnClassifier(SVC())
     folding_str = FoldingClassifier(base_svm, n_folds=4)
