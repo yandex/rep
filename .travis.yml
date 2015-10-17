@@ -18,9 +18,10 @@ before_install:
   - ./miniconda.sh -b
   - export PATH=/home/travis/miniconda/bin:$PATH
   - conda update --yes conda
-  - travis_retry conda install --yes python=$TRAVIS_PYTHON_VERSION -c remenska root_numpy
-  - travis_retry conda install --yes python=$TRAVIS_PYTHON_VERSION pip numpy scipy six pandas
-  - travis_retry conda install --yes python=$TRAVIS_PYTHON_VERSION theano scikit-learn
+  - travis_retry conda install --yes python=$TRAVIS_PYTHON_VERSION
+  - travis_retry conda install --yes -c remenska root_numpy
+  - travis_retry conda install --yes pip numpy scipy six pandas
+  - travis_retry conda install --yes theano scikit-learn
 install:
   - travis_retry pip install . --no-dependencies
 script: nosetests tests
