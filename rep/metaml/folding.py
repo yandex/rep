@@ -13,6 +13,7 @@ from sklearn.utils.validation import check_random_state
 from .factory import train_estimator
 from ..estimators.interface import Classifier, Regressor
 from ..estimators.utils import check_inputs
+import pandas
 
 __author__ = 'Tatiana Likhomanenko, Alex Rogozhnikov'
 __all__ = ['FoldingClassifier', 'FoldingRegressor']
@@ -40,10 +41,6 @@ def get_classifier_staged_proba(classifier, data):
     return classifier.staged_predict_proba(data)
 
 
-def get_classifier_prediction(classifier, data):
-    return classifier.predict(data)
-
-
 class FoldingBase(object):
     """
     Base class for FoldingClassifier and FoldingRegressor
@@ -54,9 +51,9 @@ class FoldingBase(object):
                  n_folds=2,
                  random_state=None,
                  features=None,
-                 ipc_profile=None):
+                 parallel_profile=None):
         self.estimators = []
-        self.ipc_profile = ipc_profile
+        self.parallel_profile = parallel_profile
         self.n_folds = n_folds
         self.base_estimator = base_estimator
         self._folds_indices = None
@@ -102,11 +99,11 @@ class FoldingBase(object):
             self.estimators.append(clone(self.base_estimator))
 
         if sample_weight is None:
-            weights_iterator = (None for _ in range(self.n_folds))
+            weights_iterator = [None] * self.n_folds
         else:
             weights_iterator = (sample_weight[folds_column != index] for index in range(self.n_folds))
 
-        result = utils.map_on_cluster(self.ipc_profile, train_estimator,
+        result = utils.map_on_cluster(self.parallel_profile, train_estimator,
                                       range(len(self.estimators)),
                                       self.estimators,
                                       (X.iloc[folds_column != index, :].copy() for index in range(self.n_folds)),
@@ -150,8 +147,9 @@ class FoldingBase(object):
 
             result_shape = [len(X)] + list(numpy.shape(parts[0])[1:])
             results = numpy.zeros(shape=result_shape)
+            folds_indices = [numpy.where(folds_column == fold)[0] for fold in range(self.n_folds)]
             for fold, part in enumerate(parts):
-                results[folds_column == fold] = part
+                results[folds_indices[fold]] = part
             return results
 
     def _staged_folding_prediction(self, X, prediction_function, vote_function=None):
@@ -168,14 +166,26 @@ class FoldingBase(object):
             else:
                 print('KFold prediction using folds column')
             folds_column = self._get_folds_column(len(X))
-            iterators = [self.estimators[fold].staged_predict_proba(X.iloc[folds_column == fold, :])
+            iterators = [prediction_function(self.estimators[fold], X.iloc[folds_column == fold, :])
                          for fold in range(self.n_folds)]
+            folds_indices = [numpy.where(folds_column == fold)[0] for fold in range(self.n_folds)]
             for stage_results in zip(*iterators):
                 result_shape = [len(X)] + list(numpy.shape(stage_results[0])[1:])
                 result = numpy.zeros(result_shape)
                 for fold in range(self.n_folds):
-                    result[folds_column == fold] = stage_results[fold]
+                    result[folds_indices[fold]] = stage_results[fold]
                 yield result
+
+    def _get_feature_importances(self):
+        """
+        Get features importance
+
+        :return: pandas.DataFrame with column effect and `index=features`
+        """
+        importances = numpy.sum([est.feature_importances_ for est in self.estimators], axis=0)
+        # to get train_features, not features
+        one_importances = self.estimators[0].get_feature_importances()
+        return pandas.DataFrame({'effect': importances / numpy.max(importances)}, index=one_importances.index)
 
 
 class FoldingRegressor(FoldingBase, Regressor):
@@ -201,8 +211,8 @@ class FoldingRegressor(FoldingBase, Regressor):
     :param int n_folds: count of folds
     :param features: features used in training
     :type features: None or list[str]
-    :param ipc_profile: profile for IPython cluster, None to compute locally.
-    :type ipc_profile: None or str
+    :param parallel_profile: profile for IPython cluster, None to compute locally.
+    :type parallel_profile: None or str
     :param random_state: random state for reproducibility
     :type random_state: None or int or RandomState
     """
@@ -242,6 +252,21 @@ class FoldingRegressor(FoldingBase, Regressor):
         return self._folding_prediction(X, prediction_function=get_regressor_staged_predict,
                                         vote_function=vote_function)
 
+    def get_feature_importances(self):
+        """
+        Get features importance
+
+        :rtype: pandas.DataFrame with column effect and `index=features`
+        """
+        return self._get_feature_importances()
+
+    @property
+    def feature_importances_(self):
+        """Sklearn-way of returning feature importance.
+        This returned as numpy.array, assuming that initially passed train_features=None """
+        return self.get_feature_importances().ix[self.features, 'effect'].values
+
+
 
 class FoldingClassifier(FoldingBase, Classifier):
     """
@@ -267,8 +292,8 @@ class FoldingClassifier(FoldingBase, Classifier):
     :param int n_folds: count of folds
     :param features: features used in training
     :type features: None or list[str]
-    :param ipc_profile: profile for IPython cluster, None to compute locally.
-    :type ipc_profile: None or str
+    :param parallel_profile: profile for IPython cluster, None to compute locally.
+    :type parallel_profile: None or str
     :param random_state: random state for reproducibility
     :type random_state: None or int or RandomState
     """
@@ -321,4 +346,18 @@ class FoldingClassifier(FoldingBase, Classifier):
         for proba in self._staged_folding_prediction(X, prediction_function=get_classifier_staged_proba,
                                                      vote_function=vote_function):
             yield proba / numpy.sum(proba, axis=1, keepdims=True)
+
+    def get_feature_importances(self):
+        """
+        Get features importance
+
+        :rtype: pandas.DataFrame with column effect and `index=features`
+        """
+        return self._get_feature_importances()
+
+    @property
+    def feature_importances_(self):
+        """Sklearn-way of returning feature importance.
+        This returned as numpy.array, assuming that initially passed train_features=None """
+        return self.get_feature_importances().ix[self.features, 'effect'].values
 

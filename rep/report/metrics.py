@@ -437,8 +437,8 @@ class OptimalMetricNdim(BaseEstimator, MetricMixin):
         :rtype: tuple(array, array)
         :return: thresholds and corresponding metric values
         """
-        all = check_arrays(y_true, sample_weight, *variables)
-        y_true, sample_weight, variables = all[0], all[1], all[2:]
+        all_data = check_arrays(y_true, sample_weight, *variables)
+        y_true, sample_weight, variables = all_data[0], all_data[1], all_data[2:]
         pred = []
         thresholds = []
         for array in variables:

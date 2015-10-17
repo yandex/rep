@@ -23,67 +23,69 @@ from sklearn.ensemble import BaggingClassifier
 from rep.estimators.sklearn import SklearnClassifier
 from rep.estimators.theanets import TheanetsClassifier, TheanetsRegressor
 
-__author__ = 'Lisa Ignatyeva'
+__author__ = 'Lisa Ignatyeva, Tatiana Likhomanenko, Alex Rogozhnikov'
 
 
 classifier_params = {
     'has_staged_pp': False,
     'has_importances': False,
-    'supports_weight': False,
+    'supports_weight': True,
 }
 
 regressor_params = {
     'has_staged_predictions': False,
     'has_importances': False,
-    'supports_weight': False,
+    'supports_weight': True,
 }
 
 
 def test_theanets_params():
-    check_params(TheanetsClassifier, layers=[1, 2], scaler=False, trainers=[{}, {'optimize': 'nag'}])
-    check_params(TheanetsRegressor, layers=[1, 2], scaler=False, trainers=[{}, {'optimize': 'nag'}])
+    check_params(TheanetsClassifier, layers=[1, 2], scaler=False, trainers=[{}, {'algo': 'nag'}])
+    check_params(TheanetsRegressor, layers=[1, 2], scaler=False, trainers=[{}, {'algo': 'nag'}])
 
 
 def test_pretrain():
-    clf = TheanetsClassifier(trainers=[{'optimize': 'pretrain', 'patience': 1, 'learning_rate': 0.1},
-                                       {'optimize': 'nag', 'patience': 1}])
+    clf = TheanetsClassifier(layers=[5, 5], trainers=[{'algo': 'pretrain', 'patience': 1, 'learning_rate': 0.1},
+                                       {'algo': 'nag', 'learning_rate': 0.1}])
     check_classifier(clf, **classifier_params)
 
 
 def test_theanets_configurations():
     check_classifier(
         TheanetsClassifier(layers=[20], scaler=False,
-                           trainers=[{'optimize': 'nag', 'learning_rate': 0.3, 'min_improvement': 0.5}]),
+                           trainers=[{'algo': 'nag', 'learning_rate': 0.1}]),
         **classifier_params)
     check_classifier(
-        TheanetsClassifier(layers=[5, 5], trainers=[{'optimize': 'nag', 'learning_rate': 0.3, 'min_improvement': 0.5}]),
+        TheanetsClassifier(layers=[5, 5], trainers=[{'algo': 'nag', 'learning_rate': 0.1}]),
         **classifier_params)
 
 
 def test_theanets_single_classification():
-    check_classifier(TheanetsClassifier(trainers=[{'patience': 0}]), **classifier_params)
+    check_classifier(TheanetsClassifier(trainers=[{'patience': 1, 'min_improvement': 0.01}]), **classifier_params)
     check_classifier(TheanetsClassifier(layers=[], scaler='minmax',
-                                        trainers=[{'patience': 0}]), **classifier_params)
+                                        trainers=[{'patience': 1, 'min_improvement': 0.01}]), **classifier_params)
 
 
 def test_theanets_regression():
-    check_regression(TheanetsRegressor(layers=[20], trainers=[{'optimize': 'rmsprop', 'min_improvement': 0.1}]),
+    check_regression(TheanetsRegressor(layers=[20], trainers=[{'algo': 'rmsprop', 'min_improvement': 0.1}]),
                      **regressor_params)
     check_regression(TheanetsRegressor(scaler=StandardScaler()), **regressor_params)
 
 
 def test_theanets_multiple_classification():
-    check_classifier(TheanetsClassifier(trainers=[{'optimize': 'adadelta', 'min_improvement': 0.5}, {'optimize': 'nag'}]),
+    check_classifier(TheanetsClassifier(trainers=[{'algo': 'adadelta', 'min_improvement': 0.5}, {'algo': 'nag'}]),
                      **classifier_params)
 
 
 def test_theanets_partial_fit():
-    clf_complete = TheanetsClassifier(trainers=[{'optimize': 'rmsprop', 'patience': 0}, {'optimize': 'rprop'}])
-    clf_partial = TheanetsClassifier(trainers=[{'optimize': 'rmsprop', 'patience': 0}])
+    clf_complete = TheanetsClassifier(trainers=[{'algo': 'rmsprop', 'patience': 1}, {'algo': 'rprop'}])
+    clf_partial = TheanetsClassifier(trainers=[{'algo': 'rmsprop', 'patience': 1}])
     X, y, sample_weight = generate_classification_data()
+    import numpy
+    numpy.random.seed(43)
     clf_complete.fit(X, y)
     clf_partial.fit(X, y)
-    clf_partial.partial_fit(X, y, optimize='rprop')
+    clf_partial.partial_fit(X, y, algo='rprop')
 
     assert clf_complete.trainers == clf_partial.trainers, 'trainers not saved in partial fit'
 
@@ -94,8 +96,10 @@ def test_theanets_partial_fit():
 
 
 def test_theanets_reproducibility():
-    clf = TheanetsClassifier(trainers=[{'min_improvement': 1}])
+    clf = TheanetsClassifier(trainers=[{'algo': 'nag'}])
     X, y, _ = generate_classification_data()
+    import numpy
+    numpy.random.seed(43)
     check_classification_reproducibility(clf, X, y)
 
 
@@ -106,9 +110,9 @@ def test_theanets_simple_stacking():
 
 
 def test_theanets_multiclassification():
-    check_classifier(TheanetsClassifier(trainers=[{'patience': 0}]), n_classes=4, **classifier_params)
+    check_classifier(TheanetsClassifier(trainers=[{'patience': 1}]), n_classes=4, **classifier_params)
 
 
 def test_theanets_multi_regression():
-    check_regression(TheanetsRegressor(layers=[20], trainers=[{'optimize': 'rmsprop', 'min_improvement': 0.1}]),
+    check_regression(TheanetsRegressor(layers=[20], trainers=[{'algo': 'rmsprop', 'min_improvement': 0.1}]),
                      n_targets=3, **regressor_params)
