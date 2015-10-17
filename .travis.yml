@@ -21,7 +21,7 @@ before_install:
   - travis_retry conda install --yes python=$TRAVIS_PYTHON_VERSION
   - travis_retry conda install --yes -c remenska root_numpy
   - travis_retry conda install --yes pip numpy scipy six pandas
-  - travis_retry conda install --yes theano scikit-learn ipython
+  - travis_retry conda install --yes theano scikit-learn matplotlib ipython
 install:
   - pip install -q neurolab==0.3.5 theanets==0.6.2 pybrain==0.3
   - travis_retry pip install . --no-dependencies
