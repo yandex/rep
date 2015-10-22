@@ -189,7 +189,7 @@ class ClassificationReport(AbstractReport):
             correlation_plots.append(plot_fig)
         return plotting.GridPlot(grid_columns, *correlation_plots)
 
-    def roc(self, mask=None, signal_label=1):
+    def roc(self, mask=None, signal_label=1, physical_show=True):
         """
         Calculate roc functions for data and return roc plot object
 
@@ -208,11 +208,20 @@ class ClassificationReport(AbstractReport):
 
         for name, prediction in self.prediction.items():
             labels_active = numpy.array(self.target[mask] == signal_label, dtype=int)
-            roc_curves[name], _, _ = utils.calc_ROC(prediction[mask, signal_label], labels_active,
+            (tpr, tnr), _, _ = utils.calc_ROC(prediction[mask, signal_label], labels_active,
                                                     sample_weight=self.weight[mask])
+            if physical_show:
+                roc_curves[name] = (tpr, tnr)
+                xlabel = 'Signal sensitivity'
+                ylabel = 'Bg rejection eff (specificity)'
+            else:
+                roc_curves[name] = (1 - tnr, tpr)
+                xlabel = 'false positive rate'
+                ylabel = 'true positive rate'
+
         plot_fig = plotting.FunctionsPlot(roc_curves)
-        plot_fig.xlabel = 'Signal sensitivity'
-        plot_fig.ylabel = 'Bg rejection eff (specificity)'
+        plot_fig.xlabel = xlabel
+        plot_fig.ylabel = ylabel
         plot_fig.title = 'ROC curves'
         return plot_fig
 

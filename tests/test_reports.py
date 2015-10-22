@@ -52,6 +52,7 @@ def _classification_mask_report(report, mask, X, labels_dict):
     if labels_dict is None:
         report.feature_importance_shuffling(mask=mask).plot()
         report.roc(mask=mask).plot()
+        report.roc(mask=mask, physical_show=False).plot()
     report.efficiencies_2d(['column0', 'column1'], 0.3, mask=mask, labels_dict=labels_dict)
     print(report.compute_metric(RocAuc()))
 
