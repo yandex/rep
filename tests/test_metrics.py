@@ -13,20 +13,36 @@ def test_optimal_metrics_ndim(size=1000):
     random_labels = numpy.random.choice(2, size=size)
 
     def ams_like(s, b):
-        return s / (b + 1. / 100. / size)
+        return s * size / (b + 0.01)
 
     # setting 'the best event' to be signal
     random_labels[numpy.argmax(prediction)] = 1
     optimal_ams = metrics.OptimalMetricNdim(ams_like)
+    score, threshold = optimal_ams(random_labels, None, prediction, pid)
+    print(threshold)
+    assert score >= 100
+
+
+def test_optimal_metrics_2dim(size=1000):
+    prediction = numpy.random.random(size=size)
+    pid = numpy.ones(size)
+    random_labels = numpy.random.choice(2, size=size)
+
+    def ams_like(s, b):
+        return s / (b + 0.01)
+
+    # setting 'the best event' to be signal
+    random_labels[numpy.argmax(prediction)] = 1
+    optimal_ams = metrics.OptimalMetricNdim(ams_like, step=1)
+    optimal_ams_1d = metrics.OptimalMetric(ams_like)
     proba = numpy.ndarray((len(prediction), 2))
     proba[:, 0] = 1 - prediction
     proba[:, 1] = prediction
-    pid_2d = numpy.ndarray((len(prediction), 2))
-    pid_2d[:, 0] = 1 - pid
-    pid_2d[:, 1] = pid
-    score = optimal_ams(random_labels, None, proba, pid_2d)
-
-    assert score >= 100
+    score, threshold = optimal_ams(random_labels, None, pid, prediction)
+    score_1d = optimal_ams_1d(random_labels, proba)
+    print(score, score_1d)
+    assert numpy.allclose(score, score_1d)
+    assert score >= 1.
 
 
 def test_logloss(size=1000):

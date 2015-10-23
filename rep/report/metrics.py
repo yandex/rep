@@ -412,54 +412,76 @@ class TPRatFPR(BaseEstimator, MetricMixin):
         return numpy.sum(sample_weight[(y == 1) & (proba[:, 1] > threshold)]) / sum(sample_weight[y == 1])
 
 
-class OptimalMetricNdim(BaseEstimator, MetricMixin):
+class OptimalMetricNdim(BaseEstimator):
     """
-    Class to calculate optimal threshold on predictions using some metric
+    Class to calculate optimal thresholds on prediction_1, prediction_2, .. prediction_n simultaneously using some binary metric.
+        This metric differs from :class:`OptimalMetric`
 
-    :param function metric: metrics(s, b) -> float
+    :param function metric: metrics(s, b) -> float, binary metric
     :param expected_s: float, total weight of signal
     :param expected_b: float, total weight of background
+    :param int step: step in sorted array of predictions for each dimension to choose thresholds
+    (data are taken with values greater or equal to thresholds)
+
+    >>> proba1 = classifier1.predict_proba(X)[:, 1]
+    >>> proba2 = classifier2.predict_proba(X)[:, 1]
+    >>> optimal_ndim = OptimalMetricNdim(RocAuc())
+    >>> optimal_ndim(y, sample_weight, proba1, proba2)
+    >>> # returns optimal AUC and thresholds for proba1 and proba2
+    >>> 0.99, (0.88, 0.45)
     """
 
-    def __init__(self, metric, expected_s=1., expected_b=1., signal_label=1, step=10):
+    def __init__(self, metric, expected_s=1., expected_b=1., step=10):
         self.metric = metric
         self.expected_s = expected_s
         self.expected_b = expected_b
-        self.signal_label = signal_label
         self.step = step
 
-    def compute(self, y_true, sample_weight, *variables):
+    def __call__(self, y_true, sample_weight, *arrays):
         """
-        Compute metric for each possible prediction threshold
+        Compute metric for each possible predictions thresholds
 
         :param y_true: array-like true labels
         :param sample_weight: array-like weight
+        :param arrays: sequence of different predictions of shape [n_samples]
         :rtype: tuple(array, array)
-        :return: thresholds and corresponding metric values
+        :return: optimal metric value and corresponding thresholds for each dimension
         """
-        all_data = check_arrays(y_true, sample_weight, *variables)
+        all_data = check_arrays(y_true, sample_weight, *arrays)
         y_true, sample_weight, variables = all_data[0], all_data[1], all_data[2:]
-        pred = []
-        thresholds = []
-        for array in variables:
-            print(array.shape)
-            pred.append(array[:, self.signal_label])
-            temp = -numpy.sort(-pred[-1])
-            thresholds.append(temp[::self.step])
-        metric_values = []
-        thresholds_all = []
-        for threshold in product(*thresholds):
-            temp = numpy.ones(len(y_true), dtype=bool)
-            for t, arr in zip(threshold, pred):
-                temp *= arr > t
-            thresholds_all.append(threshold)
-            s = numpy.sum(y_true[temp])
-            b = numpy.sum(1 - y_true[temp])
-            metric_values.append(self.metric(s * self.expected_s, b * self.expected_b))
-        return thresholds_all, metric_values
+        if sample_weight is None:
+            sample_weight = numpy.ones(len(y_true))
 
-    def __call__(self, y_true, sample_weight, *variables):
-        """ proba is predicted probabilities of shape [n_samples, 2] """
-        thresholds, metrics_val = self.compute(y_true, sample_weight, *variables)
-        ind = numpy.argmax(metrics_val)
-        return metrics_val[ind], thresholds[ind]
+        sample_weight = numpy.copy(sample_weight)
+        sample_weight[y_true == 0] /= numpy.sum(sample_weight[y_true == 0]) * self.expected_b
+        sample_weight[y_true == 1] /= numpy.sum(sample_weight[y_true == 1]) * self.expected_s
+
+        thresholds = []
+        for array in variables[:-1]:
+            thr = numpy.sort(array)
+            thresholds.append(thr[::self.step])
+        optimal_metric_value = None
+        optimal_threshold = None
+
+        dim_last_pred = variables[-1]
+
+        indices = numpy.argsort(dim_last_pred)[::-1]
+        sorted_last_pred = dim_last_pred[indices]
+        sorted_y = y_true[indices]
+        sorted_weights = sample_weight[indices]
+        sorted_pred = numpy.array(variables).T[indices].T
+
+        for threshold in product(*thresholds):
+            mask = numpy.ones(len(y_true), dtype=bool)
+            for t, arr in zip(threshold, sorted_pred):
+                mask *= arr >= t
+
+            s = numpy.cumsum(sorted_y * sorted_weights * mask)
+            b = numpy.cumsum((1 - sorted_y) * sorted_weights * mask)
+
+            metric_values = self.metric(s, b)
+            ind_optimal = numpy.argmax(metric_values)
+            if (optimal_metric_value is None) or (optimal_metric_value < metric_values[ind_optimal]):
+                optimal_metric_value = metric_values[ind_optimal]
+                optimal_threshold = list(threshold) + [sorted_last_pred[ind_optimal]]
+        return optimal_metric_value, optimal_threshold
