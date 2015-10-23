@@ -4,6 +4,28 @@ import itertools
 __author__ = 'Alex Rogozhnikov, Tatiana Likhomanenko'
 
 
+def get_regressor_prediction(regressor, data):
+    return regressor.predict(data)
+
+
+def get_regressor_staged_predict(regressor, data):
+    return regressor.staged_predict(data)
+
+
+def get_classifier_probabilities(classifier, data):
+    try:
+        return classifier.predict_proba(data)
+    except AttributeError:
+        probabilities = numpy.zeros(shape=(len(data), len(classifier.classes_)))
+        labels = classifier.predict(data)
+        probabilities[numpy.arange(len(labels)), labels] = 1
+        return probabilities
+
+
+def get_classifier_staged_proba(classifier, data):
+    return classifier.staged_predict_proba(data)
+
+
 def _threads_wrapper(func_and_args):
     func = func_and_args[0]
     args = func_and_args[1:]

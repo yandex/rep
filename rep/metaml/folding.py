@@ -18,27 +18,8 @@ import pandas
 __author__ = 'Tatiana Likhomanenko, Alex Rogozhnikov'
 __all__ = ['FoldingClassifier', 'FoldingRegressor']
 
-
-def get_regressor_prediction(regressor, data):
-    return regressor.predict(data)
-
-
-def get_regressor_staged_predict(regressor, data):
-    return regressor.staged_predict(data)
-
-
-def get_classifier_probabilities(classifier, data):
-    try:
-        return classifier.predict_proba(data)
-    except AttributeError:
-        probabilities = numpy.zeros(shape=(len(data), len(classifier.classes_)))
-        labels = classifier.predict(data)
-        probabilities[numpy.arange(len(labels)), labels] = 1
-        return probabilities
-
-
-def get_classifier_staged_proba(classifier, data):
-    return classifier.staged_predict_proba(data)
+from .utils import get_classifier_probabilities, get_classifier_staged_proba, get_regressor_prediction, \
+    get_regressor_staged_predict
 
 
 class FoldingBase(object):
@@ -265,7 +246,6 @@ class FoldingRegressor(FoldingBase, Regressor):
         """Sklearn-way of returning feature importance.
         This returned as numpy.array, assuming that initially passed train_features=None """
         return self.get_feature_importances().ix[self.features, 'effect'].values
-
 
 
 class FoldingClassifier(FoldingBase, Classifier):
