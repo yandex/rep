@@ -75,7 +75,7 @@ def test_gridsearch_sklearn():
     grid_param = OrderedDict({"n_estimators": [10, 20],
                               "learning_rate": [0.1, 0.05],
                               'features': [['column0', 'column1'], ['column0', 'column1', 'column2']]})
-    generator = RegressionParameterOptimizer(grid_param, n_evaluations=4, maximization=maximization)
+    generator = RegressionParameterOptimizer(grid_param, n_evaluations=4, maximize=maximization)
 
     grid = GridOptimalSearchCV(SklearnClassifier(clf=AdaBoostClassifier()), generator, scorer,
                                parallel_profile='threads-3')

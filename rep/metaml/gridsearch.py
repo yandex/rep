@@ -79,8 +79,8 @@ from collections import OrderedDict
 import logging
 import copy
 
-from sklearn.base import clone
 import numpy
+from sklearn.base import clone
 from sklearn.cross_validation import StratifiedKFold, KFold
 from sklearn.ensemble.forest import RandomForestRegressor
 from sklearn.utils.random import check_random_state
@@ -96,20 +96,21 @@ __author__ = 'Alex Rogozhnikov, Tatiana Likhomanenko'
 
 
 class AbstractParameterGenerator(object):
-    """
-    Abstract class for grid search algorithm.
-    The aim of this class is to generate new points, where the function (estimator) will be computed.
-    You can define your own algorithm of step location of parameters grid.
 
-    Parameters:
-    ----------
-    :param OrderedDict param_grid: the grid with parameters to optimize on
-    :param int n_evaluations: the number of evaluations to do
-    :param random_state: random generator
-    :type random_state: int or RandomState or None
-    """
+    def __init__(self, param_grid, n_evaluations=10, maximize=True, random_state=None):
+        """
+        Abstract class for grid search algorithm.
+        The aim of this class is to generate new points, where the function (estimator) will be computed.
+        You can define your own algorithm of step location of parameters grid.
 
-    def __init__(self, param_grid, n_evaluations=10, maximization=True, random_state=None):
+        Parameters:
+        ----------
+        :param OrderedDict param_grid: the grid with parameters to optimize on
+        :param int n_evaluations: the number of evaluations to do
+        :param random_state: random generator
+        :param maximize: whether algorithm should maximize or minimize target function.
+        :type random_state: int or RandomState or None
+        """
         assert isinstance(param_grid, dict), 'the passed param_grid should be of OrderedDict class'
         self.param_grid = OrderedDict(param_grid)
         _check_param_grid(param_grid)
@@ -121,7 +122,7 @@ class AbstractParameterGenerator(object):
 
         # results on different parameters
         self.grid_scores_ = OrderedDict()
-        self.maximization = maximization
+        self.maximize = maximize
 
         # all the tasks that are being computed or already computed
         self.queued_tasks_ = set()
@@ -150,7 +151,9 @@ class AbstractParameterGenerator(object):
                 return result
 
     def generate_next_point(self):
-        """Generating next random point in parameters space"""
+        """Generating next random point in parameters space
+        :return: tuple (indices, parameters)
+        """
         raise NotImplementedError('Should be overriden by descendant')
 
     def generate_batch_points(self, size):
@@ -158,9 +161,9 @@ class AbstractParameterGenerator(object):
         Generate several points in parameter space at once (needed when using parallel computations)
 
         :param size: how many points we shall generate
-        :return: sequence of tuples, each tuple representing it's own
+        :return: tuple of arrays (state_indices, state_parameters)
         """
-        # may be overriden in descendants
+        # may be overriden in descendants, if independent sampling is not best option.
         state_indices = []
         for _ in range(size):
             state_indices.append(self.generate_next_point())
@@ -176,7 +179,7 @@ class AbstractParameterGenerator(object):
         self.grid_scores_[state_indices] = value
 
     def _get_the_best_value(self, value):
-        if self.maximization:
+        if self.maximize:
             return numpy.max(value)
         else:
             return numpy.min(value)
@@ -193,7 +196,7 @@ class AbstractParameterGenerator(object):
         """
         Property, return point of parameters grid with the best score
         """
-        function = max if self.maximization else min
+        function = max if self.maximize else min
         return self._indices_to_parameters(function(self.grid_scores_.items(), key=lambda x: x[1])[0])
 
     def print_results(self, reorder=True):
@@ -205,7 +208,7 @@ class AbstractParameterGenerator(object):
         """
         sequence = self.grid_scores_.items()
         if reorder:
-            sequence = sorted(sequence, key=lambda x: -x[1])
+            sequence = sorted(sequence, key=lambda x: x[1], reverse=self.maximize)
         for state_indices, value in sequence:
             state_string = ", ".join([name_value[0] + '=' + str(name_value[1]) for name_value
                                       in self._indices_to_parameters(state_indices).items()])
@@ -213,16 +216,38 @@ class AbstractParameterGenerator(object):
 
 
 class RandomParameterOptimizer(AbstractParameterGenerator):
-    """
-    Random generation of new grid point.
-    """
+    def __init__(self, param_grid, n_evaluations=10, maximize=True, random_state=None):
+        """
+        Works in the same way as sklearn.grid_search.RandomizedSearch.
+        Each next point is generated independently.
+
+        :param_grid: dict with distributions used to sample each parameter.
+          name -> list of possible values (in which case sampled uniformly from options)
+          name -> distribution (should implement '.rvs()' as scipy distributions)
+        :param bool maximize: ignored parameter, added for uniformity
+
+        NB: this is the only optimizer, which supports passing distributions for parameters.
+        """
+        self.maximize = maximize
+        self.param_grid = OrderedDict(param_grid)
+        self.n_evaluations = n_evaluations
+        self.random_state = check_random_state(random_state)
+        self.indices_to_parameters_ = OrderedDict()
+        self.grid_scores_ = OrderedDict()
+        self.queued_tasks_ = set()
+        from sklearn.grid_search import ParameterSampler
+        self.param_sampler = iter(ParameterSampler(param_grid, n_iter=n_evaluations, random_state=random_state))
 
     def generate_next_point(self):
-        """Generating next random point in parameters space"""
-        if len(self.queued_tasks_) >= numpy.prod(self.dimensions):
-            raise RuntimeError("The grid is exhausted, cannot generate more points")
-        new_state_indices = self._generate_random_point()
-        return new_state_indices, self._indices_to_parameters(new_state_indices)
+        params = next(self.param_sampler)
+        index = len(self.indices_to_parameters_)
+        indices = index,
+        self.indices_to_parameters_[indices] = params
+        self.queued_tasks_.add(indices)
+        return indices, params
+
+    def _indices_to_parameters(self, state_indices):
+        return self.indices_to_parameters_[state_indices]
 
 
 class RegressionParameterOptimizer(AbstractParameterGenerator):
@@ -244,9 +269,9 @@ class RegressionParameterOptimizer(AbstractParameterGenerator):
     """
 
     def __init__(self, param_grid, n_evaluations=10, random_state=None,
-                 start_evaluations=3, n_attempts=5, regressor=None, maximization=True):
+                 start_evaluations=3, n_attempts=5, regressor=None, maximize=True):
         AbstractParameterGenerator.__init__(self, param_grid=param_grid, n_evaluations=n_evaluations,
-                                            random_state=random_state, maximization=maximization)
+                                            random_state=random_state, maximize=maximize)
         if regressor is None:
             regressor = RandomForestRegressor(max_depth=3, n_estimators=10, max_features=0.7)
         self.regressor = regressor
@@ -271,7 +296,7 @@ class RegressionParameterOptimizer(AbstractParameterGenerator):
         candidates = numpy.array([list(self._generate_random_point(enqueue=False))
                                   for _ in range(self.n_attempts)], dtype=int)
         # winning candidate index
-        index = regressor.predict(candidates).argmax() if self.maximization else regressor.predict(candidates).argmin()
+        index = regressor.predict(candidates).argmax() if self.maximize else regressor.predict(candidates).argmin()
 
         new_state_indices = tuple(candidates[index, :])
 
@@ -281,7 +306,7 @@ class RegressionParameterOptimizer(AbstractParameterGenerator):
 
 
 class AnnealingParameterOptimizer(AbstractParameterGenerator):
-    def __init__(self, param_grid, n_evaluations=10, temperature=0.2, random_state=None, maximization=True):
+    def __init__(self, param_grid, n_evaluations=10, temperature=0.2, random_state=None, maximize=True):
         """
         Implementation if annealing algorithm
 
@@ -296,7 +321,7 @@ class AnnealingParameterOptimizer(AbstractParameterGenerator):
         """
         AbstractParameterGenerator.__init__(self, param_grid=param_grid,
                                             n_evaluations=n_evaluations,
-                                            random_state=random_state, maximization=maximization)
+                                            random_state=random_state, maximize=maximize)
         self.temperature = temperature
         self.actual_state = None
 
@@ -316,7 +341,10 @@ class AnnealingParameterOptimizer(AbstractParameterGenerator):
 
             # probability of transition
             std = numpy.std(list(self.grid_scores_.values())) + 1e-5
-            p = numpy.exp(1. / self.temperature * (last_score - actual_score) / std)
+            difference = last_score - actual_score
+            if not self.maximize:
+                difference *= -1
+            p = numpy.exp(1. / self.temperature * difference / std)
             if p > self.random_state.uniform(0, 1):
                 self.actual_state = last_state
 
@@ -329,7 +357,7 @@ class AnnealingParameterOptimizer(AbstractParameterGenerator):
                 if new_state_indices not in self.queued_tasks_:
                     break
             else:
-                print('failed to generate the simple way')
+                print('Annealing failed to generate next point the simple way')
                 new_state_indices = self._generate_random_point(enqueue=False)
 
             self.queued_tasks_.add(new_state_indices)
@@ -357,9 +385,9 @@ class SubgridParameterOptimizer(AbstractParameterGenerator):
     """
 
     def __init__(self, param_grid, n_evaluations=10, random_state=None, start_evaluations=3,
-                 subgrid_size=3, maximization=True):
+                 subgrid_size=3, maximize=True):
         AbstractParameterGenerator.__init__(self, param_grid=param_grid, n_evaluations=n_evaluations,
-                                            random_state=random_state, maximization=maximization)
+                                            random_state=random_state, maximize=maximize)
         self.start_evaluations = start_evaluations
         self.subgrid_size = subgrid_size
         self.dimensions_sum = sum(self.dimensions)
@@ -390,6 +418,8 @@ class SubgridParameterOptimizer(AbstractParameterGenerator):
             return indices, self._indices_to_parameters(indices)
 
         results = numpy.array(list(self.grid_scores_.values()), dtype=float)
+        if not self.maximize:
+            results *= -1
         std = numpy.std(results) + 1e-5
         probabilities = numpy.exp(numpy.clip((results - numpy.mean(results)) * 3. / std, -5, 5))
         probabilities /= numpy.sum(probabilities)
