@@ -33,6 +33,7 @@ before_install:
   - travis_retry conda uninstall --yes gcc
   # install xgboost
   - git clone https://github.com/dmlc/xgboost.git
+  - git fetch origin 'refs/tags/*:refs/tags/*'
   - git checkout tags/v0.40
   - cd xgboost
   - ./build.sh
