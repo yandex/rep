@@ -34,7 +34,7 @@ before_install:
   # install xgboost
   - git clone https://github.com/dmlc/xgboost.git
   - git fetch origin 'refs/tags/*:refs/tags/*'
-  - git checkout tags/v0.40
+  - git checkout v0.40
   - cd xgboost
   - ./build.sh
   - cd python-package
