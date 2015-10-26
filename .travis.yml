@@ -3,26 +3,49 @@ sudo: false
 addons:
   apt:
     packages:
+    - build-essential
     - libatlas-dev
     - libatlas-base-dev
     - liblapack-dev
     - libffi-dev
     - wget
     - gfortran
+    - xorg 
+    - openbox 
 python:
   - "2.7"
   - "3.4"
 before_install:
+  # suppress matplolib's $DISPLAY option, which should be also ised by ROOT.
+  - mkdir $HOME/.config/matplotlib -p
+  - !!str "echo 'backend: agg' > $HOME/.config/matplotlib/matplotlibrc"
   - wget http://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O miniconda.sh
   - chmod +x miniconda.sh
   - ./miniconda.sh -b
   - export PATH=/home/travis/miniconda/bin:$PATH
-  - conda update --yes conda
+  - travis_retry conda update --yes conda
   - travis_retry conda install --yes python=$TRAVIS_PYTHON_VERSION
   - travis_retry conda install --yes -c remenska root_numpy
+  - source /home/travis/miniconda/bin/thisroot.sh
+  - echo $ROOTSYS
   - travis_retry conda install --yes pip numpy scipy six pandas
-  - travis_retry conda install --yes theano scikit-learn matplotlib ipython
+  - travis_retry conda install --yes theano scikit-learn matplotlib ipython-notebook
+  - travis_retry conda uninstall --yes gcc
+  # install xgboost
+  - git clone https://github.com/dmlc/xgboost.git
+  - cd xgboost
+  - . build.sh
+  - cd python-package
+  - python setup.py install
+  - cd ../..  
+  # end install xgboost
+  - python -c 'import xgboost'
+  - python -c 'import ROOT'
+  - python -c 'import root_numpy'
+
 install:
+  - python -c 'import ROOT'
+  - python -c 'import root_numpy'
   - pip install -q neurolab==0.3.5 theanets==0.6.2 pybrain==0.3
   - travis_retry pip install . --no-dependencies
 script: nosetests tests
