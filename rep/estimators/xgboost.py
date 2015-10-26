@@ -25,8 +25,7 @@ __all__ = ['XGBoostBase', 'XGBoostClassifier', 'XGBoostRegressor']
 try:
     import xgboost as xgb
 except ImportError as e:
-    raise ImportError("Install xgboost and add '../xgboost-master/wrapper' to PYTHONPATH. "
-                      "Probably you'll need to add empty __init__.py to that directory ")
+    raise ImportError("please install xgboost")
 
 
 class XGBoostBase(object):
@@ -139,7 +138,7 @@ class XGBoostBase(object):
             params["gamma"] = self.gamma
 
         try:
-            xgmat = xgb.DMatrix(data=X, label=y, weight=sample_weight, missing=self.missing)
+            xgmat = xgb.DMatrix(data=numpy.array(X), label=y, weight=sample_weight, missing=self.missing)
             self.xgboost_classifier = xgb.train(params, xgmat, num_boost_round=self.n_estimators)
 
         except TypeError as e:

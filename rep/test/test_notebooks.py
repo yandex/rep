@@ -1,8 +1,8 @@
 from __future__ import division, print_function, absolute_import
 import os
 import re
-from IPython import nbformat
-from IPython.kernel import manager
+import nbformat
+from jupyter_client import manager
 
 try:
     from Queue import Empty

@@ -10,8 +10,8 @@ addons:
     - libffi-dev
     - wget
     - gfortran
-    - xorg 
-    - openbox 
+    # - xorg
+    # - openbox
 python:
   - "2.7"
   - "3.4"
