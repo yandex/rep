@@ -25,7 +25,7 @@ before_install:
   - export PATH=/home/travis/miniconda/bin:$PATH
   - travis_retry conda update --yes conda
   - travis_retry conda install --yes python=$TRAVIS_PYTHON_VERSION
-  - travis_retry conda install --yes -c remenska root_numpy
+  - travis_retry conda install --yes -q -c remenska root_numpy
   - source /home/travis/miniconda/bin/thisroot.sh
   - echo $ROOTSYS
   - travis_retry conda install --yes pip numpy scipy six pandas setuptools
