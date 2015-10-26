@@ -1,4 +1,4 @@
-FROM anaderi/rep-base:0.6b
+FROM anaderi/rep-base:0.6.1
 MAINTAINER Andrey Ustyuzhanin <anaderi@yandex-team.ru>
 
 ENV TEMP /tmp
