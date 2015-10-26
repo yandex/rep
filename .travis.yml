@@ -32,14 +32,14 @@ before_install:
   - travis_retry conda install --yes theano scikit-learn matplotlib ipython-notebook
   - travis_retry conda uninstall --yes gcc
   # install xgboost
-  - conda install -c https://conda.anaconda.org/aterrel xgboost
-  #- git clone https://github.com/dmlc/xgboost.git
-  #- cd xgboost
-  #- git checkout v0.40
-  #- ./build.sh
-  #- cd python-package
-  #- python setup.py install
-  #- cd ../..
+  #- conda install -c https://conda.anaconda.org/aterrel xgboost
+  - git clone https://github.com/dmlc/xgboost.git
+  - cd xgboost
+  - git checkout 8e4dc4336849c24ae48636ae60f5faddbb789038
+  - ./build.sh
+  - cd python-package
+  - python setup.py install
+  - cd ../..
   # end install xgboost
   - python -c 'import xgboost'
   - python -c 'import ROOT'
