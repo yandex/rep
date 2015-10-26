@@ -17,7 +17,7 @@ RUN apt-get install libcurl4-gnutls-dev libffi-dev wget -y --force-yes
 RUN easy_install distribute
 # numpy goes first
 RUN pip install \
-  numpy==1.9.1 
+  numpy==1.10.1
 
 ENV TEMP /tmp
 RUN curl https://raw.githubusercontent.com/yandex/rep/master/requirements.txt > $TEMP/requirements.txt 
@@ -48,7 +48,7 @@ ENV PYTHONPATH=/usr/lib/x86_64-linux-gnu/root5.34:$PYTHONPATH
 RUN easy_install -U pip
 RUN pip install \
   rootpy==0.7.1 \
-  root_numpy==4.1.2
+  root_numpy==4.4.0
 
 # XGboost
 #
