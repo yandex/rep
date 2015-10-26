@@ -425,7 +425,7 @@ class OptimalMetricNdim(BaseEstimator):
 
     >>> proba1 = classifier1.predict_proba(X)[:, 1]
     >>> proba2 = classifier2.predict_proba(X)[:, 1]
-    >>> optimal_ndim = OptimalMetricNdim(RocAuc())
+    >>> optimal_ndim = OptimalMetricNdim(ams)
     >>> optimal_ndim(y, sample_weight, proba1, proba2)
     >>> # returns optimal AUC and thresholds for proba1 and proba2
     >>> 0.99, (0.88, 0.45)
@@ -469,7 +469,7 @@ class OptimalMetricNdim(BaseEstimator):
         sorted_last_pred = dim_last_pred[indices]
         sorted_y = y_true[indices]
         sorted_weights = sample_weight[indices]
-        sorted_pred = numpy.array(variables).T[indices].T
+        sorted_pred = numpy.array(variables)[:, indices]
 
         for threshold in product(*thresholds):
             mask = numpy.ones(len(y_true), dtype=bool)
