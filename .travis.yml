@@ -28,13 +28,14 @@ before_install:
   - travis_retry conda install --yes -c remenska root_numpy
   - source /home/travis/miniconda/bin/thisroot.sh
   - echo $ROOTSYS
-  - travis_retry conda install --yes pip numpy scipy six pandas
+  - travis_retry conda install --yes pip numpy scipy six pandas setuptools
   - travis_retry conda install --yes theano scikit-learn matplotlib ipython-notebook
   - travis_retry conda uninstall --yes gcc
   # install xgboost
   - git clone https://github.com/dmlc/xgboost.git
+  - git checkout tags/v0.40
   - cd xgboost
-  - . build.sh
+  - ./build.sh
   - cd python-package
   - python setup.py install
   - cd ../..  
