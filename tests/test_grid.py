@@ -2,37 +2,47 @@ from __future__ import division, print_function, absolute_import
 from collections import OrderedDict
 
 from sklearn import clone
-from sklearn.ensemble import AdaBoostClassifier
+from sklearn.ensemble import AdaBoostClassifier, AdaBoostRegressor
 from sklearn.metrics import roc_auc_score, log_loss
 from sklearn.qda import QDA
 
-from rep.test.test_estimators import check_classification_model
+from rep.test.test_estimators import check_classification_model, check_regression_model
 
 from rep.metaml import GridOptimalSearchCV, SubgridParameterOptimizer, FoldingScorer, \
-    RegressionParameterOptimizer
+    RegressionParameterOptimizer, RegressionFoldingScorer, ClassificationFoldingScorer
 from rep.metaml.gridsearch import AnnealingParameterOptimizer, RandomParameterOptimizer
 from rep.report.metrics import OptimalAMS, RocAuc, LogLoss, OptimalSignificance
-from rep.test.test_estimators import generate_classification_data
-from rep.estimators import SklearnClassifier
+from rep.test.test_estimators import generate_classification_data, generate_regression_data
+from rep.estimators import SklearnClassifier, SklearnRegressor
+from sklearn.metrics import mean_squared_error
 import numpy
 
 __author__ = 'Tatiana Likhomanenko'
 
 
-def check_grid(classifier, check_instance=True, has_staged_pp=True, has_importances=True, use_weights=False):
-    X, y, sample_weight = generate_classification_data()
+def check_grid(estimator, check_instance=True, has_staged_pp=True, has_importances=True, use_weights=False,
+               classification=True):
+    if classification:
+        X, y, sample_weight = generate_classification_data()
+    else:
+        X, y, sample_weight = generate_regression_data()
     assert len(sample_weight) == len(X), 'somehow lengths are different'
 
     if use_weights:
-        assert classifier == classifier.fit(X, y, sample_weight=sample_weight)
-        classifier = classifier.fit_best_estimator(X, y, sample_weight=sample_weight)
+        assert estimator == estimator.fit(X, y, sample_weight=sample_weight)
+        estimator = estimator.fit_best_estimator(X, y, sample_weight=sample_weight)
     else:
-        assert classifier == classifier.fit(X, y)
-        classifier = classifier.fit_best_estimator(X, y)
+        assert estimator == estimator.fit(X, y)
+        estimator = estimator.fit_best_estimator(X, y)
 
-    check_classification_model(classifier, X, y, check_instance=check_instance, has_staged_pp=has_staged_pp,
+    if classification:
+        check_classification_model(estimator, X, y, check_instance=check_instance, has_staged_pp=has_staged_pp,
+                                   has_importances=has_importances)
+    else:
+        check_regression_model(estimator, X, y, check_instance=check_instance, has_stages=has_staged_pp,
                                has_importances=has_importances)
-    return classifier
+
+    return estimator
 
 
 def test_gridsearch_on_tmva():
@@ -57,13 +67,15 @@ def test_gridsearch_on_tmva():
 
 
 def test_gridsearch_sklearn():
-    metric = numpy.random.choice([OptimalAMS(), RocAuc()])
-    scorer = FoldingScorer(metric)
-
+    metric = numpy.random.choice([OptimalAMS(), RocAuc(), LogLoss()])
+    scorer = ClassificationFoldingScorer(metric)
+    maximization = True
+    if isinstance(metric, LogLoss):
+        maximization = False
     grid_param = OrderedDict({"n_estimators": [10, 20],
                               "learning_rate": [0.1, 0.05],
                               'features': [['column0', 'column1'], ['column0', 'column1', 'column2']]})
-    generator = RegressionParameterOptimizer(grid_param, n_evaluations=4)
+    generator = RegressionParameterOptimizer(grid_param, n_evaluations=4, maximization=maximization)
 
     grid = GridOptimalSearchCV(SklearnClassifier(clf=AdaBoostClassifier()), generator, scorer,
                                parallel_profile='threads-3')
@@ -74,6 +86,30 @@ def test_gridsearch_sklearn():
     # Check parameters of best fitted classifier
     assert 2 <= len(classifier.features) <= 3, 'Features were not set'
     params = classifier.get_params()
+    for key in grid_param:
+        if key in params:
+            assert params[key] == grid.generator.best_params_[key]
+        else:
+            assert params['clf__' + key] == grid.generator.best_params_[key]
+
+
+def test_gridsearch_sklearn_regression():
+    scorer = RegressionFoldingScorer(mean_squared_error)
+
+    grid_param = OrderedDict({"n_estimators": [10, 20],
+                              "learning_rate": [0.1, 0.05],
+                              'features': [['column0', 'column1'], ['column0', 'column1', 'column2']]})
+    generator = RegressionParameterOptimizer(grid_param, n_evaluations=4)
+
+    grid = GridOptimalSearchCV(SklearnRegressor(clf=AdaBoostRegressor()), generator, scorer)
+                               #parallel_profile='threads-3')
+
+    _ = check_grid(grid, False, False, False, use_weights=True, classification=False)
+    regressor = check_grid(grid, False, False, False, use_weights=False, classification=False)
+
+    # Check parameters of best fitted classifier
+    assert 2 <= len(regressor.features) <= 3, 'Features were not set'
+    params = regressor.get_params()
     for key in grid_param:
         if key in params:
             assert params[key] == grid.generator.best_params_[key]
@@ -144,6 +180,7 @@ def test_gridsearch_metrics():
     })
 
     from itertools import cycle
+
     optimizers = cycle([
         RegressionParameterOptimizer(param_grid=param_grid, n_evaluations=4, start_evaluations=2),
         AnnealingParameterOptimizer(param_grid=param_grid, n_evaluations=4),

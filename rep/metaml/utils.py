@@ -1,5 +1,6 @@
 from multiprocessing.pool import ThreadPool
 import itertools
+import numpy
 
 __author__ = 'Alex Rogozhnikov, Tatiana Likhomanenko'
 

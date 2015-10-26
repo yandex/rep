@@ -77,11 +77,11 @@ from __future__ import division, print_function, absolute_import
 from itertools import islice
 from collections import OrderedDict
 import logging
+import copy
 
 from sklearn.base import clone
 import numpy
-import copy
-from sklearn.cross_validation import StratifiedKFold
+from sklearn.cross_validation import StratifiedKFold, KFold
 from sklearn.ensemble.forest import RandomForestRegressor
 from sklearn.utils.random import check_random_state
 
@@ -89,6 +89,8 @@ from six.moves import zip
 from ..estimators.utils import check_inputs
 from ..utils import fit_metric
 from .utils import map_on_cluster
+from .utils import get_classifier_probabilities, get_regressor_prediction
+
 
 __author__ = 'Alex Rogozhnikov, Tatiana Likhomanenko'
 
@@ -107,7 +109,7 @@ class AbstractParameterGenerator(object):
     :type random_state: int or RandomState or None
     """
 
-    def __init__(self, param_grid, n_evaluations=10, random_state=None):
+    def __init__(self, param_grid, n_evaluations=10, maximization=True, random_state=None):
         assert isinstance(param_grid, dict), 'the passed param_grid should be of OrderedDict class'
         self.param_grid = OrderedDict(param_grid)
         _check_param_grid(param_grid)
@@ -119,6 +121,7 @@ class AbstractParameterGenerator(object):
 
         # results on different parameters
         self.grid_scores_ = OrderedDict()
+        self.maximization = maximization
 
         # all the tasks that are being computed or already computed
         self.queued_tasks_ = set()
@@ -172,19 +175,26 @@ class AbstractParameterGenerator(object):
         """
         self.grid_scores_[state_indices] = value
 
+    def _get_the_best_value(self, value):
+        if self.maximization:
+            return numpy.max(value)
+        else:
+            return numpy.min(value)
+
     @property
     def best_score_(self):
         """
         Property, return best score of optimization
         """
-        return numpy.max(list(self.grid_scores_.values()))
+        return self._get_the_best_value(list(self.grid_scores_.values()))
 
     @property
     def best_params_(self):
         """
         Property, return point of parameters grid with the best score
         """
-        return self._indices_to_parameters(max(self.grid_scores_.items(), key=lambda x: x[1])[0])
+        function = max if self.maximization else min
+        return self._indices_to_parameters(function(self.grid_scores_.items(), key=lambda x: x[1])[0])
 
     def print_results(self, reorder=True):
         """
@@ -234,9 +244,9 @@ class RegressionParameterOptimizer(AbstractParameterGenerator):
     """
 
     def __init__(self, param_grid, n_evaluations=10, random_state=None,
-                 start_evaluations=3, n_attempts=5, regressor=None):
+                 start_evaluations=3, n_attempts=5, regressor=None, maximization=True):
         AbstractParameterGenerator.__init__(self, param_grid=param_grid, n_evaluations=n_evaluations,
-                                            random_state=random_state)
+                                            random_state=random_state, maximization=maximization)
         if regressor is None:
             regressor = RandomForestRegressor(max_depth=3, n_estimators=10, max_features=0.7)
         self.regressor = regressor
@@ -261,7 +271,7 @@ class RegressionParameterOptimizer(AbstractParameterGenerator):
         candidates = numpy.array([list(self._generate_random_point(enqueue=False))
                                   for _ in range(self.n_attempts)], dtype=int)
         # winning candidate index
-        index = regressor.predict(candidates).argmax()
+        index = regressor.predict(candidates).argmax() if self.maximization else regressor.predict(candidates).argmin()
 
         new_state_indices = tuple(candidates[index, :])
 
@@ -271,7 +281,7 @@ class RegressionParameterOptimizer(AbstractParameterGenerator):
 
 
 class AnnealingParameterOptimizer(AbstractParameterGenerator):
-    def __init__(self, param_grid, n_evaluations=10, temperature=0.2, random_state=None):
+    def __init__(self, param_grid, n_evaluations=10, temperature=0.2, random_state=None, maximization=True):
         """
         Implementation if annealing algorithm
 
@@ -286,7 +296,7 @@ class AnnealingParameterOptimizer(AbstractParameterGenerator):
         """
         AbstractParameterGenerator.__init__(self, param_grid=param_grid,
                                             n_evaluations=n_evaluations,
-                                            random_state=random_state)
+                                            random_state=random_state, maximization=maximization)
         self.temperature = temperature
         self.actual_state = None
 
@@ -347,9 +357,9 @@ class SubgridParameterOptimizer(AbstractParameterGenerator):
     """
 
     def __init__(self, param_grid, n_evaluations=10, random_state=None, start_evaluations=3,
-                 subgrid_size=3):
+                 subgrid_size=3, maximization=True):
         AbstractParameterGenerator.__init__(self, param_grid=param_grid, n_evaluations=n_evaluations,
-                                            random_state=random_state)
+                                            random_state=random_state, maximization=maximization)
         self.start_evaluations = start_evaluations
         self.subgrid_size = subgrid_size
         self.dimensions_sum = sum(self.dimensions)
@@ -457,9 +467,52 @@ def _translate_key_from_subgrid(subgrid_indices, key):
 # endregion
 
 
-class FoldingScorer(object):
+class FoldingScorerBase(object):
     """
     Scorer, which implements logic of data folding and scoring. This is a function-like object
+
+    :param int folds: 'k' used in k-folding while validating
+    :param int fold_checks: not greater than folds, the number of checks we do by cross-validating
+    :param function score_function: quality. if fold_checks > 1, the average is computed over checks.
+    """
+
+    def __init__(self, score_function, folds=3, fold_checks=1, shuffle=False, random_state=None):
+        self.folds = folds
+        self.fold_checks = fold_checks
+        self.score_function = score_function
+        self.shuffle = shuffle
+        self.random_state = random_state
+
+    def _compute_score(self, k_folder, prediction_function, base_estimator, params, X, y, sample_weight=None):
+        """
+        :return float: quality
+        """
+        score = 0
+        for ind, (train_indices, test_indices) in enumerate(islice(k_folder, 0, self.fold_checks)):
+            estimator = clone(base_estimator)
+            estimator.set_params(**params)
+
+            trainX, trainY = X.iloc[train_indices, :], y[train_indices]
+            testX, testY = X.iloc[test_indices, :], y[test_indices]
+
+            score_metric = copy.deepcopy(self.score_function)
+            if sample_weight is not None:
+                train_weights, test_weights = sample_weight[train_indices], sample_weight[test_indices]
+                estimator.fit(trainX, trainY, sample_weight=train_weights)
+                fit_metric(score_metric, testX, testY, sample_weight=test_weights)
+                prediction = prediction_function(estimator, testX)
+                score += score_metric(testY, prediction, sample_weight=test_weights)
+            else:
+                estimator.fit(trainX, trainY)
+                fit_metric(score_metric, testX, testY)
+                prediction = prediction_function(estimator, testX)
+                score += score_metric(testY, prediction)
+        return score / self.fold_checks
+
+
+class ClassificationFoldingScorer(FoldingScorerBase):
+    """
+    Scorer, which implements logic of data folding and scoring for classification models. This is a function-like object
 
     :param int folds: 'k' used in k-folding while validating
     :param int fold_checks: not greater than folds, the number of checks we do by cross-validating
@@ -480,37 +533,47 @@ class FoldingScorer(object):
     >>> f_scorer(base_estimator, params, X, y, sample_weight=None)
     0.5
     """
-
-    def __init__(self, score_function, folds=3, fold_checks=1):
-        self.folds = folds
-        self.fold_checks = fold_checks
-        self.score_function = score_function
-
     def __call__(self, base_estimator, params, X, y, sample_weight=None):
         """
         :return float: quality
         """
-        k_folder = StratifiedKFold(y=y, n_folds=self.folds)
-        score = 0
-        for ind, (train_indices, test_indices) in enumerate(islice(k_folder, 0, self.fold_checks)):
-            classifier = clone(base_estimator)
-            classifier.set_params(**params)
+        k_folder = StratifiedKFold(y=y, n_folds=self.folds, shuffle=self.shuffle, random_state=self.random_state)
+        return self._compute_score(k_folder, get_classifier_probabilities, base_estimator, params, X, y,
+                                   sample_weight=sample_weight)
 
-            trainX, trainY = X.iloc[train_indices, :], y[train_indices]
-            testX, testY = X.iloc[test_indices, :], y[test_indices]
 
-            score_metric = copy.deepcopy(self.score_function)
+class RegressionFoldingScorer(FoldingScorerBase):
+    """
+    Scorer, which implements logic of data folding and scoring for regression models. This is a function-like object
 
-            if sample_weight is not None:
-                train_weights, test_weights = sample_weight[train_indices], sample_weight[test_indices]
-                classifier.fit(trainX, trainY, sample_weight=train_weights)
-                fit_metric(score_metric, testX, testY, sample_weight=test_weights)
-                score += score_metric(testY, classifier.predict_proba(testX), sample_weight=test_weights)
-            else:
-                classifier.fit(trainX, trainY)
-                fit_metric(score_metric, testX, testY)
-                score += score_metric(testY, classifier.predict_proba(testX))
-        return score / self.fold_checks
+    :param int folds: 'k' used in k-folding while validating
+    :param int fold_checks: not greater than folds, the number of checks we do by cross-validating
+    :param function score_function: quality. if fold_checks > 1, the average is computed over checks.
+
+
+    Example:
+
+    >>> def new_score_function(y_true, pred, sample_weight=None):
+    >>>     '''
+    >>>     y_true: [n_samples]
+    >>>     pred: [n_samples]
+    >>>     sample_weight: [n_samples] or None
+    >>>     '''
+    >>>     ...
+    >>>
+    >>> f_scorer = RegressionFoldingScorer(new_score_function)
+    >>> f_scorer(base_estimator, params, X, y, sample_weight=None)
+    0.5
+    """
+    def __call__(self, base_estimator, params, X, y, sample_weight=None):
+        """
+        :return float: quality
+        """
+        k_folder = KFold(len(y), n_folds=self.folds, shuffle=self.shuffle, random_state=self.random_state)
+        return self._compute_score(k_folder, get_regressor_prediction, base_estimator, params, X, y,
+                                   sample_weight=sample_weight)
+
+FoldingScorer = ClassificationFoldingScorer
 
 
 def apply_scorer(scorer, params, base_estimator, X, y, sample_weight):
@@ -615,6 +678,7 @@ class GridOptimalSearchCV(object):
                 print("Performing grid search in {} threads".format(portion))
             else:
                 from IPython.parallel import Client
+
                 direct_view = Client(profile=self.parallel_profile).direct_view()
                 portion = len(direct_view)
                 print("There are {0} cores in cluster, the portion is equal {1}".format(len(direct_view), portion))

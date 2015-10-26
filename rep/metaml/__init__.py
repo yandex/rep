@@ -6,5 +6,5 @@ from .gridsearch import GridOptimalSearchCV
 from .stacking import FeatureSplitter
 
 from .gridsearch import AbstractParameterGenerator, RandomParameterOptimizer, SubgridParameterOptimizer, \
-    RegressionParameterOptimizer, FoldingScorer
+    RegressionParameterOptimizer, ClassificationFoldingScorer, RegressionFoldingScorer, FoldingScorer
 
