@@ -14,20 +14,21 @@
 
 
 from __future__ import division, print_function, absolute_import
-from rep.test.test_estimators import check_classifier, check_regression, check_params, \
-    generate_classification_data, check_classification_reproducibility
-from rep.estimators.pybrain import PyBrainClassifier, PyBrainRegressor
-from sklearn.ensemble import BaggingClassifier
-from rep.estimators import SklearnClassifier
+
 import six
-
-__author__ = 'Artem Zhirokhov'
-
 if six.PY3:
     # PyBrain doesn't support python3
     import nose
     raise nose.SkipTest
 
+
+from rep.test.test_estimators import check_classifier, check_regression, check_params, \
+    generate_classification_data, check_classification_reproducibility
+from rep.estimators.pybrain import PyBrainClassifier, PyBrainRegressor
+from sklearn.ensemble import BaggingClassifier
+from rep.estimators import SklearnClassifier
+
+__author__ = 'Artem Zhirokhov'
 
 classifier_params = {
     'has_staged_pp': False,
