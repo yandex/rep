@@ -110,5 +110,5 @@ def test_theanets_multiclassification():
 
 
 def test_theanets_multi_regression():
-    check_regression(TheanetsRegressor(layers=[20], trainers=[{'algo': 'rmsprop', 'min_improvement': 0.1}]),
+    check_regression(TheanetsRegressor(layers=[13], trainers=[{'algo': 'rmsprop', 'min_improvement': 0.1}]),
                      n_targets=3, **regressor_params)

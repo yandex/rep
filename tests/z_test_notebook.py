@@ -2,12 +2,6 @@ import os
 import re
 from rep.test.test_notebooks import check_single_notebook
 
-try:
-    from Queue import Empty
-except ImportError:
-    # python 3, so that file at least executable
-    from queue import Empty
-
 # Ignore these files
 IGNORE = re.compile(r'.*ipykee.*')
 # Also ignore ipython checkpoints
@@ -23,5 +17,3 @@ def test_notebooks_in_folder(folder='../howto/'):
                     print("Testing %s" % file_)
                     # False means not check
                     yield check_single_notebook, os.path.join(folder, file_)
-
-

@@ -251,25 +251,25 @@ class RandomParameterOptimizer(AbstractParameterGenerator):
 
 
 class RegressionParameterOptimizer(AbstractParameterGenerator):
-    """
-    To generate next point of grid regressor will be used to estimate score for all next point in such way
-    that the point with the best estimated score will be chosen
-
-    Parameters:
-    ----------
-    :param OrderedDict param_grid: the grid with parameters to optimize on
-    :param int n_evaluations: the number of evaluations to do
-    :param random_state: random generator
-    :type random_state: int or RandomState or None
-
-    :param int start_evaluations: count of random point generation on start
-    :param int n_attempts:
-    :param regressor: regressor to choose appropriate next point with potential best score
-        (estimated this score by regressor); If None them RandomForest algorithm will be used.
-    """
-
     def __init__(self, param_grid, n_evaluations=10, random_state=None,
-                 start_evaluations=3, n_attempts=5, regressor=None, maximize=True):
+                 start_evaluations=3, n_attempts=10, regressor=None, maximize=True):
+        """
+        This general method relies on regression.
+        Regressor will try to predict the best point based on already known result fir different parameters.
+
+        Parameters:
+        ----------
+        :param OrderedDict param_grid: the grid with parameters to optimize on
+        :param int n_evaluations: the number of evaluations to do
+        :param random_state: random generator
+        :type random_state: int or RandomState or None
+
+        :param int start_evaluations: count of random point generation on start
+        :param int n_attempts: this number of points will be compared on each iteration.
+            Regressor is to choose optimal from them.
+        :param regressor: regressor to choose appropriate next point with potential best score
+            (estimated this score by regressor); If None them RandomForest algorithm will be used.
+        """
         AbstractParameterGenerator.__init__(self, param_grid=param_grid, n_evaluations=n_evaluations,
                                             random_state=random_state, maximize=maximize)
         if regressor is None:
