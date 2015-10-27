@@ -25,7 +25,6 @@ from rep.estimators.theanets import TheanetsClassifier, TheanetsRegressor
 
 __author__ = 'Lisa Ignatyeva, Tatiana Likhomanenko, Alex Rogozhnikov'
 
-
 classifier_params = {
     'has_staged_pp': False,
     'has_importances': False,
@@ -46,7 +45,7 @@ def test_theanets_params():
 
 def test_pretrain():
     clf = TheanetsClassifier(layers=[5, 5], trainers=[{'algo': 'pretrain', 'patience': 1, 'learning_rate': 0.1},
-                                       {'algo': 'nag', 'learning_rate': 0.1}])
+                                                      {'algo': 'nag', 'learning_rate': 0.1}])
     check_classifier(clf, **classifier_params)
 
 
@@ -61,20 +60,14 @@ def test_theanets_configurations():
 
 
 def test_theanets_single_classification():
-    check_classifier(TheanetsClassifier(trainers=[{'patience': 1, 'min_improvement': 0.01}]), **classifier_params)
     check_classifier(TheanetsClassifier(layers=[], scaler='minmax',
-                                        trainers=[{'patience': 1, 'min_improvement': 0.01}]), **classifier_params)
+                                        trainers=[{'patience': 1, 'min_improvement': 0.1}]), **classifier_params)
 
 
 def test_theanets_regression():
     check_regression(TheanetsRegressor(layers=[20], trainers=[{'algo': 'rmsprop', 'min_improvement': 0.1}]),
                      **regressor_params)
     check_regression(TheanetsRegressor(scaler=StandardScaler()), **regressor_params)
-
-
-def test_theanets_multiple_classification():
-    check_classifier(TheanetsClassifier(trainers=[{'algo': 'adadelta', 'min_improvement': 0.5}, {'algo': 'nag'}]),
-                     **classifier_params)
 
 
 def test_theanets_partial_fit():

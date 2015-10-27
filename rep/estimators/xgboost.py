@@ -3,7 +3,6 @@ Wrapper for `XGBoost <https://github.com/dmlc/xgboost>`_ library.
 """
 from __future__ import division, print_function, absolute_import
 
-from collections import defaultdict
 from logging import getLogger
 import tempfile
 import os
@@ -12,7 +11,7 @@ from abc import ABCMeta
 import pandas
 import numpy
 
-from .utils import normalize_weights
+from .utils import normalize_weights, remove_first_line
 from .interface import Classifier, Regressor
 from .utils import check_inputs
 
@@ -143,7 +142,6 @@ class XGBoostBase(object):
             params["gamma"] = self.gamma
 
         try:
-            # xgmat = xgb.DMatrix(data=X, label=y, weight=sample_weight, missing=self.missing, feature_names=X.columns)
             xgmat = self._make_dmatrix(X, y, sample_weight)
             self.xgboost_classifier = xgb.train(params, xgmat, num_boost_round=self.n_estimators)
         except TypeError as e:
@@ -210,40 +208,8 @@ class XGBoostBase(object):
 
 
 class XGBoostClassifier(XGBoostBase, Classifier):
-    """
-    Implements classification (and multiclassification) from XGBoost library.
-
-    Parameters:
-    -----------
-    :param features: list of features to train model
-    :type features: None or list(str)
-    :param int n_estimators: the number of trees built.
-    :param int nthreads: number of parallel threads used to run xgboost.
-    :param num_feature: feature dimension used in boosting, set to maximum dimension of the feature
-        (set automatically by xgboost, no need to be set by user).
-    :type num_feature: None or int
-    :param float gamma: minimum loss reduction required to make a further partition on a leaf node of the tree.
-        The larger, the more conservative the algorithm will be.
-    :type gamma: None or float
-    :param float eta: step size shrinkage used in update to prevent overfitting.
-        After each boosting step, we can directly get the weights of new features
-        and eta actually shrinkage the feature weights to make the boosting process more conservative.
-    :param int max_depth: maximum depth of a tree.
-    :param float scale_pos_weight: ration of weights of the class 1 to the weights of the class 0.
-    :param float min_child_weight: minimum sum of instance weight(hessian) needed in a child.
-        If the tree partition step results in a leaf node with the sum of instance weight less than min_child_weight,
-        then the building process will give up further partitioning.
-
-        .. note:: weights are normalized so that mean=1 before fitting. Roughly min_child_weight is equal to the number of events.
-    :param float subsample: subsample ratio of the training instance.
-        Setting it to 0.5 means that XGBoost randomly collected half of the data instances to grow trees
-        and this will prevent overfitting.
-    :param float colsample: subsample ratio of columns when constructing each tree.
-    :param float base_score: the initial prediction score of all instances, global bias.
-    :param int random_state: random number seed.
-    :param boot verbose: if 1, will print messages during training
-    :param float missing: the number considered by xgboost as missing value.
-    """
+    __doc__ = 'Implements classification (and multiclassification) from XGBoost library. \n'\
+              + remove_first_line(XGBoostBase.__doc__)
 
     def __init__(self, features=None,
                  n_estimators=100,
@@ -327,44 +293,7 @@ class XGBoostClassifier(XGBoostBase, Classifier):
 
 
 class XGBoostRegressor(XGBoostBase, Regressor):
-    """
-    Implements regression from XGBoost library.
-
-    Parameters:
-    -----------
-    :param features: list of features to train model
-    :type features: None or list(str)
-    :param int n_estimators: the number of trees built.
-    :param int nthreads: number of parallel threads used to run xgboost.
-    :param num_feature: feature dimension used in boosting, set to maximum dimension of the feature
-        (set automatically by xgboost, no need to be set by user).
-    :type num_feature: None or int
-    :param float gamma: minimum loss reduction required to make a further partition on a leaf node of the tree.
-        The larger, the more conservative the algorithm will be.
-    :type gamma: None or float
-    :param float eta: step size shrinkage used in update to prevent overfitting.
-        After each boosting step, we can directly get the weights of new features
-        and eta actually shrinkage the feature weights to make the boosting process more conservative.
-    :param int max_depth: maximum depth of a tree.
-    :param float min_child_weight: minimum sum of instance weight(hessian) needed in a child.
-        If the tree partition step results in a leaf node with the sum of instance weight less than min_child_weight,
-        then the building process will give up further partitioning.
-
-        .. note:: weights are normalized so that mean=1 before fitting. Roughly min_child_weight is equal to the number of events.
-    :param float subsample: subsample ratio of the training instance.
-        Setting it to 0.5 means that XGBoost randomly collected half of the data instances to grow trees
-        and this will prevent overfitting.
-    :param float colsample: subsample ratio of columns when constructing each tree.
-    :param float base_score: the initial prediction score of all instances, global bias.
-    :param int random_state: random number seed.
-    :param boot verbose: if 1, will print messages during training
-    :param float missing: the number considered by xgboost as missing value.
-    :param str objective_type: specify the learning task and the corresponding learning objective, and the options are below:
-
-        * "linear" -- linear regression
-        * "logistic" -- logistic regression
-
-    """
+    __doc__ = 'Implements regression from XGBoost library. \n' + remove_first_line(XGBoostBase.__doc__)
 
     def __init__(self, features=None,
                  n_estimators=100,

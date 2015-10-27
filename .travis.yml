@@ -10,13 +10,11 @@ addons:
     - libffi-dev
     - wget
     - gfortran
-    # - xorg
-    # - openbox
 python:
   - "2.7"
   - "3.4"
 before_install:
-  # suppress matplolib's $DISPLAY option, which should be also ised by ROOT.
+  # suppress matplolib's $DISPLAY option, which should be also used by ROOT.
   - mkdir $HOME/.config/matplotlib -p
   - !!str "echo 'backend: agg' > $HOME/.config/matplotlib/matplotlibrc"
   - wget http://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O miniconda.sh
@@ -32,9 +30,9 @@ before_install:
   - travis_retry conda install --yes theano scikit-learn matplotlib ipython-notebook
   - travis_retry conda uninstall --yes gcc
   # install xgboost
-  #- conda install -c https://conda.anaconda.org/aterrel xgboost
   - git clone https://github.com/dmlc/xgboost.git
   - cd xgboost
+  # taking particular xgboost commit, which is working
   - git checkout 8e4dc4336849c24ae48636ae60f5faddbb789038
   - ./build.sh
   - cd python-package
@@ -44,11 +42,8 @@ before_install:
   - python -c 'import xgboost'
   - python -c 'import ROOT'
   - python -c 'import root_numpy'
-
-install:
-  - python -c 'import ROOT'
-  - python -c 'import root_numpy'
   - pip install -q neurolab==0.3.5 theanets==0.6.2 pybrain==0.3
+install:
   - travis_retry pip install . --no-dependencies
 script: nosetests tests
 cache:
