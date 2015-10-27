@@ -58,18 +58,19 @@ def test_simple_optimizer(n_evaluations=100):
             assert len(optimizer.generator.grid_scores_) == n_evaluations
             assert len(optimizer.generator.queued_tasks_) == n_evaluations
             assert set(optimizer.generator.grid_scores_.keys()) == optimizer.generator.queued_tasks_
-            scores = optimizer.generator.grid_scores_.values()
+            scores = list(optimizer.generator.grid_scores_.values())
             scores_order = numpy.argsort(numpy.argsort(scores))
 
             expected_mean = numpy.prod([numpy.mean(p) for p in parameters.values()]) * sign
-            optimizer.print_results()
-            # check that quality is better than random
             if generator_type is not RandomParameterOptimizer:
-                assert (numpy.mean(scores) - expected_mean) * sign > 0, \
+                # check that quality is better than random
+                passed_check = (numpy.mean(scores) - expected_mean) * sign > 0
+                if not passed_check:
+                    optimizer.print_results()
+
+                assert passed_check, \
                     "Generator {}, maximize {}, computed mean {}, expected_mean {}".format(
                         generator_type.__name__, maximize, numpy.mean(scores), expected_mean)
-
-            print('\n\n')
 
 
 def test_random_optimization_with_distributions(n_evaluations=60):
