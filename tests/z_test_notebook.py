@@ -2,6 +2,13 @@ import os
 import re
 from rep.test.test_notebooks import check_single_notebook
 
+import six
+if six.PY3:
+    # Notebooks are written in python2.
+    import nose
+    raise nose.SkipTest
+
+
 # Ignore these files
 IGNORE = re.compile(r'.*ipykee.*')
 # Also ignore ipython checkpoints

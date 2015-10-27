@@ -23,7 +23,7 @@ from sklearn.ensemble import BaggingClassifier
 from rep.estimators.sklearn import SklearnClassifier
 from rep.estimators.theanets import TheanetsClassifier, TheanetsRegressor
 import climate
-from tests import known_failure
+from tests import known_failure, retry_if_fails
 
 climate.enable_default_logging(default_level='ERROR')
 
@@ -47,17 +47,20 @@ def test_exp_failure():
     assert 0 == 1
 
 
+@retry_if_fails
 def test_theanets_params():
     check_params(TheanetsClassifier, layers=[1, 2], scaler=False, trainers=[{}, {'algo': 'nag', 'learning_rate': 0.1}])
     check_params(TheanetsRegressor, layers=[1, 2], scaler=False, trainers=[{}, {'algo': 'nag', 'learning_rate': 0.1}])
 
 
+@retry_if_fails
 def test_pretrain():
     clf = TheanetsClassifier(layers=[5, 5], trainers=[{'algo': 'pretrain', 'learning_rate': 0.1},
                                                       {'algo': 'nag', 'learning_rate': 0.1}])
     check_classifier(clf, **classifier_params)
 
 
+@retry_if_fails
 def test_theanets_configurations():
     check_classifier(
         TheanetsClassifier(layers=[13], scaler=False,
@@ -69,6 +72,7 @@ def test_theanets_configurations():
         **classifier_params)
 
 
+@retry_if_fails
 def test_theanets_regression():
     check_regression(TheanetsRegressor(layers=[11],
                                        trainers=[{'algo': 'rmsprop', 'learning_rate': 0.1}]),
@@ -106,12 +110,14 @@ def test_theanets_reproducibility():
     check_classification_reproducibility(clf, X, y)
 
 
+@retry_if_fails
 def test_theanets_simple_stacking():
     base_tnt = TheanetsClassifier(trainers=[{'min_improvement': 0.1}])
     base_bagging = BaggingClassifier(base_estimator=base_tnt, n_estimators=3)
     check_classifier(SklearnClassifier(clf=base_bagging), **classifier_params)
 
 
+@retry_if_fails
 def test_theanets_multiclassification():
     check_classifier(TheanetsClassifier(trainers=[{'min_improvement': 0.1, 'learning_rate': 0.1}]), n_classes=4,
                      **classifier_params)

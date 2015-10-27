@@ -18,3 +18,17 @@ def known_failure(test):
             raise nose.SkipTest
 
     return inner
+
+
+def retry_if_fails(test):
+    """
+    Decorator to mark tests which can frequently fail.
+    """
+    @functools.wraps(test)
+    def inner(*args, **kwargs):
+        try:
+            test(*args, **kwargs)
+        except AssertionError:
+            test(*args, **kwargs)
+
+    return inner
