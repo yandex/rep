@@ -16,7 +16,6 @@ from .utils import normalize_weights
 from .interface import Classifier, Regressor
 from .utils import check_inputs
 
-
 logger = getLogger(__name__)
 
 __author__ = 'Mikhail Hushchyn, Alex Rogozhnikov'
@@ -98,6 +97,12 @@ class XGBoostBase(object):
         self._num_class = None
         self.xgboost_classifier = None
 
+    def _make_dmatrix(self, X, y=None, sample_weight=None):
+        feature_names = [str(i) for i in range(X.shape[1])]
+        matrix = xgb.DMatrix(data=X, label=y, weight=sample_weight,
+                             missing=self.missing, feature_names=feature_names)
+        return matrix
+
     def _check_fitted(self):
         assert self.xgboost_classifier is not None, "Classifier wasn't fitted, please call `fit` first"
 
@@ -138,7 +143,8 @@ class XGBoostBase(object):
             params["gamma"] = self.gamma
 
         try:
-            xgmat = xgb.DMatrix(data=X, label=y, weight=sample_weight, missing=self.missing, feature_names=X.columns)
+            # xgmat = xgb.DMatrix(data=X, label=y, weight=sample_weight, missing=self.missing, feature_names=X.columns)
+            xgmat = self._make_dmatrix(X, y, sample_weight)
             self.xgboost_classifier = xgb.train(params, xgmat, num_boost_round=self.n_estimators)
         except TypeError as e:
             logger.error('There is error in the parameters or in input data format.')
@@ -190,7 +196,9 @@ class XGBoostBase(object):
         """
         self._check_fitted()
         feature_score = self.xgboost_classifier.get_fscore()
-        reordered_scores = [feature_score[name] for name in self.features]
+        reordered_scores = numpy.zeros(len(feature_score))
+        for name, score in feature_score.items():
+            reordered_scores[int(name)] = score
         return pandas.DataFrame({'effect': reordered_scores}, index=self.features)
 
     @property
@@ -296,7 +304,7 @@ class XGBoostClassifier(XGBoostBase, Classifier):
         :rtype: numpy.array of shape [n_samples, n_classes] with probabilities
         """
         self._check_fitted()
-        X_dmat = xgb.DMatrix(data=self._get_features(X))
+        X_dmat = self._make_dmatrix(self._get_features(X))
         prediction = self.xgboost_classifier.predict(X_dmat, ntree_limit=0)
         if self.n_classes_ >= 2:
             return prediction.reshape(X.shape[0], self.n_classes_)
@@ -310,14 +318,12 @@ class XGBoostClassifier(XGBoostBase, Classifier):
         .. warning: this method may be very slow, it takes iterations^2 / step time.
         """
         self._check_fitted()
-        X_dmat = xgb.DMatrix(data=self._get_features(X))
+        X_dmat = self._make_dmatrix(self._get_features(X))
 
         # TODO use applying tree-by-tree
         for i in range(1, self.n_estimators // step + 1):
             prediction = self.xgboost_classifier.predict(X_dmat, ntree_limit=i * step)
             yield prediction.reshape(X.shape[0], self.n_classes_)
-
-
 
 
 class XGBoostRegressor(XGBoostBase, Regressor):
@@ -356,7 +362,6 @@ class XGBoostRegressor(XGBoostBase, Regressor):
     :param str objective_type: specify the learning task and the corresponding learning objective, and the options are below:
 
         * "linear" -- linear regression
-
         * "logistic" -- logistic regression
 
     """
@@ -376,7 +381,6 @@ class XGBoostRegressor(XGBoostBase, Regressor):
                  verbose=0,
                  missing=-999.,
                  random_state=0):
-
         XGBoostBase.__init__(self,
                              n_estimators=n_estimators,
                              nthreads=nthreads,
@@ -419,7 +423,7 @@ class XGBoostRegressor(XGBoostBase, Regressor):
         :rtype: numpy.array of shape [n_samples, n_classes] with probabilities
         """
         self._check_fitted()
-        X_dmat = xgb.DMatrix(data=self._get_features(X))
+        X_dmat = self._make_dmatrix(self._get_features(X))
         return self.xgboost_classifier.predict(X_dmat, ntree_limit=0)
 
     def staged_predict(self, X, step=10):
@@ -432,7 +436,7 @@ class XGBoostRegressor(XGBoostBase, Regressor):
         .. warning: this method may be very slow, it takes iterations^2 / step time
         """
         self._check_fitted()
-        X_dmat = xgb.DMatrix(data=self._get_features(X))
+        X_dmat = self._make_dmatrix(self._get_features(X))
 
         # TODO use applying tree-by-tree
         for i in range(1, self.n_estimators // step + 1):

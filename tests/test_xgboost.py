@@ -12,6 +12,7 @@ def very_basic_xgboost_test():
     clf = XGBoostClassifier(n_estimators=10).fit(X, y)
     clf.predict(X)
     clf.predict_proba(X)
+    # testing that returned features in importances are correct and in the same order
     assert numpy.all(clf.features == clf.get_feature_importances().index)
 
 
