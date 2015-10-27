@@ -10,6 +10,7 @@ import pandas
 from root_numpy.tmva import evaluate_reader
 
 from . import tmva
+import six
 from six.moves import cPickle as pickle
 
 
@@ -48,9 +49,15 @@ def tmva_process(info, data):
 
 
 def main():
+    # Python 2 dumps in text mode. Python 3 in binary.
+    if six.PY2:
+        stdin = sys.stdin
+    else:
+        stdin = sys.stdin.buffer
+
     # Reading the configuration from stdin
-    info = pickle.load(sys.stdin)
-    data = pickle.load(sys.stdin)
+    info = pickle.load(stdin)
+    data = pickle.load(stdin)
     assert isinstance(info, tmva._AdditionalInformationPredict)
     assert isinstance(data, pandas.DataFrame)
     predictions = tmva_process(info, data)

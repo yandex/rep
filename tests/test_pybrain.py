@@ -19,8 +19,15 @@ from rep.test.test_estimators import check_classifier, check_regression, check_p
 from rep.estimators.pybrain import PyBrainClassifier, PyBrainRegressor
 from sklearn.ensemble import BaggingClassifier
 from rep.estimators import SklearnClassifier
+import six
 
 __author__ = 'Artem Zhirokhov'
+
+if six.PY3:
+    # PyBrain doesn't support python3
+    import nose
+    raise nose.SkipTest
+
 
 classifier_params = {
     'has_staged_pp': False,
