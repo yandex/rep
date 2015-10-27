@@ -125,7 +125,7 @@ class XGBoostBase(object):
                   "colsample_bytree": self.colsample,
                   "objective": self.objective,
                   "base_score": self.base_score,
-                  "silent": self.verbose,
+                  "silent": int(not self.verbose),
                   "seed": seed}
         for key, value in kwargs.items():
             params[key] = value
@@ -138,43 +138,13 @@ class XGBoostBase(object):
             params["gamma"] = self.gamma
 
         try:
-            xgmat = xgb.DMatrix(data=numpy.array(X), label=y, weight=sample_weight, missing=self.missing)
+            xgmat = xgb.DMatrix(data=X, label=y, weight=sample_weight, missing=self.missing, feature_names=X.columns)
             self.xgboost_classifier = xgb.train(params, xgmat, num_boost_round=self.n_estimators)
-
         except TypeError as e:
             logger.error('There is error in the parameters or in input data format.')
             raise e
 
         return self
-
-    def _get_feature_importances(self, features):
-        """
-        Get features importance
-
-        :return: pandas.DataFrame with column effect and `index=features`
-        """
-        self._check_fitted()
-        importances = numpy.zeros(len(features))
-        feature_score = self._get_fscore()
-        for k, v in feature_score.items():
-            importances[int(k[1:])] = v
-        return pandas.DataFrame({'effect': importances}, index=features)
-
-    def _get_fscore(self):
-        """ Get feature importances. This method is enhanced version of one in wrapper/xgboost.py,
-        Just counts the number of times each feature is used."""
-        trees = self.xgboost_classifier.get_dump('')
-        feature_importances = defaultdict(int)
-        for tree in trees:
-            for l in tree.split('\n'):
-                arr = l.split('[')
-                if len(arr) == 1:
-                    # leaf
-                    continue
-                expression = arr[1].split(']')[0]
-                fid = expression.split('<')[0]
-                feature_importances[fid] += 1
-        return feature_importances
 
     def __getstate__(self):
         result = self.__dict__.copy()
@@ -211,6 +181,24 @@ class XGBoostBase(object):
         """ Load xgboost model to classifier """
         assert os.path.exists(path_to_dumped_model), 'there is no such file: {}'.format(path_to_dumped_model)
         self.xgboost_classifier = xgb.Booster({'nthread': self.nthreads}, model_file=path_to_dumped_model)
+
+    def get_feature_importances(self):
+        """
+        Get features importance
+
+        :return: pandas.DataFrame with column effect and `index=features`
+        """
+        self._check_fitted()
+        feature_score = self.xgboost_classifier.get_fscore()
+        reordered_scores = [feature_score[name] for name in self.features]
+        return pandas.DataFrame({'effect': reordered_scores}, index=self.features)
+
+    @property
+    def feature_importances_(self):
+        """Sklearn-way of returning feature importance.
+        This returned as numpy.array, assuming that initially passed train_features=None """
+        self._check_fitted()
+        return self.get_feature_importances().ix[self.features, 'effect'].values
 
 
 class XGBoostClassifier(XGBoostBase, Classifier):
@@ -329,20 +317,7 @@ class XGBoostClassifier(XGBoostBase, Classifier):
             prediction = self.xgboost_classifier.predict(X_dmat, ntree_limit=i * step)
             yield prediction.reshape(X.shape[0], self.n_classes_)
 
-    def get_feature_importances(self):
-        """
-        Get features importance
 
-        :rtype: pandas.DataFrame with column effect and `index=features`
-        """
-        return self._get_feature_importances(self.features)
-
-    @property
-    def feature_importances_(self):
-        """Sklearn-way of returning feature importance.
-        This returned as numpy.array, assuming that initially passed train_features=None """
-        self._check_fitted()
-        return self.get_feature_importances().ix[self.features, 'effect'].values
 
 
 class XGBoostRegressor(XGBoostBase, Regressor):
@@ -462,18 +437,3 @@ class XGBoostRegressor(XGBoostBase, Regressor):
         # TODO use applying tree-by-tree
         for i in range(1, self.n_estimators // step + 1):
             yield self.xgboost_classifier.predict(X_dmat, ntree_limit=i * step)
-
-    def get_feature_importances(self):
-        """
-        Get features importance
-
-        :rtype: pandas.DataFrame with column effect and `index=features`
-        """
-        return self._get_feature_importances(self.features)
-
-    @property
-    def feature_importances_(self):
-        """Sklearn-way of returning feature importance.
-        This returned as numpy.array, assuming that initially passed train_features=None """
-        self._check_fitted()
-        return self.get_feature_importances().ix[self.features, 'effect'].values
