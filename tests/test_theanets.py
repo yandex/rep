@@ -23,6 +23,7 @@ from sklearn.ensemble import BaggingClassifier
 from rep.estimators.sklearn import SklearnClassifier
 from rep.estimators.theanets import TheanetsClassifier, TheanetsRegressor
 import climate
+from tests import known_failure
 
 climate.enable_default_logging(default_level='ERROR')
 
@@ -39,6 +40,11 @@ regressor_params = {
     'has_importances': False,
     'supports_weight': True,
 }
+
+
+@known_failure
+def test_exp_failure():
+    assert 0 == 1
 
 
 def test_theanets_params():
@@ -70,6 +76,7 @@ def test_theanets_regression():
     check_regression(TheanetsRegressor(scaler=StandardScaler()), **regressor_params)
 
 
+@known_failure
 def test_theanets_partial_fit():
     clf_complete = TheanetsClassifier(layers=[2], trainers=[{'algo': 'rmsprop', 'learning_rate': 0.1},
                                                             {'algo': 'rprop', 'learning_rate': 0.1}])
@@ -87,9 +94,10 @@ def test_theanets_partial_fit():
     auc_partial = roc_auc_score(y, clf_partial.predict_proba(X)[:, 1])
 
     # Known fail of theanets
-    # assert auc_complete == auc_partial, 'same networks return different results'
+    assert auc_complete == auc_partial, 'same networks return different results'
 
 
+@known_failure
 def test_theanets_reproducibility():
     clf = TheanetsClassifier(trainers=[{'algo': 'nag', 'min_improvement': 0.1}])
     X, y, _ = generate_classification_data()

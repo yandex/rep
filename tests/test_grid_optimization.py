@@ -33,7 +33,7 @@ class FunctionOptimizer(object):
         self.generator.print_results(reorder=reorder)
 
 
-def test_simple_optimizer(n_evaluations=50):
+def test_simple_optimizer(n_evaluations=100):
     parameters = {
         'x': numpy.linspace(0.1, 1, 10),
         'y': numpy.linspace(0.1, 1, 10),
@@ -41,38 +41,35 @@ def test_simple_optimizer(n_evaluations=50):
         'w': numpy.linspace(0.1, 1, 10),
     }
     parameters = OrderedDict(parameters)
-
-    def check_optimizer(generator_type, maximize, n_evaluations):
-        print(generator_type.__name__, 'maximize', maximize)
-        sign = 2 * maximize - 1
-        optimizer = FunctionOptimizer(lambda x, y, z, w: sign * x * y * z * w,
-                                      parameter_generator_type=generator_type,
-                                      maximize=maximize,
-                                      param_grid=parameters,
-                                      n_evaluations=n_evaluations)
-        optimizer.optimize()
-        assert len(optimizer.generator.grid_scores_) == n_evaluations
-        assert len(optimizer.generator.queued_tasks_) == n_evaluations
-        assert set(optimizer.generator.grid_scores_.keys()) == optimizer.generator.queued_tasks_
-        optimizer.print_results()
-        scores = optimizer.generator.grid_scores_.values()
-        scores = numpy.argsort(numpy.argsort(scores))
-        # check that on average quality is increasing
-        if generator_type is not RandomParameterOptimizer:
-            assert numpy.corrcoef(scores, numpy.arange(len(scores)))[0, 1] * sign > 0
-        print('\n\n')
-
     for generator_type in [RandomParameterOptimizer,
                            RegressionParameterOptimizer,
                            SubgridParameterOptimizer,
                            AnnealingParameterOptimizer,
                            ]:
         for maximize in [True, False]:
-            # giving 2 attempts
-            try:
-                check_optimizer(generator_type, maximize, n_evaluations)
-            except:
-                check_optimizer(generator_type, maximize, n_evaluations)
+            print(generator_type.__name__, 'maximize', maximize)
+            sign = 2 * maximize - 1
+            optimizer = FunctionOptimizer(lambda x, y, z, w: sign * x * y * z * w,
+                                          parameter_generator_type=generator_type,
+                                          maximize=maximize,
+                                          param_grid=parameters,
+                                          n_evaluations=n_evaluations)
+            optimizer.optimize()
+            assert len(optimizer.generator.grid_scores_) == n_evaluations
+            assert len(optimizer.generator.queued_tasks_) == n_evaluations
+            assert set(optimizer.generator.grid_scores_.keys()) == optimizer.generator.queued_tasks_
+            scores = optimizer.generator.grid_scores_.values()
+            scores_order = numpy.argsort(numpy.argsort(scores))
+
+            expected_mean = numpy.prod([numpy.mean(p) for p in parameters.values()]) * sign
+            optimizer.print_results()
+            # check that quality is better than random
+            if generator_type is not RandomParameterOptimizer:
+                assert (numpy.mean(scores) - expected_mean) * sign > 0, \
+                    "Generator {}, maximize {}, computed mean {}, expected_mean {}".format(
+                        generator_type.__name__, maximize, numpy.mean(scores), expected_mean)
+
+            print('\n\n')
 
 
 def test_random_optimization_with_distributions(n_evaluations=60):
@@ -89,7 +86,7 @@ def test_random_optimization_with_distributions(n_evaluations=60):
                                   param_grid=parameters,
                                   n_evaluations=n_evaluations)
     optimizer.optimize()
-    optimizer.print_results()
     assert len(optimizer.generator.grid_scores_) == n_evaluations
     assert len(optimizer.generator.queued_tasks_) == n_evaluations
     assert set(optimizer.generator.grid_scores_.keys()) == optimizer.generator.queued_tasks_
+    optimizer.print_results()
