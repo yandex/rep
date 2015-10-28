@@ -421,14 +421,16 @@ class SubgridParameterOptimizer(AbstractParameterGenerator):
         if not self.maximize:
             results *= -1
         std = numpy.std(results) + 1e-5
+        # probabilities to take initial point
         probabilities = numpy.exp(numpy.clip((results - numpy.mean(results)) * 3. / std, -5, 5))
         probabilities /= numpy.sum(probabilities)
+        # temperature is responsible for distance leaped
         temperature_p = numpy.clip(1. - len(self.queued_tasks_) / self.n_evaluations, 0.05, 1)
         while True:
             start = self.random_state.choice(len(probabilities), p=probabilities)
             start_indices = list(self.grid_scores_.keys())[start]
             new_state_indices = list(start_indices)
-            for _ in range(self.dimensions_sum // 6 + 1):
+            for _ in range(self.dimensions_sum // 3 + 1):
                 if self.random_state.uniform() < temperature_p:
                     axis = self.random_state.randint(len(self.dimensions))
                     new_state_indices[axis] += int(numpy.sign(self.random_state.uniform() - 0.5))

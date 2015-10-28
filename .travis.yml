@@ -47,7 +47,7 @@ install:
   - travis_retry pip install . --no-dependencies
 script:
   - nosetests tests
-  - nosetests tests/z_test_notebook.py
+  - nosetests -vd tests/z_test_notebook.py
 cache:
   - apt
   - directories:

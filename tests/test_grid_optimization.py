@@ -5,6 +5,7 @@ from rep.metaml.gridsearch import SubgridParameterOptimizer, \
     RegressionParameterOptimizer, AbstractParameterGenerator, \
     AnnealingParameterOptimizer, RandomParameterOptimizer
 import numpy
+from tests import retry_if_fails
 
 __author__ = 'Alex Rogozhnikov'
 
@@ -33,7 +34,19 @@ class FunctionOptimizer(object):
         self.generator.print_results(reorder=reorder)
 
 
-def test_simple_optimizer(n_evaluations=100):
+@retry_if_fails
+def test_parameter_generators(n_evaluations=100):
+    """Testing optimizers on a basic problem of function optimization """
+    for generator_type in [RandomParameterOptimizer,
+                           RegressionParameterOptimizer,
+                           SubgridParameterOptimizer,
+                           AnnealingParameterOptimizer,
+                           ]:
+        for maximize in [True, False]:
+            yield check_optimizer, generator_type, maximize, n_evaluations
+
+
+def check_optimizer(generator_type, maximize, n_evaluations):
     parameters = {
         'x': numpy.linspace(0.1, 1, 10),
         'y': numpy.linspace(0.1, 1, 10),
@@ -41,36 +54,30 @@ def test_simple_optimizer(n_evaluations=100):
         'w': numpy.linspace(0.1, 1, 10),
     }
     parameters = OrderedDict(parameters)
-    for generator_type in [RandomParameterOptimizer,
-                           RegressionParameterOptimizer,
-                           SubgridParameterOptimizer,
-                           AnnealingParameterOptimizer,
-                           ]:
-        for maximize in [True, False]:
-            print(generator_type.__name__, 'maximize', maximize)
-            sign = 2 * maximize - 1
-            optimizer = FunctionOptimizer(lambda x, y, z, w: sign * x * y * z * w,
-                                          parameter_generator_type=generator_type,
-                                          maximize=maximize,
-                                          param_grid=parameters,
-                                          n_evaluations=n_evaluations)
-            optimizer.optimize()
-            assert len(optimizer.generator.grid_scores_) == n_evaluations
-            assert len(optimizer.generator.queued_tasks_) == n_evaluations
-            assert set(optimizer.generator.grid_scores_.keys()) == optimizer.generator.queued_tasks_
-            scores = list(optimizer.generator.grid_scores_.values())
-            scores_order = numpy.argsort(numpy.argsort(scores))
+    print(generator_type.__name__, 'maximize', maximize)
+    sign = 2 * maximize - 1
+    optimizer = FunctionOptimizer(lambda x, y, z, w: sign * x * y * z * w,
+                                  parameter_generator_type=generator_type,
+                                  maximize=maximize,
+                                  param_grid=parameters,
+                                  n_evaluations=n_evaluations)
+    optimizer.optimize()
+    assert len(optimizer.generator.grid_scores_) == n_evaluations
+    assert len(optimizer.generator.queued_tasks_) == n_evaluations
+    assert set(optimizer.generator.grid_scores_.keys()) == optimizer.generator.queued_tasks_
+    scores = list(optimizer.generator.grid_scores_.values())
+    expected_mean = numpy.prod([numpy.mean(p) for p in parameters.values()]) * sign
+    if generator_type is not RandomParameterOptimizer:
+        # check that quality is better than random
+        passed_check = (numpy.mean(scores) - expected_mean) * sign > 0
+        if not passed_check:
+            optimizer.print_results()
+            print('\n\n')
+            optimizer.print_results(reorder=False)
 
-            expected_mean = numpy.prod([numpy.mean(p) for p in parameters.values()]) * sign
-            if generator_type is not RandomParameterOptimizer:
-                # check that quality is better than random
-                passed_check = (numpy.mean(scores) - expected_mean) * sign > 0
-                if not passed_check:
-                    optimizer.print_results()
-
-                assert passed_check, \
-                    "Generator {}, maximize {}, computed mean {}, expected_mean {}".format(
-                        generator_type.__name__, maximize, numpy.mean(scores), expected_mean)
+        assert passed_check, \
+            "Generator {}, maximize {}, computed mean {}, expected_mean {}".format(
+                generator_type.__name__, maximize, numpy.mean(scores), expected_mean)
 
 
 def test_random_optimization_with_distributions(n_evaluations=60):
