@@ -1,10 +1,9 @@
 FROM ubuntu:14.04
 MAINTAINER Andrey Ustyuzhanin <anaderi@yandex-team.ru>
-ADD ./install-conda.sh /tmp/
-RUN /tmp/install-conda.sh
 
-ENV LD_LIBRARY_PATH="/root/miniconda/lib:$LD_LIBRARY_PATH"
-#ENV PYTHONPATH="/usr/lib/x86_64-linux-gnu/root5.34:$PYTHONPATH"
-
+ADD ./install-conda-env.sh /tmp/
+ADD ./environment_py2.yaml /tmp/
+#ADD ./environment_py3.yaml /tmp/
+RUN /tmp/install-conda-env.sh
 
 CMD ["bash"]
