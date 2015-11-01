@@ -22,6 +22,7 @@ mkdir $HOME/.config/matplotlib -p
 echo 'backend: agg' > $HOME/.config/matplotlib/matplotlibrc
 wget http://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O miniconda.sh
 chmod +x miniconda.sh
+export PATH+=:$HOME/miniconda/bin
 ./miniconda.sh -b && rm ./miniconda.sh || halt "Error installing miniconda"
 # conda update --yes conda
 conda create --yes --file environment_py2.yaml || halt "Error installing py2 environment"
