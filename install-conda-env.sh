@@ -23,15 +23,11 @@ echo 'backend: agg' > $HOME/.config/matplotlib/matplotlibrc
 wget http://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O miniconda.sh
 chmod +x miniconda.sh
 ./miniconda.sh -b && rm ./miniconda.sh || halt "Error installing miniconda"
-export PATH=$HOME/miniconda/bin:$PATH
-conda update --yes conda
-conda create --file environment_py2.yaml
+# conda update --yes conda
+conda create --yes --file environment_py2.yaml || halt "Error installing py2 environment"
+source activate py2
 conda uninstall --yes gcc qt
-conda clean -p -t
-
-source $HOME/miniconda/bin/thisroot.sh
-[ -n "$ROOTSYS" ] || halt "Error installing ROOT"
-python -c 'import ROOT, root_numpy' || halt "Error installing root_numpy"
+conda clean --yes -p -t
 
 # install xgboost
 git clone https://github.com/dmlc/xgboost.git
@@ -43,6 +39,10 @@ cd python-package
 python setup.py install
 cd ../..
 # end install xgboost
+
+# test installed packages
+source $ENV_BIN_DIR/thisroot.sh || halt "Error installing ROOT"
+python -c 'import ROOT, root_numpy' || halt "Error installing root_numpy"
 python -c 'import xgboost' || halt "Error installing XGboost"
 
 echo 'source activate py2' >> $HOME/.bashrc
