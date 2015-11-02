@@ -25,7 +25,7 @@ chmod +x miniconda.sh
 export PATH+=:$HOME/miniconda/bin
 ./miniconda.sh -b && rm ./miniconda.sh || halt "Error installing miniconda"
 # conda update --yes conda
-conda create --yes --file environment_py2.yaml || halt "Error installing py2 environment"
+conda create --yes --name py2 --file environment_py2.yaml || halt "Error installing py2 environment"
 source activate py2
 conda uninstall --yes gcc qt
 conda clean --yes -p -t
