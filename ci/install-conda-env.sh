@@ -5,19 +5,20 @@ halt() {
   exit 1
 }
 
-HERE=`dirname $0`
+HERE=$(echo $(cd $(dirname "$SCRIPT_NAME") && pwd -P))
+
 [ -z "$HOME" ] && export HOME="/root"
-# apt-get update
-# apt-get install -y  \
-#     build-essential \
-#     libatlas-base-dev \
-#     liblapack-dev \
-#     libffi-dev \
-#     wget \
-#     gfortran \
-#     git \
-#     libxft-dev \
-# 	libxpm-dev
+apt-get update
+apt-get install -y  \
+    build-essential \
+    libatlas-base-dev \
+    liblapack-dev \
+    libffi-dev \
+    wget \
+    gfortran \
+    git \
+    libxft-dev \
+    libxpm-dev
 
 mkdir $HOME/.config/matplotlib -p
 echo 'backend: agg' > $HOME/.config/matplotlib/matplotlibrc
@@ -31,7 +32,7 @@ else
 fi
 export PATH=$HOME/miniconda/bin:$PATH
 ./miniconda.sh -b && rm ./miniconda.sh || halt "Error installing miniconda"
-conda env create --file $HERE/environment_${PENV_NAME}.yaml || halt "Error installing $PENV_NAME environment"
+conda env create --name $PENV_NAME --file $HERE/environment.yaml || halt "Error installing $PENV_NAME environment"
 source activate $PENV_NAME
 conda uninstall --yes gcc qt
 conda clean --yes -p -t
@@ -53,8 +54,8 @@ python -c 'import ROOT, root_numpy' || halt "Error installing root_numpy"
 python -c 'import xgboost' || halt "Error installing XGboost"
 
 # environment
-# cat << EOF > $HOME/.bashrc
-# export PATH=$HOME/miniconda/bin:$PATH
-# source activate py2
-# source $ENV_BIN_DIR/thisroot.sh
-# EOF
+cat << EOF > $HOME/.bashrc
+export PATH=$HOME/miniconda/bin:$PATH
+source activate $PENV_NAME
+source '$ENV_BIN_DIR/thisroot.sh'
+EOF
