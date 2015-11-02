@@ -5,11 +5,11 @@ halt() {
   exit 1
 }
 
-HERE=$(echo $(cd $(dirname "$SCRIPT_NAME") && pwd -P))
+HERE="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 [ -z "$HOME" ] && export HOME="/root"
-apt-get update
-apt-get install -y  \
+sudo apt-get update
+sudo apt-get install -y  \
     build-essential \
     libatlas-base-dev \
     liblapack-dev \
