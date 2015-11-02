@@ -20,7 +20,7 @@ __author__ = 'Alex Rogozhnikov'
 
 def check_single_notebook(notebook_filename, timeout=500):
     """
-    Checks single notebook being given its full name
+    Checks single notebook being given its full name.
     (executes cells one-by-one checking there are no exceptions, nothing more is guaranteed)
     """
     with open(notebook_filename) as notebook_file:
