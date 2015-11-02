@@ -46,5 +46,9 @@ source $ENV_BIN_DIR/thisroot.sh || halt "Error installing ROOT"
 python -c 'import ROOT, root_numpy' || halt "Error installing root_numpy"
 python -c 'import xgboost' || halt "Error installing XGboost"
 
-echo 'source activate py2' >> $HOME/.bashrc
-echo 'source $ENV_BIN_DIR/thisroot.sh' >> $HOME/.bashrc
+# environment
+cat << EOF > $HOME/.bashrc
+export PATH=/root/miniconda/bin:$PATH
+source activate py2
+source $ENV_BIN_DIR/thisroot.sh
+EOF
