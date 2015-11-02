@@ -1,9 +1,10 @@
 FROM ubuntu:14.04
 MAINTAINER Andrey Ustyuzhanin <anaderi@yandex-team.ru>
 
-ADD ./install-conda-env.sh /tmp/
-ADD ./environment_py2.yaml /tmp/
-#ADD ./environment_py3.yaml /tmp/
-RUN /tmp/install-conda-env.sh
+WORKDIR /root
+ADD ./install-conda-env.sh /root/
+ADD ./environment_py2.yaml /root/
+#ADD ./environment_py3.yaml /root/
+RUN /root/install-conda-env.sh
 
 CMD ["bash"]
