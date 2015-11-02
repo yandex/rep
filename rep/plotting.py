@@ -243,12 +243,15 @@ class AbstractPlot(object):
         from ipykernel import connect
 
         plotly_filename = self.plotly_filename if plotly_filename is None else plotly_filename
-        connection_file_path = connect.find_connection_file()
-        connection_file = os.path.basename(connection_file_path)
-        if '-' in connection_file:
-            kernel_id = connection_file.split('-', 1)[1].split('.')[0]
-        else:
-            kernel_id = connection_file.split('.')[0]
+        try:
+            connection_file_path = connect.find_connection_file()
+            connection_file = os.path.basename(connection_file_path)
+            if '-' in connection_file:
+                kernel_id = connection_file.split('-', 1)[1].split('.')[0]
+            else:
+                kernel_id = connection_file.split('.')[0]
+        except Exception, e:
+            kernel_id = "no_kernel"
         PLOTLY_API_USER, PLOTLY_API_KEY, PLOTLY_USER = self._plotly_config()
         save_name = '{user}_{id}:{name}'.format(user=PLOTLY_USER, id=kernel_id, name=plotly_filename)
         py.sign_in(PLOTLY_API_USER, PLOTLY_API_KEY)
