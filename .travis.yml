@@ -15,15 +15,19 @@ addons:
 python:
   - "2.7"
   - "3.4"
-before_install:
-  - travis_retry ci/install-conda-env.sh
 install:
-  - travis_retry pip install .
+  # - ci/install-conda-env.sh
+  - conda env update -f ci/environment.yaml
+  - which python
+  - pip install .
 script:
   - nosetests tests
   #- nosetests -vd tests/z_test_notebook.py
 cache:
-  - apt
+  - apt: true
   - directories:
     - $HOME/.cache/pip
     - $HOME/.theano
+branches:
+  - only:
+    - develop
