@@ -22,14 +22,14 @@ sudo apt-get install -y  \
 
 mkdir $HOME/.config/matplotlib -p
 echo 'backend: agg' > $HOME/.config/matplotlib/matplotlibrc
-wget http://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O miniconda.sh
-chmod +x miniconda.sh
 if [ -n "$TRAVIS_PYTHON_VERSION" ] ; then
     PENV_NAME="py${TRAVIS_PYTHON_VERSION:0:1}"
 else
     PENV_NAME=`python --version 2>&1|awk '{print $2}'|awk -F . '{print $1}'`
     PENV_NAME="py${PVERSION}"
 fi
+wget http://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O miniconda.sh
+chmod +x miniconda.sh
 export PATH=$HOME/miniconda/bin:$PATH
 ./miniconda.sh -b && rm ./miniconda.sh || halt "Error installing miniconda"
 conda env create --name $PENV_NAME --file $HERE/environment.yaml || halt "Error installing $PENV_NAME environment"
