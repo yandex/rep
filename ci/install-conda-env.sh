@@ -10,7 +10,7 @@ halt() {
 HERE="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 [ -z "$HOME" ] && export HOME="/root"
-if [ `uname -s` != "Darwin "] ; then 
+if [ `uname -s` == "Linux" ] && which apt-get > /dev/null ; then
     sudo apt-get update
     sudo apt-get install -y  \
         build-essential \
