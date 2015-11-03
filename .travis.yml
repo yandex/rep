@@ -23,6 +23,8 @@ before_install:
   - echo $LD_LIBRARY_PATH
 install:
   - pip install .
+  - pip install runipy
+  - conda list
 script:
 #  - nosetests tests
   - nosetests --nocapture -d tests/z_test_notebook.py
