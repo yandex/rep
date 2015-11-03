@@ -38,7 +38,7 @@ if ! which conda ; then
     ./miniconda.sh -b && rm ./miniconda.sh || halt "Error installing miniconda"
     export PATH=$HOME/miniconda/bin:$PATH
 fi
-conda env create --name $PENV_NAME --file $HERE/environment.yaml || halt "Error installing $PENV_NAME environment"
+conda env create --name $PENV_NAME --file $HERE/environment.yaml #|| halt "Error installing $PENV_NAME environment"
 source activate $PENV_NAME
 conda uninstall --yes gcc qt
 conda clean --yes -p
