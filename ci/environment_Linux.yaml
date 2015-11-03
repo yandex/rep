@@ -3,10 +3,10 @@ channels:
   - nlesc
 dependencies:
   - ipython-notebook=4.0.4
-  - matplotlib=1.4.3
-  - numpy=1.10.*
-  - pandas=0.17.0
-  - root_numpy=4.3*
+  - matplotlib=1.4.2
+  - numpy=1.9.*
+  - pandas=0.16.*
+  - root_numpy
   - root=5*
   - scikit-learn=0.16.1
   - scipy=0.16.*
