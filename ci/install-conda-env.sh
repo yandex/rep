@@ -38,8 +38,10 @@ fi
 if ! which conda ; then
     wget http://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O miniconda.sh
     chmod +x miniconda.sh
-    ./miniconda.sh -b && rm ./miniconda.sh || halt "Error installing miniconda"
+    ./miniconda.sh -b -p $HOME/miniconda || halt "Error installing miniconda"
+    rm ./miniconda.sh
     export PATH=$HOME/miniconda/bin:$PATH
+    hash -r
     conda update --yes conda
 fi
 ENV_FILE=$HERE/environment.yaml
