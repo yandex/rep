@@ -41,11 +41,13 @@ script:
   - runipy howto/00-abc-ipython.ipynb
   - runipy howto/00-intro-ROOT.ipynb
   - runipy howto/02-howto-Factory.ipynb
-cache:
-  - apt: true
-  - directories:
-    - $HOME/.cache/pip
-    - $HOME/.theano
+# cache:
+#   - apt: true
+#   - directories:
+#     - $HOME/.cache/pip
+#     - $HOME/.theano
 branches:
   - only:
     - develop
+notifications:
+  - email: false
