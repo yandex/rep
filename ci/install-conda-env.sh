@@ -63,7 +63,9 @@ cd ../..
 # end install xgboost
 
 # test installed packages
-cd $ENV_BIN_DIR/.. ; source 'bin/thisroot.sh' || halt "Error installing ROOT"
+pushd $ENV_BIN_DIR/.. 
+source 'bin/thisroot.sh' || halt "Error installing ROOT"
+popd
 python -c 'import ROOT, root_numpy' || halt "Error installing root_numpy"
 python -c 'import xgboost' || halt "Error installing XGboost"
 
