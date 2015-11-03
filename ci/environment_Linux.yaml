@@ -2,6 +2,7 @@ name: rep
 channels:
   - nlesc
 dependencies:
+  - libpng=1.6.*
   - ipython-notebook=4.0.4
   - matplotlib=1.4.2
   - numpy=1.9.*
