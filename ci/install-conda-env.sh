@@ -28,16 +28,19 @@ fi
 mkdir -p $HOME/.config/matplotlib
 echo 'backend: agg' > $HOME/.config/matplotlib/matplotlibrc
 if [ -n "$TRAVIS_PYTHON_VERSION" ] ; then
-    PENV_NAME="py${TRAVIS_PYTHON_VERSION:0:1}"
-else
-    PVERSION=`python --version 2>&1|awk '{print $2}'`
-    PENV_NAME="py${PVERSION:0:1}"
+    PENV_NAME="rep_py${TRAVIS_PYTHON_VERSION:0:1}"
+elif which python:
+    PYTHON_VERSION=`python --version 2>&1|awk '{print $2}'`
+    PENV_NAME="rep_py${PYTHON_VERSION:0:1}"
+else:
+    PENV_NAME="rep_py2"
 fi
 if ! which conda ; then
     wget http://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O miniconda.sh
     chmod +x miniconda.sh
     ./miniconda.sh -b && rm ./miniconda.sh || halt "Error installing miniconda"
     export PATH=$HOME/miniconda/bin:$PATH
+    conda update --yes conda
 fi
 ENV_FILE=$HERE/environment.yaml
 [ -f $HERE/environment_${SYSTEM}.yaml ] && ENV_FILE=$HERE/environment_${SYSTEM}.yaml
@@ -58,7 +61,7 @@ cd ../..
 # end install xgboost
 
 # test installed packages
-source $ENV_BIN_DIR/thisroot.sh || halt "Error installing ROOT"
+cd $ENV_BIN_DIR/.. ; source 'bin/thisroot.sh' || halt "Error installing ROOT"
 python -c 'import ROOT, root_numpy' || halt "Error installing root_numpy"
 python -c 'import xgboost' || halt "Error installing XGboost"
 
