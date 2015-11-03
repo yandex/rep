@@ -34,13 +34,18 @@ install:
   - which python
   - pip install .
   - pip install runipy
+# DEBUG
   - conda list
+  - echo $LD_LIBRARY_PATH
+  - ls -al $HOME/miniconda/envs/rep_py2/lib/libpng16.so.16
+  - ls -l $HOME/miniconda/envs/rep_py2/lib/*
 script:
   #- nosetests tests
   #- nosetests -vd tests/z_test_notebook.py
   - runipy howto/00-abc-ipython.ipynb
   - runipy howto/00-intro-ROOT.ipynb
   - runipy howto/02-howto-Factory.ipynb
+  - runipy howto/05-howto-plot.ipynb
 # cache:
 #   - apt: true
 #   - directories:
