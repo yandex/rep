@@ -24,7 +24,11 @@ before_install:
 install:
   - pip install .
   - pip install runipy
+# DEBUG
   - conda list
+  - echo $LD_LIBRARY_PATH
+  - ls -al $HOME/miniconda/envs/rep_py2/lib/libpng16.so.16
+  - ls -l $HOME/miniconda/envs/rep_py2/lib/*
 script:
 #  - nosetests tests
   - nosetests --nocapture -d tests/z_test_notebook.py
