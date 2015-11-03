@@ -33,9 +33,14 @@ install:
   # - source activate rep
   - which python
   - pip install .
+  - pip install runipy
+  - conda list
 script:
-  - nosetests tests
+  #- nosetests tests
   #- nosetests -vd tests/z_test_notebook.py
+  - runipy howto/00-abc-ipython.ipynb
+  - runipy howto/00-intro-ROOT.ipynb
+  - runipy howto/02-howto-Factory.ipynb
 cache:
   - apt: true
   - directories:
