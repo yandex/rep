@@ -29,10 +29,10 @@ mkdir -p $HOME/.config/matplotlib
 echo 'backend: agg' > $HOME/.config/matplotlib/matplotlibrc
 if [ -n "$TRAVIS_PYTHON_VERSION" ] ; then
     PENV_NAME="rep_py${TRAVIS_PYTHON_VERSION:0:1}"
-elif which python:
+elif which python ; then
     PYTHON_VERSION=`python --version 2>&1|awk '{print $2}'`
     PENV_NAME="rep_py${PYTHON_VERSION:0:1}"
-else:
+else
     PENV_NAME="rep_py2"
 fi
 if ! which conda ; then
