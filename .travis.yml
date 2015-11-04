@@ -37,9 +37,9 @@ install:
 # DEBUG
   - conda list
   - echo $LD_LIBRARY_PATH
-  - python -c "import matplotlib"
-  - python -c "import matplotlib.colorbar"
-  - python -c "import matplotlib.artist as martist"
+  - ipython -c "import matplotlib"
+  - ipython -c "import matplotlib.colorbar"
+  - ipython -c "import matplotlib.artist as martist"
 script:
   #- nosetests tests
   #- nosetests -vd tests/z_test_notebook.py
