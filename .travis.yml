@@ -15,43 +15,22 @@ sudo: true
 python:
   - "2.7"
   - "3.4"
-install:
+before_install:
   - source ci/install-conda-env.sh
-  # - if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then
-  #     wget https://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O miniconda.sh;
-  #   else
-  #     wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
-  #   fi
-  # - bash miniconda.sh -b -p $HOME/miniconda
-  # - export PATH="$HOME/miniconda/bin:$PATH"
-  # - hash -r
-  # - conda config --set always_yes yes --set changeps1 no
-  # - conda update -q conda
-  # Useful for debugging any issues with conda
-  # - conda info -a
-  # - conda env update -f ci/environment.yaml
-  # - source activate rep
-  - which python
-  - pip install .
-  - pip install runipy
 # DEBUG
+  - which python
   - conda list
   - echo $LD_LIBRARY_PATH
-  - ipython -c "import matplotlib"
-  - ipython -c "import matplotlib.colorbar"
-  - $ENV_BIN_DIR/ipython -c "import matplotlib.artist as martist"
+install:
+  - pip install .
 script:
-  #- nosetests tests
+  # - nosetests tests
   - nosetests -vd tests/z_test_notebook.py
-  - runipy howto/00-abc-ipython.ipynb
-  - runipy howto/00-intro-ROOT.ipynb
-  - runipy howto/02-howto-Factory.ipynb
-  - runipy howto/05-howto-plot.ipynb
-# cache:
-#   - apt: true
-#   - directories:
-#     - $HOME/.cache/pip
-#     - $HOME/.theano
+cache:
+  - apt: true
+  - directories:
+    - $HOME/.cache/pip
+    - $HOME/.theano
 branches:
   - only:
     - develop

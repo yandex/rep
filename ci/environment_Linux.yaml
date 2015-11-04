@@ -13,6 +13,7 @@ dependencies:
   - scipy=0.16.*
   - six=1.10.0
   - bokeh=0.10
+  - runipy
   - pip:
     - neurolab==0.3.5
     - theano==0.7.0
