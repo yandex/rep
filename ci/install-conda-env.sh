@@ -78,7 +78,10 @@ print IPython.__file__
 print sys.path
 print sys.argv
 "
-python -c "import os, sys, IPython
+which ipython
+echo $PATH
+ls -l $ENV_BIN_DIR/ipython
+$ENV_BIN_DIR/ipython -c "import os, sys, IPython
 #print os.environ['VIRTUAL_ENV']
 print os.getcwd()
 print sys.executable

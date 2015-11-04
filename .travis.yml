@@ -39,7 +39,7 @@ install:
   - echo $LD_LIBRARY_PATH
   - ipython -c "import matplotlib"
   - ipython -c "import matplotlib.colorbar"
-  - ipython -c "import matplotlib.artist as martist"
+  - $ENV_BIN_DIR/ipython -c "import matplotlib.artist as martist"
 script:
   #- nosetests tests
   - nosetests -vd tests/z_test_notebook.py
