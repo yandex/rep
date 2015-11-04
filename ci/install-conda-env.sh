@@ -69,6 +69,7 @@ popd
 python -c 'import ROOT, root_numpy' || halt "Error installing root_numpy"
 python -c 'import xgboost' || halt "Error installing XGboost"
 
+find $HOME/miniconda/pkg -name "*tar.bz2" | xargs md5sum
 # environment
 cat << EOF
 # add to your environment:
