@@ -69,6 +69,15 @@ popd
 python -c 'import ROOT, root_numpy' || halt "Error installing root_numpy"
 python -c 'import xgboost' || halt "Error installing XGboost"
 
+ipython -c "import os, sys, IPython
+#print os.environ['VIRTUAL_ENV']
+print os.getcwd()
+print sys.executable
+print IPython.__file__
+print sys.path
+print sys.argv
+"
+
 find $HOME/miniconda/pkgs -name "*tar.bz2" | xargs md5sum
 # environment
 cat << EOF
