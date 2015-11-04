@@ -69,6 +69,7 @@ popd
 python -c 'import ROOT, root_numpy' || halt "Error installing root_numpy"
 python -c 'import xgboost' || halt "Error installing XGboost"
 
+echo $PYTHONPATH
 ipython -c "import os, sys, IPython
 #print os.environ['VIRTUAL_ENV']
 print os.getcwd()
