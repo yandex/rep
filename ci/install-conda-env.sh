@@ -46,8 +46,10 @@ if ! which conda ; then
 fi
 ENV_FILE=$HERE/environment.yaml
 [ -f $HERE/environment_${SYSTEM}.yaml ] && ENV_FILE=$HERE/environment_${SYSTEM}.yaml
+[ -n "$VIRTUAL_ENV" ] && deactivate
 conda env create --name $PENV_NAME --file $ENV_FILE #|| halt "Error installing $PENV_NAME environment"
 source activate $PENV_NAME
+hash -r
 conda uninstall --yes gcc qt
 conda clean --yes -p # -t
 
