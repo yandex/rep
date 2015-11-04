@@ -42,7 +42,7 @@ install:
   - ipython -c "import matplotlib.artist as martist"
 script:
   #- nosetests tests
-  #- nosetests -vd tests/z_test_notebook.py
+  - nosetests -vd tests/z_test_notebook.py
   - runipy howto/00-abc-ipython.ipynb
   - runipy howto/00-intro-ROOT.ipynb
   - runipy howto/02-howto-Factory.ipynb
