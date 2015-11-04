@@ -37,8 +37,9 @@ install:
 # DEBUG
   - conda list
   - echo $LD_LIBRARY_PATH
-  - ls -al $HOME/miniconda/envs/rep_py2/lib/libpng16.so.16
-  - ls -l $HOME/miniconda/envs/rep_py2/lib/*
+  - python -c "import matplotlib"
+  - python -c "import matplotlib.colorbar"
+  - python -c "import matplotlib.artist as martist"
 script:
   #- nosetests tests
   #- nosetests -vd tests/z_test_notebook.py
