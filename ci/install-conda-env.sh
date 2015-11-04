@@ -3,9 +3,17 @@
 set -v
 
 halt() {
-  echo $*
+  echo -e $*
   exit 1
 }
+
+PYTHON_MAJOR_VERSION=2
+[ "$1" == "-h" ] && halt "Usage: $0 [PYTHON_MAJOR_VERSION=2]\ne.g.: $0 3"
+[ -n "$1" ] && PYTHON_MAJOR_VERSION=$1 && shift
+if [ -n "$TRAVIS_PYTHON_VERSION" ] ; then
+    PYTHON_MAJOR_VERSION=${TRAVIS_PYTHON_VERSION:0:1}
+fi
+REP_ENV_NAME="rep_py${PYTHON_MAJOR_VERSION}"
 
 HERE="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 SYSTEM=`uname -s`
@@ -25,18 +33,17 @@ if [ $SYSTEM == "Linux" ] && which apt-get > /dev/null ; then
         libxpm-dev
 fi
 
-mkdir -p $HOME/.config/matplotlib
-echo 'backend: agg' > $HOME/.config/matplotlib/matplotlibrc
-if [ -n "$TRAVIS_PYTHON_VERSION" ] ; then
-    PENV_NAME="rep_py${TRAVIS_PYTHON_VERSION:0:1}"
-elif which python ; then
-    PYTHON_VERSION=`python --version 2>&1|awk '{print $2}'`
-    PENV_NAME="rep_py${PYTHON_VERSION:0:1}"
-else
-    PENV_NAME="rep_py2"
-fi
+mkdir -p $HOME/.config/matplotlib && 
+  echo 'backend: agg' > $HOME/.config/matplotlib/matplotlibrc
+
+# exit existing env
+[ -n "$VIRTUAL_ENV" ] && deactivate
+[ -n "$CONDA_ENV_PATH" ] && source deactivate
+
 if ! which conda ; then
-    wget http://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O miniconda.sh
+    MINICONDA_FILE="Miniconda-latest-Linux-x86_64.sh"
+    [ "$PYTHON_MAJOR_VERSION" == "3" ] && MINICONDA_FILE="Miniconda3-latest-Linux-x86_64.sh"
+    wget http://repo.continuum.io/miniconda/$MINICONDA_FILE -O miniconda.sh
     chmod +x miniconda.sh
     ./miniconda.sh -b -p $HOME/miniconda || halt "Error installing miniconda"
     rm ./miniconda.sh
@@ -45,11 +52,9 @@ if ! which conda ; then
     conda update --yes conda
 fi
 ENV_FILE=$HERE/environment.yaml
-[ -f $HERE/environment_${SYSTEM}.yaml ] && ENV_FILE=$HERE/environment_${SYSTEM}.yaml
-[ -n "$VIRTUAL_ENV" ] && deactivate
-conda env create --name $PENV_NAME --file $ENV_FILE #|| halt "Error installing $PENV_NAME environment"
-source activate $PENV_NAME
-hash -r
+[ -f "$HERE/environment_${SYSTEM}.yaml" ] && ENV_FILE="$HERE/environment_${SYSTEM}.yaml"
+conda env create --name $REP_ENV_NAME --file $ENV_FILE #|| halt "Error installing $REP_ENV_NAME environment"
+source activate $REP_ENV_NAME
 conda uninstall --yes gcc qt
 conda clean --yes -p # -t
 
@@ -85,12 +90,10 @@ echo $PATH
 ls -l $ENV_BIN_DIR/ipython
 cat $ENV_BIN_DIR/ipython
 
-
-find $HOME/miniconda/pkgs -name "*tar.bz2" | xargs md5sum
 # environment
 cat << EOF
 # add to your environment:
 export PATH=$HOME/miniconda/bin:$PATH
-source activate $PENV_NAME
+source activate $REP_ENV_NAME
 pushd $ENV_BIN_DIR/.. ; source 'bin/thisroot.sh' ; popd
 EOF
