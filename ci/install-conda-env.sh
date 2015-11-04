@@ -49,7 +49,7 @@ ENV_FILE=$HERE/environment.yaml
 conda env create --name $PENV_NAME --file $ENV_FILE #|| halt "Error installing $PENV_NAME environment"
 source activate $PENV_NAME
 conda uninstall --yes gcc qt
-conda clean --yes -pt
+conda clean --yes -p # -t
 
 # install xgboost
 git clone https://github.com/dmlc/xgboost.git
