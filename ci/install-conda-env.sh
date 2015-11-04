@@ -78,6 +78,14 @@ print IPython.__file__
 print sys.path
 print sys.argv
 "
+python -c "import os, sys, IPython
+#print os.environ['VIRTUAL_ENV']
+print os.getcwd()
+print sys.executable
+print IPython.__file__
+print sys.path
+print sys.argv
+"
 
 find $HOME/miniconda/pkgs -name "*tar.bz2" | xargs md5sum
 # environment
