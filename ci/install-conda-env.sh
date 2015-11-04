@@ -81,14 +81,8 @@ print sys.argv
 which ipython
 echo $PATH
 ls -l $ENV_BIN_DIR/ipython
-$ENV_BIN_DIR/ipython -c "import os, sys, IPython
-#print os.environ['VIRTUAL_ENV']
-print os.getcwd()
-print sys.executable
-print IPython.__file__
-print sys.path
-print sys.argv
-"
+cat $ENV_BIN_DIR/ipython
+
 
 find $HOME/miniconda/pkgs -name "*tar.bz2" | xargs md5sum
 # environment
