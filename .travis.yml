@@ -16,20 +16,13 @@ python:
   - "2.7"
   - "3.4"
 before_install:
-  - source ci/install-repbase-env.sh
+  - source ci/install-conda-env.sh
 # DEBUG
   - which python
   - conda list
   - echo $LD_LIBRARY_PATH
 install:
   - pip install .
-  - pip install runipy
-# DEBUG
-  - conda list
-  - echo $LD_LIBRARY_PATH
-  - ipython -c "import matplotlib"
-  - ipython -c "import matplotlib.colorbar"
-  - $ENV_BIN_DIR/ipython -c "import matplotlib.artist as martist"
 script:
 #  - nosetests tests
   - nosetests --nocapture -d tests/z_test_notebook.py
