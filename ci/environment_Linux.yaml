@@ -4,9 +4,9 @@ channels:
 dependencies:
   - libpng=1.6.*
   - ipython-notebook=4.0.4
-  - matplotlib=1.4.2
-  - numpy=1.9.*
-  - pandas=0.16.*
+  - matplotlib=1.4.3
+  - numpy=1.10.*
+  - pandas=0.17.*
   - root_numpy
   - root=5*
   - scikit-learn=0.16.1
