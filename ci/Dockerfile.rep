@@ -1,6 +1,8 @@
 FROM yandex/rep-base:0.6.1
 MAINTAINER Andrey Ustyuzhanin <anaderi@yandex-team.ru>
 
+RUN ln -snf /bin/bash /bin/sh
+#WORKDIR /root
 ENV TEMP /tmp
 ENV SHELL /bin/bash
 ENV PORT_JUPYTER=8888
