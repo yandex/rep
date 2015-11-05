@@ -4,11 +4,11 @@ MAINTAINER Andrey Ustyuzhanin <anaderi@yandex-team.ru>
 WORKDIR /root
 ADD ./* /root/
 
-RUN /root/install-repbase-env.sh
+RUN /root/install-repbase-env.sh 3
 RUN echo " \n\
   export PATH=$HOME/miniconda/bin:\$PATH \n\
   source activate rep_py2 \n\
   pushd \$ENV_BIN_DIR/.. ; source 'bin/thisroot.sh' ; popd \n\
-" >> $HOME/.bashrc
+" >> /etc/profile.d/rep_profile.sh
 
 CMD ["bash"]
