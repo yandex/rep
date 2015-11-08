@@ -1,17 +1,5 @@
 language: python
 sudo: true
-# addons:
-#   apt:
-#     packages:
-#     - build-essential
-#     - libatlas-dev
-#     - libatlas-base-dev
-#     - liblapack-dev
-#     - libffi-dev
-#     - wget
-#     - gfortran
-#     - libxft-dev
-#     - libxpm-dev
 python:
   - "2.7"
   - "3.4"
@@ -24,7 +12,7 @@ before_install:
 install:
   - pip install .
 script:
-  # - nosetests tests
+  - nosetests tests
   - nosetests -vd tests/z_test_notebook.py
 cache:
   - apt: true
@@ -34,5 +22,6 @@ cache:
 branches:
   - only:
     - develop
+    - master
 notifications:
   - email: false
