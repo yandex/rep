@@ -22,7 +22,7 @@ def test_notebooks_in_folder(folder='../howto/'):
     for folder, _, files in os.walk(howto_path):
         if not IGNORE_FOLDERS.match(folder):
             for file_ in files:
-                if file_.startswith(r'00') and file_.endswith(r".ipynb") and not IGNORE.match(file_):
+                if file_.endswith(r".ipynb") and not IGNORE.match(file_):
                     print("Testing %s" % file_)
                     # False means not check
                     yield check_single_notebook, os.path.join(folder, file_)
