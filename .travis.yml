@@ -12,7 +12,7 @@ before_install:
 install:
   - pip install .
 script:
-  - nosetests tests
+#  - nosetests tests
   - nosetests -vd tests/z_test_notebook.py
 cache:
   - apt: true
