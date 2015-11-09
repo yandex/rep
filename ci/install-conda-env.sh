@@ -51,12 +51,21 @@ if ! which conda ; then
     hash -r
     conda update --yes conda
 fi
-ENV_FILE=$HERE/environment.yaml
-[ -f "$HERE/environment_${SYSTEM}.yaml" ] && ENV_FILE="$HERE/environment_${SYSTEM}.yaml"
-conda env create --name $REP_ENV_NAME --file $ENV_FILE #|| halt "Error installing $REP_ENV_NAME environment"
-source activate $REP_ENV_NAME
+
+system_speficifc_env() {
+    NAME=$1
+    SYSTEM=$2
+    [ -f "${NAME/%.yaml/_${SYSTEM}.yaml}" ] && NAME="${NAME/%.yaml/_${SYSTEM}.yaml}"
+    echo $NAME
+}
+
+REP_ENV_FILE=`system_speficifc_env $HERE/environment-rep.yaml $SYSTEM`
+JUPYTERHUB_ENV_FILE=`system_speficifc_env $HERE/environment-jupyterhub.yaml $SYSTEM`
+conda env create --name $REP_ENV_NAME --file $REP_ENV_FILE 
+conda env create --name jupyterhub_py3 --file $JUPYTERHUB_ENV_FILE
+source activate $REP_ENV_NAME || halt "Error installing $REP_ENV_NAME environment"
 conda uninstall --yes gcc qt
-conda clean --yes -p -t
+conda clean --yes -s -p -l -i -t
 
 # install xgboost
 git clone https://github.com/dmlc/xgboost.git
