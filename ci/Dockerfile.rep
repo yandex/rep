@@ -35,11 +35,13 @@ RUN mkdir /notebooks && \
     mkdir /etc_external
 
 RUN /bin/bash --login -c " \
-  jupyter notebook -y --generate-config &&\
+  export PATH=$HOME/miniconda/bin:\$PATH ; \
+  source activate rep_py2 && \
+  jupyter notebook --generate-config &&\
   /bin/echo -e \"\
 c.NotebookApp.ip = '*' \n\
 c.NotebookApp.open_browser = False \n\
-c.NotebookApp.port = $PORT_JUPYTER \n \" \
+c.NotebookApp.port = $PORT_IPYTHON \n \" \
   | tee -a $HOME/.jupyter/jupyter_notebook_config.py \
   "
 VOLUME ["/notebooks", "/etc_external"]
