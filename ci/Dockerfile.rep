@@ -22,6 +22,7 @@ RUN /bin/bash --login -c " \
   cd $HOME && \
   rm -rf $TEMP/build"
 
+RUN apt-get -y install mc telnet
 
 # IPython setup
 #
@@ -36,6 +37,7 @@ c.NotebookApp.open_browser = False \n\
 c.NotebookApp.port = $PORT_IPYTHON \n \" \
   | tee -a $HOME/.jupyter/jupyter_notebook_config.py \
   "
+RUN echo umask 0002 >> /etc/bashrc
 
 EXPOSE $PORT_IPYTHON
 CMD ["bash", "/root/run.sh"]
