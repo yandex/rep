@@ -29,12 +29,12 @@ RUN mkdir /notebooks
 RUN /bin/bash --login -c " \
   export PATH=$HOME/miniconda/bin:\$PATH ; \
   source activate rep_py2 && \
-  ipython profile create default &&\
+  jupyter notebook --generate-config &&\
   /bin/echo -e \"\
 c.NotebookApp.ip = '*' \n\
 c.NotebookApp.open_browser = False \n\
 c.NotebookApp.port = $PORT_IPYTHON \n \" \
-  | tee -a /root/.ipython/profile_default/ipython_notebook_config.py \
+  | tee -a $HOME/.jupyter/jupyter_notebook_config.py \
   "
 
 EXPOSE $PORT_IPYTHON
