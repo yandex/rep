@@ -123,6 +123,29 @@ class Classifier(BaseEstimator, ClassifierMixin):
         X, y, sample_weight = lds.get_data(self.features), lds.get_targets(), lds.get_weights(allow_nones=True)
         return self.fit(X, y, sample_weight=sample_weight)
 
+    def test_on_lds(self, lds):
+        """
+        Prepare classification report for single classifier
+
+        :param LabeledDataStorage lds: data
+        :return: ClassificationReport
+        """
+        from ..report import ClassificationReport
+        return ClassificationReport(classifiers={'clf': self}, lds=lds)
+
+    def test_on(self, X, y, sample_weight=None):
+        """
+        Prepare classification report for single classifier
+
+        :param X: data, pandas.DataFrame
+        :param y: target
+        :param sample_weight: weights, optional.
+        :return: ClassificationReport
+        """
+        from ..data import LabeledDataStorage
+        lds = LabeledDataStorage(data=X, target=y, sample_weight=sample_weight)
+        return self.test_on_lds(lds=lds)
+
 
 class Regressor(BaseEstimator, RegressorMixin):
     """
@@ -213,3 +236,27 @@ class Regressor(BaseEstimator, RegressorMixin):
             return pandas.DataFrame({"effect": self.feature_importances_}, index=self.features)
         except AttributeError:
             raise AttributeError("Classifier doesn't provide feature_importances_ property")
+
+    def test_on_lds(self, lds):
+        """
+        Prepare classification report for single classifier
+
+        :param LabeledDataStorage lds: data
+        :return: ClassificationReport
+        """
+        from ..report import RegressionReport
+        return RegressionReport(regressors={'clf': self}, lds=lds)
+
+    def test_on(self, X, y, sample_weight=None):
+        """
+        Prepare classification report for single classifier
+
+        :param X: data, pandas.DataFrame
+        :param y: target
+        :param sample_weight: weights, optional.
+        :return: ClassificationReport
+        """
+        from ..data import LabeledDataStorage
+        lds = LabeledDataStorage(data=X, target=y, sample_weight=sample_weight)
+        return self.test_on_lds(lds=lds)
+
