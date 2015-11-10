@@ -25,7 +25,7 @@ before_install:
 install:
   - pip install .
 script:
-  - travis_wait nosetests --nocapture -vd tests
+  - nosetests --nocapture -vd tests
   #- travis_wait nosetests --nocapture -vd tests/z_test_notebook.py
 cache:
   - apt: true
