@@ -61,8 +61,8 @@ system_speficifc_env() {
 
 REP_ENV_FILE=`system_speficifc_env $HERE/environment-rep.yaml $SYSTEM`
 JUPYTERHUB_ENV_FILE=`system_speficifc_env $HERE/environment-jupyterhub.yaml $SYSTEM`
-conda env create -q --name $REP_ENV_NAME --file $REP_ENV_FILE 
-conda env create -q --name jupyterhub_py3 --file $JUPYTERHUB_ENV_FILE
+conda env create -q --name $REP_ENV_NAME --file $REP_ENV_FILE > /dev/null
+conda env create -q --name jupyterhub_py3 --file $JUPYTERHUB_ENV_FILE > /dev/null
 source activate $REP_ENV_NAME || halt "Error installing $REP_ENV_NAME environment"
 conda uninstall --yes -q gcc qt
 conda clean --yes -s -p -l -i -t
