@@ -14,7 +14,7 @@ addons:
     - libxpm-dev
 python:
   - "2.7"
-#  - "3.4"
+  - "3.4"
 before_install:
   - source ci/install-repbase-env.sh
 # DEBUG
@@ -24,8 +24,8 @@ before_install:
 install:
   - pip install .
 script:
-#  - nosetests tests
-  - travis_wait nosetests --nocapture -vd tests/z_test_notebook.py
+  - travis_wait nosetests --nocapture -vd tests
+  #- travis_wait nosetests --nocapture -vd tests/z_test_notebook.py
 cache:
   - apt: true
   - directories:
