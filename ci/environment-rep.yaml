@@ -1,12 +1,13 @@
 name: rep
 channels:
-  - nlesc
+  - remenska
 dependencies:
   - ipython-notebook=4.0.4
   - matplotlib=1.4.3
   - numpy=1.10.*
   - pandas=0.17.*
   - root_numpy
+  - rootpy
   - root=5*
   - scikit-learn=0.16.1
   - scipy=0.16.*
@@ -19,4 +20,3 @@ dependencies:
     - theanets==0.6.2
     - pybrain==0.3
     - mpld3==0.2
-    - rootpy==0.8.0
