@@ -36,6 +36,9 @@ run-daemon:
 exec:
 	docker exec $(CONTAINER_NAME) $(EXEC_ARGS)
 
+logs:
+	docker logs $(CONTAINER_NAME)
+
 stop:
 	docker stop $(CONTAINER_NAME)
 

@@ -1,7 +1,5 @@
 #!/bin/bash
 
-set -v
-
 halt() {
   echo -e $*
   exit 1
