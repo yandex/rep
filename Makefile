@@ -42,11 +42,11 @@ remove: stop
 inspect:
 	docker inspect yandex/rep:$(REPTAG) 
 
-push:
+push: rep-image
 	docker push yandex/rep:$(REPTAG)
 
 tag-latest: rep-image
 	docker tag -f yandex/rep:$(REPTAG) yandex/rep:latest
 
-push-latest: push tag-latest
+push-latest: tag-latest push
 	docker push yandex/rep:latest

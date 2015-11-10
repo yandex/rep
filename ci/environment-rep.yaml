@@ -19,3 +19,4 @@ dependencies:
     - theanets==0.6.2
     - pybrain==0.3
     - mpld3==0.2
+    - rootpy==0.8.0

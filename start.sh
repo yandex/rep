@@ -9,14 +9,15 @@ umask
 set -v
 JUPYTER_CONFIG=$HOME/.jupyter/jupyter_notebook_config.py
 if [ "$JPY_API_TOKEN" != "" ] ; then
-        jupyter kernelspec install-self
 	echo "Starting under Jupyterhub"
+        jupyter kernelspec install-self
 	source activate jupyterhub_py3
         jupyter kernelspec install-self
-	NOTEBOOK_DIR=/notebooks
+        source activate rep_py2 # default env
 
+	NOTEBOOK_DIR=/notebooks
 	git clone $JPY_GITHUBURL $NOTEBOOK_DIR
-	jupyterhub-singleuser \
+	$HOME/miniconda/envs/jupyterhub_py3/bin/jupyterhub-singleuser \
 	  --port=8888 \
 	  --ip=0.0.0.0 \
 	  --user=$JPY_USER \
