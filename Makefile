@@ -18,6 +18,9 @@ REPBASETAG=0.6.1
 rep-base-image:
 	docker build -t yandex/rep-base:$(REPBASETAG) -f ci/Dockerfile.base ci
 
+rep-base-image3:
+	TRAVIS_PYTHON_VERSION=3.4 docker build -t yandex/rep-base:$(REPBASETAG) -f ci/Dockerfile.base ci
+
 rep-image:
 	docker build -t yandex/rep:$(REPTAG) -f ci/Dockerfile.rep .
 

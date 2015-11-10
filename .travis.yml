@@ -24,7 +24,7 @@ before_install:
 install:
   - pip install .
 script:
-  - nosetests --nocapture -vd tests
+  - nosetests --nocapture -vd tests | grep -v "downhill.base:232"
   #- travis_wait nosetests --nocapture -vd tests/z_test_notebook.py
 cache:
   - apt: true

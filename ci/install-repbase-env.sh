@@ -61,9 +61,20 @@ system_speficifc_env() {
 
 REP_ENV_FILE=`system_speficifc_env $HERE/environment-rep.yaml $SYSTEM`
 JUPYTERHUB_ENV_FILE=`system_speficifc_env $HERE/environment-jupyterhub.yaml $SYSTEM`
+echo "Create env $REP_ENV_NAME"
 conda env create -q --name $REP_ENV_NAME --file $REP_ENV_FILE > /dev/null
+echo "Create env jupyterhub_py3"
 conda env create -q --name jupyterhub_py3 --file $JUPYTERHUB_ENV_FILE > /dev/null
 source activate $REP_ENV_NAME || halt "Error installing $REP_ENV_NAME environment"
+
+if [ "$PYTHON_MAJOR_VERSION" == "3" ] ; then
+  # fix for root_numpy 4.3.0 from remenska
+  SITES_PACKAGES=$PYTHONPATH/python3.4/site-packages
+  EGG=$SITES_PACKAGES/root_numpy-*.egg
+  PATH_FILE=$SITES_PACKAGES/root_numpy.pth
+  [ -d $EGG ] && [ ! -f $PATH_FILE ] && pushd $SITES_PACKAGES && echo "./root_numpy-"* > $PATH_FILE && popd
+fi
+
 conda uninstall --yes -q gcc qt
 conda clean --yes -s -p -l -i -t
 
