@@ -25,7 +25,7 @@ RUN /bin/bash --login -c " \
   cd $HOME && \
   rm -rf $TEMP/build"
 
-RUN apt-get -y install mc telnet
+RUN apt-get -y install mc telnet curl
 
 # IPython setup
 #
