@@ -166,7 +166,10 @@ class AbstractParameterGenerator(object):
         # may be overriden in descendants, if independent sampling is not best option.
         state_indices = []
         for _ in range(size):
-            state_indices.append(self.generate_next_point())
+            try:
+                state_indices.append(self.generate_next_point())
+            except StopIteration:
+                pass
         return zip(*state_indices)
 
     def add_result(self, state_indices, value):
@@ -717,10 +720,12 @@ class GridOptimalSearchCV(object):
 
             while self.evaluations_done < self.params_generator.n_evaluations:
                 state_indices_array, state_dict_array = self.params_generator.generate_batch_points(size=portion)
-                result = map_on_cluster(self.parallel_profile, apply_scorer, [self.scorer] * portion, state_dict_array,
-                                        [self.base_estimator] * portion,
-                                        [X] * portion, [y] * portion, [sample_weight] * portion)
-                assert len(result) == portion, "The length of result is very strange"
+                current_portion = len(state_indices_array)
+                result = map_on_cluster(self.parallel_profile, apply_scorer, [self.scorer] * current_portion,
+                                        state_dict_array,
+                                        [self.base_estimator] * current_portion,
+                                        [X] * current_portion, [y] * current_portion, [sample_weight] * current_portion)
+                assert len(result) == current_portion, "The length of result is very strange"
                 for state_indices, state_dict, (status, score) in zip(state_indices_array, state_dict_array, result):
                     params = ", ".join([k + '=' + str(v) for k, v in state_dict.items()])
                     if status != 'success':
@@ -729,6 +734,6 @@ class GridOptimalSearchCV(object):
                     else:
                         self.params_generator.add_result(state_indices, score)
                         self._log("{}: {}".format(score, params))
-                self.evaluations_done += portion
+                self.evaluations_done += current_portion
                 print("%i evaluations done" % self.evaluations_done)
         return self

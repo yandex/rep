@@ -102,7 +102,7 @@ def test_gridsearch_sklearn_regression():
     generator = RegressionParameterOptimizer(grid_param, n_evaluations=4)
 
     grid = GridOptimalSearchCV(SklearnRegressor(clf=AdaBoostRegressor()), generator, scorer)
-                               #parallel_profile='threads-3')
+    # parallel_profile='threads-3')
 
     _ = check_grid(grid, False, False, False, use_weights=True, classification=False)
     regressor = check_grid(grid, False, False, False, use_weights=False, classification=False)
@@ -188,14 +188,37 @@ def test_gridsearch_metrics():
         RandomParameterOptimizer(param_grid=param_grid, n_evaluations=4),
     ])
 
-    my_roc_auc = lambda x, p, w=None: roc_auc_score(x, p[:, 1], sample_weight=w)
-    for metric in [RocAuc(), LogLoss(), OptimalAMS(), OptimalSignificance(), log_loss, my_roc_auc]:
+    for metric in [RocAuc(), OptimalAMS(), OptimalSignificance(), log_loss]:
         scorer = FoldingScorer(metric)
         clf = SklearnClassifier(QDA())
-        grid = GridOptimalSearchCV(estimator=clf, params_generator=next(optimizers), scorer=scorer)
+        grid = GridOptimalSearchCV(estimator=clf, params_generator=next(optimizers),
+                                   scorer=scorer)
         grid.fit(X, y)
         print(grid.params_generator.best_score_)
         print(grid.params_generator.best_params_)
         grid.params_generator.print_results()
 
 
+def test_gridsearch_metrics_threads(n_threads=3):
+    X, y, sample_weight = generate_classification_data(n_classes=2, distance=0.7)
+    param_grid = OrderedDict({
+        'reg_param': numpy.linspace(0, 1, 20)
+    })
+
+    from itertools import cycle
+
+    optimizers = cycle([
+        RegressionParameterOptimizer(param_grid=param_grid, n_evaluations=4, start_evaluations=2),
+        SubgridParameterOptimizer(param_grid=param_grid, n_evaluations=4),
+        RandomParameterOptimizer(param_grid=param_grid, n_evaluations=4),
+    ])
+
+    for metric in [RocAuc(), OptimalAMS(), OptimalSignificance(), log_loss]:
+        scorer = FoldingScorer(metric)
+        clf = SklearnClassifier(QDA())
+        grid = GridOptimalSearchCV(estimator=clf, params_generator=next(optimizers),
+                                   scorer=scorer, parallel_profile='threads-{}'.format(n_threads))
+        grid.fit(X, y)
+        print(grid.params_generator.best_score_)
+        print(grid.params_generator.best_params_)
+        grid.params_generator.print_results()
