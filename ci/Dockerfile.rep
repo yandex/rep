@@ -1,8 +1,6 @@
 FROM yandex/rep-base:0.6.1
 MAINTAINER Andrey Ustyuzhanin <anaderi@yandex-team.ru>
 
-RUN ln -snf /bin/bash /bin/sh
-#WORKDIR /root
 ENV TEMP /tmp
 ENV SHELL /bin/bash
 ENV PORT_JUPYTER=8888
@@ -35,13 +33,11 @@ RUN mkdir /notebooks && \
     mkdir /etc_external
 
 RUN /bin/bash --login -c " \
-  export PATH=$HOME/miniconda/bin:\$PATH ; \
-  source activate rep_py2 && \
-  jupyter notebook --generate-config &&\
+  jupyter notebook -y --generate-config &&\
   /bin/echo -e \"\
 c.NotebookApp.ip = '*' \n\
 c.NotebookApp.open_browser = False \n\
-c.NotebookApp.port = $PORT_IPYTHON \n \" \
+c.NotebookApp.port = $PORT_JUPYTER \n \" \
   | tee -a $HOME/.jupyter/jupyter_notebook_config.py \
   "
 VOLUME ["/notebooks", "/etc_external"]
