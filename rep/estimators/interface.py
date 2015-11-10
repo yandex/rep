@@ -125,7 +125,7 @@ class Classifier(BaseEstimator, ClassifierMixin):
 
     def test_on_lds(self, lds):
         """
-        Prepare classification report for single classifier
+        Prepare classification report for a single classifier
 
         :param LabeledDataStorage lds: data
         :return: ClassificationReport
@@ -135,7 +135,7 @@ class Classifier(BaseEstimator, ClassifierMixin):
 
     def test_on(self, X, y, sample_weight=None):
         """
-        Prepare classification report for single classifier
+        Prepare classification report for a single classifier
 
         :param X: data, pandas.DataFrame
         :param y: target
@@ -239,22 +239,22 @@ class Regressor(BaseEstimator, RegressorMixin):
 
     def test_on_lds(self, lds):
         """
-        Prepare classification report for single classifier
+        Prepare regression report for a single classifier
 
         :param LabeledDataStorage lds: data
-        :return: ClassificationReport
+        :return: RegressionReport
         """
         from ..report import RegressionReport
         return RegressionReport(regressors={'clf': self}, lds=lds)
 
     def test_on(self, X, y, sample_weight=None):
         """
-        Prepare classification report for single classifier
+        Prepare regression report for a single classifier
 
         :param X: data, pandas.DataFrame
         :param y: target
         :param sample_weight: weights, optional.
-        :return: ClassificationReport
+        :return: RegressionReport
         """
         from ..data import LabeledDataStorage
         lds = LabeledDataStorage(data=X, target=y, sample_weight=sample_weight)

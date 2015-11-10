@@ -20,7 +20,7 @@ def weighted_quantile(array, quantiles, sample_weight=None, array_sorted=False, 
     :param quantiles: floats from range [0, 1] with quantiles of shape [n_quantiles]
     :param sample_weight: optional weights of samples, array of shape [n_samples]
     :param array_sorted: if True, the sorting step will be skipped
-    :param old_style: if True
+    :param old_style: if True, will correct output to be consistent with numpy.percentile.
     :return: array of shape [n_quantiles]
 
     Example:
