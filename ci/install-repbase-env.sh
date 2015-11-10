@@ -17,7 +17,7 @@ HERE="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 SYSTEM=`uname -s`
 
 [ -z "$HOME" ] && export HOME="/root"
-if [ $SYSTEM == "Linux" ] && which apt-get > /dev/null ; then
+if [ $SYSTEM == "Linux" ] && which apt-get > /dev/null && ! dpkg -l |grep libxpm-dev > /dev/null ; then
     sudo apt-get update
     sudo apt-get install -y  \
         build-essential \
