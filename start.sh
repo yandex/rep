@@ -1,11 +1,30 @@
 #!/bin/bash
 
+set -x
+
+echo "Umask: "
+umask
+[ -z "$ENV_BIN_DIR" ] && source /etc/profile.d/rep_profile.sh
+
 set -v
 JUPYTER_CONFIG=$HOME/.jupyter/jupyter_notebook_config.py
 if [ "$JPY_API_TOKEN" != "" ] ; then
+        jupyter kernelspec install-self
 	echo "Starting under Jupyterhub"
 	source activate jupyterhub_py3
-	jupyterhub-singleuser $*
+        jupyter kernelspec install-self
+	NOTEBOOK_DIR=/notebooks
+
+	git clone $JPY_GITHUBURL $NOTEBOOK_DIR
+	jupyterhub-singleuser \
+	  --port=8888 \
+	  --ip=0.0.0.0 \
+	  --user=$JPY_USER \
+	  --cookie-name=$JPY_COOKIE_NAME \
+	  --base-url=$JPY_BASE_URL \
+	  --hub-prefix=$JPY_HUB_PREFIX \
+	  --hub-api-url=$JPY_HUB_API_URL \
+	  --notebook-dir=$NOTEBOOK_DIR
 	exit $?
 fi
 
@@ -27,12 +46,11 @@ fi
 
 
 if [ "$PASSWORD" != "" ] ; then
-	echo "Setting up password support for Jupyther profile"
 	sha=`python -c "from notebook.auth import passwd; print passwd('$PASSWORD')"`
 	echo "c.NotebookApp.password = u'$sha'" >> $JUPYTER_CONFIG
 fi
 
-if [ "$SECRET" != ""] ; then
+if [ "$SECRET" != "" ] ; then
 	echo "c.NotebookNotary.secret = b'$SECRET'" >> $JUPYTER_CONFIG
 fi
 
@@ -41,11 +59,12 @@ if [ "$SECRET_FILE" != "" ] ; then
 fi
 
 if [ "$JUPYTER_PORT" != "" ] ; then
-	echo "New Jupyter port is $JUPYTER_PORT"
 	OPTIONS+=" --port $JUPYTER_PORT"
 fi
 
 [[ -d /REP_howto && ! -L /notebooks/rep_howto ]] && ln -s /REP_howto /notebooks/rep_howto
 
+$HOME/install_modules.sh
+
 echo "Starting Jupyter"
-jupyter notebook $OPTIONS
+jupyter notebook $OPTIONS /notebooks 2>&1 | tee -a /notebooks/jupyter.log

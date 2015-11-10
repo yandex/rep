@@ -16,7 +16,7 @@ python:
   - "2.7"
   - "3.4"
 before_install:
-  - source ci/install-conda-env.sh
+  - source ci/install-repbase-env.sh
 # DEBUG
   - which python
   - conda list
