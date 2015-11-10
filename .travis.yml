@@ -29,9 +29,9 @@ script:
 cache:
   - apt: true
   - directories:
-    - $HOME/.cache/pip
     - $HOME/.theano
-    - $HOME/miniconda/pkgs
+#    - $HOME/.cache/pip
+#    - $HOME/miniconda/pkgs
 branches:
   - only:
     - develop
