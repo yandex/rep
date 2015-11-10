@@ -16,6 +16,7 @@ python:
   - "2.7"
   - "3.4"
 before_install:
+#  - set -x
   - source ci/install-repbase-env.sh
 # DEBUG
   - which python
