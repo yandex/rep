@@ -14,7 +14,7 @@ sudo: true
 #     - libxpm-dev
 python:
   - "2.7"
-  - "3.4"
+#  - "3.4"
 before_install:
   - source ci/install-repbase-env.sh
 # DEBUG
