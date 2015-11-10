@@ -69,13 +69,14 @@ conda clean --yes -s -p -l -i -t
 
 # install xgboost
 git clone https://github.com/dmlc/xgboost.git
-cd xgboost
+pushd xgboost
 # taking particular xgboost commit, which is working
 git checkout 8e4dc4336849c24ae48636ae60f5faddbb789038
 ./build.sh
 cd python-package
 python setup.py install
-cd ../..
+popd
+rm -rf xgboost
 # end install xgboost
 
 # test installed packages
@@ -84,7 +85,6 @@ source 'bin/thisroot.sh' || halt "Error installing ROOT"
 popd
 python -c 'import ROOT, root_numpy' || halt "Error installing root_numpy"
 python -c 'import xgboost' || halt "Error installing XGboost"
-
 # environment
 cat << EOF
 # add to your environment:
