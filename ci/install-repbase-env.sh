@@ -67,7 +67,10 @@ source activate $REP_ENV_NAME || halt "Error installing $REP_ENV_NAME environmen
 
 if [ "$PYTHON_MAJOR_VERSION" == "3" ] ; then
   # fix for root_numpy 4.3.0 from remenska
-  SITES_PACKAGES=$PYTHONPATH/python3.4/site-packages
+  echo $PYTHONPATH
+  SITES_PACKAGES=$CONDA_ENV_PATH/lib/python3.4/site-packages
+  echo $SITES_PACKAGES
+  ls -l $SITES_PACKAGES
   EGG=$SITES_PACKAGES/root_numpy-*.egg
   PATH_FILE=$SITES_PACKAGES/root_numpy.pth
   [ -d $EGG ] && [ ! -f $PATH_FILE ] && pushd $SITES_PACKAGES && echo "./root_numpy-"* > $PATH_FILE && popd
