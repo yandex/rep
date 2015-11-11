@@ -93,9 +93,9 @@ report = clf.test_on(testX, testY)
 report.roc().plot() # plot ROC curve
 from rep.report.metrics import RocAuc
 # learning curves are useful when training GBDT!
-report.learning_curve(RocAuc(), step=10)  
+report.learning_curve(RocAuc(), steps=10)  
 ```
 
-
+You can read about other __REP__ tools (like distributed grid search) in documentation and howto examples.
 
 
