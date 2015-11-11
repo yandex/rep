@@ -67,5 +67,7 @@ fi
 
 $HOME/install_modules.sh
 
+cat .version
+source .version
 echo "Starting Jupyter"
 jupyter notebook $OPTIONS /notebooks 2>&1 | tee -a /notebooks/jupyter.log
