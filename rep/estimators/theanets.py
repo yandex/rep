@@ -19,15 +19,15 @@ These classes are wrappers for `theanets <http://theanets.readthedocs.org/>`_ - 
 
 
 from __future__ import division, print_function, absolute_import
-import numpy
 from abc import abstractmethod, ABCMeta
+
+import numpy
+import theanets as tnt
+
 from .interface import Classifier, Regressor
 from .utils import check_inputs, check_scaler, remove_first_line
 from sklearn.utils import check_random_state
 
-import os
-import tempfile
-import theanets as tnt
 
 __author__ = 'Lisa Ignatyeva, Alex Rogozhnikov, Tatiana Likhomanenko'
 __all__ = ['TheanetsBase', 'TheanetsClassifier', 'TheanetsRegressor']
@@ -86,9 +86,11 @@ class TheanetsBase(object):
                  output_activation='linear',
                  input_noise=0,
                  hidden_noise=0,
-                 input_dropouts=0,
-                 hidden_dropouts=0,
+                 input_dropout=0,
+                 hidden_dropout=0,
                  decode_from=1,
+                 weight_l1=0.01,
+                 weight_l2=0.01,
                  scaler='standard',
                  trainers=None,
                  random_state=42, ):
@@ -104,61 +106,14 @@ class TheanetsBase(object):
 
         self.input_noise = input_noise
         self.hidden_noise = hidden_noise
-        self.input_dropouts = input_dropouts
-        self.hidden_dropouts = hidden_dropouts
+        self.input_dropout = input_dropout
+        self.hidden_dropout = hidden_dropout
         self.decode_from = decode_from
+        self.weight_l1 = weight_l1
+        self.weight_l2 = weight_l2
 
         self.hidden_activation = hidden_activation
         self.output_activation = output_activation
-
-    def __getstate__(self):
-        """
-        Required for copy, pickle.dump working, because theanets objects can't be pickled by default.
-
-        :return dict result: the dictionary containing all the object, transformed and therefore picklable.
-        """
-        result = self.__dict__.copy()
-        del result['exp']
-        if self.exp is None:
-            result['dumped_exp'] = None
-        else:
-            with tempfile.NamedTemporaryFile() as dump:
-                self.exp.save(dump.name)
-                with open(dump.name, 'rb') as dumpfile:
-                    result['dumped_exp'] = dumpfile.read()
-        return result
-
-    def __setstate__(self, dictionary):
-        """
-        Required for pickle.load working, because theanets objects can't be unpickled by default.
-
-        :param dict dictionary: the structure representing a TheanetsClassifier or TheanetsRegressor
-        """
-        dumped_exp = dictionary.pop('dumped_exp')
-        self.__dict__ = dictionary.copy()
-        if dumped_exp is None:
-            self.exp = None
-        else:
-            with tempfile.NamedTemporaryFile() as dump:
-                with open(dump.name, 'wb') as dumpfile:
-                    dumpfile.write(dumped_exp)
-                assert os.path.exists(dump.name), 'something strange in unpickling: there is no such file: {}'.format(
-                    dump.name)
-                dummy_layers = [1] + self.layers + [1]
-                estimator_object = tnt.Classifier if self._model_type == 'classification' else tnt.Regressor
-                self.exp = tnt.Experiment(estimator_object, layers=dummy_layers, rng=self._reproducibilize(),
-                                          **self._prepare_network_params())
-                self.exp.load(dump.name)
-
-    def _reproducibilize(self):
-        """
-        A magic method which makes theanets calls be reproducible.
-        Should be called when creating an experiment to pass
-        a proper rng value and before running exp.train in order to fix the seed.
-        See https://github.com/lmjohns3/theanets/issues/72
-        """
-        numpy.random.seed(42)
-        return check_random_state(self.random_state)
 
     def set_params(self, **params):
         """
@@ -225,12 +180,13 @@ class TheanetsBase(object):
     def _is_fitted(self):
         return self.exp is not None
 
-    def fit(self, X, y):
+    def fit(self, X, y, sample_weight=None):
         """
         Train the estimator from scratch.
 
         :param pandas.DataFrame X: data shape [n_samples, n_features]
         :param y: values - array-like of shape [n_samples]
+        :param sample_weight: weights - array-like of shape [n_samples]
         :return: self
 
         .. note:: if `trainer['optimize'] == 'pretrain'` (unsupervised training)
@@ -244,7 +200,7 @@ class TheanetsBase(object):
         for trainer in self.trainers:
             if 'optimize' in trainer and trainer['optimize'] in UNSUPPORTED_OPTIMIZERS:
                 raise NotImplementedError(trainer['optimize'] + ' is not supported')
-            self.partial_fit(X, y, keep_trainer=False, **trainer)
+            self.partial_fit(X, y, sample_weight=sample_weight, keep_trainer=False, **trainer)
         return self
 
     @abstractmethod
@@ -261,7 +217,8 @@ class TheanetsBase(object):
         """
         pass
 
-    def _prepare_for_partial_fit(self, X, y, sample_weight=None, allow_multiple_targets=False, keep_trainer=True, **trainer):
+    def _prepare_for_partial_fit(self, X, y, sample_weight=None, allow_multiple_targets=False, keep_trainer=True,
+                                 **trainer):
         """
         Does preparation for fitting which is the same for classifier and regressor
 
@@ -271,11 +228,12 @@ class TheanetsBase(object):
         :param dict trainer: parameters of the training algorithm we want to use now
         :return: prepared data and labels
         """
-        X, y, _ = check_inputs(X, y, sample_weight=sample_weight, allow_multiple_targets=allow_multiple_targets)
+        X, y, sample_weight = check_inputs(X, y, sample_weight=sample_weight, allow_none_weights=False,
+                                           allow_multiple_targets=allow_multiple_targets)
         X = self._transform_data(self._get_features(X, allow_nans=True), y)
         if keep_trainer:
             self.trainers.append(trainer)
-        return X, y
+        return X, y, sample_weight
 
     def _construct_layers(self, input_layer, output_layer):
         """
@@ -296,10 +254,13 @@ class TheanetsBase(object):
                 'output_activation': self.output_activation,
                 'input_noise': self.input_noise,
                 'hidden_noise': self.hidden_noise,
-                'input_dropouts': self.input_dropouts,
-                'hidden_dropouts': self.hidden_dropouts,
-                'decode_from': self.decode_from
-                }
+                'input_dropout': self.input_dropout,
+                'hidden_dropout': self.hidden_dropout,
+                'decode_from': self.decode_from,
+                'rng': check_random_state(self.random_state),
+                'weight_l1': self.weight_l1,
+                'weight_l2': self.weight_l2
+        }
 
 
 class TheanetsClassifier(TheanetsBase, Classifier):
@@ -307,7 +268,7 @@ class TheanetsClassifier(TheanetsBase, Classifier):
 
     _model_type = 'classification'
 
-    def partial_fit(self, X, y, keep_trainer=True, **trainer):
+    def partial_fit(self, X, y, sample_weight=None, keep_trainer=True, **trainer):
         """
         Train the classifier by training the existing classifier again.
 
@@ -320,17 +281,19 @@ class TheanetsClassifier(TheanetsBase, Classifier):
         .. note:: if `trainer['optimize'] == 'pretrain'` (unsupervised training)
         `y` can be any vector just with information `numpy.unique(y) == classes`
         """
-        X, y = self._prepare_for_partial_fit(X, y, keep_trainer=keep_trainer, **trainer)
+        X, y, sample_weight = self._prepare_for_partial_fit(X, y, sample_weight=sample_weight,
+                                                            keep_trainer=keep_trainer, **trainer)
         if self.exp is None:
             self._set_classes(y)
             layers = self._construct_layers(X.shape[1], len(self.classes_))
-            self.exp = tnt.Experiment(tnt.Classifier, layers=layers,
-                                      rng=self._reproducibilize(), **self._prepare_network_params())
-        self._reproducibilize()
+            self.exp = tnt.Experiment(tnt.Classifier, layers=layers, weighted=True)
+        params = self._prepare_network_params()
+        params.update(**trainer)
         if trainer.get('optimize', None) == 'pretrain':
-            self.exp.train([X.astype(numpy.float32)], **trainer)
+            self.exp.train([X.astype(numpy.float32)], **params)
         else:
-            self.exp.train([X.astype(numpy.float32), y.astype(numpy.int32)], **trainer)
+            self.exp.train([X.astype(numpy.float32), y.astype(numpy.int32), sample_weight.astype(numpy.float32)],
+                           **params)
         return self
 
     def predict_proba(self, X):
@@ -342,7 +305,7 @@ class TheanetsClassifier(TheanetsBase, Classifier):
         """
         assert self._is_fitted(), 'Classifier wasn`t fitted, please call `fit` first'
         X = self._transform_data(self._get_features(X, allow_nans=True))
-        return self.exp.network.predict(X.astype(numpy.float32))
+        return self.exp.network.predict_proba(X.astype(numpy.float32))
 
     def staged_predict_proba(self, X):
         """
@@ -370,19 +333,23 @@ class TheanetsRegressor(TheanetsBase, Regressor):
         `y` can be any vector just with information about number of targets `numpy.shape(y)`
         """
         allow_multiple_targets = False if len(numpy.shape(y)) == 1 else True
-        X, y = self._prepare_for_partial_fit(X, y, allow_multiple_targets=allow_multiple_targets,
-                                             keep_trainer=keep_trainer, **trainer)
+        X, y, sample_weight = self._prepare_for_partial_fit(X, y, sample_weight=sample_weight,
+                                                            allow_multiple_targets=allow_multiple_targets,
+                                                            keep_trainer=keep_trainer, **trainer)
         if self.exp is None:
             layers = self._construct_layers(X.shape[1], 1 if len(numpy.shape(y)) == 1 else numpy.shape(y)[1])
-            self.exp = tnt.Experiment(tnt.Regressor, layers=layers,
-                                      rng=self._reproducibilize(), **self._prepare_network_params())
-        self._reproducibilize()
+            self.exp = tnt.Experiment(tnt.Regressor, layers=layers, weighted=True)
+        params = self._prepare_network_params()
+        params.update(**trainer)
         if len(numpy.shape(y)) == 1:
             y = y.reshape(len(y), 1)
+        if len(numpy.shape(sample_weight)) == 1:
+            sample_weight = numpy.repeat(sample_weight, y.shape[1])
+            sample_weight = sample_weight.reshape(y.shape)
         if trainer.get('optimize') == 'pretrain':
-            self.exp.train([X.astype(numpy.float32)], **trainer)
+            self.exp.train([X.astype(numpy.float32)], **params)
         else:
-            self.exp.train([X.astype(numpy.float32), y], **trainer)
+            self.exp.train([X.astype(numpy.float32), y, sample_weight.astype(numpy.float32)], **params)
         return self
 
     def predict(self, X):

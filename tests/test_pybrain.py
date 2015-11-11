@@ -14,6 +14,14 @@
 
 
 from __future__ import division, print_function, absolute_import
+
+import six
+if six.PY3:
+    # PyBrain doesn't support python3
+    import nose
+    raise nose.SkipTest
+
+
 from rep.test.test_estimators import check_classifier, check_regression, check_params, \
     generate_classification_data, check_classification_reproducibility
 from rep.estimators.pybrain import PyBrainClassifier, PyBrainRegressor

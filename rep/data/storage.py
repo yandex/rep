@@ -1,5 +1,5 @@
 """
-This is wrapper for pandas.DataFrame, which allows you to define dataset for estimator by a simple way.
+This is wrapper for pandas.DataFrame, which allows you to define dataset for estimator in a simple way.
 """
 from __future__ import division, print_function, absolute_import
 import numbers
@@ -57,7 +57,7 @@ class LabeledDataStorage(object):
         if isinstance(key, str) and ds is not None:
             # assert key in set(ds.columns), self._print_err('ERROR:', '%s is absent in data storage' % key)
             name = list(get_columns_dict([key]).keys())[0]
-            return numpy.array(get_columns_in_df(self.data, key)[name])
+            return numpy.array(get_columns_in_df(self.data, [key])[name])
         elif isinstance(key, numbers.Number):
             return numpy.array([key] * len(ds))
         else:

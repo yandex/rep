@@ -75,7 +75,7 @@ class ClassificationReport(AbstractReport):
                 if key in all_classes:
                     labels_dict_init[key] = value
         assert set(labels_dict_init.keys()).issubset(all_classes), \
-            'Labels must be a subset of {}, but {}'.format(all_classes, labels_dict_init.keys())
+            'Labels must be a subset of {}, but {}'.format(all_classes, list(labels_dict_init.keys()))
         return labels_dict_init
 
     def features_pdf(self, features=None, mask=None, bins=30, ignored_sideband=0.0, labels_dict=None, grid_columns=2):
@@ -177,7 +177,7 @@ class ClassificationReport(AbstractReport):
         correlation_plots = []
         corr_pairs = OrderedDict()
         for feature1_c, feature2_c in correlation_pairs:
-            feature1, feature2 = get_columns_dict([feature1_c, feature2_c]).keys()
+            feature1, feature2 = list(get_columns_dict([feature1_c, feature2_c]).keys())
             corr_pairs[(feature1, feature2)] = OrderedDict()
             for label, name in labels_dict.items():
                 corr_pairs[(feature1, feature2)][name] = (df[feature1][class_labels == label].values,
@@ -189,13 +189,15 @@ class ClassificationReport(AbstractReport):
             correlation_plots.append(plot_fig)
         return plotting.GridPlot(grid_columns, *correlation_plots)
 
-    def roc(self, mask=None, signal_label=1):
+    def roc(self, mask=None, signal_label=1, physical_notion=True):
         """
         Calculate roc functions for data and return roc plot object
 
         :param mask: mask for data, which will be used
         :type mask: None or numbers.Number or array-like or str or function(pandas.DataFrame)
         :param int grid_columns: count of columns for multi-rocs
+        :param bool physical_notion: if set to True, will show signal efficiency vs background rejection,
+            otherwise TPR vs FPR.
 
         :rtype: plotting.FunctionsPlot
         """
@@ -208,11 +210,20 @@ class ClassificationReport(AbstractReport):
 
         for name, prediction in self.prediction.items():
             labels_active = numpy.array(self.target[mask] == signal_label, dtype=int)
-            roc_curves[name], _, _ = utils.calc_ROC(prediction[mask, signal_label], labels_active,
+            (tpr, tnr), _, _ = utils.calc_ROC(prediction[mask, signal_label], labels_active,
                                                     sample_weight=self.weight[mask])
+            if physical_notion:
+                roc_curves[name] = (tpr, tnr)
+                xlabel = 'Signal sensitivity'
+                ylabel = 'Bg rejection eff (specificity)'
+            else:
+                roc_curves[name] = (1 - tnr, tpr)
+                xlabel = 'false positive rate'
+                ylabel = 'true positive rate'
+
         plot_fig = plotting.FunctionsPlot(roc_curves)
-        plot_fig.xlabel = 'Signal sensitivity'
-        plot_fig.ylabel = 'Bg rejection eff (specificity)'
+        plot_fig.xlabel = xlabel
+        plot_fig.ylabel = ylabel
         plot_fig.title = 'ROC curves'
         return plot_fig
 
@@ -345,20 +356,25 @@ class ClassificationReport(AbstractReport):
         plot_fig.ylabel = metric_label
         return plot_fig
 
-    def _learning_curve_additional(self, name, metric_func, step, mask):
+    def _learning_curve_additional(self, name, metric_func, step, mask, predict_only_masked):
         """
         Compute values of RocAuc (or some other metric) for particular classifier, mask and metric function.
         :return: tuple(stages, values) with numbers of stages and corresponding
         computed values of metric after each stage.
         """
-        _, data, labels, weight = self._apply_mask(
-            mask, self._get_features(), self.target, self.weight)
+
+        evaled_mask, labels, weight = self._apply_mask(mask, self.target, self.weight)
+        data = self._get_features()
+        if predict_only_masked:
+            _, data = self._apply_mask(mask, data)
 
         curve = OrderedDict()
         stage_proba = self.estimators[name].staged_predict_proba(data)
         for stage, prediction in islice(enumerate(stage_proba), step - 1, None, step):
+            if not predict_only_masked:
+                prediction = prediction[evaled_mask]
             curve[stage] = metric_func(labels, prediction, sample_weight=weight)
-        return curve.keys(), curve.values()
+        return list(curve.keys()), list(curve.values())
 
     def feature_importance_shuffling(self, metric=LogLoss(), mask=None, grid_columns=2):
         """
@@ -385,7 +401,7 @@ class ClassificationReport(AbstractReport):
         return bin_indices
 
     def efficiencies_2d(self, features, efficiency, mask=None, n_bins=20, ignored_sideband=0.0, labels_dict=None,
-                        grid_columns=2, signal_label=1):
+                        grid_columns=2, signal_label=1, cmap='RdBu'):
         """
         For binary classification plots the dependence of efficiency on two columns
 
@@ -401,6 +417,7 @@ class ClassificationReport(AbstractReport):
         :param int grid_columns: count of columns in grid
         :param float ignored_sideband: (0, 1) percent of plotting data
         :param int signal_label: label to calculate efficiency threshold
+        :param str cmap: name of colormap used
 
         :rtype: plotting.GridPlot
         """
@@ -433,9 +450,7 @@ class ClassificationReport(AbstractReport):
         sig_mask = class_labels == signal_label
         for classifier_name, prediction in self.prediction.items():
             prediction = prediction[mask]
-            # important: this isn't completely correct, since we need weighted percentile.
-            # TODO fix
-            threshold_ = numpy.percentile(prediction[sig_mask, signal_label], 100 * (1. - efficiency))
+            threshold_ = utils.weighted_quantile(prediction[sig_mask, signal_label], (1. - efficiency))
             passed = prediction[:, signal_label] > threshold_
             minlength = n_bins ** 2
             for label, label_name in labels_dict.items():
@@ -443,14 +458,23 @@ class ClassificationReport(AbstractReport):
                 label_mask = class_labels == label
                 assert numpy.all(bin_indices < minlength)
 
+                # mean efficiency
+                mean_eff = numpy.sum(label_mask * weight * passed) / numpy.sum(label_mask * weight)
+
                 bin_efficiencies = numpy.bincount(bin_indices, weights=label_mask * weight * passed, minlength=minlength)
-                bin_efficiencies /= numpy.bincount(bin_indices, weights=label_mask * weight, minlength=minlength) + 1e-6
+                denominators = numpy.bincount(bin_indices, weights=label_mask * weight, minlength=minlength)
+                bin_efficiencies /= denominators + 1e-6
+                # For empty bins we will return mean (plots otherwise become ugly)
+                bin_efficiencies[denominators == 0] = mean_eff
 
                 plot_fig = plotting.Function2D_Plot(lambda x, y: 0, xlim=axis_limits[0], ylim=axis_limits[1])
                 plot_fig.x, plot_fig.y = numpy.meshgrid(*bin_centers)
                 plot_fig.z = bin_efficiencies.reshape([n_bins, n_bins])
                 plot_fig.xlabel, plot_fig.ylabel = columns_labels
                 plot_fig.title = 'Estimator {} efficiencies for class {}'.format(classifier_name, label_name)
+                plot_fig.vmin = mean_eff - 0.2
+                plot_fig.vmax = mean_eff + 0.2
+                plot_fig.cmap = cmap
                 plots.append(plot_fig)
 
         return plotting.GridPlot(grid_columns, *plots)

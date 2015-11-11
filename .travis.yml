@@ -1,0 +1,41 @@
+language: python
+sudo: false
+addons:
+  apt:
+    packages:
+    - build-essential
+    - libatlas-dev
+    - libatlas-base-dev
+    - liblapack-dev
+    - libffi-dev
+    - wget
+    - gfortran
+    - libxft-dev
+    - libxpm-dev
+python:
+  - "2.7"
+  - "3.4"
+before_install:
+  - set -x
+  - source ci/install-repbase-env.sh
+# DEBUG
+  - which python
+  - conda list
+  - echo $LD_LIBRARY_PATH
+install:
+  - pip install .
+script:
+  - nosetests --nocapture -vd tests | grep -v "downhill.base:232"
+  #- travis_wait nosetests --nocapture -vd tests/z_test_notebook.py
+cache:
+  - apt: true
+  - directories:
+    - $HOME/.theano
+#    - $HOME/.cache/pip
+#    - $HOME/miniconda/pkgs
+branches:
+  - only:
+    - develop
+    - master
+notifications:
+  - email: false

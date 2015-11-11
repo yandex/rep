@@ -1,41 +1,116 @@
 """
-This module does hyper parameters optimization -- find the best parameters for estimator using different optimization models.
-"""
+This module does hyper parameters optimization -- finds the best parameters for estimator using different optimization models.
+Components of optimization:
 
-# TODO think of pareto-optimization
+* estimator (for which optimal parameters are searched, any REP classifier will work, see :mod:`rep.estimators`)
+* target metric function (which is maximized, anything meeting REP metric interface, see :mod:`rep.report.metrics`)
+* optimization algorithm (introduced in this module)
+* cross-validation technique (kFolding, introduced in this module)
+
+During optimization, many cycles of estimating quality on different sets of parameters is done.
+To speed up the process, threads or IPython cluster can be used.
+
+
+GridOptimalSearchCV
+-------------------
+Main class linking the whole process is :class:`GridOptimalSearchCV`, which takes as parameters:
+
+* estimator to be optimized
+* scorer (which trains classifier and estimates quality using cross-validation)
+* parameter generator (which draws next set of parameters to be checked)
+
+.. autoclass:: GridOptimalSearchCV
+    :members:
+    :inherited-members:
+    :undoc-members:
+    :show-inheritance:
+
+
+Folding Scorer
+--------------
+
+.. autoclass:: FoldingScorer
+    :members:
+    :inherited-members:
+    :undoc-members:
+    :show-inheritance:
+
+
+Available optimization algorithms
+---------------------------------
+
+.. autoclass:: RandomParameterOptimizer
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+.. autoclass:: AnnealingParameterOptimizer
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+.. autoclass:: SubgridParameterOptimizer
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+.. autoclass:: RegressionParameterOptimizer
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
+Interface of parameter optimizer
+--------------------------------
+Each of parameter optimizers has the following interface.
+
+.. autoclass:: AbstractParameterGenerator
+    :members:
+    :inherited-members:
+    :undoc-members:
+    :show-inheritance:
+
+
+"""
 
 from __future__ import division, print_function, absolute_import
 from itertools import islice
 from collections import OrderedDict
 import logging
+import copy
 
-from sklearn.base import clone
 import numpy
-from sklearn.cross_validation import StratifiedKFold
+from sklearn.base import clone
+from sklearn.cross_validation import StratifiedKFold, KFold
 from sklearn.ensemble.forest import RandomForestRegressor
 from sklearn.utils.random import check_random_state
 
 from six.moves import zip
 from ..estimators.utils import check_inputs
+from ..utils import fit_metric
+from .utils import map_on_cluster
+from .utils import get_classifier_probabilities, get_regressor_prediction
+
 
 __author__ = 'Alex Rogozhnikov, Tatiana Likhomanenko'
 
 
 class AbstractParameterGenerator(object):
-    """
-    Abstract class for grid search algorithm.
-    The aim of this class is to generate new points, where the function (estimator) will be computed.
-    You can define your own algorithm of step location of parameters grid.
 
-    Parameters:
-    ----------
-    :param OrderedDict param_grid: the grid with parameters to optimize on
-    :param int n_evaluations: the number of evaluations to do
-    :param random_state: random generator
-    :type random_state: int or RandomState or None
-    """
+    def __init__(self, param_grid, n_evaluations=10, maximize=True, random_state=None):
+        """
+        Abstract class for grid search algorithm.
+        The aim of this class is to generate new points, where the function (estimator) will be computed.
+        You can define your own algorithm of step location of parameters grid.
 
-    def __init__(self, param_grid, n_evaluations=10, random_state=None):
+        Parameters:
+        ----------
+        :param OrderedDict param_grid: the grid with parameters to optimize on
+        :param int n_evaluations: the number of evaluations to do
+        :param random_state: random generator
+        :param maximize: whether algorithm should maximize or minimize target function.
+        :type random_state: int or RandomState or None
+        """
         assert isinstance(param_grid, dict), 'the passed param_grid should be of OrderedDict class'
         self.param_grid = OrderedDict(param_grid)
         _check_param_grid(param_grid)
@@ -47,6 +122,7 @@ class AbstractParameterGenerator(object):
 
         # results on different parameters
         self.grid_scores_ = OrderedDict()
+        self.maximize = maximize
 
         # all the tasks that are being computed or already computed
         self.queued_tasks_ = set()
@@ -75,7 +151,9 @@ class AbstractParameterGenerator(object):
                 return result
 
     def generate_next_point(self):
-        """Generating next random point in parameters space"""
+        """Generating next random point in parameters space
+        :return: tuple (indices, parameters)
+        """
         raise NotImplementedError('Should be overriden by descendant')
 
     def generate_batch_points(self, size):
@@ -83,12 +161,15 @@ class AbstractParameterGenerator(object):
         Generate several points in parameter space at once (needed when using parallel computations)
 
         :param size: how many points we shall generate
-        :return: sequence of tuples, each tuple representing it's own
+        :return: tuple of arrays (state_indices, state_parameters)
         """
-        # may be overriden in descendants
+        # may be overriden in descendants, if independent sampling is not best option.
         state_indices = []
         for _ in range(size):
-            state_indices.append(self.generate_next_point())
+            try:
+                state_indices.append(self.generate_next_point())
+            except StopIteration:
+                pass
         return zip(*state_indices)
 
     def add_result(self, state_indices, value):
@@ -100,19 +181,26 @@ class AbstractParameterGenerator(object):
         """
         self.grid_scores_[state_indices] = value
 
+    def _get_the_best_value(self, value):
+        if self.maximize:
+            return numpy.max(value)
+        else:
+            return numpy.min(value)
+
     @property
     def best_score_(self):
         """
         Property, return best score of optimization
         """
-        return numpy.max(self.grid_scores_.values())
+        return self._get_the_best_value(list(self.grid_scores_.values()))
 
     @property
     def best_params_(self):
         """
         Property, return point of parameters grid with the best score
         """
-        return self._indices_to_parameters(max(self.grid_scores_.items(), key=lambda x: x[1])[0])
+        function = max if self.maximize else min
+        return self._indices_to_parameters(function(self.grid_scores_.items(), key=lambda x: x[1])[0])
 
     def print_results(self, reorder=True):
         """
@@ -123,7 +211,7 @@ class AbstractParameterGenerator(object):
         """
         sequence = self.grid_scores_.items()
         if reorder:
-            sequence = sorted(sequence, key=lambda x: -x[1])
+            sequence = sorted(sequence, key=lambda x: x[1], reverse=self.maximize)
         for state_indices, value in sequence:
             state_string = ", ".join([name_value[0] + '=' + str(name_value[1]) for name_value
                                       in self._indices_to_parameters(state_indices).items()])
@@ -131,39 +219,62 @@ class AbstractParameterGenerator(object):
 
 
 class RandomParameterOptimizer(AbstractParameterGenerator):
-    """
-    Random generation of new grid point.
-    """
+    def __init__(self, param_grid, n_evaluations=10, maximize=True, random_state=None):
+        """
+        Works in the same way as sklearn.grid_search.RandomizedSearch.
+        Each next point is generated independently.
+
+        :param_grid: dict with distributions used to sample each parameter.
+          name -> list of possible values (in which case sampled uniformly from options)
+          name -> distribution (should implement '.rvs()' as scipy distributions)
+        :param bool maximize: ignored parameter, added for uniformity
+
+        NB: this is the only optimizer, which supports passing distributions for parameters.
+        """
+        self.maximize = maximize
+        self.param_grid = OrderedDict(param_grid)
+        self.n_evaluations = n_evaluations
+        self.random_state = check_random_state(random_state)
+        self.indices_to_parameters_ = OrderedDict()
+        self.grid_scores_ = OrderedDict()
+        self.queued_tasks_ = set()
+        from sklearn.grid_search import ParameterSampler
+        self.param_sampler = iter(ParameterSampler(param_grid, n_iter=n_evaluations, random_state=random_state))
+
     def generate_next_point(self):
-        """Generating next random point in parameters space"""
-        if len(self.queued_tasks_) >= numpy.prod(self.dimensions):
-            raise RuntimeError("The grid is exhausted, cannot generate more points")
-        new_state_indices = self._generate_random_point()
-        return new_state_indices, self._indices_to_parameters(new_state_indices)
+        params = next(self.param_sampler)
+        index = len(self.indices_to_parameters_)
+        indices = index,
+        self.indices_to_parameters_[indices] = params
+        self.queued_tasks_.add(indices)
+        return indices, params
+
+    def _indices_to_parameters(self, state_indices):
+        return self.indices_to_parameters_[state_indices]
 
 
 class RegressionParameterOptimizer(AbstractParameterGenerator):
-    """
-    To generate next point of grid regressor will be used to estimate score for all next point in such way
-    that the point with the best estimated score will be chosen
-
-    Parameters:
-    ----------
-    :param OrderedDict param_grid: the grid with parameters to optimize on
-    :param int n_evaluations: the number of evaluations to do
-    :param random_state: random generator
-    :type random_state: int or RandomState or None
-
-    :param int start_evaluations: count of random point generation on start
-    :param int n_attempts:
-    :param regressor: regressor to choose appropriate next point with potential best score
-        (estimated this score by regressor); If None them RandomForest algorithm will be used.
-    """
-
     def __init__(self, param_grid, n_evaluations=10, random_state=None,
-                 start_evaluations=3, n_attempts=5, regressor=None):
+                 start_evaluations=3, n_attempts=10, regressor=None, maximize=True):
+        """
+        This general method relies on regression.
+        Regressor will try to predict the best point based on already known result fir different parameters.
+
+        Parameters:
+        ----------
+        :param OrderedDict param_grid: the grid with parameters to optimize on
+        :param int n_evaluations: the number of evaluations to do
+        :param random_state: random generator
+        :type random_state: int or RandomState or None
+
+        :param int start_evaluations: count of random point generation on start
+        :param int n_attempts: this number of points will be compared on each iteration.
+            Regressor is to choose optimal from them.
+        :param regressor: regressor to choose appropriate next point with potential best score
+            (estimated this score by regressor); If None them RandomForest algorithm will be used.
+        """
         AbstractParameterGenerator.__init__(self, param_grid=param_grid, n_evaluations=n_evaluations,
-                                            random_state=random_state)
+                                            random_state=random_state, maximize=maximize)
         if regressor is None:
             regressor = RandomForestRegressor(max_depth=3, n_estimators=10, max_features=0.7)
         self.regressor = regressor
@@ -175,7 +286,7 @@ class RegressionParameterOptimizer(AbstractParameterGenerator):
         if len(self.queued_tasks_) > numpy.prod(self.dimensions) + self.n_attempts:
             raise RuntimeError("The grid is exhausted, cannot generate more points")
 
-        if len(self.queued_tasks_) < self.start_evaluations:
+        if len(self.grid_scores_) < self.start_evaluations:
             new_state_indices = self._generate_random_point()
             return new_state_indices, self._indices_to_parameters(new_state_indices)
 
@@ -188,7 +299,7 @@ class RegressionParameterOptimizer(AbstractParameterGenerator):
         candidates = numpy.array([list(self._generate_random_point(enqueue=False))
                                   for _ in range(self.n_attempts)], dtype=int)
         # winning candidate index
-        index = regressor.predict(candidates).argmax()
+        index = regressor.predict(candidates).argmax() if self.maximize else regressor.predict(candidates).argmin()
 
         new_state_indices = tuple(candidates[index, :])
 
@@ -198,7 +309,7 @@ class RegressionParameterOptimizer(AbstractParameterGenerator):
 
 
 class AnnealingParameterOptimizer(AbstractParameterGenerator):
-    def __init__(self, param_grid, n_evaluations=10, temperature=0.2, random_state=None):
+    def __init__(self, param_grid, n_evaluations=10, temperature=0.2, random_state=None, maximize=True):
         """
         Implementation if annealing algorithm
 
@@ -213,7 +324,7 @@ class AnnealingParameterOptimizer(AbstractParameterGenerator):
         """
         AbstractParameterGenerator.__init__(self, param_grid=param_grid,
                                             n_evaluations=n_evaluations,
-                                            random_state=random_state)
+                                            random_state=random_state, maximize=maximize)
         self.temperature = temperature
         self.actual_state = None
 
@@ -233,7 +344,10 @@ class AnnealingParameterOptimizer(AbstractParameterGenerator):
 
             # probability of transition
             std = numpy.std(list(self.grid_scores_.values())) + 1e-5
-            p = numpy.exp(1. / self.temperature * (last_score - actual_score) / std)
+            difference = last_score - actual_score
+            if not self.maximize:
+                difference *= -1
+            p = numpy.exp(1. / self.temperature * difference / std)
             if p > self.random_state.uniform(0, 1):
                 self.actual_state = last_state
 
@@ -246,7 +360,7 @@ class AnnealingParameterOptimizer(AbstractParameterGenerator):
                 if new_state_indices not in self.queued_tasks_:
                     break
             else:
-                print('failed to generate the simple way')
+                print('Annealing failed to generate next point the simple way')
                 new_state_indices = self._generate_random_point(enqueue=False)
 
             self.queued_tasks_.add(new_state_indices)
@@ -274,9 +388,9 @@ class SubgridParameterOptimizer(AbstractParameterGenerator):
     """
 
     def __init__(self, param_grid, n_evaluations=10, random_state=None, start_evaluations=3,
-                 subgrid_size=3):
+                 subgrid_size=3, maximize=True):
         AbstractParameterGenerator.__init__(self, param_grid=param_grid, n_evaluations=n_evaluations,
-                                            random_state=random_state)
+                                            random_state=random_state, maximize=maximize)
         self.start_evaluations = start_evaluations
         self.subgrid_size = subgrid_size
         self.dimensions_sum = sum(self.dimensions)
@@ -307,15 +421,19 @@ class SubgridParameterOptimizer(AbstractParameterGenerator):
             return indices, self._indices_to_parameters(indices)
 
         results = numpy.array(list(self.grid_scores_.values()), dtype=float)
+        if not self.maximize:
+            results *= -1
         std = numpy.std(results) + 1e-5
+        # probabilities to take initial point
         probabilities = numpy.exp(numpy.clip((results - numpy.mean(results)) * 3. / std, -5, 5))
         probabilities /= numpy.sum(probabilities)
+        # temperature is responsible for distance leaped
         temperature_p = numpy.clip(1. - len(self.queued_tasks_) / self.n_evaluations, 0.05, 1)
         while True:
             start = self.random_state.choice(len(probabilities), p=probabilities)
             start_indices = list(self.grid_scores_.keys())[start]
             new_state_indices = list(start_indices)
-            for _ in range(self.dimensions_sum // 6 + 1):
+            for _ in range(self.dimensions_sum // 3 + 1):
                 if self.random_state.uniform() < temperature_p:
                     axis = self.random_state.randint(len(self.dimensions))
                     new_state_indices[axis] += int(numpy.sign(self.random_state.uniform() - 0.5))
@@ -384,15 +502,59 @@ def _translate_key_from_subgrid(subgrid_indices, key):
 # endregion
 
 
-class FoldingScorer(object):
+class FoldingScorerBase(object):
     """
     Scorer, which implements logic of data folding and scoring. This is a function-like object
 
-    Parameters:
-    ----------
     :param int folds: 'k' used in k-folding while validating
     :param int fold_checks: not greater than folds, the number of checks we do by cross-validating
     :param function score_function: quality. if fold_checks > 1, the average is computed over checks.
+    """
+
+    def __init__(self, score_function, folds=3, fold_checks=1, shuffle=False, random_state=None):
+        self.folds = folds
+        self.fold_checks = fold_checks
+        self.score_function = score_function
+        self.shuffle = shuffle
+        self.random_state = random_state
+
+    def _compute_score(self, k_folder, prediction_function, base_estimator, params, X, y, sample_weight=None):
+        """
+        :return float: quality
+        """
+        score = 0
+        for ind, (train_indices, test_indices) in enumerate(islice(k_folder, 0, self.fold_checks)):
+            estimator = clone(base_estimator)
+            estimator.set_params(**params)
+
+            trainX, trainY = X.iloc[train_indices, :], y[train_indices]
+            testX, testY = X.iloc[test_indices, :], y[test_indices]
+
+            score_metric = copy.deepcopy(self.score_function)
+            if sample_weight is not None:
+                train_weights, test_weights = sample_weight[train_indices], sample_weight[test_indices]
+                estimator.fit(trainX, trainY, sample_weight=train_weights)
+                fit_metric(score_metric, testX, testY, sample_weight=test_weights)
+                prediction = prediction_function(estimator, testX)
+                score += score_metric(testY, prediction, sample_weight=test_weights)
+            else:
+                estimator.fit(trainX, trainY)
+                fit_metric(score_metric, testX, testY)
+                prediction = prediction_function(estimator, testX)
+                score += score_metric(testY, prediction)
+        return score / self.fold_checks
+
+
+class ClassificationFoldingScorer(FoldingScorerBase):
+    """
+    Scorer, which implements logic of data folding and scoring for classification models. This is a function-like object
+
+    :param int folds: 'k' used in k-folding while validating
+    :param int fold_checks: not greater than folds, the number of checks we do by cross-validating
+    :param function score_function: quality. if fold_checks > 1, the average is computed over checks.
+
+
+    Example:
 
     >>> def new_score_function(y_true, proba, sample_weight=None):
     >>>     '''
@@ -401,40 +563,52 @@ class FoldingScorer(object):
     >>>     sample_weight: [n_samples] or None
     >>>     '''
     >>>     ...
-
-    Example:
-    --------
-    >>> fs = FoldingScorer(new_score_function)
-    >>> fs(base_estimator, params, X, y, sample_weight=None)
+    >>>
+    >>> f_scorer = FoldingScorer(new_score_function)
+    >>> f_scorer(base_estimator, params, X, y, sample_weight=None)
     0.5
     """
-
-    def __init__(self, score_function, folds=3, fold_checks=1):
-        self.folds = folds
-        self.fold_checks = fold_checks
-        self.score_function = score_function
-
     def __call__(self, base_estimator, params, X, y, sample_weight=None):
         """
         :return float: quality
         """
-        k_folder = StratifiedKFold(y=y, n_folds=self.folds)
-        score = 0
-        for ind, (train_indices, test_indices) in enumerate(islice(k_folder, 0, self.fold_checks)):
-            classifier = clone(base_estimator)
-            classifier.set_params(**params)
+        k_folder = StratifiedKFold(y=y, n_folds=self.folds, shuffle=self.shuffle, random_state=self.random_state)
+        return self._compute_score(k_folder, get_classifier_probabilities, base_estimator, params, X, y,
+                                   sample_weight=sample_weight)
 
-            trainX, trainY = X.iloc[train_indices, :], y[train_indices]
-            testX, testY = X.iloc[test_indices, :], y[test_indices]
 
-            if sample_weight is not None:
-                train_weights, test_weights = sample_weight[train_indices], sample_weight[test_indices]
-                classifier.fit(trainX, trainY, sample_weight=train_weights)
-                score += self.score_function(testY, classifier.predict_proba(testX), sample_weight=test_weights)
-            else:
-                classifier.fit(trainX, trainY)
-                score += self.score_function(testY, classifier.predict_proba(testX))
-        return score / self.fold_checks
+class RegressionFoldingScorer(FoldingScorerBase):
+    """
+    Scorer, which implements logic of data folding and scoring for regression models. This is a function-like object
+
+    :param int folds: 'k' used in k-folding while validating
+    :param int fold_checks: not greater than folds, the number of checks we do by cross-validating
+    :param function score_function: quality. if fold_checks > 1, the average is computed over checks.
+
+
+    Example:
+
+    >>> def new_score_function(y_true, pred, sample_weight=None):
+    >>>     '''
+    >>>     y_true: [n_samples]
+    >>>     pred: [n_samples]
+    >>>     sample_weight: [n_samples] or None
+    >>>     '''
+    >>>     ...
+    >>>
+    >>> f_scorer = RegressionFoldingScorer(new_score_function)
+    >>> f_scorer(base_estimator, params, X, y, sample_weight=None)
+    0.5
+    """
+    def __call__(self, base_estimator, params, X, y, sample_weight=None):
+        """
+        :return float: quality
+        """
+        k_folder = KFold(len(y), n_folds=self.folds, shuffle=self.shuffle, random_state=self.random_state)
+        return self._compute_score(k_folder, get_regressor_prediction, base_estimator, params, X, y,
+                                   sample_weight=sample_weight)
+
+FoldingScorer = ClassificationFoldingScorer
 
 
 def apply_scorer(scorer, params, base_estimator, X, y, sample_weight):
@@ -460,13 +634,11 @@ def apply_scorer(scorer, params, base_estimator, X, y, sample_weight):
 
 class GridOptimalSearchCV(object):
     """
-    Optimal search over specified parameter values for an estimator. Metropolis-like algorithm is used
-    Important members are fit, scorer.
+    Optimal search over specified parameter values for an estimator.
+    Uses different optimization techniques to use limited number of evaluations without using exhaustive grid scanning.
 
     GridSearchCV implements a "fit" method and a "fit_best_estimator" method to train models.
 
-    Parameters
-    ----------
     :param BaseEstimator estimator: object of type that implements the "fit" and "fit_best_estimator" methods
         A new object of that type is cloned for each point.
     :param AbstractParameterGenerator params_generator: generator of grid search algorithm
@@ -477,7 +649,7 @@ class GridOptimalSearchCV(object):
 
     Attributes
     ----------
-    generator: return grid generator
+    generator: return grid parameter generator
     """
 
     def __init__(self, estimator, params_generator, scorer, parallel_profile=None):
@@ -487,7 +659,8 @@ class GridOptimalSearchCV(object):
         self.parallel_profile = parallel_profile
         self.evaluations_done = 0
 
-    def _log(self, msg, level=20):
+    @staticmethod
+    def _log(msg, level=20):
         logger = logging.getLogger(__name__)
         logger.log(level, msg)
 
@@ -534,17 +707,25 @@ class GridOptimalSearchCV(object):
                 state_string = ", ".join([k + '=' + str(v) for k, v in state_dict.items()])
                 self._log('{}: {}'.format(value, state_string))
         else:
-            from IPython.parallel import Client
+            if str.startswith(self.parallel_profile, 'threads'):
+                _, n_threads = str.split(self.parallel_profile, '-')
+                portion = int(n_threads)
+                print("Performing grid search in {} threads".format(portion))
+            else:
+                from IPython.parallel import Client
 
-            direct_view = Client(profile=self.parallel_profile).direct_view()
-            portion = len(direct_view)
-            print("There are {0} cores in cluster, the portion is equal {1}".format(len(direct_view), portion))
+                direct_view = Client(profile=self.parallel_profile).direct_view()
+                portion = len(direct_view)
+                print("There are {0} cores in cluster, the portion is equal {1}".format(len(direct_view), portion))
+
             while self.evaluations_done < self.params_generator.n_evaluations:
                 state_indices_array, state_dict_array = self.params_generator.generate_batch_points(size=portion)
-                result = direct_view.map_sync(apply_scorer, [self.scorer] * portion, state_dict_array,
-                                              [self.base_estimator] * portion,
-                                              [X] * portion, [y] * portion, [sample_weight] * portion)
-                assert len(result) == portion, "The length of result is very strange"
+                current_portion = len(state_indices_array)
+                result = map_on_cluster(self.parallel_profile, apply_scorer, [self.scorer] * current_portion,
+                                        state_dict_array,
+                                        [self.base_estimator] * current_portion,
+                                        [X] * current_portion, [y] * current_portion, [sample_weight] * current_portion)
+                assert len(result) == current_portion, "The length of result is very strange"
                 for state_indices, state_dict, (status, score) in zip(state_indices_array, state_dict_array, result):
                     params = ", ".join([k + '=' + str(v) for k, v in state_dict.items()])
                     if status != 'success':
@@ -553,6 +734,6 @@ class GridOptimalSearchCV(object):
                     else:
                         self.params_generator.add_result(state_indices, score)
                         self._log("{}: {}".format(score, params))
-                self.evaluations_done += portion
+                self.evaluations_done += current_portion
                 print("%i evaluations done" % self.evaluations_done)
         return self

@@ -85,11 +85,12 @@ class RegressionReport(AbstractReport):
             correlation_plots += self._scatter_addition(df, correlation_pairs, marker_size=marker_size, alpha=alpha)
         return plotting.GridPlot(grid_columns, *correlation_plots)
 
-    def _scatter_addition(self, df, correlation_pairs, marker_size=20, alpha=0.1):
+    @staticmethod
+    def _scatter_addition(df, correlation_pairs, marker_size=20, alpha=0.1):
         correlation_plots = []
         corr_pairs = OrderedDict()
         for feature1_c, feature2_c in correlation_pairs:
-            feature1, feature2 = get_columns_dict([feature1_c, feature2_c]).keys()
+            feature1, feature2 = list(get_columns_dict([feature1_c, feature2_c]).keys())
             corr_pairs[(feature1, feature2)] = (df[feature1].values, df[feature2].values)
             plot_fig = plotting.ScatterPlot({'correlation': corr_pairs[(feature1, feature2)]}, alpha=alpha,
                                             size=marker_size)
@@ -99,16 +100,20 @@ class RegressionReport(AbstractReport):
             correlation_plots.append(plot_fig)
         return correlation_plots
 
-    def _learning_curve_additional(self, name, metric_func, step, mask):
+    def _learning_curve_additional(self, name, metric_func, step, mask, predict_only_masked):
         """Returns values of roc curve for particular classifier, mask and metric function. """
-        _, data, labels, weight = self._apply_mask(
-            mask, self._get_features(), self.target, self.weight)
+        evaled_mask, labels, weight = self._apply_mask(mask, self.target, self.weight)
+        data = self._get_features()
+        if predict_only_masked:
+            _, data = self._apply_mask(mask, data)
 
         curve = OrderedDict()
         stage_values = self.estimators[name].staged_predict(data)
         for stage, prediction in islice(enumerate(stage_values), step - 1, None, step):
+            if not predict_only_masked:
+                prediction = prediction[evaled_mask]
             curve[stage] = metric_func(labels, prediction, sample_weight=weight)
-        return curve.keys(), curve.values()
+        return list(curve.keys()), list(curve.values())
 
     def feature_importance_shuffling(self, metric=mean_squared_error, mask=None, grid_columns=2):
         """

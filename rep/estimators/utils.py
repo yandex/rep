@@ -99,7 +99,7 @@ def _get_features(features, X, allow_nans=False):
         X_features = get_columns_in_df(X, features)
 
     if not allow_nans:
-        # do by column to not create copy of all data frame
+        # check column-by-column in order not to create copy of whole DataFrame
         for column in X_features.columns:
             assert numpy.all(numpy.isfinite(X_features[column])), "Does not support NaN: " + str(column)
     return X_features, new_features

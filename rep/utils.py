@@ -12,11 +12,29 @@ from sklearn.utils.validation import column_or_1d
 from sklearn.metrics import roc_curve
 
 
-def weighted_percentile(array, percentiles, sample_weight=None, array_sorted=False, old_style=False):
+def weighted_quantile(array, quantiles, sample_weight=None, array_sorted=False, old_style=False):
+    """Computing quantiles of array. Unlike the numpy.percentile, this function supports weights,
+    but it is inefficient and performs complete sorting.
+
+    :param array: distribution, array of shape [n_samples]
+    :param quantiles: floats from range [0, 1] with quantiles of shape [n_quantiles]
+    :param sample_weight: optional weights of samples, array of shape [n_samples]
+    :param array_sorted: if True, the sorting step will be skipped
+    :param old_style: if True, will correct output to be consistent with numpy.percentile.
+    :return: array of shape [n_quantiles]
+
+    Example:
+    ________
+
+    >>> weighted_quantile([1, 2, 3, 4, 5], [0.5])
+    Out: array([ 3.])
+    >>> weighted_quantile([1, 2, 3, 4, 5], [0.5], sample_weight=[3, 1, 1, 1, 1])
+    Out: array([ 2.])
+    """
     array = numpy.array(array)
-    percentiles = numpy.array(percentiles)
+    quantiles = numpy.array(quantiles)
     sample_weight = check_sample_weight(array, sample_weight)
-    assert numpy.all(percentiles >= 0) and numpy.all(percentiles <= 1), 'Percentiles should be in [0, 1]'
+    assert numpy.all(quantiles >= 0) and numpy.all(quantiles <= 1), 'Percentiles should be in [0, 1]'
 
     if not array_sorted:
         array, sample_weight = reorder_by_first(array, sample_weight)
@@ -28,7 +46,7 @@ def weighted_percentile(array, percentiles, sample_weight=None, array_sorted=Fal
         weighted_quantiles /= weighted_quantiles[-1]
     else:
         weighted_quantiles /= numpy.sum(sample_weight)
-    return numpy.interp(percentiles, weighted_quantiles, array)
+    return numpy.interp(quantiles, weighted_quantiles, array)
 
 
 def reorder_by_first(*arrays):
@@ -42,8 +60,11 @@ def reorder_by_first(*arrays):
 
 
 def check_sample_weight(y_true, sample_weight):
-    """
-    Checks the weights, returns normalized version
+    """Checks the weights, if None, returns array.
+
+    :param y_true: labels (or any array of length [n_samples])
+    :param sample_weight: None or array of length [n_samples]
+    :return: numpy.array of shape [n_samples]
     """
     if sample_weight is None:
         return numpy.ones(len(y_true), dtype=numpy.float)
@@ -56,24 +77,25 @@ def check_sample_weight(y_true, sample_weight):
 
 class Flattener(object):
     """
-        Prepares normalization function for some set of values
-        transforms it to uniform distribution from [0, 1]. Example of usage:
+    Prepares normalization function for some set of values
+    transforms it to uniform distribution from [0, 1]. Example of usage:
 
-        Parameters:
-        -----------
-        :param data: predictions
-        :type data: list or numpy.array
-        :param sample_weight: weights
-        :type sample_weight: None or list or numpy.array
+    Parameters:
+    -----------
+    :param data: predictions
+    :type data: list or numpy.array
+    :param sample_weight: weights
+    :type sample_weight: None or list or numpy.array
 
-        Example:
-        --------
-        >>> normalizer = Flattener(signal)
-        >>> hist(normalizer(background))
-        >>> hist(normalizer(signal))
+    Example:
+    --------
+    >>> normalizer = Flattener(signal)
+    >>> hist(normalizer(background))
+    >>> hist(normalizer(signal))
 
-        :return func: normalization function
-        """
+    :return func: normalization function
+    """
+
     def __init__(self, data, sample_weight=None):
         sample_weight = check_sample_weight(data, sample_weight=sample_weight)
         data = column_or_1d(data)
@@ -90,29 +112,32 @@ class Binner:
         """
         Binner is a class that helps to split the values into several bins.
         Initially an array of values is given, which is then splitted into 'bins_number' equal parts,
-        and thus we are computing limits (boundaries of bins)."""
+        and thus we are computing limits (boundaries of bins).
+        """
         percentiles = [i * 100.0 / bins_number for i in range(1, bins_number)]
         self.limits = numpy.percentile(values, percentiles)
 
     def get_bins(self, values):
+        """Given the values of feature, compute the index of bin
+
+        :param values: array of shape [n_samples]
+        :return: array of shape [n_samples]
+        """
         return numpy.searchsorted(self.limits, values)
 
-    def get_bins_dumb(self, values):
-        """This is the sane as previous function, but a bit slower and naive"""
-        result = numpy.zeros(len(values))
-        for limit in self.limits:
-            result += values > limit
-        return result
-
     def set_limits(self, limits):
+        """Change the thresholds inside bins."""
         self.limits = limits
 
+    @property
     def bins_number(self):
+        """:return: number of bins"""
         return len(self.limits) + 1
 
     def split_into_bins(self, *arrays):
         """
-        Splits the data of parallel arrays into bins, the first array is binning variable
+        :param arrays: data to be splitted, the first array corresponds
+        :return: sequence of length [n_bins] with values corresponding to each bin.
         """
         values = arrays[0]
         for array in arrays:
@@ -128,9 +153,10 @@ class Binner:
 def calc_ROC(prediction, signal, sample_weight=None, max_points=10000):
     """
     Calculate roc curve, returns limited number of points.
+    This is needed for interactive plots, which suffer
 
     :param prediction: predictions
-    :type prediction: array or list
+    :type prediction: numpy.ndarray or list
     :param signal: true labels
     :type signal: array or list
     :param sample_weight: weights
@@ -165,16 +191,22 @@ def calc_ROC(prediction, signal, sample_weight=None, max_points=10000):
     return (tpr, tnr), (err_tnr, err_tpr), thresholds
 
 
-def calc_feature_correlation_matrix(df):
+def calc_feature_correlation_matrix(df, weights=None):
     """
     Calculate correlation matrix
 
-    :param pandas.DataFrame df: data
-    :return: correlation matrix for dataFrame
+    :param pandas.DataFrame df: data of shape [n_samples, n_features]
+    :param weights: weights of shape [n_samples] (optional)
+    :return: correlation matrix for dataFrame of shape [n_features, n_features]
     :rtype: numpy.ndarray
     """
-    # TODO use weights
-    return numpy.corrcoef(df.values.T)
+    values = numpy.array(df)
+    weights = check_sample_weight(df, sample_weight=weights)
+    means = numpy.average(values, weights=weights, axis=0)
+    values -= means
+    covariation = values.T.dot(values * weights[:, None])
+    diag = covariation.diagonal()
+    return covariation / numpy.sqrt(diag)[:, None] / numpy.sqrt(diag)[None, :]
 
 
 def calc_hist_with_errors(x, weight=None, bins=60, normed=True, x_range=None, ignored_sideband=0.0):
@@ -237,7 +269,7 @@ def get_efficiencies(prediction, spectator, sample_weight=None, bins_number=20,
     prediction, spectator = \
         check_arrays(prediction, spectator)
 
-    spectator_min, spectator_max = numpy.percentile(spectator, [100 * ignored_sideband, 100 * (1. - ignored_sideband)])
+    spectator_min, spectator_max = weighted_quantile(spectator, [ignored_sideband, (1. - ignored_sideband)])
     mask = (spectator >= spectator_min) & (spectator <= spectator_max)
     spectator = spectator[mask]
     prediction = prediction[mask]
@@ -245,7 +277,7 @@ def get_efficiencies(prediction, spectator, sample_weight=None, bins_number=20,
     sample_weight = sample_weight if sample_weight is None else numpy.array(sample_weight)[mask]
 
     if thresholds is None:
-        thresholds = [weighted_percentile(prediction, percentiles=1 - eff, sample_weight=sample_weight)
+        thresholds = [weighted_quantile(prediction, quantiles=1 - eff, sample_weight=sample_weight)
                       for eff in [0.2, 0.4, 0.5, 0.6, 0.8]]
 
     binner = Binner(spectator, bins_number=bins_number)
@@ -276,12 +308,12 @@ def train_test_split(*arrays, **kw_args):
     """Does the same thing as train_test_split, but preserves columns in DataFrames.
     Uses the same parameters: test_size, train_size, random_state, and has the same interface
 
-    :type arrays: list[numpy.array] or list[pandas.DataFrame]
-    :type bool: allow_none, default False (specially for sample_weight - both to None)
     :param arrays: arrays to split
+    :type arrays: list[numpy.array] or list[pandas.DataFrame]
+    :param bool allow_none, default False (specially for sample_weight - both to None)
     """
     from sklearn import cross_validation
-    allow_none = kw_args.pop('allow_none', None)
+    allow_none = kw_args.pop('allow_none', False)
 
     assert len(arrays) > 0, "at least one array should be passed"
     length = len(arrays[0])
@@ -307,12 +339,14 @@ def train_test_split_group(group_column, *arrays, **kw_args):
     """Does the same thing as train_test_split, but preserves names of columns in DataFrames.
     Uses the same parameters: test_size, train_size, random_state, and has almost the same interface
 
-    :param arrays: arrays to split
-    :type arrays: list[numpy.array] or list[pandas.DataFrame]
 
     :param group_column: array-like of shape [n_samples] with indices of groups,
     events from one group will be kept together (all events in train or all events in test).
     If `group_column` is used, train_size and test_size will refer to number of groups, not events
+
+    :param arrays: arrays to split
+    :type arrays: list[numpy.array] or list[pandas.DataFrame]
+
     :param bool allow_none: default False
     (specially for sample_weight - after splitting train and test of `None` are `None` too)
     """
@@ -349,7 +383,8 @@ def train_test_split_group(group_column, *arrays, **kw_args):
 
 def get_columns_dict(columns):
     """
-    Get (new column: old column) dict expressions
+    Get (new column: old column) dict expressions.
+    This function is used to process names of features, which can contain expressions.
 
     :param list[str] columns: columns names
     :rtype: dict
@@ -379,11 +414,20 @@ def get_columns_in_df(df, columns):
     columns_dict = get_columns_dict(columns)
     df_new = OrderedDict()
     for column_new, column in columns_dict.items():
-        df_new[column_new] = numexpr.evaluate(column, local_dict=df)
+        if column in df.columns:
+            df_new[column_new] = df[column]
+        else:
+            # warning - this thing is known to fail in threads
+            # numexpr.evaluate(column, local_dict=df)
+            df_new[column_new] = df.eval(column, engine='python')
     return pandas.DataFrame(df_new)
 
 
 def check_arrays(*arrays):
+    """Left for consistency version of sklearn.validation.check_arrays
+
+    :param list[iterable] arrays: arrays with same length of first dimension.
+    """
     assert len(arrays) > 0, 'The number of array must be greater than zero'
     checked_arrays = []
     shapes = []
@@ -392,6 +436,13 @@ def check_arrays(*arrays):
             checked_arrays.append(numpy.array(arr))
             shapes.append(checked_arrays[-1].shape[0])
         else:
-            checked_arrays.append(arr)
-    assert numpy.sum(numpy.array(shapes) == shapes[0]) == len(shapes), 'Different shapes of the arrays {}'.format(shapes)
+            checked_arrays.append(None)
+    assert numpy.sum(numpy.array(shapes) == shapes[0]) == len(shapes), 'Different shapes of the arrays {}'.format(
+        shapes)
     return checked_arrays
+
+
+def fit_metric(metric, *args, **kargs):
+    """Simple wrapper to fit metrics, which checks if metrics has `fit` method."""
+    if hasattr(metric, 'fit'):
+        metric.fit(*args, **kargs)

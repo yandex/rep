@@ -1,7 +1,8 @@
 """
 These classes are wrappers for physics machine learning library TMVA used .root format files (c++ library).
 Now you can simply use it in python. TMVA contains classification and regression algorithms, including neural networks.
-`TMVA guide <http://mirror.yandex.ru/gentoo-distfiles/distfiles/TMVAUsersGuide-v4.03.pdf>`_
+See `TMVA guide <http://mirror.yandex.ru/gentoo-distfiles/distfiles/TMVAUsersGuide-v4.03.pdf>`_
+for list of available algorithms and parameters.
 """
 from __future__ import division, print_function, absolute_import
 from abc import ABCMeta
@@ -26,7 +27,7 @@ _PASS_PARAMETERS = {'random_state'}
 __all__ = ['TMVABase', 'TMVAClassifier', 'TMVARegressor']
 
 
-class _AdditionalInformation():
+class _AdditionalInformation:
     """
     Additional information for tmva factory (used in training)
     """
@@ -38,7 +39,7 @@ class _AdditionalInformation():
         self.model_type = model_type
 
 
-class _AdditionalInformationPredict():
+class _AdditionalInformationPredict:
     """
     Additional information for tmva factory (used in predictions)
     """
@@ -116,17 +117,21 @@ class TMVABase(object):
         :param info: class with additional information
         """
         tmva_process = subprocess.Popen(
-            'cd {directory}; {executable} -c "from rep.estimators import _tmvaFactory; _tmvaFactory.main()"'.format(
+            'cd "{directory}"; {executable} -c "from rep.estimators import _tmvaFactory; _tmvaFactory.main()"'.format(
                 directory=info.directory,
                 executable=sys.executable),
             stdin=PIPE, stdout=PIPE, stderr=subprocess.STDOUT,
             shell=True)
 
-        cPickle.dump(self, tmva_process.stdin)
-        cPickle.dump(info, tmva_process.stdin)
-        cPickle.dump(X, tmva_process.stdin)
-        cPickle.dump(y, tmva_process.stdin)
-        cPickle.dump(sample_weight, tmva_process.stdin)
+        try:
+            cPickle.dump(self, tmva_process.stdin)
+            cPickle.dump(info, tmva_process.stdin)
+            cPickle.dump(X, tmva_process.stdin)
+            cPickle.dump(y, tmva_process.stdin)
+            cPickle.dump(sample_weight, tmva_process.stdin)
+        except:
+            # continuing, next we check the output of process
+            pass
         stdout, stderr = tmva_process.communicate()
         assert tmva_process.returncode == 0, \
             'ERROR: TMVA process is incorrect finished \n LOG: %s \n %s' % (stderr, stdout)
@@ -161,21 +166,26 @@ class TMVABase(object):
 
         return prediction
 
-    def _run_tmva_predict(self, info, data):
+    @staticmethod
+    def _run_tmva_predict(info, data):
         """
         Run subprocess to train tmva factory
 
         :param info: class with additional information
         """
         tmva_process = subprocess.Popen(
-            'cd {directory}; {executable} -c "from rep.estimators import _tmvaReader; _tmvaReader.main()"'.format(
+            'cd "{directory}"; {executable} -c "from rep.estimators import _tmvaReader; _tmvaReader.main()"'.format(
                 directory=info.directory,
                 executable=sys.executable),
             stdin=PIPE, stdout=PIPE, stderr=subprocess.STDOUT,
             shell=True)
 
-        cPickle.dump(info, tmva_process.stdin)
-        cPickle.dump(data, tmva_process.stdin)
+        try:
+            cPickle.dump(info, tmva_process.stdin)
+            cPickle.dump(data, tmva_process.stdin)
+        except:
+            # Doing nothing, there is check later.
+            pass
         stdout, stderr = tmva_process.communicate()
         assert tmva_process.returncode == 0, \
             'ERROR: TMVA process is incorrect finished \n LOG: %s \n %s' % (stderr, stdout)

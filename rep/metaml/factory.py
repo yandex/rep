@@ -1,7 +1,7 @@
 """
 **Factory** provides convenient way to train several classifiers on the same dataset.
 These classifiers can be trained one-by-one in a single thread, or simultaneously
- with IPython cluster or in several threads.
+with IPython cluster or in several threads.
 
 Also `Factory` allows comparison of several classifiers (predictions of which can be used in parallel).
 """
@@ -9,8 +9,6 @@ from __future__ import division, print_function, absolute_import
 from abc import ABCMeta, abstractmethod
 from collections import OrderedDict
 import time
-
-import pandas
 
 from sklearn.base import BaseEstimator, RegressorMixin, ClassifierMixin
 from ..report import classification, regression
@@ -47,7 +45,6 @@ class AbstractFactory(OrderedDict):
 
         :return: self
         """
-        assert isinstance(X, pandas.DataFrame), 'The passed '
         if features is not None:
             for name, estimator in self.items():
                 if estimator.features is not None:
@@ -55,7 +52,7 @@ class AbstractFactory(OrderedDict):
                 self[name].set_params(features=features)
 
         start_time = time.time()
-        result = utils.map_on_cluster(parallel_profile, train_estimator, self.keys(), self.values(),
+        result = utils.map_on_cluster(parallel_profile, train_estimator, list(self.keys()), list(self.values()),
                                       [X] * len(self), [y] * len(self), [sample_weight] * len(self))
         for status, data in result:
             if status == 'success':
@@ -188,7 +185,7 @@ class ClassifiersFactory(AbstractFactory):
         predictions = OrderedDict()
 
         start_time = time.time()
-        result = utils.map_on_cluster(parallel_profile, predict_estimator, self.keys(), self.values(), [X] * len(self),
+        result = utils.map_on_cluster(parallel_profile, predict_estimator, list(self.keys()), list(self.values()), [X] * len(self),
                                       [prediction_type] * len(self))
 
         for status, data in result:
@@ -266,7 +263,7 @@ class RegressorsFactory(AbstractFactory):
         predictions = OrderedDict()
 
         start_time = time.time()
-        result = utils.map_on_cluster(parallel_profile, predict_estimator, self.keys(), self.values(), [X] * len(self),
+        result = utils.map_on_cluster(parallel_profile, predict_estimator, list(self.keys()), list(self.values()), [X] * len(self),
                                       ['regression'] * len(self))
 
         for status, data in result:

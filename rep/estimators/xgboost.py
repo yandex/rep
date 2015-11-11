@@ -3,7 +3,6 @@ Wrapper for `XGBoost <https://github.com/dmlc/xgboost>`_ library.
 """
 from __future__ import division, print_function, absolute_import
 
-from collections import defaultdict
 from logging import getLogger
 import tempfile
 import os
@@ -12,10 +11,9 @@ from abc import ABCMeta
 import pandas
 import numpy
 
-from .utils import normalize_weights
+from .utils import normalize_weights, remove_first_line
 from .interface import Classifier, Regressor
 from .utils import check_inputs
-
 
 logger = getLogger(__name__)
 
@@ -25,8 +23,7 @@ __all__ = ['XGBoostBase', 'XGBoostClassifier', 'XGBoostRegressor']
 try:
     import xgboost as xgb
 except ImportError as e:
-    raise ImportError("Install xgboost and add '../xgboost-master/wrapper' to PYTHONPATH. "
-                      "Probably you'll need to add empty __init__.py to that directory ")
+    raise ImportError("please install xgboost")
 
 
 class XGBoostBase(object):
@@ -99,6 +96,12 @@ class XGBoostBase(object):
         self._num_class = None
         self.xgboost_classifier = None
 
+    def _make_dmatrix(self, X, y=None, sample_weight=None):
+        feature_names = [str(i) for i in range(X.shape[1])]
+        matrix = xgb.DMatrix(data=X, label=y, weight=sample_weight,
+                             missing=self.missing, feature_names=feature_names)
+        return matrix
+
     def _check_fitted(self):
         assert self.xgboost_classifier is not None, "Classifier wasn't fitted, please call `fit` first"
 
@@ -126,7 +129,7 @@ class XGBoostBase(object):
                   "colsample_bytree": self.colsample,
                   "objective": self.objective,
                   "base_score": self.base_score,
-                  "silent": self.verbose,
+                  "silent": int(not self.verbose),
                   "seed": seed}
         for key, value in kwargs.items():
             params[key] = value
@@ -139,43 +142,13 @@ class XGBoostBase(object):
             params["gamma"] = self.gamma
 
         try:
-            xgmat = xgb.DMatrix(data=X, label=y, weight=sample_weight, missing=self.missing)
+            xgmat = self._make_dmatrix(X, y, sample_weight)
             self.xgboost_classifier = xgb.train(params, xgmat, num_boost_round=self.n_estimators)
-
         except TypeError as e:
             logger.error('There is error in the parameters or in input data format.')
             raise e
 
         return self
-
-    def _get_feature_importances(self, features):
-        """
-        Get features importance
-
-        :return: pandas.DataFrame with column effect and `index=features`
-        """
-        self._check_fitted()
-        importances = numpy.zeros(len(features))
-        feature_score = self._get_fscore()
-        for k, v in feature_score.items():
-            importances[int(k[1:])] = v
-        return pandas.DataFrame({'effect': importances}, index=features)
-
-    def _get_fscore(self):
-        """ Get feature importances. This method is enhanced version of one in wrapper/xgboost.py,
-        Just counts the number of times each feature is used."""
-        trees = self.xgboost_classifier.get_dump('')
-        feature_importances = defaultdict(int)
-        for tree in trees:
-            for l in tree.split('\n'):
-                arr = l.split('[')
-                if len(arr) == 1:
-                    # leaf
-                    continue
-                expression = arr[1].split(']')[0]
-                fid = expression.split('<')[0]
-                feature_importances[fid] += 1
-        return feature_importances
 
     def __getstate__(self):
         result = self.__dict__.copy()
@@ -213,42 +186,30 @@ class XGBoostBase(object):
         assert os.path.exists(path_to_dumped_model), 'there is no such file: {}'.format(path_to_dumped_model)
         self.xgboost_classifier = xgb.Booster({'nthread': self.nthreads}, model_file=path_to_dumped_model)
 
+    def get_feature_importances(self):
+        """
+        Get features importance
+
+        :return: pandas.DataFrame with column effect and `index=features`
+        """
+        self._check_fitted()
+        feature_score = self.xgboost_classifier.get_fscore()
+        reordered_scores = numpy.zeros(len(feature_score))
+        for name, score in feature_score.items():
+            reordered_scores[int(name)] = score
+        return pandas.DataFrame({'effect': reordered_scores}, index=self.features)
+
+    @property
+    def feature_importances_(self):
+        """Sklearn-way of returning feature importance.
+        This returned as numpy.array, assuming that initially passed train_features=None """
+        self._check_fitted()
+        return self.get_feature_importances().ix[self.features, 'effect'].values
+
 
 class XGBoostClassifier(XGBoostBase, Classifier):
-    """
-    Implements classification (and multiclassification) from XGBoost library.
-
-    Parameters:
-    -----------
-    :param features: list of features to train model
-    :type features: None or list(str)
-    :param int n_estimators: the number of trees built.
-    :param int nthreads: number of parallel threads used to run xgboost.
-    :param num_feature: feature dimension used in boosting, set to maximum dimension of the feature
-        (set automatically by xgboost, no need to be set by user).
-    :type num_feature: None or int
-    :param float gamma: minimum loss reduction required to make a further partition on a leaf node of the tree.
-        The larger, the more conservative the algorithm will be.
-    :type gamma: None or float
-    :param float eta: step size shrinkage used in update to prevent overfitting.
-        After each boosting step, we can directly get the weights of new features
-        and eta actually shrinkage the feature weights to make the boosting process more conservative.
-    :param int max_depth: maximum depth of a tree.
-    :param float scale_pos_weight: ration of weights of the class 1 to the weights of the class 0.
-    :param float min_child_weight: minimum sum of instance weight(hessian) needed in a child.
-        If the tree partition step results in a leaf node with the sum of instance weight less than min_child_weight,
-        then the building process will give up further partitioning.
-
-        .. note:: weights are normalized so that mean=1 before fitting. Roughly min_child_weight is equal to the number of events.
-    :param float subsample: subsample ratio of the training instance.
-        Setting it to 0.5 means that XGBoost randomly collected half of the data instances to grow trees
-        and this will prevent overfitting.
-    :param float colsample: subsample ratio of columns when constructing each tree.
-    :param float base_score: the initial prediction score of all instances, global bias.
-    :param int random_state: random number seed.
-    :param boot verbose: if 1, will print messages during training
-    :param float missing: the number considered by xgboost as missing value.
-    """
+    __doc__ = 'Implements classification (and multiclassification) from XGBoost library. \n'\
+              + remove_first_line(XGBoostBase.__doc__)
 
     def __init__(self, features=None,
                  n_estimators=100,
@@ -309,7 +270,7 @@ class XGBoostClassifier(XGBoostBase, Classifier):
         :rtype: numpy.array of shape [n_samples, n_classes] with probabilities
         """
         self._check_fitted()
-        X_dmat = xgb.DMatrix(data=self._get_features(X))
+        X_dmat = self._make_dmatrix(self._get_features(X))
         prediction = self.xgboost_classifier.predict(X_dmat, ntree_limit=0)
         if self.n_classes_ >= 2:
             return prediction.reshape(X.shape[0], self.n_classes_)
@@ -323,69 +284,16 @@ class XGBoostClassifier(XGBoostBase, Classifier):
         .. warning: this method may be very slow, it takes iterations^2 / step time.
         """
         self._check_fitted()
-        X_dmat = xgb.DMatrix(data=self._get_features(X))
+        X_dmat = self._make_dmatrix(self._get_features(X))
 
         # TODO use applying tree-by-tree
         for i in range(1, self.n_estimators // step + 1):
             prediction = self.xgboost_classifier.predict(X_dmat, ntree_limit=i * step)
             yield prediction.reshape(X.shape[0], self.n_classes_)
 
-    def get_feature_importances(self):
-        """
-        Get features importance
-
-        :rtype: pandas.DataFrame with column effect and `index=features`
-        """
-        return self._get_feature_importances(self.features)
-
-    @property
-    def feature_importances_(self):
-        """Sklearn-way of returning feature importance.
-        This returned as numpy.array, assuming that initially passed train_features=None """
-        self._check_fitted()
-        return self.get_feature_importances().ix[self.features, 'effect'].values
-
 
 class XGBoostRegressor(XGBoostBase, Regressor):
-    """
-    Implements regression from XGBoost library.
-
-    Parameters:
-    -----------
-    :param features: list of features to train model
-    :type features: None or list(str)
-    :param int n_estimators: the number of trees built.
-    :param int nthreads: number of parallel threads used to run xgboost.
-    :param num_feature: feature dimension used in boosting, set to maximum dimension of the feature
-        (set automatically by xgboost, no need to be set by user).
-    :type num_feature: None or int
-    :param float gamma: minimum loss reduction required to make a further partition on a leaf node of the tree.
-        The larger, the more conservative the algorithm will be.
-    :type gamma: None or float
-    :param float eta: step size shrinkage used in update to prevent overfitting.
-        After each boosting step, we can directly get the weights of new features
-        and eta actually shrinkage the feature weights to make the boosting process more conservative.
-    :param int max_depth: maximum depth of a tree.
-    :param float min_child_weight: minimum sum of instance weight(hessian) needed in a child.
-        If the tree partition step results in a leaf node with the sum of instance weight less than min_child_weight,
-        then the building process will give up further partitioning.
-
-        .. note:: weights are normalized so that mean=1 before fitting. Roughly min_child_weight is equal to the number of events.
-    :param float subsample: subsample ratio of the training instance.
-        Setting it to 0.5 means that XGBoost randomly collected half of the data instances to grow trees
-        and this will prevent overfitting.
-    :param float colsample: subsample ratio of columns when constructing each tree.
-    :param float base_score: the initial prediction score of all instances, global bias.
-    :param int random_state: random number seed.
-    :param boot verbose: if 1, will print messages during training
-    :param float missing: the number considered by xgboost as missing value.
-    :param str objective_type: specify the learning task and the corresponding learning objective, and the options are below:
-
-        * "linear" -- linear regression
-
-        * "logistic" -- logistic regression
-
-    """
+    __doc__ = 'Implements regression from XGBoost library. \n' + remove_first_line(XGBoostBase.__doc__)
 
     def __init__(self, features=None,
                  n_estimators=100,
@@ -402,7 +310,6 @@ class XGBoostRegressor(XGBoostBase, Regressor):
                  verbose=0,
                  missing=-999.,
                  random_state=0):
-
         XGBoostBase.__init__(self,
                              n_estimators=n_estimators,
                              nthreads=nthreads,
@@ -445,7 +352,7 @@ class XGBoostRegressor(XGBoostBase, Regressor):
         :rtype: numpy.array of shape [n_samples, n_classes] with probabilities
         """
         self._check_fitted()
-        X_dmat = xgb.DMatrix(data=self._get_features(X))
+        X_dmat = self._make_dmatrix(self._get_features(X))
         return self.xgboost_classifier.predict(X_dmat, ntree_limit=0)
 
     def staged_predict(self, X, step=10):
@@ -458,23 +365,8 @@ class XGBoostRegressor(XGBoostBase, Regressor):
         .. warning: this method may be very slow, it takes iterations^2 / step time
         """
         self._check_fitted()
-        X_dmat = xgb.DMatrix(data=self._get_features(X))
+        X_dmat = self._make_dmatrix(self._get_features(X))
 
         # TODO use applying tree-by-tree
         for i in range(1, self.n_estimators // step + 1):
             yield self.xgboost_classifier.predict(X_dmat, ntree_limit=i * step)
-
-    def get_feature_importances(self):
-        """
-        Get features importance
-
-        :rtype: pandas.DataFrame with column effect and `index=features`
-        """
-        return self._get_feature_importances(self.features)
-
-    @property
-    def feature_importances_(self):
-        """Sklearn-way of returning feature importance.
-        This returned as numpy.array, assuming that initially passed train_features=None """
-        self._check_fitted()
-        return self.get_feature_importances().ix[self.features, 'effect'].values

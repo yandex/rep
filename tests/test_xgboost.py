@@ -1,28 +1,23 @@
 from __future__ import division, print_function, absolute_import
 
+import numpy
 from rep.estimators import XGBoostClassifier, XGBoostRegressor
 from rep.test.test_estimators import check_classifier, check_regression, generate_classification_data
 
 __author__ = 'Alex Rogozhnikov'
 
 
+def very_basic_xgboost_test():
+    X, y, w = generate_classification_data(n_classes=2)
+    clf = XGBoostClassifier(n_estimators=10).fit(X, y)
+    clf.predict(X)
+    clf.predict_proba(X)
+    # testing that returned features in importances are correct and in the same order
+    assert numpy.all(clf.features == clf.get_feature_importances().index)
+
+
 def test_xgboost():
-    check_classifier(XGBoostClassifier(), n_classes=2)
-    check_classifier(XGBoostClassifier(), n_classes=4)
-    check_regression(XGBoostRegressor())
+    check_classifier(XGBoostClassifier(n_estimators=20), n_classes=2)
+    check_classifier(XGBoostClassifier(n_estimators=20), n_classes=4)
+    check_regression(XGBoostRegressor(n_estimators=20))
 
-
-def test_feature_importances():
-    clf = XGBoostClassifier()
-    X, y, sample_weight = generate_classification_data()
-    clf.fit(X, y, sample_weight=sample_weight)
-    # checking feature importance (three ways)
-
-    res_default = clf.xgboost_classifier.get_fscore()
-    res2 = clf._get_fscore()
-    res3 = clf.feature_importances_
-
-    assert res_default == res2, res_default
-    for i, val in enumerate(res3):
-        if val > 0.0:
-            assert val == res_default['f' + str(i)]

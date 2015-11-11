@@ -12,8 +12,8 @@ import itertools
 import os
 from IPython import get_ipython
 
-from pylab import plt
 import matplotlib
+import matplotlib.pyplot as plt
 import numpy
 import tempfile
 from IPython.core import display
@@ -59,7 +59,8 @@ class AbstractPlot(object):
         self.canvas = None
         self._tmva_keeper = []
 
-    def _plotly_config(self):
+    @staticmethod
+    def _plotly_config():
         try:
             import ConfigParser
         except ImportError:
@@ -181,6 +182,7 @@ class AbstractPlot(object):
         global _COLOR_CYCLE_BOKEH
         import bokeh.plotting as bkh
         from bokeh.models import Range1d
+        from bokeh.properties import value
 
         figsize = self.figsize if figsize is None else figsize
         xlabel = self.xlabel if xlabel is None else xlabel
@@ -203,7 +205,7 @@ class AbstractPlot(object):
             current_plot.x_range = Range1d(start=xlim[0], end=xlim[1])
         if ylim is not None:
             current_plot.y_range = Range1d(start=ylim[0], end=ylim[1])
-        current_plot.title_text_font_size = '{}pt'.format(fontsize)
+        current_plot.title_text_font_size = value("{}pt".format(fontsize))
         current_plot.xaxis.axis_label = xlabel
         current_plot.yaxis.axis_label = ylabel
         current_plot.legend.orientation = 'top_right'
@@ -238,15 +240,19 @@ class AbstractPlot(object):
         """
         import plotly.plotly as py
         from plotly import graph_objs
-        from IPython.kernel import connect
+        from ipykernel import connect
 
         plotly_filename = self.plotly_filename if plotly_filename is None else plotly_filename
-        connection_file_path = connect.get_connection_file()
-        connection_file = os.path.basename(connection_file_path)
-        if '-' in connection_file:
-            kernel_id = connection_file.split('-', 1)[1].split('.')[0]
-        else:
-            kernel_id = connection_file.split('.')[0]
+        try:
+            connection_file_path = connect.find_connection_file()
+            connection_file = os.path.basename(connection_file_path)
+            if '-' in connection_file:
+                kernel_id = connection_file.split('-', 1)[1].split('.')[0]
+            else:
+                kernel_id = connection_file.split('.')[0]
+        except Exception as e:
+            kernel_id = "no_kernel"
+
         PLOTLY_API_USER, PLOTLY_API_KEY, PLOTLY_USER = self._plotly_config()
         save_name = '{user}_{id}:{name}'.format(user=PLOTLY_USER, id=kernel_id, name=plotly_filename)
         py.sign_in(PLOTLY_API_USER, PLOTLY_API_KEY)
@@ -379,6 +385,7 @@ class GridPlot(AbstractPlot):
     def _plot_bokeh(self, current_plot, show_legend=True):
         import bokeh.models as mdl
         import bokeh.plotting as bkh
+        from bokeh.properties import value
 
         lst = []
         row_lst = []
@@ -389,7 +396,7 @@ class GridPlot(AbstractPlot):
                 cur_plot.x_range = mdl.Range1d(start=plotter.xlim[0], end=plotter.xlim[1])
             if plotter.ylim is not None:
                 cur_plot.y_range = mdl.Range1d(start=plotter.ylim[0], end=plotter.ylim[1])
-            cur_plot.title_text_font_size = '{}pt'.format(plotter.fontsize)
+            cur_plot.title_text_font_size = value("{}pt".format(plotter.fontsize))
             cur_plot.xaxis.axis_label = plotter.xlabel
             cur_plot.yaxis.axis_label = plotter.ylabel
             cur_plot.legend.orientation = 'top_right'
@@ -403,7 +410,8 @@ class GridPlot(AbstractPlot):
         grid = mdl.GridPlot(children=lst)
         return grid
 
-    def _get_splts(self, n_row, n_col, n):
+    @staticmethod
+    def _get_splts(n_row, n_col, n):
 
         n_splt = n_row * n_col
         n_empty = n_splt - n
@@ -434,7 +442,7 @@ class GridPlot(AbstractPlot):
             showticklabels=False
         )
 
-        fig = tls.get_subplots(rows=self.rows, columns=self.columns, horizontal_spacing=0.3 / self.columns,
+        fig = tls.make_subplots(rows=self.rows, cols=self.columns, horizontal_spacing=0.3 / self.columns,
                                vertical_spacing=0.3 / self.rows)
         splts, splts_empty = self._get_splts(self.rows, self.columns, len(self.plots))
 
@@ -637,7 +645,7 @@ class FunctionsPlot(AbstractPlot):
 
     Parameters:
     -----------
-    :param functions: name - x points, y points
+    :param functions: dict which maps label of curve to x, y coordinates of points
     :type functions: dict[str, tuple(array, array)]
     """
 
@@ -657,7 +665,7 @@ class FunctionsPlot(AbstractPlot):
             legend_name = None
             if show_legend:
                 legend_name = name
-            current_plot.line(x_val, y_val, linewidth=2, legend=legend_name, color=color)
+            current_plot.line(x_val, y_val, line_width=2, legend=legend_name, color=color)
         return current_plot
 
     def _plot_plotly(self, layout):
@@ -779,6 +787,7 @@ class ColorMap(AbstractPlot):
     def _plot_bokeh(self, current_plot, show_legend=True):
         from bokeh.models.tools import HoverTool
         from collections import OrderedDict
+        from bokeh.models.ranges import FactorRange
         import bokeh.plotting as bkh
 
         value_lst = self.matrix.flatten()
@@ -796,8 +805,8 @@ class ColorMap(AbstractPlot):
             )
         )
         # current_plot._below = []
-        current_plot.x_range = bkh.FactorRange(factors=self.labels)
-        current_plot.y_range = bkh.FactorRange(factors=self.labels)
+        current_plot.x_range = FactorRange(factors=self.labels)
+        current_plot.y_range = FactorRange(factors=self.labels)
         # current_plot._left = []
 
         # current_plot.extra_y_ranges = {"foo": bkh.FactorRange(factors=self.labels)}
@@ -810,7 +819,7 @@ class ColorMap(AbstractPlot):
         current_plot.axis.axis_line_color = None
         current_plot.axis.major_tick_line_color = None
         hover = current_plot.select(dict(type=HoverTool))
-        if hover == []:
+        if not hover:
             hover = HoverTool(plot=current_plot, always_active=True)
         hover.tooltips = OrderedDict([
             ('labels', '@x @y'),
@@ -881,7 +890,7 @@ class ScatterPlot(AbstractPlot):
 
 class BarPlot(AbstractPlot):
     """
-    Implements bar plots for train-test overfit (used in HEP)
+    Implements bar plots
 
     Parameters:
     -----------
@@ -993,14 +1002,14 @@ class BarComparePlot(AbstractPlot):
     def _plot(self):
         length = len(self.data) + self.step
         if self.sortby is not None:
-            inds = numpy.argsort(self.data[self.sortby].values())[::-1]
+            inds = numpy.argsort(list(self.data[self.sortby].values()))[::-1]
         else:
-            inds = numpy.array(range(len(self.data[self.data.keys()[0]])))
-        xticks_labels = numpy.array(self.data[self.data.keys()[0]].keys())[inds]
+            inds = numpy.array(range(len(self.data[list(self.data.keys())[0]])))
+        xticks_labels = numpy.array(list(self.data[list(self.data.keys())[0]].keys()))[inds]
         for move, (label, sample) in enumerate(self.data.items()):
             color = next(_COLOR_CYCLE)
             index = numpy.arange(len(sample))
-            plt.bar(length * index + move, numpy.array(sample.values())[inds], 1., alpha=self.alpha, color=color,
+            plt.bar(length * index + move, numpy.array(list(sample.values()))[inds], 1., alpha=self.alpha, color=color,
                     label=label)
 
         plt.xticks(length * numpy.arange(len(inds)), xticks_labels, rotation=90)
@@ -1009,17 +1018,17 @@ class BarComparePlot(AbstractPlot):
         from plotly import graph_objs
 
         if self.sortby is not None:
-            inds = numpy.argsort(self.data[self.sortby].values())[::-1]
+            inds = numpy.argsort(list(self.data[self.sortby].values()))[::-1]
         else:
-            inds = numpy.range(len(self.data[self.data.keys()[0]]))
+            inds = numpy.arange(len(self.data[list(self.data.keys())[0]]))
 
         data = []
         for label, sample in self.data.items():
             color = next(_COLOR_CYCLE)
             data.append({
                 'name': label,
-                'x': numpy.array(sample.keys())[inds],
-                'y': numpy.array(sample.values())[inds],
+                'x': numpy.array(list(sample.keys()))[inds],
+                'y': numpy.array(list(sample.values()))[inds],
                 'type': 'bar',
                 'opacity': 0.5,
                 'marker': {'color': color}
@@ -1033,11 +1042,11 @@ class BarComparePlot(AbstractPlot):
     def _plot_bokeh(self, current_plot, show_legend=True):
         length = len(self.data) + self.step
         if self.sortby is not None:
-            inds = numpy.argsort(self.data[self.sortby].values())[::-1]
+            inds = numpy.argsort(list(self.data[self.sortby].values()))[::-1]
         else:
-            inds = numpy.array(range(len(self.data[self.data.keys()[0]])))
+            inds = numpy.array(range(len(self.data[list(self.data.keys())[0]])))
 
-        xticks_labels = numpy.array(self.data[self.data.keys()[0]].keys())[inds]
+        xticks_labels = numpy.array(list(self.data[list(self.data.keys())[0]].keys()))[inds]
 
         for move, (label, sample) in enumerate(self.data.items()):
             color = next(_COLOR_CYCLE_BOKEH)
@@ -1045,10 +1054,10 @@ class BarComparePlot(AbstractPlot):
             legend_name = None
             if show_legend:
                 legend_name = label
-            current_plot.rect(x=length * index + move, y=numpy.array(sample.values())[inds] / 2,
-                              height=numpy.array(sample.values())[inds], width=1.,
+            current_plot.rect(x=length * index + move, y=numpy.array(list(sample.values()))[inds] / 2,
+                              height=numpy.array(list(sample.values()))[inds], width=1.,
                               alpha=self.alpha, color=color,
-                              legend=label)
+                              legend=legend_name)
         return current_plot
 
 
@@ -1064,6 +1073,8 @@ class Function2D_Plot(AbstractPlot):
     :param int xsteps: count of points for approximation on x-axis
     :param int ysteps: count of points for approximation on y-axis
     :param str cmap: color map
+    :param float vmin: value, corresponding to minimum on cmap
+    :param float vmax: value, corresponding to maximum on cmap
 
     .. note:: for plotly use
 
@@ -1085,7 +1096,8 @@ class Function2D_Plot(AbstractPlot):
         * 'Electric', black to purple to orange to yellow to tan to white
     """
 
-    def __init__(self, function, xlim, ylim, xsteps=100, ysteps=100, cmap='Blues'):
+    def __init__(self, function, xlim, ylim, xsteps=100, ysteps=100, cmap='Blues',
+                 vmin=None, vmax=None):
         super(Function2D_Plot, self).__init__()
 
         x = numpy.linspace(xlim[0], xlim[1], xsteps)
@@ -1095,9 +1107,11 @@ class Function2D_Plot(AbstractPlot):
         self.x, self.y = numpy.meshgrid(x, y)
         self.z = function(self.x, self.y)
         self.cmap = cmap
+        self.vmin = vmin
+        self.vmax = vmax
 
     def _plot(self):
-        colormap = plt.pcolor(self.x, self.y, self.z, cmap=self.cmap)
+        colormap = plt.pcolor(self.x, self.y, self.z, cmap=self.cmap, vmin=self.vmin, vmax=self.vmax)
         cb = plt.colorbar(colormap)
         cb.set_label('value')
 
@@ -1114,8 +1128,14 @@ class Function2D_Plot(AbstractPlot):
                  'y': map(str, list(self.y[:, 0])),
                  'x': map(str, list(self.x[0, :])),
                  'colorscale': self.cmap,
-                 'colorbar': colorbar_plotly
+                 'colorbar': colorbar_plotly,
                 }]
+        if self.vmin is not None:
+            data[0]['zmin'] = self.vmin
+            data[0]['zauto'] = False
+        if self.vmax is not None:
+            data[0]['zmax'] = self.vmax
+            data[0]['zauto'] = False
 
         fig = graph_objs.Figure(data=graph_objs.Data(data), layout=layout)
         return fig
@@ -1127,13 +1147,95 @@ class Function2D_Plot(AbstractPlot):
         raise NotImplementedError("Not supported for bokeh")
 
 
-class CorrelationPlot(AbstractPlot):
+class Histogram2D_Plot(AbstractPlot):
     """
     Implements correlations plots
 
     Parameters:
     -----------
     :param (array, array) data: name var, name var - values for first, values for second
+    :param bins: count of bins
+    :type bins: int or list[float]
+    :param str cmap: color map
+    :param float cmin: value, corresponding to minimum on cmap
+    :param float cmax: value, corresponding to maximum on cmap
+    :param bool normed: normalize histogram
+    :param range: array_like shape(2, 2), optional, default: None
+        [[xmin, xmax], [ymin, ymax]]. All values outside of this range will be
+        considered outliers and not tallied in the histogram.
+    """
+
+    def __init__(self, data, bins=30, cmap='Blues', cmin=None, cmax=None, range=None, normed=False):
+        super(Histogram2D_Plot, self).__init__()
+        self.data = data
+        self.binsX, self.binsY = (bins, bins) if isinstance(bins, int) else bins
+        self.cmap = cmap
+        self.vmin = cmin
+        self.vmax = cmax
+        self.range = range
+        self.normed = normed
+
+    def _plot(self):
+        X, Y = self.data
+        _, _, _, colormap = plt.hist2d(X, Y, bins=(self.binsX, self.binsY), range=self.range, normed=self.normed,
+                                       cmin=self.vmin, cmax=self.vmax, cmap=self.cmap)
+        cb = plt.colorbar(colormap)
+        cb.set_label('value')
+
+    def _plot_plotly(self, layout):
+        from plotly import graph_objs
+
+        colorbar_plotly = graph_objs.ColorBar(
+            thickness=15,  # color bar thickness in px
+            ticks='outside',  # tick outside colorbar
+            title='value'
+        )
+        X, Y = self.data
+        data = [{'type': 'histogram2d',
+                 'y': Y,
+                 'x': X,
+                 'colorscale': self.cmap,
+                 'colorbar': colorbar_plotly,
+                }]
+        if self.vmin is not None:
+            data[0]['zmin'] = self.vmin
+            data[0]['zauto'] = False
+        if self.vmax is not None:
+            data[0]['zmax'] = self.vmax
+            data[0]['zauto'] = False
+        if self.range is None:
+            data[0]['nbinsx'] = self.binsX
+            data[0]['nbinsy'] = self.binsY
+        else:
+            start, end = self.range[1]
+            size = 1. * (end - start) / self.binsY
+            data[0]['ybins']= {'start': start, 'end': end, 'size': size}
+            data[0]['autobiny'] =False
+            start, end = self.range[0]
+            size = 1. * (end - start) / self.binsX
+            data[0]['xbins']= {'start': start, 'end': end, 'size': size}
+            data[0]['autobinx'] =False
+        if self.normed:
+            data[0]['histnorm'] = 'probability'
+
+
+        fig = graph_objs.Figure(data=graph_objs.Data(data), layout=layout)
+        return fig
+
+    def _plot_tmva(self):
+        raise NotImplementedError("Not supported for tmva")
+
+    def _plot_bokeh(self, current_plot, show_legend=True):
+        raise NotImplementedError("Not supported by bokeh")
+
+
+class CorrelationPlot(AbstractPlot):
+    """
+    Implements correlations plots
+
+    Parameters:
+    -----------
+    :param (array, array) data: values for first, values for second
     :param bins: count of bins
     :type bins: int or list[float]
     """

@@ -1,22 +1,22 @@
 from __future__ import division, print_function, absolute_import
 
-from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier
-from sklearn.metrics import accuracy_score, roc_auc_score
+from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier, RandomForestRegressor
+from sklearn.metrics import accuracy_score, roc_auc_score, mean_squared_error
 import numpy
+from six.moves import cPickle
 
+from rep.estimators import SklearnClassifier, SklearnRegressor
 from rep.data import LabeledDataStorage
 from rep.metaml import ClassifiersFactory
-from six.moves import cPickle
 from rep.report import ClassificationReport
 from rep.report.metrics import significance
-from rep.test.test_estimators import generate_classification_data
+from rep.test.test_estimators import generate_classification_data, generate_regression_data
 from rep.report.metrics import RocAuc
 
 
 __author__ = 'Tatiana Likhomanenko'
 
 # TODO testing of right-classification part of estimators
-
 
 def test_factory():
     factory = ClassifiersFactory()
@@ -90,3 +90,35 @@ def check_report_with_mask(report, mask, X):
     report.scatter([(X.columns[0], X.columns[2])], mask=mask).plot()
     report.learning_curve(RocAuc(), mask=mask).plot()
     report.metrics_vs_cut(significance, mask=mask).plot()
+
+
+def test_own_classification_reports():
+    """
+    testing clf.test_on
+    """
+    X, y, sample_weight = generate_classification_data()
+    clf = SklearnClassifier(RandomForestClassifier())
+    clf.fit(X, y, sample_weight=sample_weight)
+    report = clf.test_on(X, y, sample_weight=sample_weight)
+    roc1 = report.compute_metric(RocAuc())
+
+    lds = LabeledDataStorage(X, y, sample_weight=sample_weight)
+    roc2 = clf.test_on_lds(lds=lds).compute_metric(RocAuc())
+    assert roc1 == roc2, 'Something wrong with test_on'
+
+
+def test_own_regression_reports():
+    """
+    testing regressor.test_on
+    """
+    X, y, sample_weight = generate_regression_data()
+    regressor = SklearnRegressor(RandomForestRegressor())
+    regressor.fit(X, y, sample_weight=sample_weight)
+    report = regressor.test_on(X, y, sample_weight=sample_weight)
+    mse1 = report.compute_metric(mean_squared_error)
+
+    lds = LabeledDataStorage(X, y, sample_weight=sample_weight)
+    mse2 = regressor.test_on_lds(lds=lds).compute_metric(mean_squared_error)
+    assert mse1 == mse2, 'Something wrong with test_on'
+
+

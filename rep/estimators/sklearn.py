@@ -2,6 +2,7 @@
 Sklearn wrapper for users is the same as sklearn model,
 has only one additional parameter *features* to choose necessary columns for training.
 If data has :class:`numpy.array` type then behaviour will be the same as in sklearn.
+For complete list of available algorithms, see `sklearn API <http://scikit-learn.org/stable/modules/classes.html>`_.
 """
 from __future__ import division, print_function, absolute_import
 from abc import ABCMeta

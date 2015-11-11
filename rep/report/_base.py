@@ -84,7 +84,7 @@ class AbstractReport:
 
         return plot_corr
 
-    def learning_curve(self, metric, mask=None, steps=10, metric_label='metric'):
+    def learning_curve(self, metric, mask=None, steps=10, metric_label='metric', predict_only_masked=True):
         """
         Get learning curves
 
@@ -94,6 +94,9 @@ class AbstractReport:
             otherwise dict with steps for each estimator
         :type steps: int or dict
         :param str metric_label: name for metric on plot
+        :param bool predict_only_masked: if True, will predict only for needed events.
+          When you build learning curves for FoldingClassifier/FoldingRegressor on the same dataset,
+          set this to False to get unbiased predictions.
 
         :rtype: plotting.FunctionsPlot
         """
@@ -101,12 +104,9 @@ class AbstractReport:
 
         if isinstance(metric, type):
             print(metric_label, ' is a type, not instance. Forgot to initialize?')
-        try:
-            metric_func = copy.copy(metric)
-            metric_func.fit(data, labels, sample_weight=weight)
-        except AttributeError:
-            # Metrics doesn't have 'fit' method
-            pass
+
+        metric_func = copy.copy(metric)
+        utils.fit_metric(metric_func, data, labels, sample_weight=weight)
 
         quality = OrderedDict()
         for estimator_name in self.prediction:
@@ -115,7 +115,8 @@ class AbstractReport:
             else:
                 step = steps[estimator_name]
             try:
-                quality[estimator_name] = self._learning_curve_additional(estimator_name, metric_func, step, mask)
+                quality[estimator_name] = self._learning_curve_additional(estimator_name, metric_func, step, mask,
+                                                                          predict_only_masked=predict_only_masked)
             except (AttributeError, NotImplementedError):
                 print("Estimator {} doesn't support stage predictions".format(estimator_name))
         plot_fig = plotting.FunctionsPlot(quality)
@@ -124,7 +125,8 @@ class AbstractReport:
         plot_fig.title = 'Learning curves'
         return plot_fig
 
-    def _learning_curve_additional(self, name, metric_func, step, mask):
+    def _learning_curve_additional(self, name, metric_func, step, mask, predict_only_masked):
+        """ returns tuple (x_values, quality_values), which describe the learning curve """
         raise NotImplementedError('Should be implemented in descendants')
 
     def feature_importance(self, grid_columns=2):
@@ -164,11 +166,8 @@ class AbstractReport:
             _, data, labels, weights = self._apply_mask(mask, self._get_features(estimator.features), self.target,
                                                         self.weight)
             metric_copy = copy.deepcopy(metric)
-            try:
-                metric_copy.fit(data, labels, sample_weight=weights)
-            except:
-                # metric doesn't support fitting
-                pass
+            utils.fit_metric(metric_copy, data, labels, sample_weight=weights)
+
             for feature in data.columns:
                 data_modified = data.copy()
                 column = numpy.array(data_modified[feature])
@@ -201,11 +200,7 @@ class AbstractReport:
         if isinstance(metric, type):
             print('Metric is a type, not instance. Forgot to initialize?')
         metric_func = copy.copy(metric)
-        try:
-            metric_func.fit(data, labels, sample_weight=weight)
-        except AttributeError:
-            # Metrics doesn't have 'fit' method
-            pass
+        utils.fit_metric(metric_func, data, labels, sample_weight=weight)
 
         quality = OrderedDict()
         for estimator_name, prediction in self.prediction.items():

@@ -223,28 +223,3 @@ def check_deepcopy(classifier):
     classifier_copy = deepcopy(classifier)
     assert type(classifier) == type(classifier_copy)
     assert set(classifier.get_params().keys()) == set(classifier_copy.get_params().keys())
-
-
-def check_grid(classifier, check_instance=True, has_staged_pp=True, has_importances=True):
-    X, y, sample_weight = generate_classification_data()
-    assert classifier == classifier.fit(X, y, sample_weight=sample_weight)
-
-    classifier = classifier.fit_best_estimator(X, y, sample_weight=sample_weight)
-
-    check_classification_model(classifier, X, y, check_instance=check_instance, has_staged_pp=has_staged_pp,
-                               has_importances=has_importances)
-    return classifier
-
-
-def AMS(s, b):
-    br = 0.01
-    radicands = 2 * ((s + b + br) * numpy.log(1.0 + s / (b + br)) - s)
-    return numpy.sqrt(radicands)
-
-
-def run_grid(model_grid):
-    optimal_ams = OptimalMetric(AMS)
-    try:
-        model_grid(optimal_ams)
-    except ImportError as e:
-        print('Model is not available', e)

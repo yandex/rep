@@ -12,6 +12,7 @@ from root_numpy.tmva import add_classification_events, add_regression_events
 
 import ROOT
 from . import tmva
+import six
 from six.moves import cPickle as pickle
 
 
@@ -68,12 +69,18 @@ def tmva_process(classifier, info, data, labels, sample_weight):
 
 
 def main():
+    # Python 2 dumps in text mode. Python 3 in binary.
+    if six.PY2:
+        stdin = sys.stdin
+    else:
+        stdin = sys.stdin.buffer
+
     # Reading the configuration from stdin
-    classifier = pickle.load(sys.stdin)
-    info = pickle.load(sys.stdin)
-    data = pickle.load(sys.stdin)
-    labels = numpy.array(pickle.load(sys.stdin))
-    sample_weight = numpy.array(pickle.load(sys.stdin))
+    classifier = pickle.load(stdin)
+    info = pickle.load(stdin)
+    data = pickle.load(stdin)
+    labels = numpy.array(pickle.load(stdin))
+    sample_weight = numpy.array(pickle.load(stdin))
     assert isinstance(classifier, tmva.TMVAClassifier) or isinstance(classifier, tmva.TMVARegressor)
     assert isinstance(info, tmva._AdditionalInformation)
     assert isinstance(data, pandas.DataFrame)

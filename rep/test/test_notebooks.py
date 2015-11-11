@@ -1,8 +1,8 @@
 from __future__ import division, print_function, absolute_import
 import os
 import re
-from IPython import nbformat
-from IPython.kernel import manager
+import nbformat
+from jupyter_client import manager
 
 try:
     from Queue import Empty
@@ -20,10 +20,9 @@ __author__ = 'Alex Rogozhnikov'
 
 def check_single_notebook(notebook_filename, timeout=500):
     """
-    Checks single notebook being given its full name
+    Checks single notebook being given its full name.
     (executes cells one-by-one checking there are no exceptions, nothing more is guaranteed)
     """
-    # do we need validation of JSON?
     with open(notebook_filename) as notebook_file:
         notebook_content = nbformat.reads(notebook_file.read(), as_version=nbformat.current_nbformat)
         os.chdir(os.path.dirname(notebook_filename))
