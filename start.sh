@@ -1,5 +1,11 @@
 #!/bin/bash
 
+# script to start jupyter inside docker container
+# fine-tuned by set of environment variables (see the code),
+# e.g. runs under jupyterhub environment in case JPY_API_TOKEN is set
+#
+#
+
 set -x
 
 echo "Umask: "
@@ -67,7 +73,7 @@ fi
 
 $HOME/install_modules.sh
 
-cat .version
-source .version
+cat .rep_version
+source .rep_version
 echo "Starting Jupyter"
 jupyter notebook $OPTIONS /notebooks 2>&1 | tee -a /notebooks/jupyter.log
