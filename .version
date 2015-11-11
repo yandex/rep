@@ -1,0 +1,2 @@
+REP_BASE_IMAGE=yandex/rep-base:0.6.1
+REP_IMAGE=yandex/rep:0.6.4
