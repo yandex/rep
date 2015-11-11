@@ -11,6 +11,7 @@ COPY setup.py README.md AUTHORS requirements.txt $TEMP/build/
 COPY rep $TEMP/build/rep
 COPY tests $TEMP/build/tests
 COPY *.sh $HOME/
+COPY .rep_version $HOME/
 COPY howto /REP_howto
 RUN chmod +x $HOME/*.sh
 

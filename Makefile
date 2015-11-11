@@ -1,3 +1,6 @@
+# Makefile is used for building & starting rep-containers
+#
+#
 ifeq (run,$(firstword $(MAKECMDGOALS)))
   # use the rest as arguments for "run"
   RUN_ARGS := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
@@ -10,7 +13,7 @@ ifeq (exec,$(firstword $(MAKECMDGOALS)))
 endif
 CONTAINER_NAME:=$(shell basename $(CURDIR) | tr - _ )
 
-include .version  # define REP_BASE_IMAGE, and REP_IMAGE
+include .rep_version  # define REP_BASE_IMAGE, and REP_IMAGE
 
 .PHONY: run rep-image rep-base-image inspect
 
@@ -52,6 +55,9 @@ inspect:
 
 push: rep-image
 	docker push $(REP_IMAGE)
+
+push-base:
+	docker push $(REP_BASE_IMAGE)
 
 tag-latest: rep-image
 	docker tag -f $(REP_IMAGE) yandex/rep:latest
