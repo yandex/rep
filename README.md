@@ -83,7 +83,7 @@ from rep.metaml import FoldingClassifier
 clf = FoldingClassifier(TheanetsClassifier(), n_folds=3)
 probabilities = clf.fit(X, y).predict_proba(X)
 ```
-In example above all data in splitted into 3 folds, 
+In example above all data are splitted into 3 folds, 
 and each fold is predicted by classifier which was trained on other 2 folds.  
 
 Also __REP__ classifiers provide report:
