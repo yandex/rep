@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Utilities &mdash; REP (Reproducible Experiment Platform) 0.6.3 documentation</title>
+  <title>Utilities &mdash; REP (Reproducible Experiment Platform) 0.6.4 documentation</title>
   
 
   
@@ -30,7 +30,7 @@
   
 
   
-    <link rel="top" title="REP (Reproducible Experiment Platform) 0.6.3 documentation" href="index.html"/>
+    <link rel="top" title="REP (Reproducible Experiment Platform) 0.6.4 documentation" href="index.html"/>
         <link rel="prev" title="Plotting" href="plotting.html"/> 
 
   
@@ -122,31 +122,57 @@
 <dl class="class">
 <dt id="rep.utils.Binner">
 <em class="property">class </em><code class="descclassname">rep.utils.</code><code class="descname">Binner</code><span class="sig-paren">(</span><em>values</em>, <em>bins_number</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/utils.html#Binner"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.utils.Binner" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="method">
+<dd><p>Binner is a class that helps to split the values into several bins.
+Initially an array of values is given, which is then splitted into &#8216;bins_number&#8217; equal parts,
+and thus we are computing limits (boundaries of bins).</p>
+<dl class="attribute">
 <dt id="rep.utils.Binner.bins_number">
-<code class="descname">bins_number</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/utils.html#Binner.bins_number"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.utils.Binner.bins_number" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<code class="descname">bins_number</code><a class="headerlink" href="#rep.utils.Binner.bins_number" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">number of bins</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 <dl class="method">
 <dt id="rep.utils.Binner.get_bins">
 <code class="descname">get_bins</code><span class="sig-paren">(</span><em>values</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/utils.html#Binner.get_bins"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.utils.Binner.get_bins" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="rep.utils.Binner.get_bins_dumb">
-<code class="descname">get_bins_dumb</code><span class="sig-paren">(</span><em>values</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/utils.html#Binner.get_bins_dumb"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.utils.Binner.get_bins_dumb" title="Permalink to this definition">¶</a></dt>
-<dd><p>This is the sane as previous function, but a bit slower and naive</p>
+<dd><p>Given the values of feature, compute the index of bin</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>values</strong> &#8211; array of shape [n_samples]</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">array of shape [n_samples]</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="rep.utils.Binner.set_limits">
 <code class="descname">set_limits</code><span class="sig-paren">(</span><em>limits</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/utils.html#Binner.set_limits"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.utils.Binner.set_limits" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Change the thresholds inside bins.</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="rep.utils.Binner.split_into_bins">
 <code class="descname">split_into_bins</code><span class="sig-paren">(</span><em>*arrays</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/utils.html#Binner.split_into_bins"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.utils.Binner.split_into_bins" title="Permalink to this definition">¶</a></dt>
-<dd><p>Splits the data of parallel arrays into bins, the first array is binning variable</p>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>arrays</strong> &#8211; data to be splitted, the first array corresponds</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">sequence of length [n_bins] with values corresponding to each bin.</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 </dd></dl>
@@ -186,13 +212,14 @@ transforms it to uniform distribution from [0, 1]. Example of usage:</p>
 <dl class="function">
 <dt id="rep.utils.calc_ROC">
 <code class="descclassname">rep.utils.</code><code class="descname">calc_ROC</code><span class="sig-paren">(</span><em>prediction</em>, <em>signal</em>, <em>sample_weight=None</em>, <em>max_points=10000</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/utils.html#calc_ROC"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.utils.calc_ROC" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculate roc curve, returns limited number of points.</p>
+<dd><p>Calculate roc curve, returns limited number of points.
+This is needed for interactive plots, which suffer</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>prediction</strong> (<em>array or list</em>) &#8211; predictions</li>
+<li><strong>prediction</strong> (<em>numpy.ndarray or list</em>) &#8211; predictions</li>
 <li><strong>signal</strong> (<em>array or list</em>) &#8211; true labels</li>
 <li><strong>sample_weight</strong> (<em>None or array or list</em>) &#8211; weights</li>
 <li><strong>max_points</strong> (<em>int</em>) &#8211; maximum of used points on roc curve</li>
@@ -208,17 +235,23 @@ transforms it to uniform distribution from [0, 1]. Example of usage:</p>
 
 <dl class="function">
 <dt id="rep.utils.calc_feature_correlation_matrix">
-<code class="descclassname">rep.utils.</code><code class="descname">calc_feature_correlation_matrix</code><span class="sig-paren">(</span><em>df</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/utils.html#calc_feature_correlation_matrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.utils.calc_feature_correlation_matrix" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">rep.utils.</code><code class="descname">calc_feature_correlation_matrix</code><span class="sig-paren">(</span><em>df</em>, <em>weights=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/utils.html#calc_feature_correlation_matrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.utils.calc_feature_correlation_matrix" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate correlation matrix</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>df</strong> (<em>pandas.DataFrame</em>) &#8211; data</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>df</strong> (<em>pandas.DataFrame</em>) &#8211; data of shape [n_samples, n_features]</li>
+<li><strong>weights</strong> &#8211; weights of shape [n_samples] (optional)</li>
+</ul>
+</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">correlation matrix for dataFrame</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">correlation matrix for dataFrame of shape [n_features, n_features]</p>
+</td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">numpy.ndarray</td>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">numpy.ndarray</p>
+</td>
 </tr>
 </tbody>
 </table>
@@ -248,18 +281,49 @@ transforms it to uniform distribution from [0, 1]. Example of usage:</p>
 <dl class="function">
 <dt id="rep.utils.check_arrays">
 <code class="descclassname">rep.utils.</code><code class="descname">check_arrays</code><span class="sig-paren">(</span><em>*arrays</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/utils.html#check_arrays"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.utils.check_arrays" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Left for consistency version of sklearn.validation.check_arrays</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>arrays</strong> (<em>list[iterable]</em>) &#8211; arrays with same length of first dimension.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 <dl class="function">
 <dt id="rep.utils.check_sample_weight">
 <code class="descclassname">rep.utils.</code><code class="descname">check_sample_weight</code><span class="sig-paren">(</span><em>y_true</em>, <em>sample_weight</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/utils.html#check_sample_weight"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.utils.check_sample_weight" title="Permalink to this definition">¶</a></dt>
-<dd><p>Checks the weights, returns normalized version</p>
+<dd><p>Checks the weights, if None, returns array.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>y_true</strong> &#8211; labels (or any array of length [n_samples])</li>
+<li><strong>sample_weight</strong> &#8211; None or array of length [n_samples]</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">numpy.array of shape [n_samples]</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="rep.utils.fit_metric">
+<code class="descclassname">rep.utils.</code><code class="descname">fit_metric</code><span class="sig-paren">(</span><em>metric</em>, <em>*args</em>, <em>**kargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/utils.html#fit_metric"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.utils.fit_metric" title="Permalink to this definition">¶</a></dt>
+<dd><p>Simple wrapper to fit metrics, which checks if metrics has <cite>fit</cite> method.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="rep.utils.get_columns_dict">
 <code class="descclassname">rep.utils.</code><code class="descname">get_columns_dict</code><span class="sig-paren">(</span><em>columns</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/utils.html#get_columns_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.utils.get_columns_dict" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get (new column: old column) dict expressions</p>
+<dd><p>Get (new column: old column) dict expressions.
+This function is used to process names of features, which can contain expressions.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -346,6 +410,7 @@ Uses the same parameters: test_size, train_size, random_state, and has the same 
 </tr>
 </tbody>
 </table>
+<p>:param bool allow_none, default False (specially for sample_weight - both to None)</p>
 </dd></dl>
 
 <dl class="function">
@@ -357,24 +422,57 @@ Uses the same parameters: test_size, train_size, random_state, and has almost th
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>group_column</strong> &#8211; array-like of shape [n_samples] with indices of groups,</td>
+</tr>
+</tbody>
+</table>
+<p>events from one group will be kept together (all events in train or all events in test).
+If <cite>group_column</cite> is used, train_size and test_size will refer to number of groups, not events</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>arrays</strong> (<em>list[numpy.array] or list[pandas.DataFrame]</em>) &#8211; arrays to split</li>
-<li><strong>group_column</strong> &#8211; array-like of shape [n_samples] with indices of groups,</li>
+<li><strong>allow_none</strong> (<em>bool</em>) &#8211; default False</li>
 </ul>
 </td>
 </tr>
 </tbody>
 </table>
-<p>events from one group will be kept together (all events in train or all events in test).
-If <cite>group_column</cite> is used, train_size and test_size will refer to number of groups, not events
-:param bool allow_none: default False
-(specially for sample_weight - after splitting train and test of <cite>None</cite> are <cite>None</cite> too)</p>
+<p>(specially for sample_weight - after splitting train and test of <cite>None</cite> are <cite>None</cite> too)</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="rep.utils.weighted_percentile">
-<code class="descclassname">rep.utils.</code><code class="descname">weighted_percentile</code><span class="sig-paren">(</span><em>array</em>, <em>percentiles</em>, <em>sample_weight=None</em>, <em>array_sorted=False</em>, <em>old_style=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/utils.html#weighted_percentile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.utils.weighted_percentile" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dt id="rep.utils.weighted_quantile">
+<code class="descclassname">rep.utils.</code><code class="descname">weighted_quantile</code><span class="sig-paren">(</span><em>array</em>, <em>quantiles</em>, <em>sample_weight=None</em>, <em>array_sorted=False</em>, <em>old_style=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/utils.html#weighted_quantile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.utils.weighted_quantile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computing quantiles of array. Unlike the numpy.percentile, this function supports weights,
+but it is inefficient and performs complete sorting.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>array</strong> &#8211; distribution, array of shape [n_samples]</li>
+<li><strong>quantiles</strong> &#8211; floats from range [0, 1] with quantiles of shape [n_quantiles]</li>
+<li><strong>sample_weight</strong> &#8211; optional weights of samples, array of shape [n_samples]</li>
+<li><strong>array_sorted</strong> &#8211; if True, the sorting step will be skipped</li>
+<li><strong>old_style</strong> &#8211; if True, will correct output to be consistent with numpy.percentile.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">array of shape [n_quantiles]</p>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">weighted_quantile</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.5</span><span class="p">])</span>
+<span class="go">Out: array([ 3.])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">weighted_quantile</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.5</span><span class="p">],</span> <span class="n">sample_weight</span><span class="o">=</span><span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+<span class="go">Out: array([ 2.])</span>
+</pre></div>
+</div>
+</dd></dl>
 
 </div>
 
@@ -416,7 +514,7 @@ If <cite>group_column</cite> is used, train_size and test_size will refer to num
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'./',
-            VERSION:'0.6.3',
+            VERSION:'0.6.4',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true

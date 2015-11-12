@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>rep.report.metrics &mdash; REP (Reproducible Experiment Platform) 0.6.3 documentation</title>
+  <title>rep.report.metrics &mdash; REP (Reproducible Experiment Platform) 0.6.4 documentation</title>
   
 
   
@@ -30,7 +30,7 @@
   
 
   
-    <link rel="top" title="REP (Reproducible Experiment Platform) 0.6.3 documentation" href="../../../index.html"/>
+    <link rel="top" title="REP (Reproducible Experiment Platform) 0.6.4 documentation" href="../../../index.html"/>
         <link rel="up" title="Module code" href="../../index.html"/> 
 
   
@@ -118,30 +118,33 @@
             
   <h1>Source code for rep.report.metrics</h1><div class="highlight"><pre>
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">This file contains definitions for useful metrics in specific REP format.</span>
-<span class="sd">In general case, metrics follows standard sklearn convention for **estimators**, provides</span>
+<span class="sd">This file contains definitions for useful metrics in specific **REP** format.</span>
+<span class="sd">In general case, metrics follow standard sklearn convention for **estimators**, provides</span>
 
 <span class="sd">    * constructor (you should create instance of metric!):</span>
 
-<span class="sd">    &gt;&gt;&gt; metric = RocAuc(parameter=1)</span>
+<span class="sd">    &gt;&gt;&gt; metric = RocAuc(positive_label=2)</span>
 
 <span class="sd">    * fitting, where checks and heavy computations performed</span>
 <span class="sd">      (this step is needed for ranking metrics, uniformity metrics):</span>
 
 <span class="sd">    &gt;&gt;&gt; metric.fit(X, y, sample_weight=None)</span>
 
-<span class="sd">    * computation of metrics by probabilities:</span>
+<span class="sd">    * computation of metrics by probabilities (important: samples passed to probabilities ):</span>
 
 <span class="sd">    &gt;&gt;&gt; proba = classifier.predict_proba(X)</span>
-<span class="sd">    &gt;&gt;&gt; metrics(proba)</span>
+<span class="sd">    &gt;&gt;&gt; metric(y, proba, sample_weight=None)</span>
 
 
-<span class="sd">This way metrics can be used in learning curves, for instance. Once fitted, then for every stage</span>
-<span class="sd">computation will be very fast.</span>
+<span class="sd">This way metrics can be used in learning curves, for instance.</span>
+<span class="sd">Once fitted, then for every stage computation will be very fast.</span>
+
+<span class="sd">.. seealso::</span>
+<span class="sd">    `API of metrics &lt;https://github.com/yandex/rep/wiki/Contributing-new-metrics&gt;`_ for details and explanations on API.</span>
 
 
 <span class="sd">Correspondence between physical terms and ML terms</span>
-<span class="sd">**************************************************</span>
+<span class="sd">--------------------------------------------------</span>
 
 <span class="sd">Some notation used below:</span>
 
@@ -159,28 +162,72 @@
 <span class="sd">Here we used normalized s and b, while physicists usually normalize</span>
 <span class="sd">them to particular values of expected amount of s and b.</span>
 
-<span class="sd">    * signal efficiency = tpr = s</span>
+<span class="sd">    * signal efficiency = s = tpr</span>
 
-<span class="sd">    the following line used only in HEP</span>
+<span class="sd">the following line used only in HEP</span>
 
-<span class="sd">    * background efficiency = fpr = b</span>
+<span class="sd">    * background efficiency = b = fpr</span>
+
+
+
+<span class="sd">Available Metric functions</span>
+<span class="sd">--------------------------</span>
+
+<span class="sd">.. autoclass:: RocAuc</span>
+<span class="sd">    :show-inheritance:</span>
+
+<span class="sd">.. autoclass:: LogLoss</span>
+<span class="sd">    :show-inheritance:</span>
+
+<span class="sd">.. autoclass:: OptimalAccuracy</span>
+<span class="sd">    :show-inheritance:</span>
+
+<span class="sd">.. autoclass:: OptimalAMS</span>
+<span class="sd">    :show-inheritance:</span>
+
+<span class="sd">.. autoclass:: OptimalSignificance</span>
+<span class="sd">    :show-inheritance:</span>
+
+<span class="sd">.. autoclass:: TPRatFPR</span>
+<span class="sd">    :show-inheritance:</span>
+
+<span class="sd">.. autoclass:: FPRatTPR</span>
+<span class="sd">    :show-inheritance:</span>
+
+<span class="sd">Supplementary functions</span>
+<span class="sd">-----------------------</span>
+
+<span class="sd">.. autoclass:: MetricMixin</span>
+<span class="sd">    :show-inheritance:</span>
+<span class="sd">    :members:</span>
+
+<span class="sd">.. autoclass:: OptimalMetric</span>
+<span class="sd">    :show-inheritance:</span>
+
+<span class="sd">.. autofunction:: ams</span>
+
+<span class="sd">.. autofunction:: significance</span>
+
+
+
+
 <span class="sd">&quot;&quot;&quot;</span>
-
 
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">division</span><span class="p">,</span> <span class="n">print_function</span><span class="p">,</span> <span class="n">absolute_import</span>
 <span class="kn">import</span> <span class="nn">numpy</span>
 <span class="kn">from</span> <span class="nn">sklearn.base</span> <span class="kn">import</span> <span class="n">BaseEstimator</span>
 <span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">roc_auc_score</span><span class="p">,</span> <span class="n">roc_curve</span>
 <span class="kn">from</span> <span class="nn">..utils</span> <span class="kn">import</span> <span class="n">check_arrays</span>
-<span class="kn">from</span> <span class="nn">..utils</span> <span class="kn">import</span> <span class="n">check_sample_weight</span><span class="p">,</span> <span class="n">weighted_percentile</span>
-
+<span class="kn">from</span> <span class="nn">..utils</span> <span class="kn">import</span> <span class="n">check_sample_weight</span><span class="p">,</span> <span class="n">weighted_quantile</span>
+<span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">product</span>
 
 <span class="n">__author__</span> <span class="o">=</span> <span class="s">&#39;Alex Rogozhnikov&#39;</span>
 
 
 <div class="viewcode-block" id="MetricMixin"><a class="viewcode-back" href="../../../report.html#rep.report.metrics.MetricMixin">[docs]</a><span class="k">class</span> <span class="nc">MetricMixin</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Class with helpful methods for metrics,</span>
-<span class="sd">     metrics are expected (but not obliged) to be derived from it.&quot;&quot;&quot;</span>
+<span class="sd">     metrics are expected (but not obliged) to be derived from this mixin. &quot;&quot;&quot;</span>
+
     <span class="k">def</span> <span class="nf">_prepare</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Preparation</span>
@@ -212,16 +259,17 @@
 
 </div></div>
 <div class="viewcode-block" id="RocAuc"><a class="viewcode-back" href="../../../report.html#rep.report.metrics.RocAuc">[docs]</a><span class="k">class</span> <span class="nc">RocAuc</span><span class="p">(</span><span class="n">BaseEstimator</span><span class="p">,</span> <span class="n">MetricMixin</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Computes area under the ROC curve.</span>
-
-<span class="sd">    :param int positive_label: label of class, in case of more then two classes,</span>
-<span class="sd">     will compute ROC AUC for this specific class vs others</span>
-<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">positive_label</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Computes area under the ROC curve.</span>
+<span class="sd">        General-purpose quality measure for binary classification</span>
+
+<span class="sd">        :param int positive_label: label of class, in case of more then two classes,</span>
+<span class="sd">         will compute ROC AUC for this specific class vs others</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">positive_label</span> <span class="o">=</span> <span class="n">positive_label</span>
 
-<div class="viewcode-block" id="RocAuc.fit"><a class="viewcode-back" href="../../../report.html#rep.report.metrics.RocAuc.fit">[docs]</a>    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Prepare metrics for usage, preprocessing is done in this function.</span>
 
@@ -236,24 +284,30 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">positive_index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">classes_</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">positive_label</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">true_class</span> <span class="o">=</span> <span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">y</span><span class="p">)</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">positive_label</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span>
-</div>
+
     <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">proba</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-        <span class="k">assert</span> <span class="n">numpy</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classes_</span> <span class="o">&lt;</span> <span class="n">proba</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="k">assert</span> <span class="n">numpy</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classes_</span> <span class="o">&lt;</span> <span class="n">proba</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="s">&#39;passed probabilities not for all classes&#39;</span>
         <span class="k">return</span> <span class="n">roc_auc_score</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">true_class</span><span class="p">,</span> <span class="n">proba</span><span class="p">[:,</span> <span class="bp">self</span><span class="o">.</span><span class="n">positive_index</span><span class="p">],</span>
                              <span class="n">sample_weight</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">sample_weight</span><span class="p">)</span>
 
 </div>
 <div class="viewcode-block" id="LogLoss"><a class="viewcode-back" href="../../../report.html#rep.report.metrics.LogLoss">[docs]</a><span class="k">class</span> <span class="nc">LogLoss</span><span class="p">(</span><span class="n">BaseEstimator</span><span class="p">,</span> <span class="n">MetricMixin</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Log loss,</span>
-<span class="sd">    which is the same as minus log-likelihood,</span>
-<span class="sd">    and the same as logistic loss,</span>
-<span class="sd">    and the same as cross-entropy loss.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">regularization</span><span class="o">=</span><span class="mf">1e-15</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Log loss,</span>
+<span class="sd">        which is the same as minus log-likelihood,</span>
+<span class="sd">        and the same as logistic loss,</span>
+<span class="sd">        and the same as cross-entropy loss.</span>
+
+<span class="sd">        Appropriate metric if algorithm is optimizing log-likelihood.</span>
+
+<span class="sd">        :param regularization: minimal value for probability,</span>
+<span class="sd">            to avoid high (or infinite) penalty for zero probabilities.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">regularization</span> <span class="o">=</span> <span class="n">regularization</span>
 
-<div class="viewcode-block" id="LogLoss.fit"><a class="viewcode-back" href="../../../report.html#rep.report.metrics.LogLoss.fit">[docs]</a>    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Prepare metrics for usage, preprocessing is done in this function.</span>
 
@@ -267,29 +321,85 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">sample_weight</span> <span class="o">=</span> <span class="n">sample_weight</span> <span class="o">/</span> <span class="n">sample_weight</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">samples_indices</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">X</span><span class="p">))</span>
         <span class="k">return</span> <span class="bp">self</span>
-</div>
+
     <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">proba</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="c"># assert proba.shape == self.probabilities_shape, &#39;Wrong shape of probabilities&#39;</span>
-        <span class="k">assert</span> <span class="n">numpy</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classes_</span> <span class="o">&lt;</span> <span class="n">proba</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="k">assert</span> <span class="n">numpy</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classes_</span> <span class="o">&lt;</span> <span class="n">proba</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="s">&#39;number of classes in predictions is greater than expected&#39;</span>
         <span class="n">correct_probabilities</span> <span class="o">=</span> <span class="n">proba</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">samples_indices</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">class_indices</span><span class="p">]</span>
         <span class="k">return</span> <span class="o">-</span> <span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">correct_probabilities</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">regularization</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">sample_weight</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
 
 </div>
-<div class="viewcode-block" id="OptimalMetric"><a class="viewcode-back" href="../../../report.html#rep.report.metrics.OptimalMetric">[docs]</a><span class="k">class</span> <span class="nc">OptimalMetric</span><span class="p">(</span><span class="n">BaseEstimator</span><span class="p">,</span> <span class="n">MetricMixin</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Class to calculate optimal threshold on predictions using some metric</span>
+<div class="viewcode-block" id="OptimalAccuracy"><a class="viewcode-back" href="../../../report.html#rep.report.metrics.OptimalAccuracy">[docs]</a><span class="k">class</span> <span class="nc">OptimalAccuracy</span><span class="p">(</span><span class="n">BaseEstimator</span><span class="p">,</span> <span class="n">MetricMixin</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sb_ratio</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Estimation of binary classification accuracy for</span>
 
-<span class="sd">    :param function metric: metrics(s, b) -&gt; float</span>
-<span class="sd">    :param expected_s: float, total weight of signal</span>
-<span class="sd">    :param expected_b: float, total weight of background</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">        :param sb_ratio: ratio of signal (class 1) and background (class 0).</span>
+<span class="sd">            If none, the parameter is taken from test data.</span>
+
+<span class="sd">        Example:</span>
+<span class="sd">        ~~~~~~~~</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sb_ratio</span> <span class="o">=</span> <span class="n">sb_ratio</span>
+
+    <span class="k">def</span> <span class="nf">compute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">y_true</span><span class="p">,</span> <span class="n">proba</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Compute metric for each possible prediction threshold</span>
+
+<span class="sd">        :param y_true: array-like true labels</span>
+<span class="sd">        :param proba: array-like of shape [n_samples, 2] with predicted probabilities</span>
+<span class="sd">        :param sample_weight: array-like weight</span>
+
+<span class="sd">        :rtype: tuple(array, array)</span>
+<span class="sd">        :return: thresholds and corresponding metric values</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">sample_weight</span> <span class="o">=</span> <span class="n">check_sample_weight</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="n">sample_weight</span><span class="p">)</span>
+        <span class="n">sample_weight</span> <span class="o">=</span> <span class="n">sample_weight</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">assert</span> <span class="n">numpy</span><span class="o">.</span><span class="n">in1d</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span><span class="o">.</span><span class="n">all</span><span class="p">(),</span> <span class="s">&#39;labels passed should be 0 and 1&#39;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sb_ratio</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">sample_weight_s</span> <span class="o">=</span> <span class="n">sample_weight</span><span class="p">[</span><span class="n">y_true</span> <span class="o">==</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+            <span class="n">sample_weight_b</span> <span class="o">=</span> <span class="n">sample_weight</span><span class="p">[</span><span class="n">y_true</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+            <span class="n">sample_weight</span><span class="p">[</span><span class="n">y_true</span> <span class="o">==</span> <span class="mi">1</span><span class="p">]</span> <span class="o">*=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sb_ratio</span> <span class="o">*</span> <span class="n">sample_weight_b</span> <span class="o">/</span> <span class="n">sample_weight_s</span>
+
+            <span class="k">assert</span> <span class="n">numpy</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sb_ratio</span><span class="p">,</span> <span class="n">sample_weight</span><span class="p">[</span><span class="n">y_true</span> <span class="o">==</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">/</span> <span class="n">sample_weight</span><span class="p">[</span><span class="n">y_true</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span>
+
+        <span class="n">sample_weight</span> <span class="o">/=</span> <span class="n">sample_weight</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+        <span class="n">signal_weight</span> <span class="o">=</span> <span class="n">sample_weight</span><span class="p">[</span><span class="n">y_true</span> <span class="o">==</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+        <span class="n">bck_weight</span> <span class="o">=</span> <span class="n">sample_weight</span><span class="p">[</span><span class="n">y_true</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+
+        <span class="n">fpr</span><span class="p">,</span> <span class="n">tpr</span><span class="p">,</span> <span class="n">thresholds</span> <span class="o">=</span> <span class="n">roc_curve</span><span class="p">(</span><span class="n">y_true</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="n">proba</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">sample_weight</span><span class="o">=</span><span class="n">sample_weight</span><span class="p">)</span>
+        <span class="n">accuracy_values</span> <span class="o">=</span> <span class="n">tpr</span> <span class="o">*</span> <span class="n">signal_weight</span> <span class="o">+</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">-</span> <span class="n">fpr</span><span class="p">)</span> <span class="o">*</span> <span class="n">bck_weight</span>
+        <span class="k">return</span> <span class="n">thresholds</span><span class="p">,</span> <span class="n">accuracy_values</span>
+
+    <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">y_true</span><span class="p">,</span> <span class="n">proba</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Compute maximal value of accuracy by checking all possible thresholds.</span>
+
+<span class="sd">        :param y_true: array-like true labels</span>
+<span class="sd">        :param proba: array-like of shape [n_samples, 2] with predicted probabilities</span>
+<span class="sd">        :param sample_weight: array-like weight</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">thresholds</span><span class="p">,</span> <span class="n">accuracy_values</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">compute</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">proba</span><span class="p">,</span> <span class="n">sample_weight</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">numpy</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">accuracy_values</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="OptimalMetric"><a class="viewcode-back" href="../../../report.html#rep.report.metrics.OptimalMetric">[docs]</a><span class="k">class</span> <span class="nc">OptimalMetric</span><span class="p">(</span><span class="n">BaseEstimator</span><span class="p">,</span> <span class="n">MetricMixin</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">metric</span><span class="p">,</span> <span class="n">expected_s</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">expected_b</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">signal_label</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Class to calculate optimal threshold on predictions for some binary metric.</span>
+
+<span class="sd">        :param function metric: metrics(s, b) -&gt; float</span>
+<span class="sd">        :param expected_s: float, total weight of signal</span>
+<span class="sd">        :param expected_b: float, total weight of background</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">metric</span> <span class="o">=</span> <span class="n">metric</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">expected_s</span> <span class="o">=</span> <span class="n">expected_s</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">expected_b</span> <span class="o">=</span> <span class="n">expected_b</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">signal_label</span> <span class="o">=</span> <span class="n">signal_label</span>
 
-<div class="viewcode-block" id="OptimalMetric.compute"><a class="viewcode-back" href="../../../report.html#rep.report.metrics.OptimalMetric.compute">[docs]</a>    <span class="k">def</span> <span class="nf">compute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">y_true</span><span class="p">,</span> <span class="n">proba</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">compute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">y_true</span><span class="p">,</span> <span class="n">proba</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Compute metric for each possible prediction threshold</span>
 
@@ -308,8 +418,8 @@
         <span class="n">metric_values</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">metric</span><span class="p">(</span><span class="n">s</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">expected_s</span><span class="p">,</span> <span class="n">b</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">expected_b</span><span class="p">)</span>
         <span class="n">thresholds</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">thresholds</span><span class="p">,</span> <span class="n">pred</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">-</span> <span class="mf">1e-6</span><span class="p">,</span> <span class="n">pred</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">+</span> <span class="mf">1e-6</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">thresholds</span><span class="p">,</span> <span class="n">metric_values</span>
-</div>
-<div class="viewcode-block" id="OptimalMetric.plot_vs_cut"><a class="viewcode-back" href="../../../report.html#rep.report.metrics.OptimalMetric.plot_vs_cut">[docs]</a>    <span class="k">def</span> <span class="nf">plot_vs_cut</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">y_true</span><span class="p">,</span> <span class="n">proba</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">plot_vs_cut</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">y_true</span><span class="p">,</span> <span class="n">proba</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Compute metric for each possible prediction threshold</span>
 
@@ -331,7 +441,7 @@
         <span class="n">plot_fig</span><span class="o">.</span><span class="n">xlabel</span> <span class="o">=</span> <span class="s">&#39;cut&#39;</span>
         <span class="n">plot_fig</span><span class="o">.</span><span class="n">ylabel</span> <span class="o">=</span> <span class="s">&#39;metrics &#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">metric</span><span class="o">.</span><span class="n">__name__</span>
         <span class="k">return</span> <span class="n">plot_fig</span>
-</div>
+
     <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">y_true</span><span class="p">,</span> <span class="n">proba</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; proba is predicted probabilities of shape [n_samples, 2] &quot;&quot;&quot;</span>
         <span class="n">thresholds</span><span class="p">,</span> <span class="n">metrics_val</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">compute</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">proba</span><span class="p">,</span> <span class="n">sample_weight</span><span class="p">)</span>
@@ -340,21 +450,23 @@
 </div>
 <div class="viewcode-block" id="significance"><a class="viewcode-back" href="../../../report.html#rep.report.metrics.significance">[docs]</a><span class="k">def</span> <span class="nf">significance</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Approximate significance of discovery:</span>
-<span class="sd">     s / sqrt(b).</span>
+<span class="sd">    Approximate significance of discovery: s / sqrt(b).</span>
 <span class="sd">    Here we use normalization, so maximal s and b are equal to 1.</span>
+
+<span class="sd">    :param s: amount of signal passed</span>
+<span class="sd">    :param b: amount of background passed</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">s</span> <span class="o">/</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">b</span> <span class="o">+</span> <span class="mf">1e-6</span><span class="p">)</span>
 
 </div>
 <div class="viewcode-block" id="OptimalSignificance"><a class="viewcode-back" href="../../../report.html#rep.report.metrics.OptimalSignificance">[docs]</a><span class="k">class</span> <span class="nc">OptimalSignificance</span><span class="p">(</span><span class="n">OptimalMetric</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Optimal values of significance:</span>
-<span class="sd">     s / sqrt(b)</span>
+<span class="sd">    Optimal values of significance: s / sqrt(b)</span>
 
 <span class="sd">    :param float expected_s: expected amount of signal</span>
 <span class="sd">    :param float expected_b: expected amount of background</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">expected_s</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">expected_b</span><span class="o">=</span><span class="mf">1.</span><span class="p">):</span>
         <span class="n">OptimalMetric</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">metric</span><span class="o">=</span><span class="n">significance</span><span class="p">,</span>
                                <span class="n">expected_s</span><span class="o">=</span><span class="n">expected_s</span><span class="p">,</span>
@@ -377,11 +489,12 @@
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Optimal values of AMS (average median significance)</span>
 
-<span class="sd">    default values of expected_s and expected_b are from HiggsML challenge.</span>
+<span class="sd">    Default values of expected_s and expected_b are from HiggsML challenge.</span>
 
 <span class="sd">    :param float expected_s: expected amount of signal</span>
 <span class="sd">    :param float expected_b: expected amount of background</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">expected_s</span><span class="o">=</span><span class="mf">691.988607712</span><span class="p">,</span> <span class="n">expected_b</span><span class="o">=</span><span class="mf">410999.847</span><span class="p">):</span>
         <span class="n">OptimalMetric</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">metric</span><span class="o">=</span><span class="n">ams</span><span class="p">,</span>
                                <span class="n">expected_s</span><span class="o">=</span><span class="n">expected_s</span><span class="p">,</span>
@@ -389,33 +502,108 @@
 
 </div>
 <div class="viewcode-block" id="FPRatTPR"><a class="viewcode-back" href="../../../report.html#rep.report.metrics.FPRatTPR">[docs]</a><span class="k">class</span> <span class="nc">FPRatTPR</span><span class="p">(</span><span class="n">BaseEstimator</span><span class="p">,</span> <span class="n">MetricMixin</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Fix TPR value on roc curve and return FPR value.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tpr</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Fix TPR value on roc curve and return corresponding FPR value.</span>
+
+<span class="sd">        :param float tpr: target value true positive rate, from range (0, 1)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">tpr</span> <span class="o">=</span> <span class="n">tpr</span>
 
     <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">proba</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">sample_weight</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
-            <span class="n">sample_weight</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">proba</span><span class="p">))</span>
+        <span class="n">sample_weight</span> <span class="o">=</span> <span class="n">check_sample_weight</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="n">sample_weight</span><span class="p">)</span>
         <span class="n">y</span><span class="p">,</span> <span class="n">proba</span><span class="p">,</span> <span class="n">sample_weight</span> <span class="o">=</span> <span class="n">check_arrays</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">proba</span><span class="p">,</span> <span class="n">sample_weight</span><span class="p">)</span>
-        <span class="n">threshold</span> <span class="o">=</span> <span class="n">weighted_percentile</span><span class="p">(</span><span class="n">proba</span><span class="p">[</span><span class="n">y</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">tpr</span><span class="p">),</span> <span class="n">sample_weight</span><span class="o">=</span><span class="n">sample_weight</span><span class="p">[</span><span class="n">y</span> <span class="o">==</span> <span class="mi">1</span><span class="p">])</span>
+        <span class="n">threshold</span> <span class="o">=</span> <span class="n">weighted_quantile</span><span class="p">(</span><span class="n">proba</span><span class="p">[</span><span class="n">y</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">tpr</span><span class="p">),</span> <span class="n">sample_weight</span><span class="o">=</span><span class="n">sample_weight</span><span class="p">[</span><span class="n">y</span> <span class="o">==</span> <span class="mi">1</span><span class="p">])</span>
         <span class="k">return</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">sample_weight</span><span class="p">[(</span><span class="n">y</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">proba</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">threshold</span><span class="p">)])</span> <span class="o">/</span> <span class="nb">sum</span><span class="p">(</span><span class="n">sample_weight</span><span class="p">[</span><span class="n">y</span> <span class="o">==</span> <span class="mi">0</span><span class="p">])</span>
 
 </div>
 <div class="viewcode-block" id="TPRatFPR"><a class="viewcode-back" href="../../../report.html#rep.report.metrics.TPRatFPR">[docs]</a><span class="k">class</span> <span class="nc">TPRatFPR</span><span class="p">(</span><span class="n">BaseEstimator</span><span class="p">,</span> <span class="n">MetricMixin</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Fix FPR value on roc curve and return TPR value.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fpr</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Fix FPR value on roc curve and return corresponding TPR value.</span>
+
+<span class="sd">        :param float fpr: target value false positive rate, from range (0, 1)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">fpr</span> <span class="o">=</span> <span class="n">fpr</span>
 
     <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">proba</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">sample_weight</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
-            <span class="n">sample_weight</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">proba</span><span class="p">))</span>
+        <span class="n">sample_weight</span> <span class="o">=</span> <span class="n">check_sample_weight</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="n">sample_weight</span><span class="p">)</span>
         <span class="n">y</span><span class="p">,</span> <span class="n">proba</span><span class="p">,</span> <span class="n">sample_weight</span> <span class="o">=</span> <span class="n">check_arrays</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">proba</span><span class="p">,</span> <span class="n">sample_weight</span><span class="p">)</span>
-        <span class="n">threshold</span> <span class="o">=</span> <span class="n">weighted_percentile</span><span class="p">(</span><span class="n">proba</span><span class="p">[</span><span class="n">y</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">fpr</span><span class="p">),</span> <span class="n">sample_weight</span><span class="o">=</span><span class="n">sample_weight</span><span class="p">[</span><span class="n">y</span> <span class="o">==</span> <span class="mi">0</span><span class="p">])</span>
-        <span class="k">return</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">sample_weight</span><span class="p">[(</span><span class="n">y</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">proba</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">threshold</span><span class="p">)])</span> <span class="o">/</span> <span class="nb">sum</span><span class="p">(</span><span class="n">sample_weight</span><span class="p">[</span><span class="n">y</span> <span class="o">==</span> <span class="mi">1</span><span class="p">])</span></div>
+        <span class="n">threshold</span> <span class="o">=</span> <span class="n">weighted_quantile</span><span class="p">(</span><span class="n">proba</span><span class="p">[</span><span class="n">y</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">fpr</span><span class="p">),</span> <span class="n">sample_weight</span><span class="o">=</span><span class="n">sample_weight</span><span class="p">[</span><span class="n">y</span> <span class="o">==</span> <span class="mi">0</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">sample_weight</span><span class="p">[(</span><span class="n">y</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">proba</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">threshold</span><span class="p">)])</span> <span class="o">/</span> <span class="nb">sum</span><span class="p">(</span><span class="n">sample_weight</span><span class="p">[</span><span class="n">y</span> <span class="o">==</span> <span class="mi">1</span><span class="p">])</span>
+
+</div>
+<span class="k">class</span> <span class="nc">OptimalMetricNdim</span><span class="p">(</span><span class="n">BaseEstimator</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Class to calculate optimal thresholds on prediction_1, prediction_2, .. prediction_n simultaneously using some binary metric.</span>
+<span class="sd">        This metric differs from :class:`OptimalMetric`</span>
+
+<span class="sd">    :param function metric: metrics(s, b) -&gt; float, binary metric</span>
+<span class="sd">    :param expected_s: float, total weight of signal</span>
+<span class="sd">    :param expected_b: float, total weight of background</span>
+<span class="sd">    :param int step: step in sorted array of predictions for each dimension to choose thresholds</span>
+<span class="sd">    (data are taken with values greater or equal to thresholds)</span>
+
+<span class="sd">    &gt;&gt;&gt; proba1 = classifier1.predict_proba(X)[:, 1]</span>
+<span class="sd">    &gt;&gt;&gt; proba2 = classifier2.predict_proba(X)[:, 1]</span>
+<span class="sd">    &gt;&gt;&gt; optimal_ndim = OptimalMetricNdim(ams)</span>
+<span class="sd">    &gt;&gt;&gt; optimal_ndim(y, sample_weight, proba1, proba2)</span>
+<span class="sd">    &gt;&gt;&gt; # returns optimal AUC and thresholds for proba1 and proba2</span>
+<span class="sd">    &gt;&gt;&gt; 0.99, (0.88, 0.45)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">metric</span><span class="p">,</span> <span class="n">expected_s</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">expected_b</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">metric</span> <span class="o">=</span> <span class="n">metric</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">expected_s</span> <span class="o">=</span> <span class="n">expected_s</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">expected_b</span> <span class="o">=</span> <span class="n">expected_b</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">step</span> <span class="o">=</span> <span class="n">step</span>
+
+    <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">y_true</span><span class="p">,</span> <span class="n">sample_weight</span><span class="p">,</span> <span class="o">*</span><span class="n">arrays</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Compute metric for each possible predictions thresholds</span>
+
+<span class="sd">        :param y_true: array-like true labels</span>
+<span class="sd">        :param sample_weight: array-like weight</span>
+<span class="sd">        :param arrays: sequence of different predictions of shape [n_samples]</span>
+<span class="sd">        :rtype: tuple(array, array)</span>
+<span class="sd">        :return: optimal metric value and corresponding thresholds for each dimension</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">all_data</span> <span class="o">=</span> <span class="n">check_arrays</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">sample_weight</span><span class="p">,</span> <span class="o">*</span><span class="n">arrays</span><span class="p">)</span>
+        <span class="n">y_true</span><span class="p">,</span> <span class="n">sample_weight</span><span class="p">,</span> <span class="n">variables</span> <span class="o">=</span> <span class="n">all_data</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">all_data</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">all_data</span><span class="p">[</span><span class="mi">2</span><span class="p">:]</span>
+        <span class="k">if</span> <span class="n">sample_weight</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">sample_weight</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">y_true</span><span class="p">))</span>
+
+        <span class="n">sample_weight</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">sample_weight</span><span class="p">)</span>
+        <span class="n">sample_weight</span><span class="p">[</span><span class="n">y_true</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span> <span class="o">/=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">sample_weight</span><span class="p">[</span><span class="n">y_true</span> <span class="o">==</span> <span class="mi">0</span><span class="p">])</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">expected_b</span>
+        <span class="n">sample_weight</span><span class="p">[</span><span class="n">y_true</span> <span class="o">==</span> <span class="mi">1</span><span class="p">]</span> <span class="o">/=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">sample_weight</span><span class="p">[</span><span class="n">y_true</span> <span class="o">==</span> <span class="mi">1</span><span class="p">])</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">expected_s</span>
+
+        <span class="n">thresholds</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">array</span> <span class="ow">in</span> <span class="n">variables</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+            <span class="n">thr</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">array</span><span class="p">)</span>
+            <span class="n">thresholds</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">thr</span><span class="p">[::</span><span class="bp">self</span><span class="o">.</span><span class="n">step</span><span class="p">])</span>
+        <span class="n">optimal_metric_value</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="n">optimal_threshold</span> <span class="o">=</span> <span class="bp">None</span>
+
+        <span class="n">dim_last_pred</span> <span class="o">=</span> <span class="n">variables</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="n">indices</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">dim_last_pred</span><span class="p">)[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">sorted_last_pred</span> <span class="o">=</span> <span class="n">dim_last_pred</span><span class="p">[</span><span class="n">indices</span><span class="p">]</span>
+        <span class="n">sorted_y</span> <span class="o">=</span> <span class="n">y_true</span><span class="p">[</span><span class="n">indices</span><span class="p">]</span>
+        <span class="n">sorted_weights</span> <span class="o">=</span> <span class="n">sample_weight</span><span class="p">[</span><span class="n">indices</span><span class="p">]</span>
+        <span class="n">sorted_pred</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">variables</span><span class="p">)[:,</span> <span class="n">indices</span><span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">threshold</span> <span class="ow">in</span> <span class="n">product</span><span class="p">(</span><span class="o">*</span><span class="n">thresholds</span><span class="p">):</span>
+            <span class="n">mask</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">y_true</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">t</span><span class="p">,</span> <span class="n">arr</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">threshold</span><span class="p">,</span> <span class="n">sorted_pred</span><span class="p">):</span>
+                <span class="n">mask</span> <span class="o">*=</span> <span class="n">arr</span> <span class="o">&gt;=</span> <span class="n">t</span>
+
+            <span class="n">s</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">sorted_y</span> <span class="o">*</span> <span class="n">sorted_weights</span> <span class="o">*</span> <span class="n">mask</span><span class="p">)</span>
+            <span class="n">b</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">cumsum</span><span class="p">((</span><span class="mi">1</span> <span class="o">-</span> <span class="n">sorted_y</span><span class="p">)</span> <span class="o">*</span> <span class="n">sorted_weights</span> <span class="o">*</span> <span class="n">mask</span><span class="p">)</span>
+
+            <span class="n">metric_values</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">metric</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
+            <span class="n">ind_optimal</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">metric_values</span><span class="p">)</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">optimal_metric_value</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">optimal_metric_value</span> <span class="o">&lt;</span> <span class="n">metric_values</span><span class="p">[</span><span class="n">ind_optimal</span><span class="p">]):</span>
+                <span class="n">optimal_metric_value</span> <span class="o">=</span> <span class="n">metric_values</span><span class="p">[</span><span class="n">ind_optimal</span><span class="p">]</span>
+                <span class="n">optimal_threshold</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">threshold</span><span class="p">)</span> <span class="o">+</span> <span class="p">[</span><span class="n">sorted_last_pred</span><span class="p">[</span><span class="n">ind_optimal</span><span class="p">]]</span>
+        <span class="k">return</span> <span class="n">optimal_metric_value</span><span class="p">,</span> <span class="n">optimal_threshold</span>
 </pre></div>
 
            </div>
@@ -448,7 +636,7 @@
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'../../../',
-            VERSION:'0.6.3',
+            VERSION:'0.6.4',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Meta Machine Learning &mdash; REP (Reproducible Experiment Platform) 0.6.3 documentation</title>
+  <title>Meta Machine Learning &mdash; REP (Reproducible Experiment Platform) 0.6.4 documentation</title>
   
 
   
@@ -30,7 +30,7 @@
   
 
   
-    <link rel="top" title="REP (Reproducible Experiment Platform) 0.6.3 documentation" href="index.html"/>
+    <link rel="top" title="REP (Reproducible Experiment Platform) 0.6.4 documentation" href="index.html"/>
         <link rel="next" title="Report for models" href="report.html"/>
         <link rel="prev" title="Estimators (classification and regression)" href="estimators.html"/> 
 
@@ -77,7 +77,13 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="">Meta Machine Learning</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#module-rep.metaml.factory">Factory</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#factory-examples">Factory Examples</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#module-rep.metaml.gridsearch">Grid Search</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-rep.metaml.gridsearch">Grid Search</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#gridoptimalsearchcv">GridOptimalSearchCV</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#folding-scorer">Folding Scorer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#available-optimization-algorithms">Available optimization algorithms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#interface-of-parameter-optimizer">Interface of parameter optimizer</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="#module-rep.metaml.folding">Folding</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-rep.metaml.stacking">Stacking</a></li>
 </ul>
@@ -131,9 +137,8 @@ Also there is Factory which allows you to train set of models and compare them v
 <div class="section" id="module-rep.metaml.factory">
 <span id="factory"></span><h2>Factory<a class="headerlink" href="#module-rep.metaml.factory" title="Permalink to this headline">¶</a></h2>
 <p><strong>Factory</strong> provides convenient way to train several classifiers on the same dataset.
-These classifiers can be trained one-by-one in a single thread, or simultaneously</p>
-<blockquote>
-<div>with IPython cluster or in several threads.</div></blockquote>
+These classifiers can be trained one-by-one in a single thread, or simultaneously
+with IPython cluster or in several threads.</p>
 <p>Also <cite>Factory</cite> allows comparison of several classifiers (predictions of which can be used in parallel).</p>
 <dl class="class">
 <dt id="rep.metaml.factory.AbstractFactory">
@@ -143,6 +148,9 @@ These classifiers can be trained one-by-one in a single thread, or simultaneousl
 Later their quality can be compared.</p>
 <blockquote>
 <div></div></blockquote>
+<p>Initialize an ordered dictionary.  The signature is the same as
+regular dictionaries, but keyword arguments are not recommended because
+their insertion order is arbitrary.</p>
 <dl class="method">
 <dt id="rep.metaml.factory.AbstractFactory.fit">
 <code class="descname">fit</code><span class="sig-paren">(</span><em>X</em>, <em>y</em>, <em>sample_weight=None</em>, <em>parallel_profile=None</em>, <em>features=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/metaml/factory.html#AbstractFactory.fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.metaml.factory.AbstractFactory.fit" title="Permalink to this definition">¶</a></dt>
@@ -260,6 +268,9 @@ array-like of shape [n_samples] or None if all weights are equal</li>
 <dd><p>Bases: <a class="reference internal" href="#rep.metaml.factory.AbstractFactory" title="rep.metaml.factory.AbstractFactory"><code class="xref py py-class docutils literal"><span class="pre">rep.metaml.factory.AbstractFactory</span></code></a></p>
 <p>Factory provides training of several classifiers in parallel.
 Quality of trained classifiers can be compared.</p>
+<p>Initialize an ordered dictionary.  The signature is the same as
+regular dictionaries, but keyword arguments are not recommended because
+their insertion order is arbitrary.</p>
 <dl class="method">
 <dt id="rep.metaml.factory.ClassifiersFactory.add_classifier">
 <code class="descname">add_classifier</code><span class="sig-paren">(</span><em>name</em>, <em>classifier</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/metaml/factory.html#ClassifiersFactory.add_classifier"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.metaml.factory.ClassifiersFactory.add_classifier" title="Permalink to this definition">¶</a></dt>
@@ -368,6 +379,9 @@ If name coincides with one already used, the old classifier will be replaced by 
 <dd><p>Bases: <a class="reference internal" href="#rep.metaml.factory.AbstractFactory" title="rep.metaml.factory.AbstractFactory"><code class="xref py py-class docutils literal"><span class="pre">rep.metaml.factory.AbstractFactory</span></code></a></p>
 <p>Factory provides training of several classifiers in parallel.
 Quality of trained regressors can be compared.</p>
+<p>Initialize an ordered dictionary.  The signature is the same as
+regular dictionaries, but keyword arguments are not recommended because
+their insertion order is arbitrary.</p>
 <dl class="method">
 <dt id="rep.metaml.factory.RegressorsFactory.add_regressor">
 <code class="descname">add_regressor</code><span class="sig-paren">(</span><em>name</em>, <em>regressor</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/metaml/factory.html#RegressorsFactory.add_regressor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.metaml.factory.RegressorsFactory.add_regressor" title="Permalink to this definition">¶</a></dt>
@@ -561,180 +575,30 @@ array-like of shape [n_samples] or None if all weights are equal</li>
 </div>
 <div class="section" id="module-rep.metaml.gridsearch">
 <span id="grid-search"></span><h2>Grid Search<a class="headerlink" href="#module-rep.metaml.gridsearch" title="Permalink to this headline">¶</a></h2>
-<p>This module does hyper parameters optimization &#8211; find the best parameters for estimator using different optimization models.</p>
-<dl class="class">
-<dt id="rep.metaml.gridsearch.AbstractParameterGenerator">
-<em class="property">class </em><code class="descclassname">rep.metaml.gridsearch.</code><code class="descname">AbstractParameterGenerator</code><span class="sig-paren">(</span><em>param_grid</em>, <em>n_evaluations=10</em>, <em>random_state=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/metaml/gridsearch.html#AbstractParameterGenerator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.metaml.gridsearch.AbstractParameterGenerator" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
-<p>Abstract class for grid search algorithm.
-The aim of this class is to generate new points, where the function (estimator) will be computed.
-You can define your own algorithm of step location of parameters grid.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>param_grid</strong> (<em>OrderedDict</em>) &#8211; the grid with parameters to optimize on</li>
-<li><strong>n_evaluations</strong> (<em>int</em>) &#8211; the number of evaluations to do</li>
-<li><strong>random_state</strong> (<em>int or RandomState or None</em>) &#8211; random generator</li>
+<p>This module does hyper parameters optimization &#8211; finds the best parameters for estimator using different optimization models.
+Components of optimization:</p>
+<ul class="simple">
+<li>estimator (for which optimal parameters are searched, any REP classifier will work, see <code class="xref py py-mod docutils literal"><span class="pre">rep.estimators</span></code>)</li>
+<li>target metric function (which is maximized, anything meeting REP metric interface, see <a class="reference internal" href="report.html#module-rep.report.metrics" title="rep.report.metrics"><code class="xref py py-mod docutils literal"><span class="pre">rep.report.metrics</span></code></a>)</li>
+<li>optimization algorithm (introduced in this module)</li>
+<li>cross-validation technique (kFolding, introduced in this module)</li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
-<dl class="method">
-<dt id="rep.metaml.gridsearch.AbstractParameterGenerator.add_result">
-<code class="descname">add_result</code><span class="sig-paren">(</span><em>state_indices</em>, <em>value</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/metaml/gridsearch.html#AbstractParameterGenerator.add_result"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.metaml.gridsearch.AbstractParameterGenerator.add_result" title="Permalink to this definition">¶</a></dt>
-<dd><p>After the model was trained and evaluated for specific set of parameters,
-we use this function to store result
-:param state_indices: tuple, which represents the space
-:param value: quality at this point</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="rep.metaml.gridsearch.AbstractParameterGenerator.best_params_">
-<code class="descname">best_params_</code><a class="headerlink" href="#rep.metaml.gridsearch.AbstractParameterGenerator.best_params_" title="Permalink to this definition">¶</a></dt>
-<dd><p>Property, return point of parameters grid with the best score</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="rep.metaml.gridsearch.AbstractParameterGenerator.best_score_">
-<code class="descname">best_score_</code><a class="headerlink" href="#rep.metaml.gridsearch.AbstractParameterGenerator.best_score_" title="Permalink to this definition">¶</a></dt>
-<dd><p>Property, return best score of optimization</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="rep.metaml.gridsearch.AbstractParameterGenerator.generate_batch_points">
-<code class="descname">generate_batch_points</code><span class="sig-paren">(</span><em>size</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/metaml/gridsearch.html#AbstractParameterGenerator.generate_batch_points"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.metaml.gridsearch.AbstractParameterGenerator.generate_batch_points" title="Permalink to this definition">¶</a></dt>
-<dd><p>Generate several points in parameter space at once (needed when using parallel computations)</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>size</strong> &#8211; how many points we shall generate</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">sequence of tuples, each tuple representing it&#8217;s own</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="rep.metaml.gridsearch.AbstractParameterGenerator.generate_next_point">
-<code class="descname">generate_next_point</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/metaml/gridsearch.html#AbstractParameterGenerator.generate_next_point"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.metaml.gridsearch.AbstractParameterGenerator.generate_next_point" title="Permalink to this definition">¶</a></dt>
-<dd><p>Generating next random point in parameters space</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="rep.metaml.gridsearch.AbstractParameterGenerator.print_results">
-<code class="descname">print_results</code><span class="sig-paren">(</span><em>reorder=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/metaml/gridsearch.html#AbstractParameterGenerator.print_results"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.metaml.gridsearch.AbstractParameterGenerator.print_results" title="Permalink to this definition">¶</a></dt>
-<dd><p>Prints the results of training</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>reorder</strong> (<em>bool</em>) &#8211; if reorder==True, best results go earlier,
-otherwise the results are printed in the order of computation</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="class">
-<dt id="rep.metaml.gridsearch.AnnealingParameterOptimizer">
-<em class="property">class </em><code class="descclassname">rep.metaml.gridsearch.</code><code class="descname">AnnealingParameterOptimizer</code><span class="sig-paren">(</span><em>param_grid</em>, <em>n_evaluations=10</em>, <em>temperature=0.2</em>, <em>random_state=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/metaml/gridsearch.html#AnnealingParameterOptimizer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.metaml.gridsearch.AnnealingParameterOptimizer" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#rep.metaml.gridsearch.AbstractParameterGenerator" title="rep.metaml.gridsearch.AbstractParameterGenerator"><code class="xref py py-class docutils literal"><span class="pre">rep.metaml.gridsearch.AbstractParameterGenerator</span></code></a></p>
-<dl class="method">
-<dt id="rep.metaml.gridsearch.AnnealingParameterOptimizer.add_result">
-<code class="descname">add_result</code><span class="sig-paren">(</span><em>state_indices</em>, <em>value</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.metaml.gridsearch.AnnealingParameterOptimizer.add_result" title="Permalink to this definition">¶</a></dt>
-<dd><p>After the model was trained and evaluated for specific set of parameters,
-we use this function to store result
-:param state_indices: tuple, which represents the space
-:param value: quality at this point</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="rep.metaml.gridsearch.AnnealingParameterOptimizer.best_params_">
-<code class="descname">best_params_</code><a class="headerlink" href="#rep.metaml.gridsearch.AnnealingParameterOptimizer.best_params_" title="Permalink to this definition">¶</a></dt>
-<dd><p>Property, return point of parameters grid with the best score</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="rep.metaml.gridsearch.AnnealingParameterOptimizer.best_score_">
-<code class="descname">best_score_</code><a class="headerlink" href="#rep.metaml.gridsearch.AnnealingParameterOptimizer.best_score_" title="Permalink to this definition">¶</a></dt>
-<dd><p>Property, return best score of optimization</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="rep.metaml.gridsearch.AnnealingParameterOptimizer.generate_batch_points">
-<code class="descname">generate_batch_points</code><span class="sig-paren">(</span><em>size</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/metaml/gridsearch.html#AnnealingParameterOptimizer.generate_batch_points"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.metaml.gridsearch.AnnealingParameterOptimizer.generate_batch_points" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="rep.metaml.gridsearch.AnnealingParameterOptimizer.generate_next_point">
-<code class="descname">generate_next_point</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/metaml/gridsearch.html#AnnealingParameterOptimizer.generate_next_point"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.metaml.gridsearch.AnnealingParameterOptimizer.generate_next_point" title="Permalink to this definition">¶</a></dt>
-<dd><p>Generating next random point in parameters space</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="rep.metaml.gridsearch.AnnealingParameterOptimizer.print_results">
-<code class="descname">print_results</code><span class="sig-paren">(</span><em>reorder=True</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.metaml.gridsearch.AnnealingParameterOptimizer.print_results" title="Permalink to this definition">¶</a></dt>
-<dd><p>Prints the results of training</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>reorder</strong> (<em>bool</em>) &#8211; if reorder==True, best results go earlier,
-otherwise the results are printed in the order of computation</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="class">
-<dt id="rep.metaml.gridsearch.FoldingScorer">
-<em class="property">class </em><code class="descclassname">rep.metaml.gridsearch.</code><code class="descname">FoldingScorer</code><span class="sig-paren">(</span><em>score_function</em>, <em>folds=3</em>, <em>fold_checks=1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/metaml/gridsearch.html#FoldingScorer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.metaml.gridsearch.FoldingScorer" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
-<p>Scorer, which implements logic of data folding and scoring. This is a function-like object</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>folds</strong> (<em>int</em>) &#8211; &#8216;k&#8217; used in k-folding while validating</li>
-<li><strong>fold_checks</strong> (<em>int</em>) &#8211; not greater than folds, the number of checks we do by cross-validating</li>
-<li><strong>score_function</strong> (<em>function</em>) &#8211; quality. if fold_checks &gt; 1, the average is computed over checks.</li>
+<p>During optimization, many cycles of estimating quality on different sets of parameters is done.
+To speed up the process, threads or IPython cluster can be used.</p>
+<div class="section" id="gridoptimalsearchcv">
+<h3>GridOptimalSearchCV<a class="headerlink" href="#gridoptimalsearchcv" title="Permalink to this headline">¶</a></h3>
+<p>Main class linking the whole process is <a class="reference internal" href="#rep.metaml.gridsearch.GridOptimalSearchCV" title="rep.metaml.gridsearch.GridOptimalSearchCV"><code class="xref py py-class docutils literal"><span class="pre">GridOptimalSearchCV</span></code></a>, which takes as parameters:</p>
+<ul class="simple">
+<li>estimator to be optimized</li>
+<li>scorer (which trains classifier and estimates quality using cross-validation)</li>
+<li>parameter generator (which draws next set of parameters to be checked)</li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">new_score_function</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">proba</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-<span class="gp">&gt;&gt;&gt; </span>    <span class="sd">&#39;&#39;&#39;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="sd">    y_true: [n_samples]</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="sd">    proba: [n_samples, n_classes]</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="sd">    sample_weight: [n_samples] or None</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="sd">    &#39;&#39;&#39;</span>
-<span class="gp">&gt;&gt;&gt; </span>    <span class="o">...</span>
-</pre></div>
-</div>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">fs</span> <span class="o">=</span> <span class="n">FoldingScorer</span><span class="p">(</span><span class="n">new_score_function</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">fs</span><span class="p">(</span><span class="n">base_estimator</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
-<span class="go">0.5</span>
-</pre></div>
-</div>
-</dd></dl>
-
 <dl class="class">
 <dt id="rep.metaml.gridsearch.GridOptimalSearchCV">
 <em class="property">class </em><code class="descclassname">rep.metaml.gridsearch.</code><code class="descname">GridOptimalSearchCV</code><span class="sig-paren">(</span><em>estimator</em>, <em>params_generator</em>, <em>scorer</em>, <em>parallel_profile=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/metaml/gridsearch.html#GridOptimalSearchCV"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.metaml.gridsearch.GridOptimalSearchCV" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
-<p>Optimal search over specified parameter values for an estimator. Metropolis-like algorithm is used
-Important members are fit, scorer.</p>
+<p>Optimal search over specified parameter values for an estimator.
+Uses different optimization techniques to use limited number of evaluations without using exhaustive grid scanning.</p>
 <p>GridSearchCV implements a &#8220;fit&#8221; method and a &#8220;fit_best_estimator&#8221; method to train models.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -752,7 +616,7 @@ A new object of that type is cloned for each point.</li>
 </tr>
 </tbody>
 </table>
-<p>generator: return grid generator</p>
+<p>generator: return grid parameter generator</p>
 <dl class="method">
 <dt id="rep.metaml.gridsearch.GridOptimalSearchCV.fit">
 <code class="descname">fit</code><span class="sig-paren">(</span><em>X</em>, <em>y</em>, <em>sample_weight=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/metaml/gridsearch.html#GridOptimalSearchCV.fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.metaml.gridsearch.GridOptimalSearchCV.fit" title="Permalink to this definition">¶</a></dt>
@@ -804,157 +668,143 @@ array-like of shape [n_samples] or None if all weights are equal</li>
 
 </dd></dl>
 
+</div>
+<div class="section" id="folding-scorer">
+<h3>Folding Scorer<a class="headerlink" href="#folding-scorer" title="Permalink to this headline">¶</a></h3>
+<p>Folding cross validation can be used in grid search optimization.</p>
 <dl class="class">
-<dt id="rep.metaml.gridsearch.RandomParameterOptimizer">
-<em class="property">class </em><code class="descclassname">rep.metaml.gridsearch.</code><code class="descname">RandomParameterOptimizer</code><span class="sig-paren">(</span><em>param_grid</em>, <em>n_evaluations=10</em>, <em>random_state=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/metaml/gridsearch.html#RandomParameterOptimizer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.metaml.gridsearch.RandomParameterOptimizer" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#rep.metaml.gridsearch.AbstractParameterGenerator" title="rep.metaml.gridsearch.AbstractParameterGenerator"><code class="xref py py-class docutils literal"><span class="pre">rep.metaml.gridsearch.AbstractParameterGenerator</span></code></a></p>
-<p>Random generation of new grid point.</p>
-<dl class="method">
-<dt id="rep.metaml.gridsearch.RandomParameterOptimizer.add_result">
-<code class="descname">add_result</code><span class="sig-paren">(</span><em>state_indices</em>, <em>value</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.metaml.gridsearch.RandomParameterOptimizer.add_result" title="Permalink to this definition">¶</a></dt>
-<dd><p>After the model was trained and evaluated for specific set of parameters,
-we use this function to store result
-:param state_indices: tuple, which represents the space
-:param value: quality at this point</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="rep.metaml.gridsearch.RandomParameterOptimizer.best_params_">
-<code class="descname">best_params_</code><a class="headerlink" href="#rep.metaml.gridsearch.RandomParameterOptimizer.best_params_" title="Permalink to this definition">¶</a></dt>
-<dd><p>Property, return point of parameters grid with the best score</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="rep.metaml.gridsearch.RandomParameterOptimizer.best_score_">
-<code class="descname">best_score_</code><a class="headerlink" href="#rep.metaml.gridsearch.RandomParameterOptimizer.best_score_" title="Permalink to this definition">¶</a></dt>
-<dd><p>Property, return best score of optimization</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="rep.metaml.gridsearch.RandomParameterOptimizer.generate_batch_points">
-<code class="descname">generate_batch_points</code><span class="sig-paren">(</span><em>size</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.metaml.gridsearch.RandomParameterOptimizer.generate_batch_points" title="Permalink to this definition">¶</a></dt>
-<dd><p>Generate several points in parameter space at once (needed when using parallel computations)</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>size</strong> &#8211; how many points we shall generate</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">sequence of tuples, each tuple representing it&#8217;s own</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="rep.metaml.gridsearch.RandomParameterOptimizer.generate_next_point">
-<code class="descname">generate_next_point</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/metaml/gridsearch.html#RandomParameterOptimizer.generate_next_point"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.metaml.gridsearch.RandomParameterOptimizer.generate_next_point" title="Permalink to this definition">¶</a></dt>
-<dd><p>Generating next random point in parameters space</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="rep.metaml.gridsearch.RandomParameterOptimizer.print_results">
-<code class="descname">print_results</code><span class="sig-paren">(</span><em>reorder=True</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.metaml.gridsearch.RandomParameterOptimizer.print_results" title="Permalink to this definition">¶</a></dt>
-<dd><p>Prints the results of training</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>reorder</strong> (<em>bool</em>) &#8211; if reorder==True, best results go earlier,
-otherwise the results are printed in the order of computation</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="class">
-<dt id="rep.metaml.gridsearch.RegressionParameterOptimizer">
-<em class="property">class </em><code class="descclassname">rep.metaml.gridsearch.</code><code class="descname">RegressionParameterOptimizer</code><span class="sig-paren">(</span><em>param_grid</em>, <em>n_evaluations=10</em>, <em>random_state=None</em>, <em>start_evaluations=3</em>, <em>n_attempts=5</em>, <em>regressor=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/metaml/gridsearch.html#RegressionParameterOptimizer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.metaml.gridsearch.RegressionParameterOptimizer" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#rep.metaml.gridsearch.AbstractParameterGenerator" title="rep.metaml.gridsearch.AbstractParameterGenerator"><code class="xref py py-class docutils literal"><span class="pre">rep.metaml.gridsearch.AbstractParameterGenerator</span></code></a></p>
-<p>To generate next point of grid regressor will be used to estimate score for all next point in such way
-that the point with the best estimated score will be chosen</p>
+<dt id="rep.metaml.gridsearch.ClassificationFoldingScorer">
+<em class="property">class </em><code class="descclassname">rep.metaml.gridsearch.</code><code class="descname">ClassificationFoldingScorer</code><span class="sig-paren">(</span><em>score_function</em>, <em>folds=3</em>, <em>fold_checks=1</em>, <em>shuffle=False</em>, <em>random_state=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/metaml/gridsearch.html#ClassificationFoldingScorer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.metaml.gridsearch.ClassificationFoldingScorer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">rep.metaml.gridsearch.FoldingScorerBase</span></code></p>
+<p>Scorer, which implements logic of data folding and scoring for classification models. This is a function-like object</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>param_grid</strong> (<em>OrderedDict</em>) &#8211; the grid with parameters to optimize on</li>
-<li><strong>n_evaluations</strong> (<em>int</em>) &#8211; the number of evaluations to do</li>
-<li><strong>random_state</strong> (<em>int or RandomState or None</em>) &#8211; random generator</li>
-<li><strong>start_evaluations</strong> (<em>int</em>) &#8211; count of random point generation on start</li>
-<li><strong>n_attempts</strong> (<em>int</em>) &#8211; </li>
-<li><strong>regressor</strong> &#8211; regressor to choose appropriate next point with potential best score
-(estimated this score by regressor); If None them RandomForest algorithm will be used.</li>
+<li><strong>folds</strong> (<em>int</em>) &#8211; &#8216;k&#8217; used in k-folding while validating</li>
+<li><strong>fold_checks</strong> (<em>int</em>) &#8211; not greater than folds, the number of checks we do by cross-validating</li>
+<li><strong>score_function</strong> (<em>function</em>) &#8211; quality. if fold_checks &gt; 1, the average is computed over checks.</li>
 </ul>
 </td>
 </tr>
 </tbody>
 </table>
-<dl class="method">
-<dt id="rep.metaml.gridsearch.RegressionParameterOptimizer.add_result">
-<code class="descname">add_result</code><span class="sig-paren">(</span><em>state_indices</em>, <em>value</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.metaml.gridsearch.RegressionParameterOptimizer.add_result" title="Permalink to this definition">¶</a></dt>
-<dd><p>After the model was trained and evaluated for specific set of parameters,
-we use this function to store result
-:param state_indices: tuple, which represents the space
-:param value: quality at this point</p>
+<p>Example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">new_score_function</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">proba</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="sd">&#39;&#39;&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="sd">    y_true: [n_samples]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="sd">    proba: [n_samples, n_classes]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="sd">    sample_weight: [n_samples] or None</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="sd">    &#39;&#39;&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="o">...</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">f_scorer</span> <span class="o">=</span> <span class="n">FoldingScorer</span><span class="p">(</span><span class="n">new_score_function</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">f_scorer</span><span class="p">(</span><span class="n">base_estimator</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
+<span class="go">0.5</span>
+</pre></div>
+</div>
 </dd></dl>
 
-<dl class="attribute">
-<dt id="rep.metaml.gridsearch.RegressionParameterOptimizer.best_params_">
-<code class="descname">best_params_</code><a class="headerlink" href="#rep.metaml.gridsearch.RegressionParameterOptimizer.best_params_" title="Permalink to this definition">¶</a></dt>
-<dd><p>Property, return point of parameters grid with the best score</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="rep.metaml.gridsearch.RegressionParameterOptimizer.best_score_">
-<code class="descname">best_score_</code><a class="headerlink" href="#rep.metaml.gridsearch.RegressionParameterOptimizer.best_score_" title="Permalink to this definition">¶</a></dt>
-<dd><p>Property, return best score of optimization</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="rep.metaml.gridsearch.RegressionParameterOptimizer.generate_batch_points">
-<code class="descname">generate_batch_points</code><span class="sig-paren">(</span><em>size</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.metaml.gridsearch.RegressionParameterOptimizer.generate_batch_points" title="Permalink to this definition">¶</a></dt>
-<dd><p>Generate several points in parameter space at once (needed when using parallel computations)</p>
+<dl class="class">
+<dt id="rep.metaml.gridsearch.RegressionFoldingScorer">
+<em class="property">class </em><code class="descclassname">rep.metaml.gridsearch.</code><code class="descname">RegressionFoldingScorer</code><span class="sig-paren">(</span><em>score_function</em>, <em>folds=3</em>, <em>fold_checks=1</em>, <em>shuffle=False</em>, <em>random_state=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/metaml/gridsearch.html#RegressionFoldingScorer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.metaml.gridsearch.RegressionFoldingScorer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">rep.metaml.gridsearch.FoldingScorerBase</span></code></p>
+<p>Scorer, which implements logic of data folding and scoring for regression models. This is a function-like object</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>size</strong> &#8211; how many points we shall generate</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">sequence of tuples, each tuple representing it&#8217;s own</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>folds</strong> (<em>int</em>) &#8211; &#8216;k&#8217; used in k-folding while validating</li>
+<li><strong>fold_checks</strong> (<em>int</em>) &#8211; not greater than folds, the number of checks we do by cross-validating</li>
+<li><strong>score_function</strong> (<em>function</em>) &#8211; quality. if fold_checks &gt; 1, the average is computed over checks.</li>
+</ul>
+</td>
 </tr>
 </tbody>
 </table>
+<p>Example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">new_score_function</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">pred</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="sd">&#39;&#39;&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="sd">    y_true: [n_samples]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="sd">    pred: [n_samples]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="sd">    sample_weight: [n_samples] or None</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="sd">    &#39;&#39;&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="o">...</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">f_scorer</span> <span class="o">=</span> <span class="n">RegressionFoldingScorer</span><span class="p">(</span><span class="n">new_score_function</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">f_scorer</span><span class="p">(</span><span class="n">base_estimator</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
+<span class="go">0.5</span>
+</pre></div>
+</div>
 </dd></dl>
 
+</div>
+<div class="section" id="available-optimization-algorithms">
+<h3>Available optimization algorithms<a class="headerlink" href="#available-optimization-algorithms" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="rep.metaml.gridsearch.RandomParameterOptimizer">
+<em class="property">class </em><code class="descclassname">rep.metaml.gridsearch.</code><code class="descname">RandomParameterOptimizer</code><span class="sig-paren">(</span><em>param_grid</em>, <em>n_evaluations=10</em>, <em>maximize=True</em>, <em>random_state=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/metaml/gridsearch.html#RandomParameterOptimizer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.metaml.gridsearch.RandomParameterOptimizer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#rep.metaml.gridsearch.AbstractParameterGenerator" title="rep.metaml.gridsearch.AbstractParameterGenerator"><code class="xref py py-class docutils literal"><span class="pre">rep.metaml.gridsearch.AbstractParameterGenerator</span></code></a></p>
+<p>Works in the same way as sklearn.grid_search.RandomizedSearch.
+Each next point is generated independently.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Param_grid:</th><td class="field-body">dict with distributions used to sample each parameter.
+name -&gt; list of possible values (in which case sampled uniformly from options)
+name -&gt; distribution (should implement &#8216;.rvs()&#8217; as scipy distributions)</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Parameters:</th><td class="field-body"><strong>maximize</strong> (<em>bool</em>) &#8211; ignored parameter, added for uniformity</td>
+</tr>
+</tbody>
+</table>
+<p>NB: this is the only optimizer, which supports passing distributions for parameters.</p>
 <dl class="method">
-<dt id="rep.metaml.gridsearch.RegressionParameterOptimizer.generate_next_point">
-<code class="descname">generate_next_point</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/metaml/gridsearch.html#RegressionParameterOptimizer.generate_next_point"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.metaml.gridsearch.RegressionParameterOptimizer.generate_next_point" title="Permalink to this definition">¶</a></dt>
+<dt id="rep.metaml.gridsearch.RandomParameterOptimizer.generate_next_point">
+<code class="descname">generate_next_point</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/metaml/gridsearch.html#RandomParameterOptimizer.generate_next_point"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.metaml.gridsearch.RandomParameterOptimizer.generate_next_point" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="rep.metaml.gridsearch.AnnealingParameterOptimizer">
+<em class="property">class </em><code class="descclassname">rep.metaml.gridsearch.</code><code class="descname">AnnealingParameterOptimizer</code><span class="sig-paren">(</span><em>param_grid</em>, <em>n_evaluations=10</em>, <em>temperature=0.2</em>, <em>random_state=None</em>, <em>maximize=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/metaml/gridsearch.html#AnnealingParameterOptimizer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.metaml.gridsearch.AnnealingParameterOptimizer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#rep.metaml.gridsearch.AbstractParameterGenerator" title="rep.metaml.gridsearch.AbstractParameterGenerator"><code class="xref py py-class docutils literal"><span class="pre">rep.metaml.gridsearch.AbstractParameterGenerator</span></code></a></p>
+<p>Implementation if annealing algorithm</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>param_grid</strong> &#8211; the grid with parameters to optimize on</li>
+<li><strong>n_evaluations</strong> (<em>int</em>) &#8211; the number od evaluations</li>
+<li><strong>temperature</strong> &#8211; float, how tolerant we are to worse results.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>If it is very small, will never step to point with worse predictions.</p>
+<p>Doesn&#8217;t support parallel execution, so cannot be used in optimization on cluster.</p>
+<dl class="method">
+<dt id="rep.metaml.gridsearch.AnnealingParameterOptimizer.generate_batch_points">
+<code class="descname">generate_batch_points</code><span class="sig-paren">(</span><em>size</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/metaml/gridsearch.html#AnnealingParameterOptimizer.generate_batch_points"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.metaml.gridsearch.AnnealingParameterOptimizer.generate_batch_points" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="rep.metaml.gridsearch.AnnealingParameterOptimizer.generate_next_point">
+<code class="descname">generate_next_point</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/metaml/gridsearch.html#AnnealingParameterOptimizer.generate_next_point"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.metaml.gridsearch.AnnealingParameterOptimizer.generate_next_point" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generating next random point in parameters space</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="rep.metaml.gridsearch.RegressionParameterOptimizer.print_results">
-<code class="descname">print_results</code><span class="sig-paren">(</span><em>reorder=True</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.metaml.gridsearch.RegressionParameterOptimizer.print_results" title="Permalink to this definition">¶</a></dt>
-<dd><p>Prints the results of training</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>reorder</strong> (<em>bool</em>) &#8211; if reorder==True, best results go earlier,
-otherwise the results are printed in the order of computation</td>
-</tr>
-</tbody>
-</table>
 </dd></dl>
 
 </dd></dl>
 
 <dl class="class">
 <dt id="rep.metaml.gridsearch.SubgridParameterOptimizer">
-<em class="property">class </em><code class="descclassname">rep.metaml.gridsearch.</code><code class="descname">SubgridParameterOptimizer</code><span class="sig-paren">(</span><em>param_grid</em>, <em>n_evaluations=10</em>, <em>random_state=None</em>, <em>start_evaluations=3</em>, <em>subgrid_size=3</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/metaml/gridsearch.html#SubgridParameterOptimizer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.metaml.gridsearch.SubgridParameterOptimizer" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">rep.metaml.gridsearch.</code><code class="descname">SubgridParameterOptimizer</code><span class="sig-paren">(</span><em>param_grid</em>, <em>n_evaluations=10</em>, <em>random_state=None</em>, <em>start_evaluations=3</em>, <em>subgrid_size=3</em>, <em>maximize=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/metaml/gridsearch.html#SubgridParameterOptimizer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.metaml.gridsearch.SubgridParameterOptimizer" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#rep.metaml.gridsearch.AbstractParameterGenerator" title="rep.metaml.gridsearch.AbstractParameterGenerator"><code class="xref py py-class docutils literal"><span class="pre">rep.metaml.gridsearch.AbstractParameterGenerator</span></code></a></p>
 <p>Uses Metropolis-like optimization.
 If the parameter grid is large, first performs optimization on subgrid.</p>
@@ -979,21 +829,95 @@ on subgrid with not more then subgrid_size possible values for each parameter.</
 <code class="descname">add_result</code><span class="sig-paren">(</span><em>state_indices</em>, <em>value</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/metaml/gridsearch.html#SubgridParameterOptimizer.add_result"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.metaml.gridsearch.SubgridParameterOptimizer.add_result" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
+<dl class="method">
+<dt id="rep.metaml.gridsearch.SubgridParameterOptimizer.generate_next_point">
+<code class="descname">generate_next_point</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/metaml/gridsearch.html#SubgridParameterOptimizer.generate_next_point"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.metaml.gridsearch.SubgridParameterOptimizer.generate_next_point" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generating next point in parameters space</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="rep.metaml.gridsearch.RegressionParameterOptimizer">
+<em class="property">class </em><code class="descclassname">rep.metaml.gridsearch.</code><code class="descname">RegressionParameterOptimizer</code><span class="sig-paren">(</span><em>param_grid</em>, <em>n_evaluations=10</em>, <em>random_state=None</em>, <em>start_evaluations=3</em>, <em>n_attempts=10</em>, <em>regressor=None</em>, <em>maximize=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/metaml/gridsearch.html#RegressionParameterOptimizer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.metaml.gridsearch.RegressionParameterOptimizer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#rep.metaml.gridsearch.AbstractParameterGenerator" title="rep.metaml.gridsearch.AbstractParameterGenerator"><code class="xref py py-class docutils literal"><span class="pre">rep.metaml.gridsearch.AbstractParameterGenerator</span></code></a></p>
+<p>This general method relies on regression.
+Regressor will try to predict the best point based on already known result fir different parameters.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>param_grid</strong> (<em>OrderedDict</em>) &#8211; the grid with parameters to optimize on</li>
+<li><strong>n_evaluations</strong> (<em>int</em>) &#8211; the number of evaluations to do</li>
+<li><strong>random_state</strong> (<em>int or RandomState or None</em>) &#8211; random generator</li>
+<li><strong>start_evaluations</strong> (<em>int</em>) &#8211; count of random point generation on start</li>
+<li><strong>n_attempts</strong> (<em>int</em>) &#8211; this number of points will be compared on each iteration.
+Regressor is to choose optimal from them.</li>
+<li><strong>regressor</strong> &#8211; regressor to choose appropriate next point with potential best score
+(estimated this score by regressor); If None them RandomForest algorithm will be used.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="rep.metaml.gridsearch.RegressionParameterOptimizer.generate_next_point">
+<code class="descname">generate_next_point</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/metaml/gridsearch.html#RegressionParameterOptimizer.generate_next_point"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.metaml.gridsearch.RegressionParameterOptimizer.generate_next_point" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generating next random point in parameters space</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="interface-of-parameter-optimizer">
+<h3>Interface of parameter optimizer<a class="headerlink" href="#interface-of-parameter-optimizer" title="Permalink to this headline">¶</a></h3>
+<p>Each of parameter optimizers has the following interface.</p>
+<dl class="class">
+<dt id="rep.metaml.gridsearch.AbstractParameterGenerator">
+<em class="property">class </em><code class="descclassname">rep.metaml.gridsearch.</code><code class="descname">AbstractParameterGenerator</code><span class="sig-paren">(</span><em>param_grid</em>, <em>n_evaluations=10</em>, <em>maximize=True</em>, <em>random_state=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/metaml/gridsearch.html#AbstractParameterGenerator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.metaml.gridsearch.AbstractParameterGenerator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>Abstract class for grid search algorithm.
+The aim of this class is to generate new points, where the function (estimator) will be computed.
+You can define your own algorithm of step location of parameters grid.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>param_grid</strong> (<em>OrderedDict</em>) &#8211; the grid with parameters to optimize on</li>
+<li><strong>n_evaluations</strong> (<em>int</em>) &#8211; the number of evaluations to do</li>
+<li><strong>random_state</strong> (<em>int or RandomState or None</em>) &#8211; random generator</li>
+<li><strong>maximize</strong> &#8211; whether algorithm should maximize or minimize target function.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="rep.metaml.gridsearch.AbstractParameterGenerator.add_result">
+<code class="descname">add_result</code><span class="sig-paren">(</span><em>state_indices</em>, <em>value</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/metaml/gridsearch.html#AbstractParameterGenerator.add_result"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.metaml.gridsearch.AbstractParameterGenerator.add_result" title="Permalink to this definition">¶</a></dt>
+<dd><p>After the model was trained and evaluated for specific set of parameters,
+we use this function to store result
+:param state_indices: tuple, which represents the space
+:param value: quality at this point</p>
+</dd></dl>
+
 <dl class="attribute">
-<dt id="rep.metaml.gridsearch.SubgridParameterOptimizer.best_params_">
-<code class="descname">best_params_</code><a class="headerlink" href="#rep.metaml.gridsearch.SubgridParameterOptimizer.best_params_" title="Permalink to this definition">¶</a></dt>
+<dt id="rep.metaml.gridsearch.AbstractParameterGenerator.best_params_">
+<code class="descname">best_params_</code><a class="headerlink" href="#rep.metaml.gridsearch.AbstractParameterGenerator.best_params_" title="Permalink to this definition">¶</a></dt>
 <dd><p>Property, return point of parameters grid with the best score</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="rep.metaml.gridsearch.SubgridParameterOptimizer.best_score_">
-<code class="descname">best_score_</code><a class="headerlink" href="#rep.metaml.gridsearch.SubgridParameterOptimizer.best_score_" title="Permalink to this definition">¶</a></dt>
+<dt id="rep.metaml.gridsearch.AbstractParameterGenerator.best_score_">
+<code class="descname">best_score_</code><a class="headerlink" href="#rep.metaml.gridsearch.AbstractParameterGenerator.best_score_" title="Permalink to this definition">¶</a></dt>
 <dd><p>Property, return best score of optimization</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="rep.metaml.gridsearch.SubgridParameterOptimizer.generate_batch_points">
-<code class="descname">generate_batch_points</code><span class="sig-paren">(</span><em>size</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.metaml.gridsearch.SubgridParameterOptimizer.generate_batch_points" title="Permalink to this definition">¶</a></dt>
+<dt id="rep.metaml.gridsearch.AbstractParameterGenerator.generate_batch_points">
+<code class="descname">generate_batch_points</code><span class="sig-paren">(</span><em>size</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/metaml/gridsearch.html#AbstractParameterGenerator.generate_batch_points"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.metaml.gridsearch.AbstractParameterGenerator.generate_batch_points" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate several points in parameter space at once (needed when using parallel computations)</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -1001,21 +925,22 @@ on subgrid with not more then subgrid_size possible values for each parameter.</
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>size</strong> &#8211; how many points we shall generate</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">sequence of tuples, each tuple representing it&#8217;s own</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">tuple of arrays (state_indices, state_parameters)</td>
 </tr>
 </tbody>
 </table>
 </dd></dl>
 
 <dl class="method">
-<dt id="rep.metaml.gridsearch.SubgridParameterOptimizer.generate_next_point">
-<code class="descname">generate_next_point</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/metaml/gridsearch.html#SubgridParameterOptimizer.generate_next_point"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.metaml.gridsearch.SubgridParameterOptimizer.generate_next_point" title="Permalink to this definition">¶</a></dt>
-<dd><p>Generating next point in parameters space</p>
+<dt id="rep.metaml.gridsearch.AbstractParameterGenerator.generate_next_point">
+<code class="descname">generate_next_point</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/metaml/gridsearch.html#AbstractParameterGenerator.generate_next_point"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.metaml.gridsearch.AbstractParameterGenerator.generate_next_point" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generating next random point in parameters space
+:return: tuple (indices, parameters)</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="rep.metaml.gridsearch.SubgridParameterOptimizer.print_results">
-<code class="descname">print_results</code><span class="sig-paren">(</span><em>reorder=True</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.metaml.gridsearch.SubgridParameterOptimizer.print_results" title="Permalink to this definition">¶</a></dt>
+<dt id="rep.metaml.gridsearch.AbstractParameterGenerator.print_results">
+<code class="descname">print_results</code><span class="sig-paren">(</span><em>reorder=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/metaml/gridsearch.html#AbstractParameterGenerator.print_results"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.metaml.gridsearch.AbstractParameterGenerator.print_results" title="Permalink to this definition">¶</a></dt>
 <dd><p>Prints the results of training</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -1030,51 +955,27 @@ otherwise the results are printed in the order of computation</td>
 
 </dd></dl>
 
-<dl class="function">
-<dt id="rep.metaml.gridsearch.apply_scorer">
-<code class="descclassname">rep.metaml.gridsearch.</code><code class="descname">apply_scorer</code><span class="sig-paren">(</span><em>scorer</em>, <em>params</em>, <em>base_estimator</em>, <em>X</em>, <em>y</em>, <em>sample_weight</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/metaml/gridsearch.html#apply_scorer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.metaml.gridsearch.apply_scorer" title="Permalink to this definition">¶</a></dt>
-<dd><p>Application of scorer algorithm.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>scorer</strong> &#8211; algorithm to train estimator and get quality (see FoldingScorer for example)</li>
-<li><strong>params</strong> (<em>dict</em>) &#8211; parameters for estimator</li>
-<li><strong>base_estimator</strong> (<em>base.BaseEstimator</em>) &#8211; estimator</li>
-<li><strong>X</strong> &#8211; pandas.DataFrame of shape [n_samples, n_features], data</li>
-<li><strong>y</strong> &#8211; labels of events - array-like of shape [n_samples]</li>
-<li><strong>sample_weight</strong> &#8211; weight of events,
-array-like of shape [n_samples] or None if all weights are equal</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">(&#8216;success&#8217;, float) or (&#8216;fail&#8217;, Exception), float will contain result.</p>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
+</div>
 </div>
 <div class="section" id="module-rep.metaml.folding">
 <span id="folding"></span><h2>Folding<a class="headerlink" href="#module-rep.metaml.folding" title="Permalink to this headline">¶</a></h2>
 <p>This is specific meta-algorithm based on the idea of cross-validation.</p>
 <dl class="class">
 <dt id="rep.metaml.folding.FoldingClassifier">
-<em class="property">class </em><code class="descclassname">rep.metaml.folding.</code><code class="descname">FoldingClassifier</code><span class="sig-paren">(</span><em>base_estimator</em>, <em>n_folds=2</em>, <em>random_state=None</em>, <em>features=None</em>, <em>ipc_profile=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/metaml/folding.html#FoldingClassifier"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.metaml.folding.FoldingClassifier" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="estimators.html#rep.estimators.interface.Classifier" title="rep.estimators.interface.Classifier"><code class="xref py py-class docutils literal"><span class="pre">rep.estimators.interface.Classifier</span></code></a></p>
+<em class="property">class </em><code class="descclassname">rep.metaml.folding.</code><code class="descname">FoldingClassifier</code><span class="sig-paren">(</span><em>base_estimator</em>, <em>n_folds=2</em>, <em>random_state=None</em>, <em>features=None</em>, <em>parallel_profile=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/metaml/folding.html#FoldingClassifier"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.metaml.folding.FoldingClassifier" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">rep.metaml.folding.FoldingBase</span></code>, <a class="reference internal" href="estimators.html#rep.estimators.interface.Classifier" title="rep.estimators.interface.Classifier"><code class="xref py py-class docutils literal"><span class="pre">rep.estimators.interface.Classifier</span></code></a></p>
 <p>This meta-classifier implements folding algorithm:</p>
 <ul class="simple">
 <li>training data is splitted into n equal parts;</li>
-<li>then n times union of n-1 parts is used to train classifier;</li>
-<li>at the end we have n-estimators, which are used to classify new events</li>
+<li>we train n classifiers, each one is trained using n-1 folds</li>
 </ul>
 <p>To build unbiased predictions for data, pass the <strong>same</strong> dataset (with same order of events)
 as in training to <cite>predict</cite>, <cite>predict_proba</cite> or <cite>staged_predict_proba</cite>, in which case
 classifier will use to predict each event that base classifier which didn&#8217;t use that event during training.</p>
-<p>To use information from not one, but several classifiers during predictions,
-provide appropriate voting function.</p>
+<p>To use information from not one, but several estimators during predictions,
+provide appropriate voting function. Examples of voting function:
+&gt;&gt;&gt; voting = lambda x: numpy.mean(x, axis=0)
+&gt;&gt;&gt; voting = lambda x: numpy.median(x, axis=0)</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -1083,29 +984,29 @@ provide appropriate voting function.</p>
 <li><strong>base_estimator</strong> (<em>sklearn.BaseEstimator</em>) &#8211; base classifier, which will be used for training</li>
 <li><strong>n_folds</strong> (<em>int</em>) &#8211; count of folds</li>
 <li><strong>features</strong> (<em>None or list[str]</em>) &#8211; features used in training</li>
-<li><strong>ipc_profile</strong> (<em>None or str</em>) &#8211; profile for IPython cluster, None to compute locally.</li>
+<li><strong>parallel_profile</strong> (<em>None or str</em>) &#8211; profile for IPython cluster, None to compute locally.</li>
 <li><strong>random_state</strong> (<em>None or int or RandomState</em>) &#8211; random state for reproducibility</li>
 </ul>
 </td>
 </tr>
 </tbody>
 </table>
+<dl class="attribute">
+<dt id="rep.metaml.folding.FoldingClassifier.feature_importances_">
+<code class="descname">feature_importances_</code><a class="headerlink" href="#rep.metaml.folding.FoldingClassifier.feature_importances_" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sklearn-way of returning feature importance.
+This returned as numpy.array, assuming that initially passed train_features=None</p>
+</dd></dl>
+
 <dl class="method">
-<dt id="rep.metaml.folding.FoldingClassifier.fit">
-<code class="descname">fit</code><span class="sig-paren">(</span><em>X</em>, <em>y</em>, <em>sample_weight=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/metaml/folding.html#FoldingClassifier.fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.metaml.folding.FoldingClassifier.fit" title="Permalink to this definition">¶</a></dt>
-<dd><p>Train the classifier, will train several base classifiers on overlapping
-subsets of training dataset.</p>
+<dt id="rep.metaml.folding.FoldingClassifier.get_feature_importances">
+<code class="descname">get_feature_importances</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/metaml/folding.html#FoldingClassifier.get_feature_importances"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.metaml.folding.FoldingClassifier.get_feature_importances" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get features importance</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>X</strong> &#8211; pandas.DataFrame of shape [n_samples, n_features]</li>
-<li><strong>y</strong> &#8211; labels of events - array-like of shape [n_samples]</li>
-<li><strong>sample_weight</strong> &#8211; weight of events,
-array-like of shape [n_samples] or None if all weights are equal</li>
-</ul>
-</td>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">pandas.DataFrame with column effect and <cite>index=features</cite></td>
 </tr>
 </tbody>
 </table>
@@ -1114,7 +1015,7 @@ array-like of shape [n_samples] or None if all weights are equal</li>
 <dl class="method">
 <dt id="rep.metaml.folding.FoldingClassifier.predict">
 <code class="descname">predict</code><span class="sig-paren">(</span><em>X</em>, <em>vote_function=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/metaml/folding.html#FoldingClassifier.predict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.metaml.folding.FoldingClassifier.predict" title="Permalink to this definition">¶</a></dt>
-<dd><p>Predict labels. To get unbiased predictions, you can pass training dataset
+<dd><p>Predict labels. To get unbiased predictions on training dataset, pass training data
 (with same order of events) and vote_function=None.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -1122,12 +1023,12 @@ array-like of shape [n_samples] or None if all weights are equal</li>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>X</strong> &#8211; pandas.DataFrame of shape [n_samples, n_features]</li>
-<li><strong>vote_function</strong> (<em>None or function, if None, will use folding scheme.</em>) &#8211; function to combine prediction of folds&#8217; estimators.
-If None then folding scheme is used. Parameters: numpy.ndarray [n_classifiers, n_samples]</li>
+<li><strong>vote_function</strong> (<em>None or function</em>) &#8211; function to combine prediction of folds&#8217; estimators.
+If None then folding scheme is used.</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">numpy.array of shape [n_samples, n_classes] with labels</p>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">numpy.array of shape [n_samples]</p>
 </td>
 </tr>
 </tbody>
@@ -1137,7 +1038,7 @@ If None then folding scheme is used. Parameters: numpy.ndarray [n_classifiers, n
 <dl class="method">
 <dt id="rep.metaml.folding.FoldingClassifier.predict_proba">
 <code class="descname">predict_proba</code><span class="sig-paren">(</span><em>X</em>, <em>vote_function=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/metaml/folding.html#FoldingClassifier.predict_proba"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.metaml.folding.FoldingClassifier.predict_proba" title="Permalink to this definition">¶</a></dt>
-<dd><p>Predict probabilities. To get unbiased predictions, you can pass training dataset
+<dd><p>Predict probabilities. To get unbiased predictions on training dataset, pass training data
 (with same order of events) and vote_function=None.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -1146,11 +1047,11 @@ If None then folding scheme is used. Parameters: numpy.ndarray [n_classifiers, n
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>X</strong> &#8211; pandas.DataFrame of shape [n_samples, n_features]</li>
 <li><strong>vote_function</strong> (<em>None or function</em>) &#8211; function to combine prediction of folds&#8217; estimators.
-If None then self.vote_function is used. Parameters: numpy.ndarray [n_classifiers, n_samples, n_classes]</li>
+If None then folding scheme is used.</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">numpy.array of shape [n_samples, n_classes] with probabilities</p>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">numpy.array of shape [n_samples, n_classes]</p>
 </td>
 </tr>
 </tbody>
@@ -1160,7 +1061,8 @@ If None then self.vote_function is used. Parameters: numpy.ndarray [n_classifier
 <dl class="method">
 <dt id="rep.metaml.folding.FoldingClassifier.staged_predict_proba">
 <code class="descname">staged_predict_proba</code><span class="sig-paren">(</span><em>X</em>, <em>vote_function=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/metaml/folding.html#FoldingClassifier.staged_predict_proba"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.metaml.folding.FoldingClassifier.staged_predict_proba" title="Permalink to this definition">¶</a></dt>
-<dd><p>Predict probabilities on each stage. To get unbiased predictions, you can pass training dataset
+<dd><p>Predict probabilities after each stage of base_estimator.
+To get unbiased predictions on training dataset, pass training data
 (with same order of events) and vote_function=None.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -1169,11 +1071,112 @@ If None then self.vote_function is used. Parameters: numpy.ndarray [n_classifier
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>X</strong> &#8211; pandas.DataFrame of shape [n_samples, n_features]</li>
 <li><strong>vote_function</strong> (<em>None or function</em>) &#8211; function to combine prediction of folds&#8217; estimators.
-If None then self.vote_function is used.</li>
+If None then folding scheme is used.</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">iterator for numpy.array of shape [n_samples, n_classes] with probabilities</p>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">sequence of numpy.arrays of shape [n_samples, n_classes]</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="rep.metaml.folding.FoldingRegressor">
+<em class="property">class </em><code class="descclassname">rep.metaml.folding.</code><code class="descname">FoldingRegressor</code><span class="sig-paren">(</span><em>base_estimator</em>, <em>n_folds=2</em>, <em>random_state=None</em>, <em>features=None</em>, <em>parallel_profile=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/metaml/folding.html#FoldingRegressor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.metaml.folding.FoldingRegressor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">rep.metaml.folding.FoldingBase</span></code>, <a class="reference internal" href="estimators.html#rep.estimators.interface.Regressor" title="rep.estimators.interface.Regressor"><code class="xref py py-class docutils literal"><span class="pre">rep.estimators.interface.Regressor</span></code></a></p>
+<p>This meta-regressor implements folding algorithm:</p>
+<ul class="simple">
+<li>training data is splitted into n equal parts;</li>
+<li>we train n regressors, each one is trained using n-1 folds</li>
+</ul>
+<p>To build unbiased predictions for data, pass the <strong>same</strong> dataset (with same order of events)
+as in training to <cite>predict</cite> or <cite>staged_predict</cite>, in which case
+classifier will use to predict each event that base classifier which didn&#8217;t use that event during training.</p>
+<p>To use information from not one, but several estimators during predictions,
+provide appropriate voting function. Examples of voting function:
+&gt;&gt;&gt; voting = lambda x: numpy.mean(x, axis=0)
+&gt;&gt;&gt; voting = lambda x: numpy.median(x, axis=0)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>base_estimator</strong> (<em>sklearn.BaseEstimator</em>) &#8211; base classifier, which will be used for training</li>
+<li><strong>n_folds</strong> (<em>int</em>) &#8211; count of folds</li>
+<li><strong>features</strong> (<em>None or list[str]</em>) &#8211; features used in training</li>
+<li><strong>parallel_profile</strong> (<em>None or str</em>) &#8211; profile for IPython cluster, None to compute locally.</li>
+<li><strong>random_state</strong> (<em>None or int or RandomState</em>) &#8211; random state for reproducibility</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="attribute">
+<dt id="rep.metaml.folding.FoldingRegressor.feature_importances_">
+<code class="descname">feature_importances_</code><a class="headerlink" href="#rep.metaml.folding.FoldingRegressor.feature_importances_" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sklearn-way of returning feature importance.
+This returned as numpy.array, assuming that initially passed train_features=None</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="rep.metaml.folding.FoldingRegressor.get_feature_importances">
+<code class="descname">get_feature_importances</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/metaml/folding.html#FoldingRegressor.get_feature_importances"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.metaml.folding.FoldingRegressor.get_feature_importances" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get features importance</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">pandas.DataFrame with column effect and <cite>index=features</cite></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rep.metaml.folding.FoldingRegressor.predict">
+<code class="descname">predict</code><span class="sig-paren">(</span><em>X</em>, <em>vote_function=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/metaml/folding.html#FoldingRegressor.predict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.metaml.folding.FoldingRegressor.predict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get predictions. To get unbiased predictions on training dataset, pass training data
+(with same order of events) and vote_function=None.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>X</strong> &#8211; pandas.DataFrame of shape [n_samples, n_features]</li>
+<li><strong>vote_function</strong> (<em>None or function</em>) &#8211; function to combine prediction of folds&#8217; estimators.
+If None then folding scheme is used. Parameters: numpy.ndarray [n_classifiers, n_samples]</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">numpy.array of shape [n_samples, n_outputs]</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rep.metaml.folding.FoldingRegressor.staged_predict">
+<code class="descname">staged_predict</code><span class="sig-paren">(</span><em>X</em>, <em>vote_function=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/metaml/folding.html#FoldingRegressor.staged_predict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.metaml.folding.FoldingRegressor.staged_predict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get predictions after each iteration of base estimator.
+To get unbiased predictions on training dataset, pass training data
+(with same order of events) and vote_function=None.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>X</strong> &#8211; pandas.DataFrame of shape [n_samples, n_features]</li>
+<li><strong>vote_function</strong> (<em>None or function</em>) &#8211; function to combine prediction of folds&#8217; estimators.
+If None then folding scheme is used. Parameters: numpy.ndarray [n_classifiers, n_samples]</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">sequence of numpy.array of shape [n_samples, n_outputs]</p>
 </td>
 </tr>
 </tbody>
@@ -1316,7 +1319,7 @@ Each event will be predicted by the classifier</p>
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'./',
-            VERSION:'0.6.3',
+            VERSION:'0.6.4',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true

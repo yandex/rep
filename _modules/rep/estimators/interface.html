@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>rep.estimators.interface &mdash; REP (Reproducible Experiment Platform) 0.6.3 documentation</title>
+  <title>rep.estimators.interface &mdash; REP (Reproducible Experiment Platform) 0.6.4 documentation</title>
   
 
   
@@ -30,7 +30,7 @@
   
 
   
-    <link rel="top" title="REP (Reproducible Experiment Platform) 0.6.3 documentation" href="../../../index.html"/>
+    <link rel="top" title="REP (Reproducible Experiment Platform) 0.6.4 documentation" href="../../../index.html"/>
         <link rel="up" title="Module code" href="../../index.html"/> 
 
   
@@ -241,6 +241,29 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span> <span class="o">=</span> <span class="n">lds</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">features</span><span class="p">),</span> <span class="n">lds</span><span class="o">.</span><span class="n">get_targets</span><span class="p">(),</span> <span class="n">lds</span><span class="o">.</span><span class="n">get_weights</span><span class="p">(</span><span class="n">allow_nones</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="n">sample_weight</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="Classifier.test_on_lds"><a class="viewcode-back" href="../../../estimators.html#rep.estimators.interface.Classifier.test_on_lds">[docs]</a>    <span class="k">def</span> <span class="nf">test_on_lds</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lds</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Prepare classification report for a single classifier</span>
+
+<span class="sd">        :param LabeledDataStorage lds: data</span>
+<span class="sd">        :return: ClassificationReport</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">from</span> <span class="nn">..report</span> <span class="kn">import</span> <span class="n">ClassificationReport</span>
+        <span class="k">return</span> <span class="n">ClassificationReport</span><span class="p">(</span><span class="n">classifiers</span><span class="o">=</span><span class="p">{</span><span class="s">&#39;clf&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="p">},</span> <span class="n">lds</span><span class="o">=</span><span class="n">lds</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="Classifier.test_on"><a class="viewcode-back" href="../../../estimators.html#rep.estimators.interface.Classifier.test_on">[docs]</a>    <span class="k">def</span> <span class="nf">test_on</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Prepare classification report for a single classifier</span>
+
+<span class="sd">        :param X: data, pandas.DataFrame</span>
+<span class="sd">        :param y: target</span>
+<span class="sd">        :param sample_weight: weights, optional.</span>
+<span class="sd">        :return: ClassificationReport</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">from</span> <span class="nn">..data</span> <span class="kn">import</span> <span class="n">LabeledDataStorage</span>
+        <span class="n">lds</span> <span class="o">=</span> <span class="n">LabeledDataStorage</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">X</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="n">sample_weight</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">test_on_lds</span><span class="p">(</span><span class="n">lds</span><span class="o">=</span><span class="n">lds</span><span class="p">)</span>
 
 </div></div>
 <div class="viewcode-block" id="Regressor"><a class="viewcode-back" href="../../../estimators.html#rep.estimators.interface.Regressor">[docs]</a><span class="k">class</span> <span class="nc">Regressor</span><span class="p">(</span><span class="n">BaseEstimator</span><span class="p">,</span> <span class="n">RegressorMixin</span><span class="p">):</span>
@@ -331,8 +354,31 @@
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s">&quot;effect&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">feature_importances_</span><span class="p">},</span> <span class="n">index</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">features</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s">&quot;Classifier doesn&#39;t provide feature_importances_ property&quot;</span><span class="p">)</span></div></div>
-</pre></div>
+            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s">&quot;Classifier doesn&#39;t provide feature_importances_ property&quot;</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="Regressor.test_on_lds"><a class="viewcode-back" href="../../../estimators.html#rep.estimators.interface.Regressor.test_on_lds">[docs]</a>    <span class="k">def</span> <span class="nf">test_on_lds</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lds</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Prepare regression report for a single classifier</span>
+
+<span class="sd">        :param LabeledDataStorage lds: data</span>
+<span class="sd">        :return: RegressionReport</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">from</span> <span class="nn">..report</span> <span class="kn">import</span> <span class="n">RegressionReport</span>
+        <span class="k">return</span> <span class="n">RegressionReport</span><span class="p">(</span><span class="n">regressors</span><span class="o">=</span><span class="p">{</span><span class="s">&#39;clf&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="p">},</span> <span class="n">lds</span><span class="o">=</span><span class="n">lds</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="Regressor.test_on"><a class="viewcode-back" href="../../../estimators.html#rep.estimators.interface.Regressor.test_on">[docs]</a>    <span class="k">def</span> <span class="nf">test_on</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Prepare regression report for a single classifier</span>
+
+<span class="sd">        :param X: data, pandas.DataFrame</span>
+<span class="sd">        :param y: target</span>
+<span class="sd">        :param sample_weight: weights, optional.</span>
+<span class="sd">        :return: RegressionReport</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">from</span> <span class="nn">..data</span> <span class="kn">import</span> <span class="n">LabeledDataStorage</span>
+        <span class="n">lds</span> <span class="o">=</span> <span class="n">LabeledDataStorage</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">X</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="n">sample_weight</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">test_on_lds</span><span class="p">(</span><span class="n">lds</span><span class="o">=</span><span class="n">lds</span><span class="p">)</span>
+</pre></div></div></div>
 
            </div>
           </div>
@@ -364,7 +410,7 @@
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'../../../',
-            VERSION:'0.6.3',
+            VERSION:'0.6.4',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true

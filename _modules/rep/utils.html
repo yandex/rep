@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>rep.utils &mdash; REP (Reproducible Experiment Platform) 0.6.3 documentation</title>
+  <title>rep.utils &mdash; REP (Reproducible Experiment Platform) 0.6.4 documentation</title>
   
 
   
@@ -30,7 +30,7 @@
   
 
   
-    <link rel="top" title="REP (Reproducible Experiment Platform) 0.6.3 documentation" href="../../index.html"/>
+    <link rel="top" title="REP (Reproducible Experiment Platform) 0.6.4 documentation" href="../../index.html"/>
         <link rel="up" title="Module code" href="../index.html"/> 
 
   
@@ -131,11 +131,29 @@
 <span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">roc_curve</span>
 
 
-<div class="viewcode-block" id="weighted_percentile"><a class="viewcode-back" href="../../utils.html#rep.utils.weighted_percentile">[docs]</a><span class="k">def</span> <span class="nf">weighted_percentile</span><span class="p">(</span><span class="n">array</span><span class="p">,</span> <span class="n">percentiles</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">array_sorted</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">old_style</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+<div class="viewcode-block" id="weighted_quantile"><a class="viewcode-back" href="../../utils.html#rep.utils.weighted_quantile">[docs]</a><span class="k">def</span> <span class="nf">weighted_quantile</span><span class="p">(</span><span class="n">array</span><span class="p">,</span> <span class="n">quantiles</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">array_sorted</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">old_style</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Computing quantiles of array. Unlike the numpy.percentile, this function supports weights,</span>
+<span class="sd">    but it is inefficient and performs complete sorting.</span>
+
+<span class="sd">    :param array: distribution, array of shape [n_samples]</span>
+<span class="sd">    :param quantiles: floats from range [0, 1] with quantiles of shape [n_quantiles]</span>
+<span class="sd">    :param sample_weight: optional weights of samples, array of shape [n_samples]</span>
+<span class="sd">    :param array_sorted: if True, the sorting step will be skipped</span>
+<span class="sd">    :param old_style: if True, will correct output to be consistent with numpy.percentile.</span>
+<span class="sd">    :return: array of shape [n_quantiles]</span>
+
+<span class="sd">    Example:</span>
+<span class="sd">    ________</span>
+
+<span class="sd">    &gt;&gt;&gt; weighted_quantile([1, 2, 3, 4, 5], [0.5])</span>
+<span class="sd">    Out: array([ 3.])</span>
+<span class="sd">    &gt;&gt;&gt; weighted_quantile([1, 2, 3, 4, 5], [0.5], sample_weight=[3, 1, 1, 1, 1])</span>
+<span class="sd">    Out: array([ 2.])</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">array</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">array</span><span class="p">)</span>
-    <span class="n">percentiles</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">percentiles</span><span class="p">)</span>
+    <span class="n">quantiles</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">quantiles</span><span class="p">)</span>
     <span class="n">sample_weight</span> <span class="o">=</span> <span class="n">check_sample_weight</span><span class="p">(</span><span class="n">array</span><span class="p">,</span> <span class="n">sample_weight</span><span class="p">)</span>
-    <span class="k">assert</span> <span class="n">numpy</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">percentiles</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">)</span> <span class="ow">and</span> <span class="n">numpy</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">percentiles</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">),</span> <span class="s">&#39;Percentiles should be in [0, 1]&#39;</span>
+    <span class="k">assert</span> <span class="n">numpy</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">quantiles</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">)</span> <span class="ow">and</span> <span class="n">numpy</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">quantiles</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">),</span> <span class="s">&#39;Percentiles should be in [0, 1]&#39;</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="n">array_sorted</span><span class="p">:</span>
         <span class="n">array</span><span class="p">,</span> <span class="n">sample_weight</span> <span class="o">=</span> <span class="n">reorder_by_first</span><span class="p">(</span><span class="n">array</span><span class="p">,</span> <span class="n">sample_weight</span><span class="p">)</span>
@@ -147,7 +165,7 @@
         <span class="n">weighted_quantiles</span> <span class="o">/=</span> <span class="n">weighted_quantiles</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">weighted_quantiles</span> <span class="o">/=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">sample_weight</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">numpy</span><span class="o">.</span><span class="n">interp</span><span class="p">(</span><span class="n">percentiles</span><span class="p">,</span> <span class="n">weighted_quantiles</span><span class="p">,</span> <span class="n">array</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">numpy</span><span class="o">.</span><span class="n">interp</span><span class="p">(</span><span class="n">quantiles</span><span class="p">,</span> <span class="n">weighted_quantiles</span><span class="p">,</span> <span class="n">array</span><span class="p">)</span>
 
 </div>
 <div class="viewcode-block" id="reorder_by_first"><a class="viewcode-back" href="../../utils.html#rep.utils.reorder_by_first">[docs]</a><span class="k">def</span> <span class="nf">reorder_by_first</span><span class="p">(</span><span class="o">*</span><span class="n">arrays</span><span class="p">):</span>
@@ -161,8 +179,11 @@
 
 </div>
 <div class="viewcode-block" id="check_sample_weight"><a class="viewcode-back" href="../../utils.html#rep.utils.check_sample_weight">[docs]</a><span class="k">def</span> <span class="nf">check_sample_weight</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">sample_weight</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Checks the weights, returns normalized version</span>
+    <span class="sd">&quot;&quot;&quot;Checks the weights, if None, returns array.</span>
+
+<span class="sd">    :param y_true: labels (or any array of length [n_samples])</span>
+<span class="sd">    :param sample_weight: None or array of length [n_samples]</span>
+<span class="sd">    :return: numpy.array of shape [n_samples]</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">sample_weight</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">y_true</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">numpy</span><span class="o">.</span><span class="n">float</span><span class="p">)</span>
@@ -175,24 +196,25 @@
 </div>
 <div class="viewcode-block" id="Flattener"><a class="viewcode-back" href="../../utils.html#rep.utils.Flattener">[docs]</a><span class="k">class</span> <span class="nc">Flattener</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Prepares normalization function for some set of values</span>
-<span class="sd">        transforms it to uniform distribution from [0, 1]. Example of usage:</span>
+<span class="sd">    Prepares normalization function for some set of values</span>
+<span class="sd">    transforms it to uniform distribution from [0, 1]. Example of usage:</span>
 
-<span class="sd">        Parameters:</span>
-<span class="sd">        -----------</span>
-<span class="sd">        :param data: predictions</span>
-<span class="sd">        :type data: list or numpy.array</span>
-<span class="sd">        :param sample_weight: weights</span>
-<span class="sd">        :type sample_weight: None or list or numpy.array</span>
+<span class="sd">    Parameters:</span>
+<span class="sd">    -----------</span>
+<span class="sd">    :param data: predictions</span>
+<span class="sd">    :type data: list or numpy.array</span>
+<span class="sd">    :param sample_weight: weights</span>
+<span class="sd">    :type sample_weight: None or list or numpy.array</span>
 
-<span class="sd">        Example:</span>
-<span class="sd">        --------</span>
-<span class="sd">        &gt;&gt;&gt; normalizer = Flattener(signal)</span>
-<span class="sd">        &gt;&gt;&gt; hist(normalizer(background))</span>
-<span class="sd">        &gt;&gt;&gt; hist(normalizer(signal))</span>
+<span class="sd">    Example:</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; normalizer = Flattener(signal)</span>
+<span class="sd">    &gt;&gt;&gt; hist(normalizer(background))</span>
+<span class="sd">    &gt;&gt;&gt; hist(normalizer(signal))</span>
 
-<span class="sd">        :return func: normalization function</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">    :return func: normalization function</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="n">sample_weight</span> <span class="o">=</span> <span class="n">check_sample_weight</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="n">sample_weight</span><span class="p">)</span>
         <span class="n">data</span> <span class="o">=</span> <span class="n">column_or_1d</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
@@ -209,29 +231,32 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Binner is a class that helps to split the values into several bins.</span>
 <span class="sd">        Initially an array of values is given, which is then splitted into &#39;bins_number&#39; equal parts,</span>
-<span class="sd">        and thus we are computing limits (boundaries of bins).&quot;&quot;&quot;</span>
+<span class="sd">        and thus we are computing limits (boundaries of bins).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">percentiles</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="o">*</span> <span class="mf">100.0</span> <span class="o">/</span> <span class="n">bins_number</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">bins_number</span><span class="p">)]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">limits</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">percentiles</span><span class="p">)</span>
 
 <div class="viewcode-block" id="Binner.get_bins"><a class="viewcode-back" href="../../utils.html#rep.utils.Binner.get_bins">[docs]</a>    <span class="k">def</span> <span class="nf">get_bins</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">values</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Given the values of feature, compute the index of bin</span>
+
+<span class="sd">        :param values: array of shape [n_samples]</span>
+<span class="sd">        :return: array of shape [n_samples]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">numpy</span><span class="o">.</span><span class="n">searchsorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">limits</span><span class="p">,</span> <span class="n">values</span><span class="p">)</span>
 </div>
-<div class="viewcode-block" id="Binner.get_bins_dumb"><a class="viewcode-back" href="../../utils.html#rep.utils.Binner.get_bins_dumb">[docs]</a>    <span class="k">def</span> <span class="nf">get_bins_dumb</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">values</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;This is the sane as previous function, but a bit slower and naive&quot;&quot;&quot;</span>
-        <span class="n">result</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">values</span><span class="p">))</span>
-        <span class="k">for</span> <span class="n">limit</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">limits</span><span class="p">:</span>
-            <span class="n">result</span> <span class="o">+=</span> <span class="n">values</span> <span class="o">&gt;</span> <span class="n">limit</span>
-        <span class="k">return</span> <span class="n">result</span>
-</div>
 <div class="viewcode-block" id="Binner.set_limits"><a class="viewcode-back" href="../../utils.html#rep.utils.Binner.set_limits">[docs]</a>    <span class="k">def</span> <span class="nf">set_limits</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">limits</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Change the thresholds inside bins.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">limits</span> <span class="o">=</span> <span class="n">limits</span>
 </div>
-<div class="viewcode-block" id="Binner.bins_number"><a class="viewcode-back" href="../../utils.html#rep.utils.Binner.bins_number">[docs]</a>    <span class="k">def</span> <span class="nf">bins_number</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">bins_number</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;:return: number of bins&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">limits</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
-</div>
+
 <div class="viewcode-block" id="Binner.split_into_bins"><a class="viewcode-back" href="../../utils.html#rep.utils.Binner.split_into_bins">[docs]</a>    <span class="k">def</span> <span class="nf">split_into_bins</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">arrays</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Splits the data of parallel arrays into bins, the first array is binning variable</span>
+<span class="sd">        :param arrays: data to be splitted, the first array corresponds</span>
+<span class="sd">        :return: sequence of length [n_bins] with values corresponding to each bin.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">values</span> <span class="o">=</span> <span class="n">arrays</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="k">for</span> <span class="n">array</span> <span class="ow">in</span> <span class="n">arrays</span><span class="p">:</span>
@@ -247,9 +272,10 @@
 <div class="viewcode-block" id="calc_ROC"><a class="viewcode-back" href="../../utils.html#rep.utils.calc_ROC">[docs]</a><span class="k">def</span> <span class="nf">calc_ROC</span><span class="p">(</span><span class="n">prediction</span><span class="p">,</span> <span class="n">signal</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">max_points</span><span class="o">=</span><span class="mi">10000</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculate roc curve, returns limited number of points.</span>
+<span class="sd">    This is needed for interactive plots, which suffer</span>
 
 <span class="sd">    :param prediction: predictions</span>
-<span class="sd">    :type prediction: array or list</span>
+<span class="sd">    :type prediction: numpy.ndarray or list</span>
 <span class="sd">    :param signal: true labels</span>
 <span class="sd">    :type signal: array or list</span>
 <span class="sd">    :param sample_weight: weights</span>
@@ -284,16 +310,22 @@
     <span class="k">return</span> <span class="p">(</span><span class="n">tpr</span><span class="p">,</span> <span class="n">tnr</span><span class="p">),</span> <span class="p">(</span><span class="n">err_tnr</span><span class="p">,</span> <span class="n">err_tpr</span><span class="p">),</span> <span class="n">thresholds</span>
 
 </div>
-<div class="viewcode-block" id="calc_feature_correlation_matrix"><a class="viewcode-back" href="../../utils.html#rep.utils.calc_feature_correlation_matrix">[docs]</a><span class="k">def</span> <span class="nf">calc_feature_correlation_matrix</span><span class="p">(</span><span class="n">df</span><span class="p">):</span>
+<div class="viewcode-block" id="calc_feature_correlation_matrix"><a class="viewcode-back" href="../../utils.html#rep.utils.calc_feature_correlation_matrix">[docs]</a><span class="k">def</span> <span class="nf">calc_feature_correlation_matrix</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculate correlation matrix</span>
 
-<span class="sd">    :param pandas.DataFrame df: data</span>
-<span class="sd">    :return: correlation matrix for dataFrame</span>
+<span class="sd">    :param pandas.DataFrame df: data of shape [n_samples, n_features]</span>
+<span class="sd">    :param weights: weights of shape [n_samples] (optional)</span>
+<span class="sd">    :return: correlation matrix for dataFrame of shape [n_features, n_features]</span>
 <span class="sd">    :rtype: numpy.ndarray</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c"># TODO use weights</span>
-    <span class="k">return</span> <span class="n">numpy</span><span class="o">.</span><span class="n">corrcoef</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
+    <span class="n">values</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+    <span class="n">weights</span> <span class="o">=</span> <span class="n">check_sample_weight</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="n">weights</span><span class="p">)</span>
+    <span class="n">means</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">average</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="n">weights</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">values</span> <span class="o">-=</span> <span class="n">means</span>
+    <span class="n">covariation</span> <span class="o">=</span> <span class="n">values</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">values</span> <span class="o">*</span> <span class="n">weights</span><span class="p">[:,</span> <span class="bp">None</span><span class="p">])</span>
+    <span class="n">diag</span> <span class="o">=</span> <span class="n">covariation</span><span class="o">.</span><span class="n">diagonal</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">covariation</span> <span class="o">/</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">diag</span><span class="p">)[:,</span> <span class="bp">None</span><span class="p">]</span> <span class="o">/</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">diag</span><span class="p">)[</span><span class="bp">None</span><span class="p">,</span> <span class="p">:]</span>
 
 </div>
 <div class="viewcode-block" id="calc_hist_with_errors"><a class="viewcode-back" href="../../utils.html#rep.utils.calc_hist_with_errors">[docs]</a><span class="k">def</span> <span class="nf">calc_hist_with_errors</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span> <span class="n">normed</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">x_range</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">ignored_sideband</span><span class="o">=</span><span class="mf">0.0</span><span class="p">):</span>
@@ -356,7 +388,7 @@
     <span class="n">prediction</span><span class="p">,</span> <span class="n">spectator</span> <span class="o">=</span> \
         <span class="n">check_arrays</span><span class="p">(</span><span class="n">prediction</span><span class="p">,</span> <span class="n">spectator</span><span class="p">)</span>
 
-    <span class="n">spectator_min</span><span class="p">,</span> <span class="n">spectator_max</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span><span class="n">spectator</span><span class="p">,</span> <span class="p">[</span><span class="mi">100</span> <span class="o">*</span> <span class="n">ignored_sideband</span><span class="p">,</span> <span class="mi">100</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">-</span> <span class="n">ignored_sideband</span><span class="p">)])</span>
+    <span class="n">spectator_min</span><span class="p">,</span> <span class="n">spectator_max</span> <span class="o">=</span> <span class="n">weighted_quantile</span><span class="p">(</span><span class="n">spectator</span><span class="p">,</span> <span class="p">[</span><span class="n">ignored_sideband</span><span class="p">,</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">-</span> <span class="n">ignored_sideband</span><span class="p">)])</span>
     <span class="n">mask</span> <span class="o">=</span> <span class="p">(</span><span class="n">spectator</span> <span class="o">&gt;=</span> <span class="n">spectator_min</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">spectator</span> <span class="o">&lt;=</span> <span class="n">spectator_max</span><span class="p">)</span>
     <span class="n">spectator</span> <span class="o">=</span> <span class="n">spectator</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span>
     <span class="n">prediction</span> <span class="o">=</span> <span class="n">prediction</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span>
@@ -364,7 +396,7 @@
     <span class="n">sample_weight</span> <span class="o">=</span> <span class="n">sample_weight</span> <span class="k">if</span> <span class="n">sample_weight</span> <span class="ow">is</span> <span class="bp">None</span> <span class="k">else</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">sample_weight</span><span class="p">)[</span><span class="n">mask</span><span class="p">]</span>
 
     <span class="k">if</span> <span class="n">thresholds</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
-        <span class="n">thresholds</span> <span class="o">=</span> <span class="p">[</span><span class="n">weighted_percentile</span><span class="p">(</span><span class="n">prediction</span><span class="p">,</span> <span class="n">percentiles</span><span class="o">=</span><span class="mi">1</span> <span class="o">-</span> <span class="n">eff</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="n">sample_weight</span><span class="p">)</span>
+        <span class="n">thresholds</span> <span class="o">=</span> <span class="p">[</span><span class="n">weighted_quantile</span><span class="p">(</span><span class="n">prediction</span><span class="p">,</span> <span class="n">quantiles</span><span class="o">=</span><span class="mi">1</span> <span class="o">-</span> <span class="n">eff</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="n">sample_weight</span><span class="p">)</span>
                       <span class="k">for</span> <span class="n">eff</span> <span class="ow">in</span> <span class="p">[</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">]]</span>
 
     <span class="n">binner</span> <span class="o">=</span> <span class="n">Binner</span><span class="p">(</span><span class="n">spectator</span><span class="p">,</span> <span class="n">bins_number</span><span class="o">=</span><span class="n">bins_number</span><span class="p">)</span>
@@ -395,12 +427,12 @@
     <span class="sd">&quot;&quot;&quot;Does the same thing as train_test_split, but preserves columns in DataFrames.</span>
 <span class="sd">    Uses the same parameters: test_size, train_size, random_state, and has the same interface</span>
 
-<span class="sd">    :type arrays: list[numpy.array] or list[pandas.DataFrame]</span>
-<span class="sd">    :type bool: allow_none, default False (specially for sample_weight - both to None)</span>
 <span class="sd">    :param arrays: arrays to split</span>
+<span class="sd">    :type arrays: list[numpy.array] or list[pandas.DataFrame]</span>
+<span class="sd">    :param bool allow_none, default False (specially for sample_weight - both to None)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="kn">from</span> <span class="nn">sklearn</span> <span class="kn">import</span> <span class="n">cross_validation</span>
-    <span class="n">allow_none</span> <span class="o">=</span> <span class="n">kw_args</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s">&#39;allow_none&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+    <span class="n">allow_none</span> <span class="o">=</span> <span class="n">kw_args</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s">&#39;allow_none&#39;</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span>
 
     <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">arrays</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="s">&quot;at least one array should be passed&quot;</span>
     <span class="n">length</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">arrays</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
@@ -426,12 +458,14 @@
     <span class="sd">&quot;&quot;&quot;Does the same thing as train_test_split, but preserves names of columns in DataFrames.</span>
 <span class="sd">    Uses the same parameters: test_size, train_size, random_state, and has almost the same interface</span>
 
-<span class="sd">    :param arrays: arrays to split</span>
-<span class="sd">    :type arrays: list[numpy.array] or list[pandas.DataFrame]</span>
 
 <span class="sd">    :param group_column: array-like of shape [n_samples] with indices of groups,</span>
 <span class="sd">    events from one group will be kept together (all events in train or all events in test).</span>
 <span class="sd">    If `group_column` is used, train_size and test_size will refer to number of groups, not events</span>
+
+<span class="sd">    :param arrays: arrays to split</span>
+<span class="sd">    :type arrays: list[numpy.array] or list[pandas.DataFrame]</span>
+
 <span class="sd">    :param bool allow_none: default False</span>
 <span class="sd">    (specially for sample_weight - after splitting train and test of `None` are `None` too)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -468,7 +502,8 @@
 </div>
 <div class="viewcode-block" id="get_columns_dict"><a class="viewcode-back" href="../../utils.html#rep.utils.get_columns_dict">[docs]</a><span class="k">def</span> <span class="nf">get_columns_dict</span><span class="p">(</span><span class="n">columns</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Get (new column: old column) dict expressions</span>
+<span class="sd">    Get (new column: old column) dict expressions.</span>
+<span class="sd">    This function is used to process names of features, which can contain expressions.</span>
 
 <span class="sd">    :param list[str] columns: columns names</span>
 <span class="sd">    :rtype: dict</span>
@@ -498,11 +533,20 @@
     <span class="n">columns_dict</span> <span class="o">=</span> <span class="n">get_columns_dict</span><span class="p">(</span><span class="n">columns</span><span class="p">)</span>
     <span class="n">df_new</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
     <span class="k">for</span> <span class="n">column_new</span><span class="p">,</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">columns_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-        <span class="n">df_new</span><span class="p">[</span><span class="n">column_new</span><span class="p">]</span> <span class="o">=</span> <span class="n">numexpr</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">column</span><span class="p">,</span> <span class="n">local_dict</span><span class="o">=</span><span class="n">df</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="n">df_new</span><span class="p">[</span><span class="n">column_new</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">column</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c"># warning - this thing is known to fail in threads</span>
+            <span class="c"># numexpr.evaluate(column, local_dict=df)</span>
+            <span class="n">df_new</span><span class="p">[</span><span class="n">column_new</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">eval</span><span class="p">(</span><span class="n">column</span><span class="p">,</span> <span class="n">engine</span><span class="o">=</span><span class="s">&#39;python&#39;</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">df_new</span><span class="p">)</span>
 
 </div>
 <div class="viewcode-block" id="check_arrays"><a class="viewcode-back" href="../../utils.html#rep.utils.check_arrays">[docs]</a><span class="k">def</span> <span class="nf">check_arrays</span><span class="p">(</span><span class="o">*</span><span class="n">arrays</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Left for consistency version of sklearn.validation.check_arrays</span>
+
+<span class="sd">    :param list[iterable] arrays: arrays with same length of first dimension.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">arrays</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="s">&#39;The number of array must be greater than zero&#39;</span>
     <span class="n">checked_arrays</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">shapes</span> <span class="o">=</span> <span class="p">[]</span>
@@ -511,9 +555,16 @@
             <span class="n">checked_arrays</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">arr</span><span class="p">))</span>
             <span class="n">shapes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">checked_arrays</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">checked_arrays</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">arr</span><span class="p">)</span>
-    <span class="k">assert</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">shapes</span><span class="p">)</span> <span class="o">==</span> <span class="n">shapes</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">shapes</span><span class="p">),</span> <span class="s">&#39;Different shapes of the arrays {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">shapes</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">checked_arrays</span></div>
+            <span class="n">checked_arrays</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">None</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">shapes</span><span class="p">)</span> <span class="o">==</span> <span class="n">shapes</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">shapes</span><span class="p">),</span> <span class="s">&#39;Different shapes of the arrays {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+        <span class="n">shapes</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">checked_arrays</span>
+
+</div>
+<div class="viewcode-block" id="fit_metric"><a class="viewcode-back" href="../../utils.html#rep.utils.fit_metric">[docs]</a><span class="k">def</span> <span class="nf">fit_metric</span><span class="p">(</span><span class="n">metric</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Simple wrapper to fit metrics, which checks if metrics has `fit` method.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">metric</span><span class="p">,</span> <span class="s">&#39;fit&#39;</span><span class="p">):</span>
+        <span class="n">metric</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kargs</span><span class="p">)</span></div>
 </pre></div>
 
            </div>
@@ -546,7 +597,7 @@
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'../../',
-            VERSION:'0.6.3',
+            VERSION:'0.6.4',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true

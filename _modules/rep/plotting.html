@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>rep.plotting &mdash; REP (Reproducible Experiment Platform) 0.6.3 documentation</title>
+  <title>rep.plotting &mdash; REP (Reproducible Experiment Platform) 0.6.4 documentation</title>
   
 
   
@@ -30,7 +30,7 @@
   
 
   
-    <link rel="top" title="REP (Reproducible Experiment Platform) 0.6.3 documentation" href="../../index.html"/>
+    <link rel="top" title="REP (Reproducible Experiment Platform) 0.6.4 documentation" href="../../index.html"/>
         <link rel="up" title="Module code" href="../index.html"/> 
 
   
@@ -131,8 +131,8 @@
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">from</span> <span class="nn">IPython</span> <span class="kn">import</span> <span class="n">get_ipython</span>
 
-<span class="kn">from</span> <span class="nn">pylab</span> <span class="kn">import</span> <span class="n">plt</span>
 <span class="kn">import</span> <span class="nn">matplotlib</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
 <span class="kn">import</span> <span class="nn">numpy</span>
 <span class="kn">import</span> <span class="nn">tempfile</span>
 <span class="kn">from</span> <span class="nn">IPython.core</span> <span class="kn">import</span> <span class="n">display</span>
@@ -178,7 +178,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">canvas</span> <span class="o">=</span> <span class="bp">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_tmva_keeper</span> <span class="o">=</span> <span class="p">[]</span>
 
-    <span class="k">def</span> <span class="nf">_plotly_config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_plotly_config</span><span class="p">():</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="kn">import</span> <span class="nn">ConfigParser</span>
         <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
@@ -300,6 +301,7 @@
         <span class="k">global</span> <span class="n">_COLOR_CYCLE_BOKEH</span>
         <span class="kn">import</span> <span class="nn">bokeh.plotting</span> <span class="kn">as</span> <span class="nn">bkh</span>
         <span class="kn">from</span> <span class="nn">bokeh.models</span> <span class="kn">import</span> <span class="n">Range1d</span>
+        <span class="kn">from</span> <span class="nn">bokeh.properties</span> <span class="kn">import</span> <span class="n">value</span>
 
         <span class="n">figsize</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">figsize</span> <span class="k">if</span> <span class="n">figsize</span> <span class="ow">is</span> <span class="bp">None</span> <span class="k">else</span> <span class="n">figsize</span>
         <span class="n">xlabel</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">xlabel</span> <span class="k">if</span> <span class="n">xlabel</span> <span class="ow">is</span> <span class="bp">None</span> <span class="k">else</span> <span class="n">xlabel</span>
@@ -322,7 +324,7 @@
             <span class="n">current_plot</span><span class="o">.</span><span class="n">x_range</span> <span class="o">=</span> <span class="n">Range1d</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="n">xlim</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">end</span><span class="o">=</span><span class="n">xlim</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
         <span class="k">if</span> <span class="n">ylim</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
             <span class="n">current_plot</span><span class="o">.</span><span class="n">y_range</span> <span class="o">=</span> <span class="n">Range1d</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="n">ylim</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">end</span><span class="o">=</span><span class="n">ylim</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
-        <span class="n">current_plot</span><span class="o">.</span><span class="n">title_text_font_size</span> <span class="o">=</span> <span class="s">&#39;{}pt&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">fontsize</span><span class="p">)</span>
+        <span class="n">current_plot</span><span class="o">.</span><span class="n">title_text_font_size</span> <span class="o">=</span> <span class="n">value</span><span class="p">(</span><span class="s">&quot;{}pt&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">fontsize</span><span class="p">))</span>
         <span class="n">current_plot</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">axis_label</span> <span class="o">=</span> <span class="n">xlabel</span>
         <span class="n">current_plot</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">axis_label</span> <span class="o">=</span> <span class="n">ylabel</span>
         <span class="n">current_plot</span><span class="o">.</span><span class="n">legend</span><span class="o">.</span><span class="n">orientation</span> <span class="o">=</span> <span class="s">&#39;top_right&#39;</span>
@@ -357,15 +359,19 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="kn">import</span> <span class="nn">plotly.plotly</span> <span class="kn">as</span> <span class="nn">py</span>
         <span class="kn">from</span> <span class="nn">plotly</span> <span class="kn">import</span> <span class="n">graph_objs</span>
-        <span class="kn">from</span> <span class="nn">IPython.kernel</span> <span class="kn">import</span> <span class="n">connect</span>
+        <span class="kn">from</span> <span class="nn">ipykernel</span> <span class="kn">import</span> <span class="n">connect</span>
 
         <span class="n">plotly_filename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">plotly_filename</span> <span class="k">if</span> <span class="n">plotly_filename</span> <span class="ow">is</span> <span class="bp">None</span> <span class="k">else</span> <span class="n">plotly_filename</span>
-        <span class="n">connection_file_path</span> <span class="o">=</span> <span class="n">connect</span><span class="o">.</span><span class="n">get_connection_file</span><span class="p">()</span>
-        <span class="n">connection_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">connection_file_path</span><span class="p">)</span>
-        <span class="k">if</span> <span class="s">&#39;-&#39;</span> <span class="ow">in</span> <span class="n">connection_file</span><span class="p">:</span>
-            <span class="n">kernel_id</span> <span class="o">=</span> <span class="n">connection_file</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;-&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;.&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">kernel_id</span> <span class="o">=</span> <span class="n">connection_file</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;.&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">connection_file_path</span> <span class="o">=</span> <span class="n">connect</span><span class="o">.</span><span class="n">find_connection_file</span><span class="p">()</span>
+            <span class="n">connection_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">connection_file_path</span><span class="p">)</span>
+            <span class="k">if</span> <span class="s">&#39;-&#39;</span> <span class="ow">in</span> <span class="n">connection_file</span><span class="p">:</span>
+                <span class="n">kernel_id</span> <span class="o">=</span> <span class="n">connection_file</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;-&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;.&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">kernel_id</span> <span class="o">=</span> <span class="n">connection_file</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;.&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">kernel_id</span> <span class="o">=</span> <span class="s">&quot;no_kernel&quot;</span>
+
         <span class="n">PLOTLY_API_USER</span><span class="p">,</span> <span class="n">PLOTLY_API_KEY</span><span class="p">,</span> <span class="n">PLOTLY_USER</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_plotly_config</span><span class="p">()</span>
         <span class="n">save_name</span> <span class="o">=</span> <span class="s">&#39;{user}_{id}:{name}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">user</span><span class="o">=</span><span class="n">PLOTLY_USER</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="n">kernel_id</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">plotly_filename</span><span class="p">)</span>
         <span class="n">py</span><span class="o">.</span><span class="n">sign_in</span><span class="p">(</span><span class="n">PLOTLY_API_USER</span><span class="p">,</span> <span class="n">PLOTLY_API_KEY</span><span class="p">)</span>
@@ -498,6 +504,7 @@
     <span class="k">def</span> <span class="nf">_plot_bokeh</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">current_plot</span><span class="p">,</span> <span class="n">show_legend</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
         <span class="kn">import</span> <span class="nn">bokeh.models</span> <span class="kn">as</span> <span class="nn">mdl</span>
         <span class="kn">import</span> <span class="nn">bokeh.plotting</span> <span class="kn">as</span> <span class="nn">bkh</span>
+        <span class="kn">from</span> <span class="nn">bokeh.properties</span> <span class="kn">import</span> <span class="n">value</span>
 
         <span class="n">lst</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">row_lst</span> <span class="o">=</span> <span class="p">[]</span>
@@ -508,7 +515,7 @@
                 <span class="n">cur_plot</span><span class="o">.</span><span class="n">x_range</span> <span class="o">=</span> <span class="n">mdl</span><span class="o">.</span><span class="n">Range1d</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="n">plotter</span><span class="o">.</span><span class="n">xlim</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">end</span><span class="o">=</span><span class="n">plotter</span><span class="o">.</span><span class="n">xlim</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
             <span class="k">if</span> <span class="n">plotter</span><span class="o">.</span><span class="n">ylim</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
                 <span class="n">cur_plot</span><span class="o">.</span><span class="n">y_range</span> <span class="o">=</span> <span class="n">mdl</span><span class="o">.</span><span class="n">Range1d</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="n">plotter</span><span class="o">.</span><span class="n">ylim</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">end</span><span class="o">=</span><span class="n">plotter</span><span class="o">.</span><span class="n">ylim</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
-            <span class="n">cur_plot</span><span class="o">.</span><span class="n">title_text_font_size</span> <span class="o">=</span> <span class="s">&#39;{}pt&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">plotter</span><span class="o">.</span><span class="n">fontsize</span><span class="p">)</span>
+            <span class="n">cur_plot</span><span class="o">.</span><span class="n">title_text_font_size</span> <span class="o">=</span> <span class="n">value</span><span class="p">(</span><span class="s">&quot;{}pt&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">plotter</span><span class="o">.</span><span class="n">fontsize</span><span class="p">))</span>
             <span class="n">cur_plot</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">axis_label</span> <span class="o">=</span> <span class="n">plotter</span><span class="o">.</span><span class="n">xlabel</span>
             <span class="n">cur_plot</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">axis_label</span> <span class="o">=</span> <span class="n">plotter</span><span class="o">.</span><span class="n">ylabel</span>
             <span class="n">cur_plot</span><span class="o">.</span><span class="n">legend</span><span class="o">.</span><span class="n">orientation</span> <span class="o">=</span> <span class="s">&#39;top_right&#39;</span>
@@ -522,7 +529,8 @@
         <span class="n">grid</span> <span class="o">=</span> <span class="n">mdl</span><span class="o">.</span><span class="n">GridPlot</span><span class="p">(</span><span class="n">children</span><span class="o">=</span><span class="n">lst</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">grid</span>
 
-    <span class="k">def</span> <span class="nf">_get_splts</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_row</span><span class="p">,</span> <span class="n">n_col</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_get_splts</span><span class="p">(</span><span class="n">n_row</span><span class="p">,</span> <span class="n">n_col</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
 
         <span class="n">n_splt</span> <span class="o">=</span> <span class="n">n_row</span> <span class="o">*</span> <span class="n">n_col</span>
         <span class="n">n_empty</span> <span class="o">=</span> <span class="n">n_splt</span> <span class="o">-</span> <span class="n">n</span>
@@ -553,7 +561,7 @@
             <span class="n">showticklabels</span><span class="o">=</span><span class="bp">False</span>
         <span class="p">)</span>
 
-        <span class="n">fig</span> <span class="o">=</span> <span class="n">tls</span><span class="o">.</span><span class="n">get_subplots</span><span class="p">(</span><span class="n">rows</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">rows</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">columns</span><span class="p">,</span> <span class="n">horizontal_spacing</span><span class="o">=</span><span class="mf">0.3</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">columns</span><span class="p">,</span>
+        <span class="n">fig</span> <span class="o">=</span> <span class="n">tls</span><span class="o">.</span><span class="n">make_subplots</span><span class="p">(</span><span class="n">rows</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">rows</span><span class="p">,</span> <span class="n">cols</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">columns</span><span class="p">,</span> <span class="n">horizontal_spacing</span><span class="o">=</span><span class="mf">0.3</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">columns</span><span class="p">,</span>
                                <span class="n">vertical_spacing</span><span class="o">=</span><span class="mf">0.3</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">rows</span><span class="p">)</span>
         <span class="n">splts</span><span class="p">,</span> <span class="n">splts_empty</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_splts</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rows</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">columns</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">plots</span><span class="p">))</span>
 
@@ -756,7 +764,7 @@
 
 <span class="sd">    Parameters:</span>
 <span class="sd">    -----------</span>
-<span class="sd">    :param functions: name - x points, y points</span>
+<span class="sd">    :param functions: dict which maps label of curve to x, y coordinates of points</span>
 <span class="sd">    :type functions: dict[str, tuple(array, array)]</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -776,7 +784,7 @@
             <span class="n">legend_name</span> <span class="o">=</span> <span class="bp">None</span>
             <span class="k">if</span> <span class="n">show_legend</span><span class="p">:</span>
                 <span class="n">legend_name</span> <span class="o">=</span> <span class="n">name</span>
-            <span class="n">current_plot</span><span class="o">.</span><span class="n">line</span><span class="p">(</span><span class="n">x_val</span><span class="p">,</span> <span class="n">y_val</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">legend</span><span class="o">=</span><span class="n">legend_name</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">)</span>
+            <span class="n">current_plot</span><span class="o">.</span><span class="n">line</span><span class="p">(</span><span class="n">x_val</span><span class="p">,</span> <span class="n">y_val</span><span class="p">,</span> <span class="n">line_width</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">legend</span><span class="o">=</span><span class="n">legend_name</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">current_plot</span>
 
     <span class="k">def</span> <span class="nf">_plot_plotly</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layout</span><span class="p">):</span>
@@ -898,6 +906,7 @@
     <span class="k">def</span> <span class="nf">_plot_bokeh</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">current_plot</span><span class="p">,</span> <span class="n">show_legend</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
         <span class="kn">from</span> <span class="nn">bokeh.models.tools</span> <span class="kn">import</span> <span class="n">HoverTool</span>
         <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span>
+        <span class="kn">from</span> <span class="nn">bokeh.models.ranges</span> <span class="kn">import</span> <span class="n">FactorRange</span>
         <span class="kn">import</span> <span class="nn">bokeh.plotting</span> <span class="kn">as</span> <span class="nn">bkh</span>
 
         <span class="n">value_lst</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">matrix</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
@@ -915,8 +924,8 @@
             <span class="p">)</span>
         <span class="p">)</span>
         <span class="c"># current_plot._below = []</span>
-        <span class="n">current_plot</span><span class="o">.</span><span class="n">x_range</span> <span class="o">=</span> <span class="n">bkh</span><span class="o">.</span><span class="n">FactorRange</span><span class="p">(</span><span class="n">factors</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">labels</span><span class="p">)</span>
-        <span class="n">current_plot</span><span class="o">.</span><span class="n">y_range</span> <span class="o">=</span> <span class="n">bkh</span><span class="o">.</span><span class="n">FactorRange</span><span class="p">(</span><span class="n">factors</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">labels</span><span class="p">)</span>
+        <span class="n">current_plot</span><span class="o">.</span><span class="n">x_range</span> <span class="o">=</span> <span class="n">FactorRange</span><span class="p">(</span><span class="n">factors</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">labels</span><span class="p">)</span>
+        <span class="n">current_plot</span><span class="o">.</span><span class="n">y_range</span> <span class="o">=</span> <span class="n">FactorRange</span><span class="p">(</span><span class="n">factors</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">labels</span><span class="p">)</span>
         <span class="c"># current_plot._left = []</span>
 
         <span class="c"># current_plot.extra_y_ranges = {&quot;foo&quot;: bkh.FactorRange(factors=self.labels)}</span>
@@ -929,7 +938,7 @@
         <span class="n">current_plot</span><span class="o">.</span><span class="n">axis</span><span class="o">.</span><span class="n">axis_line_color</span> <span class="o">=</span> <span class="bp">None</span>
         <span class="n">current_plot</span><span class="o">.</span><span class="n">axis</span><span class="o">.</span><span class="n">major_tick_line_color</span> <span class="o">=</span> <span class="bp">None</span>
         <span class="n">hover</span> <span class="o">=</span> <span class="n">current_plot</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">HoverTool</span><span class="p">))</span>
-        <span class="k">if</span> <span class="n">hover</span> <span class="o">==</span> <span class="p">[]:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">hover</span><span class="p">:</span>
             <span class="n">hover</span> <span class="o">=</span> <span class="n">HoverTool</span><span class="p">(</span><span class="n">plot</span><span class="o">=</span><span class="n">current_plot</span><span class="p">,</span> <span class="n">always_active</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
         <span class="n">hover</span><span class="o">.</span><span class="n">tooltips</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">([</span>
             <span class="p">(</span><span class="s">&#39;labels&#39;</span><span class="p">,</span> <span class="s">&#39;@x @y&#39;</span><span class="p">),</span>
@@ -1000,7 +1009,7 @@
 </div>
 <div class="viewcode-block" id="BarPlot"><a class="viewcode-back" href="../../plotting.html#rep.plotting.BarPlot">[docs]</a><span class="k">class</span> <span class="nc">BarPlot</span><span class="p">(</span><span class="n">AbstractPlot</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Implements bar plots for train-test overfit (used in HEP)</span>
+<span class="sd">    Implements bar plots</span>
 
 <span class="sd">    Parameters:</span>
 <span class="sd">    -----------</span>
@@ -1112,14 +1121,14 @@
     <span class="k">def</span> <span class="nf">_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">length</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">step</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sortby</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
-            <span class="n">inds</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">sortby</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">())[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">inds</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">sortby</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">()))[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">inds</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">keys</span><span class="p">()[</span><span class="mi">0</span><span class="p">]])))</span>
-        <span class="n">xticks_labels</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">keys</span><span class="p">()[</span><span class="mi">0</span><span class="p">]]</span><span class="o">.</span><span class="n">keys</span><span class="p">())[</span><span class="n">inds</span><span class="p">]</span>
+            <span class="n">inds</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">keys</span><span class="p">())[</span><span class="mi">0</span><span class="p">]])))</span>
+        <span class="n">xticks_labels</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">keys</span><span class="p">())[</span><span class="mi">0</span><span class="p">]]</span><span class="o">.</span><span class="n">keys</span><span class="p">()))[</span><span class="n">inds</span><span class="p">]</span>
         <span class="k">for</span> <span class="n">move</span><span class="p">,</span> <span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="n">sample</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>
             <span class="n">color</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">_COLOR_CYCLE</span><span class="p">)</span>
             <span class="n">index</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">sample</span><span class="p">))</span>
-            <span class="n">plt</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">length</span> <span class="o">*</span> <span class="n">index</span> <span class="o">+</span> <span class="n">move</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">sample</span><span class="o">.</span><span class="n">values</span><span class="p">())[</span><span class="n">inds</span><span class="p">],</span> <span class="mf">1.</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">alpha</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">length</span> <span class="o">*</span> <span class="n">index</span> <span class="o">+</span> <span class="n">move</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">sample</span><span class="o">.</span><span class="n">values</span><span class="p">()))[</span><span class="n">inds</span><span class="p">],</span> <span class="mf">1.</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">alpha</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span>
                     <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">)</span>
 
         <span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">(</span><span class="n">length</span> <span class="o">*</span> <span class="n">numpy</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">inds</span><span class="p">)),</span> <span class="n">xticks_labels</span><span class="p">,</span> <span class="n">rotation</span><span class="o">=</span><span class="mi">90</span><span class="p">)</span>
@@ -1128,17 +1137,17 @@
         <span class="kn">from</span> <span class="nn">plotly</span> <span class="kn">import</span> <span class="n">graph_objs</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sortby</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
-            <span class="n">inds</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">sortby</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">())[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">inds</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">sortby</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">()))[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">inds</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">keys</span><span class="p">()[</span><span class="mi">0</span><span class="p">]]))</span>
+            <span class="n">inds</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">keys</span><span class="p">())[</span><span class="mi">0</span><span class="p">]]))</span>
 
         <span class="n">data</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">label</span><span class="p">,</span> <span class="n">sample</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="n">color</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">_COLOR_CYCLE</span><span class="p">)</span>
             <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
                 <span class="s">&#39;name&#39;</span><span class="p">:</span> <span class="n">label</span><span class="p">,</span>
-                <span class="s">&#39;x&#39;</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">sample</span><span class="o">.</span><span class="n">keys</span><span class="p">())[</span><span class="n">inds</span><span class="p">],</span>
-                <span class="s">&#39;y&#39;</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">sample</span><span class="o">.</span><span class="n">values</span><span class="p">())[</span><span class="n">inds</span><span class="p">],</span>
+                <span class="s">&#39;x&#39;</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">sample</span><span class="o">.</span><span class="n">keys</span><span class="p">()))[</span><span class="n">inds</span><span class="p">],</span>
+                <span class="s">&#39;y&#39;</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">sample</span><span class="o">.</span><span class="n">values</span><span class="p">()))[</span><span class="n">inds</span><span class="p">],</span>
                 <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;bar&#39;</span><span class="p">,</span>
                 <span class="s">&#39;opacity&#39;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span>
                 <span class="s">&#39;marker&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s">&#39;color&#39;</span><span class="p">:</span> <span class="n">color</span><span class="p">}</span>
@@ -1152,11 +1161,11 @@
     <span class="k">def</span> <span class="nf">_plot_bokeh</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">current_plot</span><span class="p">,</span> <span class="n">show_legend</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
         <span class="n">length</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">step</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sortby</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
-            <span class="n">inds</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">sortby</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">())[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">inds</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">sortby</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">()))[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">inds</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">keys</span><span class="p">()[</span><span class="mi">0</span><span class="p">]])))</span>
+            <span class="n">inds</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">keys</span><span class="p">())[</span><span class="mi">0</span><span class="p">]])))</span>
 
-        <span class="n">xticks_labels</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">keys</span><span class="p">()[</span><span class="mi">0</span><span class="p">]]</span><span class="o">.</span><span class="n">keys</span><span class="p">())[</span><span class="n">inds</span><span class="p">]</span>
+        <span class="n">xticks_labels</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">keys</span><span class="p">())[</span><span class="mi">0</span><span class="p">]]</span><span class="o">.</span><span class="n">keys</span><span class="p">()))[</span><span class="n">inds</span><span class="p">]</span>
 
         <span class="k">for</span> <span class="n">move</span><span class="p">,</span> <span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="n">sample</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>
             <span class="n">color</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">_COLOR_CYCLE_BOKEH</span><span class="p">)</span>
@@ -1164,10 +1173,10 @@
             <span class="n">legend_name</span> <span class="o">=</span> <span class="bp">None</span>
             <span class="k">if</span> <span class="n">show_legend</span><span class="p">:</span>
                 <span class="n">legend_name</span> <span class="o">=</span> <span class="n">label</span>
-            <span class="n">current_plot</span><span class="o">.</span><span class="n">rect</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">length</span> <span class="o">*</span> <span class="n">index</span> <span class="o">+</span> <span class="n">move</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">sample</span><span class="o">.</span><span class="n">values</span><span class="p">())[</span><span class="n">inds</span><span class="p">]</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span>
-                              <span class="n">height</span><span class="o">=</span><span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">sample</span><span class="o">.</span><span class="n">values</span><span class="p">())[</span><span class="n">inds</span><span class="p">],</span> <span class="n">width</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span>
+            <span class="n">current_plot</span><span class="o">.</span><span class="n">rect</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">length</span> <span class="o">*</span> <span class="n">index</span> <span class="o">+</span> <span class="n">move</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">sample</span><span class="o">.</span><span class="n">values</span><span class="p">()))[</span><span class="n">inds</span><span class="p">]</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span>
+                              <span class="n">height</span><span class="o">=</span><span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">sample</span><span class="o">.</span><span class="n">values</span><span class="p">()))[</span><span class="n">inds</span><span class="p">],</span> <span class="n">width</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span>
                               <span class="n">alpha</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">alpha</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span>
-                              <span class="n">legend</span><span class="o">=</span><span class="n">label</span><span class="p">)</span>
+                              <span class="n">legend</span><span class="o">=</span><span class="n">legend_name</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">current_plot</span>
 
 </div>
@@ -1183,6 +1192,8 @@
 <span class="sd">    :param int xsteps: count of points for approximation on x-axis</span>
 <span class="sd">    :param int ysteps: count of points for approximation on y-axis</span>
 <span class="sd">    :param str cmap: color map</span>
+<span class="sd">    :param float vmin: value, corresponding to minimum on cmap</span>
+<span class="sd">    :param float vmax: value, corresponding to maximum on cmap</span>
 
 <span class="sd">    .. note:: for plotly use</span>
 
@@ -1204,7 +1215,8 @@
 <span class="sd">        * &#39;Electric&#39;, black to purple to orange to yellow to tan to white</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">function</span><span class="p">,</span> <span class="n">xlim</span><span class="p">,</span> <span class="n">ylim</span><span class="p">,</span> <span class="n">xsteps</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">ysteps</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s">&#39;Blues&#39;</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">function</span><span class="p">,</span> <span class="n">xlim</span><span class="p">,</span> <span class="n">ylim</span><span class="p">,</span> <span class="n">xsteps</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">ysteps</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s">&#39;Blues&#39;</span><span class="p">,</span>
+                 <span class="n">vmin</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">Function2D_Plot</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">()</span>
 
         <span class="n">x</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">xlim</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">xlim</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">xsteps</span><span class="p">)</span>
@@ -1214,9 +1226,11 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">z</span> <span class="o">=</span> <span class="n">function</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cmap</span> <span class="o">=</span> <span class="n">cmap</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vmin</span> <span class="o">=</span> <span class="n">vmin</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vmax</span> <span class="o">=</span> <span class="n">vmax</span>
 
     <span class="k">def</span> <span class="nf">_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">colormap</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">pcolor</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">z</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">cmap</span><span class="p">)</span>
+        <span class="n">colormap</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">pcolor</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">z</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">cmap</span><span class="p">,</span> <span class="n">vmin</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">vmin</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">vmax</span><span class="p">)</span>
         <span class="n">cb</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">colormap</span><span class="p">)</span>
         <span class="n">cb</span><span class="o">.</span><span class="n">set_label</span><span class="p">(</span><span class="s">&#39;value&#39;</span><span class="p">)</span>
 
@@ -1233,8 +1247,14 @@
                  <span class="s">&#39;y&#39;</span><span class="p">:</span> <span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">])),</span>
                  <span class="s">&#39;x&#39;</span><span class="p">:</span> <span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:])),</span>
                  <span class="s">&#39;colorscale&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">cmap</span><span class="p">,</span>
-                 <span class="s">&#39;colorbar&#39;</span><span class="p">:</span> <span class="n">colorbar_plotly</span>
+                 <span class="s">&#39;colorbar&#39;</span><span class="p">:</span> <span class="n">colorbar_plotly</span><span class="p">,</span>
                 <span class="p">}]</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">vmin</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s">&#39;zmin&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">vmin</span>
+            <span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s">&#39;zauto&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">vmax</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s">&#39;zmax&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">vmax</span>
+            <span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s">&#39;zauto&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">False</span>
 
         <span class="n">fig</span> <span class="o">=</span> <span class="n">graph_objs</span><span class="o">.</span><span class="n">Figure</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">graph_objs</span><span class="o">.</span><span class="n">Data</span><span class="p">(</span><span class="n">data</span><span class="p">),</span> <span class="n">layout</span><span class="o">=</span><span class="n">layout</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">fig</span>
@@ -1246,13 +1266,95 @@
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s">&quot;Not supported for bokeh&quot;</span><span class="p">)</span>
 
 </div>
-<div class="viewcode-block" id="CorrelationPlot"><a class="viewcode-back" href="../../plotting.html#rep.plotting.CorrelationPlot">[docs]</a><span class="k">class</span> <span class="nc">CorrelationPlot</span><span class="p">(</span><span class="n">AbstractPlot</span><span class="p">):</span>
+<div class="viewcode-block" id="Histogram2D_Plot"><a class="viewcode-back" href="../../plotting.html#rep.plotting.Histogram2D_Plot">[docs]</a><span class="k">class</span> <span class="nc">Histogram2D_Plot</span><span class="p">(</span><span class="n">AbstractPlot</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Implements correlations plots</span>
 
 <span class="sd">    Parameters:</span>
 <span class="sd">    -----------</span>
 <span class="sd">    :param (array, array) data: name var, name var - values for first, values for second</span>
+<span class="sd">    :param bins: count of bins</span>
+<span class="sd">    :type bins: int or list[float]</span>
+<span class="sd">    :param str cmap: color map</span>
+<span class="sd">    :param float cmin: value, corresponding to minimum on cmap</span>
+<span class="sd">    :param float cmax: value, corresponding to maximum on cmap</span>
+<span class="sd">    :param bool normed: normalize histogram</span>
+<span class="sd">    :param range: array_like shape(2, 2), optional, default: None</span>
+<span class="sd">        [[xmin, xmax], [ymin, ymax]]. All values outside of this range will be</span>
+<span class="sd">        considered outliers and not tallied in the histogram.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s">&#39;Blues&#39;</span><span class="p">,</span> <span class="n">cmin</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">cmax</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="nb">range</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">normed</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">Histogram2D_Plot</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">data</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">binsX</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">binsY</span> <span class="o">=</span> <span class="p">(</span><span class="n">bins</span><span class="p">,</span> <span class="n">bins</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">bins</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="k">else</span> <span class="n">bins</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cmap</span> <span class="o">=</span> <span class="n">cmap</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vmin</span> <span class="o">=</span> <span class="n">cmin</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vmax</span> <span class="o">=</span> <span class="n">cmax</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">range</span> <span class="o">=</span> <span class="nb">range</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">normed</span> <span class="o">=</span> <span class="n">normed</span>
+
+    <span class="k">def</span> <span class="nf">_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">X</span><span class="p">,</span> <span class="n">Y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">colormap</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">hist2d</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">binsX</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">binsY</span><span class="p">),</span> <span class="nb">range</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">range</span><span class="p">,</span> <span class="n">normed</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">normed</span><span class="p">,</span>
+                                       <span class="n">cmin</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">vmin</span><span class="p">,</span> <span class="n">cmax</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">vmax</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">cmap</span><span class="p">)</span>
+        <span class="n">cb</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">colormap</span><span class="p">)</span>
+        <span class="n">cb</span><span class="o">.</span><span class="n">set_label</span><span class="p">(</span><span class="s">&#39;value&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_plot_plotly</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layout</span><span class="p">):</span>
+        <span class="kn">from</span> <span class="nn">plotly</span> <span class="kn">import</span> <span class="n">graph_objs</span>
+
+        <span class="n">colorbar_plotly</span> <span class="o">=</span> <span class="n">graph_objs</span><span class="o">.</span><span class="n">ColorBar</span><span class="p">(</span>
+            <span class="n">thickness</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span>  <span class="c"># color bar thickness in px</span>
+            <span class="n">ticks</span><span class="o">=</span><span class="s">&#39;outside&#39;</span><span class="p">,</span>  <span class="c"># tick outside colorbar</span>
+            <span class="n">title</span><span class="o">=</span><span class="s">&#39;value&#39;</span>
+        <span class="p">)</span>
+        <span class="n">X</span><span class="p">,</span> <span class="n">Y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="p">[{</span><span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;histogram2d&#39;</span><span class="p">,</span>
+                 <span class="s">&#39;y&#39;</span><span class="p">:</span> <span class="n">Y</span><span class="p">,</span>
+                 <span class="s">&#39;x&#39;</span><span class="p">:</span> <span class="n">X</span><span class="p">,</span>
+                 <span class="s">&#39;colorscale&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">cmap</span><span class="p">,</span>
+                 <span class="s">&#39;colorbar&#39;</span><span class="p">:</span> <span class="n">colorbar_plotly</span><span class="p">,</span>
+                <span class="p">}]</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">vmin</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s">&#39;zmin&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">vmin</span>
+            <span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s">&#39;zauto&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">vmax</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s">&#39;zmax&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">vmax</span>
+            <span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s">&#39;zauto&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">range</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s">&#39;nbinsx&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">binsX</span>
+            <span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s">&#39;nbinsy&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">binsY</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">start</span><span class="p">,</span> <span class="n">end</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">range</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">size</span> <span class="o">=</span> <span class="mf">1.</span> <span class="o">*</span> <span class="p">(</span><span class="n">end</span> <span class="o">-</span> <span class="n">start</span><span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">binsY</span>
+            <span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s">&#39;ybins&#39;</span><span class="p">]</span><span class="o">=</span> <span class="p">{</span><span class="s">&#39;start&#39;</span><span class="p">:</span> <span class="n">start</span><span class="p">,</span> <span class="s">&#39;end&#39;</span><span class="p">:</span> <span class="n">end</span><span class="p">,</span> <span class="s">&#39;size&#39;</span><span class="p">:</span> <span class="n">size</span><span class="p">}</span>
+            <span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s">&#39;autobiny&#39;</span><span class="p">]</span> <span class="o">=</span><span class="bp">False</span>
+            <span class="n">start</span><span class="p">,</span> <span class="n">end</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">range</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">size</span> <span class="o">=</span> <span class="mf">1.</span> <span class="o">*</span> <span class="p">(</span><span class="n">end</span> <span class="o">-</span> <span class="n">start</span><span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">binsX</span>
+            <span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s">&#39;xbins&#39;</span><span class="p">]</span><span class="o">=</span> <span class="p">{</span><span class="s">&#39;start&#39;</span><span class="p">:</span> <span class="n">start</span><span class="p">,</span> <span class="s">&#39;end&#39;</span><span class="p">:</span> <span class="n">end</span><span class="p">,</span> <span class="s">&#39;size&#39;</span><span class="p">:</span> <span class="n">size</span><span class="p">}</span>
+            <span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s">&#39;autobinx&#39;</span><span class="p">]</span> <span class="o">=</span><span class="bp">False</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">normed</span><span class="p">:</span>
+            <span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s">&#39;histnorm&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39;probability&#39;</span>
+
+
+        <span class="n">fig</span> <span class="o">=</span> <span class="n">graph_objs</span><span class="o">.</span><span class="n">Figure</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">graph_objs</span><span class="o">.</span><span class="n">Data</span><span class="p">(</span><span class="n">data</span><span class="p">),</span> <span class="n">layout</span><span class="o">=</span><span class="n">layout</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">fig</span>
+
+    <span class="k">def</span> <span class="nf">_plot_tmva</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s">&quot;Not supported for tmva&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_plot_bokeh</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">current_plot</span><span class="p">,</span> <span class="n">show_legend</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s">&quot;Not supported by bokeh&quot;</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="CorrelationPlot"><a class="viewcode-back" href="../../plotting.html#rep.plotting.CorrelationPlot">[docs]</a><span class="k">class</span> <span class="nc">CorrelationPlot</span><span class="p">(</span><span class="n">AbstractPlot</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Implements correlations plots</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">    -----------</span>
+<span class="sd">    :param (array, array) data: values for first, values for second</span>
 <span class="sd">    :param bins: count of bins</span>
 <span class="sd">    :type bins: int or list[float]</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -1432,7 +1534,7 @@
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'../../',
-            VERSION:'0.6.3',
+            VERSION:'0.6.4',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Plotting &mdash; REP (Reproducible Experiment Platform) 0.6.3 documentation</title>
+  <title>Plotting &mdash; REP (Reproducible Experiment Platform) 0.6.4 documentation</title>
   
 
   
@@ -30,7 +30,7 @@
   
 
   
-    <link rel="top" title="REP (Reproducible Experiment Platform) 0.6.3 documentation" href="index.html"/>
+    <link rel="top" title="REP (Reproducible Experiment Platform) 0.6.4 documentation" href="index.html"/>
         <link rel="next" title="Utilities" href="utils.html"/>
         <link rel="prev" title="Report for models" href="report.html"/> 
 
@@ -267,7 +267,7 @@
 <dt id="rep.plotting.BarPlot">
 <em class="property">class </em><code class="descclassname">rep.plotting.</code><code class="descname">BarPlot</code><span class="sig-paren">(</span><em>data</em>, <em>bins=30</em>, <em>normalization=True</em>, <em>value_range=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/plotting.html#BarPlot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.plotting.BarPlot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#rep.plotting.AbstractPlot" title="rep.plotting.AbstractPlot"><code class="xref py py-class docutils literal"><span class="pre">rep.plotting.AbstractPlot</span></code></a></p>
-<p>Implements bar plots for train-test overfit (used in HEP)</p>
+<p>Implements bar plots</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -357,7 +357,7 @@
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>array) data</strong> (<em>(array,</em>) &#8211; name var, name var - values for first, values for second</li>
+<li><strong>array) data</strong> (<em>(array,</em>) &#8211; values for first, values for second</li>
 <li><strong>bins</strong> (<em>int or list[float]</em>) &#8211; count of bins</li>
 </ul>
 </td>
@@ -388,7 +388,7 @@
 
 <dl class="class">
 <dt id="rep.plotting.Function2D_Plot">
-<em class="property">class </em><code class="descclassname">rep.plotting.</code><code class="descname">Function2D_Plot</code><span class="sig-paren">(</span><em>function</em>, <em>xlim</em>, <em>ylim</em>, <em>xsteps=100</em>, <em>ysteps=100</em>, <em>cmap='Blues'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/plotting.html#Function2D_Plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.plotting.Function2D_Plot" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">rep.plotting.</code><code class="descname">Function2D_Plot</code><span class="sig-paren">(</span><em>function</em>, <em>xlim</em>, <em>ylim</em>, <em>xsteps=100</em>, <em>ysteps=100</em>, <em>cmap='Blues'</em>, <em>vmin=None</em>, <em>vmax=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/plotting.html#Function2D_Plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.plotting.Function2D_Plot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#rep.plotting.AbstractPlot" title="rep.plotting.AbstractPlot"><code class="xref py py-class docutils literal"><span class="pre">rep.plotting.AbstractPlot</span></code></a></p>
 <p>Implements 2d-functions plots</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -402,6 +402,8 @@
 <li><strong>xsteps</strong> (<em>int</em>) &#8211; count of points for approximation on x-axis</li>
 <li><strong>ysteps</strong> (<em>int</em>) &#8211; count of points for approximation on y-axis</li>
 <li><strong>cmap</strong> (<em>str</em>) &#8211; color map</li>
+<li><strong>vmin</strong> (<em>float</em>) &#8211; value, corresponding to minimum on cmap</li>
+<li><strong>vmax</strong> (<em>float</em>) &#8211; value, corresponding to maximum on cmap</li>
 </ul>
 </td>
 </tr>
@@ -440,7 +442,7 @@
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>functions</strong> (<em>dict[str, tuple(array, array)]</em>) &#8211; name - x points, y points</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>functions</strong> (<em>dict[str, tuple(array, array)]</em>) &#8211; dict which maps label of curve to x, y coordinates of points</td>
 </tr>
 </tbody>
 </table>
@@ -475,6 +477,32 @@
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>plots</strong> (<em>list[AbstractPlot]</em>) &#8211; plot objects</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="class">
+<dt id="rep.plotting.Histogram2D_Plot">
+<em class="property">class </em><code class="descclassname">rep.plotting.</code><code class="descname">Histogram2D_Plot</code><span class="sig-paren">(</span><em>data</em>, <em>bins=30</em>, <em>cmap='Blues'</em>, <em>cmin=None</em>, <em>cmax=None</em>, <em>range=None</em>, <em>normed=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/plotting.html#Histogram2D_Plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.plotting.Histogram2D_Plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#rep.plotting.AbstractPlot" title="rep.plotting.AbstractPlot"><code class="xref py py-class docutils literal"><span class="pre">rep.plotting.AbstractPlot</span></code></a></p>
+<p>Implements correlations plots</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>array) data</strong> (<em>(array,</em>) &#8211; name var, name var - values for first, values for second</li>
+<li><strong>bins</strong> (<em>int or list[float]</em>) &#8211; count of bins</li>
+<li><strong>cmap</strong> (<em>str</em>) &#8211; color map</li>
+<li><strong>cmin</strong> (<em>float</em>) &#8211; value, corresponding to minimum on cmap</li>
+<li><strong>cmax</strong> (<em>float</em>) &#8211; value, corresponding to maximum on cmap</li>
+<li><strong>normed</strong> (<em>bool</em>) &#8211; normalize histogram</li>
+<li><strong>range</strong> &#8211; array_like shape(2, 2), optional, default: None
+[[xmin, xmax], [ymin, ymax]]. All values outside of this range will be
+considered outliers and not tallied in the histogram.</li>
+</ul>
+</td>
 </tr>
 </tbody>
 </table>
@@ -569,7 +597,7 @@
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'./',
-            VERSION:'0.6.3',
+            VERSION:'0.6.4',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true

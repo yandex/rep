@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Report for models &mdash; REP (Reproducible Experiment Platform) 0.6.3 documentation</title>
+  <title>Report for models &mdash; REP (Reproducible Experiment Platform) 0.6.4 documentation</title>
   
 
   
@@ -30,7 +30,7 @@
   
 
   
-    <link rel="top" title="REP (Reproducible Experiment Platform) 0.6.3 documentation" href="index.html"/>
+    <link rel="top" title="REP (Reproducible Experiment Platform) 0.6.4 documentation" href="index.html"/>
         <link rel="next" title="Plotting" href="plotting.html"/>
         <link rel="prev" title="Meta Machine Learning" href="metaml.html"/> 
 
@@ -80,6 +80,8 @@
 <li class="toctree-l2"><a class="reference internal" href="#module-rep.report.regression">Regression Report</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-rep.report.metrics">Metrics</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#correspondence-between-physical-terms-and-ml-terms">Correspondence between physical terms and ML terms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#available-metric-functions">Available Metric functions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#supplementary-functions">Supplementary functions</a></li>
 </ul>
 </li>
 </ul>
@@ -219,7 +221,7 @@ if None then {0: &#8216;bck&#8217;, &#8216;1&#8217;: &#8216;signal&#8217;}</li>
 
 <dl class="method">
 <dt id="rep.report.classification.ClassificationReport.efficiencies_2d">
-<code class="descname">efficiencies_2d</code><span class="sig-paren">(</span><em>features</em>, <em>efficiency</em>, <em>mask=None</em>, <em>n_bins=20</em>, <em>ignored_sideband=0.0</em>, <em>labels_dict=None</em>, <em>grid_columns=2</em>, <em>signal_label=1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/report/classification.html#ClassificationReport.efficiencies_2d"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.report.classification.ClassificationReport.efficiencies_2d" title="Permalink to this definition">¶</a></dt>
+<code class="descname">efficiencies_2d</code><span class="sig-paren">(</span><em>features</em>, <em>efficiency</em>, <em>mask=None</em>, <em>n_bins=20</em>, <em>ignored_sideband=0.0</em>, <em>labels_dict=None</em>, <em>grid_columns=2</em>, <em>signal_label=1</em>, <em>cmap='RdBu'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/report/classification.html#ClassificationReport.efficiencies_2d"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.report.classification.ClassificationReport.efficiencies_2d" title="Permalink to this definition">¶</a></dt>
 <dd><p>For binary classification plots the dependence of efficiency on two columns</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -235,6 +237,7 @@ if None then {0: &#8216;bck&#8217;, &#8216;1&#8217;: &#8216;signal&#8217;}</li>
 <li><strong>grid_columns</strong> (<em>int</em>) &#8211; count of columns in grid</li>
 <li><strong>ignored_sideband</strong> (<em>float</em>) &#8211; (0, 1) percent of plotting data</li>
 <li><strong>signal_label</strong> (<em>int</em>) &#8211; label to calculate efficiency threshold</li>
+<li><strong>cmap</strong> (<em>str</em>) &#8211; name of colormap used</li>
 </ul>
 </td>
 </tr>
@@ -364,7 +367,7 @@ if None then {0: &#8216;bck&#8217;, &#8216;1&#8217;: &#8216;signal&#8217;}</li>
 
 <dl class="method">
 <dt id="rep.report.classification.ClassificationReport.learning_curve">
-<code class="descname">learning_curve</code><span class="sig-paren">(</span><em>metric</em>, <em>mask=None</em>, <em>steps=10</em>, <em>metric_label='metric'</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.report.classification.ClassificationReport.learning_curve" title="Permalink to this definition">¶</a></dt>
+<code class="descname">learning_curve</code><span class="sig-paren">(</span><em>metric</em>, <em>mask=None</em>, <em>steps=10</em>, <em>metric_label='metric'</em>, <em>predict_only_masked=True</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.report.classification.ClassificationReport.learning_curve" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get learning curves</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -376,6 +379,9 @@ def function(y_true, y_pred, sample_weight=None)</li>
 <li><strong>steps</strong> (<em>int or dict</em>) &#8211; if int, the same step is used in all learning curves,
 otherwise dict with steps for each estimator</li>
 <li><strong>metric_label</strong> (<em>str</em>) &#8211; name for metric on plot</li>
+<li><strong>predict_only_masked</strong> (<em>bool</em>) &#8211; if True, will predict only for needed events.
+When you build learning curves for FoldingClassifier/FoldingRegressor on the same dataset,
+set this to False to get unbiased predictions.</li>
 </ul>
 </td>
 </tr>
@@ -440,7 +446,7 @@ if None then {0: &#8216;bck&#8217;, &#8216;1&#8217;: &#8216;signal&#8217;}</li>
 
 <dl class="method">
 <dt id="rep.report.classification.ClassificationReport.roc">
-<code class="descname">roc</code><span class="sig-paren">(</span><em>mask=None</em>, <em>signal_label=1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/report/classification.html#ClassificationReport.roc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.report.classification.ClassificationReport.roc" title="Permalink to this definition">¶</a></dt>
+<code class="descname">roc</code><span class="sig-paren">(</span><em>mask=None</em>, <em>signal_label=1</em>, <em>physical_notion=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/report/classification.html#ClassificationReport.roc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.report.classification.ClassificationReport.roc" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate roc functions for data and return roc plot object</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -449,6 +455,8 @@ if None then {0: &#8216;bck&#8217;, &#8216;1&#8217;: &#8216;signal&#8217;}</li>
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>mask</strong> (<em>None or numbers.Number or array-like or str or function(pandas.DataFrame)</em>) &#8211; mask for data, which will be used</li>
 <li><strong>grid_columns</strong> (<em>int</em>) &#8211; count of columns for multi-rocs</li>
+<li><strong>physical_notion</strong> (<em>bool</em>) &#8211; if set to True, will show signal efficiency vs background rejection,
+otherwise TPR vs FPR.</li>
 </ul>
 </td>
 </tr>
@@ -607,7 +615,7 @@ function(y_true, y_predicted, sample_weight=None)</li>
 
 <dl class="method">
 <dt id="rep.report.regression.RegressionReport.learning_curve">
-<code class="descname">learning_curve</code><span class="sig-paren">(</span><em>metric</em>, <em>mask=None</em>, <em>steps=10</em>, <em>metric_label='metric'</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.report.regression.RegressionReport.learning_curve" title="Permalink to this definition">¶</a></dt>
+<code class="descname">learning_curve</code><span class="sig-paren">(</span><em>metric</em>, <em>mask=None</em>, <em>steps=10</em>, <em>metric_label='metric'</em>, <em>predict_only_masked=True</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.report.regression.RegressionReport.learning_curve" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get learning curves</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -619,6 +627,9 @@ def function(y_true, y_pred, sample_weight=None)</li>
 <li><strong>steps</strong> (<em>int or dict</em>) &#8211; if int, the same step is used in all learning curves,
 otherwise dict with steps for each estimator</li>
 <li><strong>metric_label</strong> (<em>str</em>) &#8211; name for metric on plot</li>
+<li><strong>predict_only_masked</strong> (<em>bool</em>) &#8211; if True, will predict only for needed events.
+When you build learning curves for FoldingClassifier/FoldingRegressor on the same dataset,
+set this to False to get unbiased predictions.</li>
 </ul>
 </td>
 </tr>
@@ -682,13 +693,13 @@ otherwise dict with steps for each estimator</li>
 </div>
 <div class="section" id="module-rep.report.metrics">
 <span id="metrics"></span><h2>Metrics<a class="headerlink" href="#module-rep.report.metrics" title="Permalink to this headline">¶</a></h2>
-<p>This file contains definitions for useful metrics in specific REP format.
-In general case, metrics follows standard sklearn convention for <strong>estimators</strong>, provides</p>
+<p>This file contains definitions for useful metrics in specific <strong>REP</strong> format.
+In general case, metrics follow standard sklearn convention for <strong>estimators</strong>, provides</p>
 <blockquote>
 <div><ul class="simple">
 <li>constructor (you should create instance of metric!):</li>
 </ul>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">metric</span> <span class="o">=</span> <span class="n">RocAuc</span><span class="p">(</span><span class="n">parameter</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">metric</span> <span class="o">=</span> <span class="n">RocAuc</span><span class="p">(</span><span class="n">positive_label</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
 </pre></div>
 </div>
 <ul class="simple">
@@ -699,15 +710,19 @@ In general case, metrics follows standard sklearn convention for <strong>estimat
 </pre></div>
 </div>
 <ul class="simple">
-<li>computation of metrics by probabilities:</li>
+<li>computation of metrics by probabilities (important: samples passed to probabilities ):</li>
 </ul>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">proba</span> <span class="o">=</span> <span class="n">classifier</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">metrics</span><span class="p">(</span><span class="n">proba</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">metric</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">proba</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
 </pre></div>
 </div>
 </div></blockquote>
-<p>This way metrics can be used in learning curves, for instance. Once fitted, then for every stage
-computation will be very fast.</p>
+<p>This way metrics can be used in learning curves, for instance.
+Once fitted, then for every stage computation will be very fast.</p>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<p class="last"><a class="reference external" href="https://github.com/yandex/rep/wiki/Contributing-new-metrics">API of metrics</a> for details and explanations on API.</p>
+</div>
 <div class="section" id="correspondence-between-physical-terms-and-ml-terms">
 <h3>Correspondence between physical terms and ML terms<a class="headerlink" href="#correspondence-between-physical-terms-and-ml-terms" title="Permalink to this headline">¶</a></h3>
 <p>Some notation used below:</p>
@@ -730,18 +745,33 @@ computation will be very fast.</p>
 them to particular values of expected amount of s and b.</p>
 <blockquote>
 <div><ul class="simple">
-<li>signal efficiency = tpr = s</li>
-</ul>
-<p>the following line used only in HEP</p>
-<ul class="simple">
-<li>background efficiency = fpr = b</li>
+<li>signal efficiency = s = tpr</li>
 </ul>
 </div></blockquote>
+<p>the following line used only in HEP</p>
+<blockquote>
+<div><ul class="simple">
+<li>background efficiency = b = fpr</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="available-metric-functions">
+<h3>Available Metric functions<a class="headerlink" href="#available-metric-functions" title="Permalink to this headline">¶</a></h3>
 <dl class="class">
-<dt id="rep.report.metrics.FPRatTPR">
-<em class="property">class </em><code class="descclassname">rep.report.metrics.</code><code class="descname">FPRatTPR</code><span class="sig-paren">(</span><em>tpr</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/report/metrics.html#FPRatTPR"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.report.metrics.FPRatTPR" title="Permalink to this definition">¶</a></dt>
+<dt id="rep.report.metrics.RocAuc">
+<em class="property">class </em><code class="descclassname">rep.report.metrics.</code><code class="descname">RocAuc</code><span class="sig-paren">(</span><em>positive_label=1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/report/metrics.html#RocAuc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.report.metrics.RocAuc" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">sklearn.base.BaseEstimator</span></code>, <a class="reference internal" href="#rep.report.metrics.MetricMixin" title="rep.report.metrics.MetricMixin"><code class="xref py py-class docutils literal"><span class="pre">rep.report.metrics.MetricMixin</span></code></a></p>
-<p>Fix TPR value on roc curve and return FPR value.</p>
+<p>Computes area under the ROC curve.
+General-purpose quality measure for binary classification</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>positive_label</strong> (<em>int</em>) &#8211; label of class, in case of more then two classes,
+will compute ROC AUC for this specific class vs others</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="class">
@@ -752,37 +782,112 @@ them to particular values of expected amount of s and b.</p>
 which is the same as minus log-likelihood,
 and the same as logistic loss,
 and the same as cross-entropy loss.</p>
-<dl class="method">
-<dt id="rep.report.metrics.LogLoss.fit">
-<code class="descname">fit</code><span class="sig-paren">(</span><em>X</em>, <em>y</em>, <em>sample_weight=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/report/metrics.html#LogLoss.fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.report.metrics.LogLoss.fit" title="Permalink to this definition">¶</a></dt>
-<dd><p>Prepare metrics for usage, preprocessing is done in this function.</p>
+<p>Appropriate metric if algorithm is optimizing log-likelihood.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>X</strong> (<em>pandas.DataFrame</em>) &#8211; data shape [n_samples, n_features]</li>
-<li><strong>y</strong> &#8211; labels of events - array-like of shape [n_samples]</li>
-<li><strong>sample_weight</strong> &#8211; weight of events,
-array-like of shape [n_samples] or None if all weights are equal</li>
-</ul>
-</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>regularization</strong> &#8211; minimal value for probability,
+to avoid high (or infinite) penalty for zero probabilities.</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">self</p>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="class">
+<dt id="rep.report.metrics.OptimalAccuracy">
+<em class="property">class </em><code class="descclassname">rep.report.metrics.</code><code class="descname">OptimalAccuracy</code><span class="sig-paren">(</span><em>sb_ratio=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/report/metrics.html#OptimalAccuracy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.report.metrics.OptimalAccuracy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">sklearn.base.BaseEstimator</span></code>, <a class="reference internal" href="#rep.report.metrics.MetricMixin" title="rep.report.metrics.MetricMixin"><code class="xref py py-class docutils literal"><span class="pre">rep.report.metrics.MetricMixin</span></code></a></p>
+<p>Estimation of binary classification accuracy for</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>sb_ratio</strong> &#8211; ratio of signal (class 1) and background (class 0).
+If none, the parameter is taken from test data.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="class">
+<dt id="rep.report.metrics.OptimalAMS">
+<em class="property">class </em><code class="descclassname">rep.report.metrics.</code><code class="descname">OptimalAMS</code><span class="sig-paren">(</span><em>expected_s=691.988607712</em>, <em>expected_b=410999.847</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/report/metrics.html#OptimalAMS"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.report.metrics.OptimalAMS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#rep.report.metrics.OptimalMetric" title="rep.report.metrics.OptimalMetric"><code class="xref py py-class docutils literal"><span class="pre">rep.report.metrics.OptimalMetric</span></code></a></p>
+<p>Optimal values of AMS (average median significance)</p>
+<p>Default values of expected_s and expected_b are from HiggsML challenge.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>expected_s</strong> (<em>float</em>) &#8211; expected amount of signal</li>
+<li><strong>expected_b</strong> (<em>float</em>) &#8211; expected amount of background</li>
+</ul>
 </td>
 </tr>
 </tbody>
 </table>
 </dd></dl>
 
+<dl class="class">
+<dt id="rep.report.metrics.OptimalSignificance">
+<em class="property">class </em><code class="descclassname">rep.report.metrics.</code><code class="descname">OptimalSignificance</code><span class="sig-paren">(</span><em>expected_s=1.0</em>, <em>expected_b=1.0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/report/metrics.html#OptimalSignificance"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.report.metrics.OptimalSignificance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#rep.report.metrics.OptimalMetric" title="rep.report.metrics.OptimalMetric"><code class="xref py py-class docutils literal"><span class="pre">rep.report.metrics.OptimalMetric</span></code></a></p>
+<p>Optimal values of significance: s / sqrt(b)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>expected_s</strong> (<em>float</em>) &#8211; expected amount of signal</li>
+<li><strong>expected_b</strong> (<em>float</em>) &#8211; expected amount of background</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
+<dl class="class">
+<dt id="rep.report.metrics.TPRatFPR">
+<em class="property">class </em><code class="descclassname">rep.report.metrics.</code><code class="descname">TPRatFPR</code><span class="sig-paren">(</span><em>fpr</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/report/metrics.html#TPRatFPR"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.report.metrics.TPRatFPR" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">sklearn.base.BaseEstimator</span></code>, <a class="reference internal" href="#rep.report.metrics.MetricMixin" title="rep.report.metrics.MetricMixin"><code class="xref py py-class docutils literal"><span class="pre">rep.report.metrics.MetricMixin</span></code></a></p>
+<p>Fix FPR value on roc curve and return corresponding TPR value.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>fpr</strong> (<em>float</em>) &#8211; target value false positive rate, from range (0, 1)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="class">
+<dt id="rep.report.metrics.FPRatTPR">
+<em class="property">class </em><code class="descclassname">rep.report.metrics.</code><code class="descname">FPRatTPR</code><span class="sig-paren">(</span><em>tpr</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/report/metrics.html#FPRatTPR"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.report.metrics.FPRatTPR" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">sklearn.base.BaseEstimator</span></code>, <a class="reference internal" href="#rep.report.metrics.MetricMixin" title="rep.report.metrics.MetricMixin"><code class="xref py py-class docutils literal"><span class="pre">rep.report.metrics.MetricMixin</span></code></a></p>
+<p>Fix TPR value on roc curve and return corresponding FPR value.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>tpr</strong> (<em>float</em>) &#8211; target value true positive rate, from range (0, 1)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="supplementary-functions">
+<h3>Supplementary functions<a class="headerlink" href="#supplementary-functions" title="Permalink to this headline">¶</a></h3>
 <dl class="class">
 <dt id="rep.report.metrics.MetricMixin">
 <em class="property">class </em><code class="descclassname">rep.report.metrics.</code><code class="descname">MetricMixin</code><a class="reference internal" href="_modules/rep/report/metrics.html#MetricMixin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.report.metrics.MetricMixin" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
 <p>Class with helpful methods for metrics,
-metrics are expected (but not obliged) to be derived from it.</p>
+metrics are expected (but not obliged) to be derived from this mixin.</p>
 <dl class="method">
 <dt id="rep.report.metrics.MetricMixin.fit">
 <code class="descname">fit</code><span class="sig-paren">(</span><em>X</em>, <em>y</em>, <em>sample_weight=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/report/metrics.html#MetricMixin.fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.report.metrics.MetricMixin.fit" title="Permalink to this definition">¶</a></dt>
@@ -809,30 +914,10 @@ array-like of shape [n_samples] or None if all weights are equal</li>
 </dd></dl>
 
 <dl class="class">
-<dt id="rep.report.metrics.OptimalAMS">
-<em class="property">class </em><code class="descclassname">rep.report.metrics.</code><code class="descname">OptimalAMS</code><span class="sig-paren">(</span><em>expected_s=691.988607712</em>, <em>expected_b=410999.847</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/report/metrics.html#OptimalAMS"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.report.metrics.OptimalAMS" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#rep.report.metrics.OptimalMetric" title="rep.report.metrics.OptimalMetric"><code class="xref py py-class docutils literal"><span class="pre">rep.report.metrics.OptimalMetric</span></code></a></p>
-<p>Optimal values of AMS (average median significance)</p>
-<p>default values of expected_s and expected_b are from HiggsML challenge.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>expected_s</strong> (<em>float</em>) &#8211; expected amount of signal</li>
-<li><strong>expected_b</strong> (<em>float</em>) &#8211; expected amount of background</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="class">
 <dt id="rep.report.metrics.OptimalMetric">
 <em class="property">class </em><code class="descclassname">rep.report.metrics.</code><code class="descname">OptimalMetric</code><span class="sig-paren">(</span><em>metric</em>, <em>expected_s=1.0</em>, <em>expected_b=1.0</em>, <em>signal_label=1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/report/metrics.html#OptimalMetric"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.report.metrics.OptimalMetric" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">sklearn.base.BaseEstimator</span></code>, <a class="reference internal" href="#rep.report.metrics.MetricMixin" title="rep.report.metrics.MetricMixin"><code class="xref py py-class docutils literal"><span class="pre">rep.report.metrics.MetricMixin</span></code></a></p>
-<p>Class to calculate optimal threshold on predictions using some metric</p>
+<p>Class to calculate optimal threshold on predictions for some binary metric.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -846,121 +931,6 @@ array-like of shape [n_samples] or None if all weights are equal</li>
 </tr>
 </tbody>
 </table>
-<dl class="method">
-<dt id="rep.report.metrics.OptimalMetric.compute">
-<code class="descname">compute</code><span class="sig-paren">(</span><em>y_true</em>, <em>proba</em>, <em>sample_weight=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/report/metrics.html#OptimalMetric.compute"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.report.metrics.OptimalMetric.compute" title="Permalink to this definition">¶</a></dt>
-<dd><p>Compute metric for each possible prediction threshold</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>y_true</strong> &#8211; array-like true labels</li>
-<li><strong>proba</strong> &#8211; array-like of shape [n_samples, 2] with predicted probabilities</li>
-<li><strong>sample_weight</strong> &#8211; array-like weight</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">tuple(array, array)</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">thresholds and corresponding metric values</p>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="rep.report.metrics.OptimalMetric.plot_vs_cut">
-<code class="descname">plot_vs_cut</code><span class="sig-paren">(</span><em>y_true</em>, <em>proba</em>, <em>sample_weight=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/report/metrics.html#OptimalMetric.plot_vs_cut"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.report.metrics.OptimalMetric.plot_vs_cut" title="Permalink to this definition">¶</a></dt>
-<dd><p>Compute metric for each possible prediction threshold</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>y_true</strong> &#8211; array-like true labels</li>
-<li><strong>proba</strong> &#8211; array-like of shape [n_samples, 2] with predicted probabilities</li>
-<li><strong>sample_weight</strong> &#8211; array-like weight</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference internal" href="plotting.html#rep.plotting.FunctionsPlot" title="rep.plotting.FunctionsPlot">plotting.FunctionsPlot</a></p>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="class">
-<dt id="rep.report.metrics.OptimalSignificance">
-<em class="property">class </em><code class="descclassname">rep.report.metrics.</code><code class="descname">OptimalSignificance</code><span class="sig-paren">(</span><em>expected_s=1.0</em>, <em>expected_b=1.0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/report/metrics.html#OptimalSignificance"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.report.metrics.OptimalSignificance" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#rep.report.metrics.OptimalMetric" title="rep.report.metrics.OptimalMetric"><code class="xref py py-class docutils literal"><span class="pre">rep.report.metrics.OptimalMetric</span></code></a></p>
-<dl class="docutils">
-<dt>Optimal values of significance:</dt>
-<dd>s / sqrt(b)</dd>
-</dl>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>expected_s</strong> (<em>float</em>) &#8211; expected amount of signal</li>
-<li><strong>expected_b</strong> (<em>float</em>) &#8211; expected amount of background</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="class">
-<dt id="rep.report.metrics.RocAuc">
-<em class="property">class </em><code class="descclassname">rep.report.metrics.</code><code class="descname">RocAuc</code><span class="sig-paren">(</span><em>positive_label=1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/report/metrics.html#RocAuc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.report.metrics.RocAuc" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">sklearn.base.BaseEstimator</span></code>, <a class="reference internal" href="#rep.report.metrics.MetricMixin" title="rep.report.metrics.MetricMixin"><code class="xref py py-class docutils literal"><span class="pre">rep.report.metrics.MetricMixin</span></code></a></p>
-<p>Computes area under the ROC curve.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>positive_label</strong> (<em>int</em>) &#8211; label of class, in case of more then two classes,
-will compute ROC AUC for this specific class vs others</td>
-</tr>
-</tbody>
-</table>
-<dl class="method">
-<dt id="rep.report.metrics.RocAuc.fit">
-<code class="descname">fit</code><span class="sig-paren">(</span><em>X</em>, <em>y</em>, <em>sample_weight=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/report/metrics.html#RocAuc.fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.report.metrics.RocAuc.fit" title="Permalink to this definition">¶</a></dt>
-<dd><p>Prepare metrics for usage, preprocessing is done in this function.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>X</strong> (<em>pandas.DataFrame</em>) &#8211; data shape [n_samples, n_features]</li>
-<li><strong>y</strong> &#8211; labels of events - array-like of shape [n_samples]</li>
-<li><strong>sample_weight</strong> &#8211; weight of events,
-array-like of shape [n_samples] or None if all weights are equal</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">self</p>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="class">
-<dt id="rep.report.metrics.TPRatFPR">
-<em class="property">class </em><code class="descclassname">rep.report.metrics.</code><code class="descname">TPRatFPR</code><span class="sig-paren">(</span><em>fpr</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/report/metrics.html#TPRatFPR"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.report.metrics.TPRatFPR" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">sklearn.base.BaseEstimator</span></code>, <a class="reference internal" href="#rep.report.metrics.MetricMixin" title="rep.report.metrics.MetricMixin"><code class="xref py py-class docutils literal"><span class="pre">rep.report.metrics.MetricMixin</span></code></a></p>
-<p>Fix FPR value on roc curve and return TPR value.</p>
 </dd></dl>
 
 <dl class="function">
@@ -985,11 +955,20 @@ array-like of shape [n_samples] or None if all weights are equal</li>
 <dl class="function">
 <dt id="rep.report.metrics.significance">
 <code class="descclassname">rep.report.metrics.</code><code class="descname">significance</code><span class="sig-paren">(</span><em>s</em>, <em>b</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/report/metrics.html#significance"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.report.metrics.significance" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="docutils">
-<dt>Approximate significance of discovery:</dt>
-<dd>s / sqrt(b).</dd>
-</dl>
-<p>Here we use normalization, so maximal s and b are equal to 1.</p>
+<dd><p>Approximate significance of discovery: s / sqrt(b).
+Here we use normalization, so maximal s and b are equal to 1.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>s</strong> &#8211; amount of signal passed</li>
+<li><strong>b</strong> &#8211; amount of background passed</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 </div>
@@ -1036,7 +1015,7 @@ array-like of shape [n_samples] or None if all weights are equal</li>
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'./',
-            VERSION:'0.6.3',
+            VERSION:'0.6.4',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true

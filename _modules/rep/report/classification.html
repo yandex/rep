@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>rep.report.classification &mdash; REP (Reproducible Experiment Platform) 0.6.3 documentation</title>
+  <title>rep.report.classification &mdash; REP (Reproducible Experiment Platform) 0.6.4 documentation</title>
   
 
   
@@ -30,7 +30,7 @@
   
 
   
-    <link rel="top" title="REP (Reproducible Experiment Platform) 0.6.3 documentation" href="../../../index.html"/>
+    <link rel="top" title="REP (Reproducible Experiment Platform) 0.6.4 documentation" href="../../../index.html"/>
         <link rel="up" title="Module code" href="../../index.html"/> 
 
   
@@ -194,7 +194,7 @@
                 <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">all_classes</span><span class="p">:</span>
                     <span class="n">labels_dict_init</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
         <span class="k">assert</span> <span class="nb">set</span><span class="p">(</span><span class="n">labels_dict_init</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span><span class="o">.</span><span class="n">issubset</span><span class="p">(</span><span class="n">all_classes</span><span class="p">),</span> \
-            <span class="s">&#39;Labels must be a subset of {}, but {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">all_classes</span><span class="p">,</span> <span class="n">labels_dict_init</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+            <span class="s">&#39;Labels must be a subset of {}, but {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">all_classes</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">labels_dict_init</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
         <span class="k">return</span> <span class="n">labels_dict_init</span>
 
 <div class="viewcode-block" id="ClassificationReport.features_pdf"><a class="viewcode-back" href="../../../report.html#rep.report.classification.ClassificationReport.features_pdf">[docs]</a>    <span class="k">def</span> <span class="nf">features_pdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">ignored_sideband</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">labels_dict</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">grid_columns</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
@@ -296,7 +296,7 @@
         <span class="n">correlation_plots</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">corr_pairs</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">feature1_c</span><span class="p">,</span> <span class="n">feature2_c</span> <span class="ow">in</span> <span class="n">correlation_pairs</span><span class="p">:</span>
-            <span class="n">feature1</span><span class="p">,</span> <span class="n">feature2</span> <span class="o">=</span> <span class="n">get_columns_dict</span><span class="p">([</span><span class="n">feature1_c</span><span class="p">,</span> <span class="n">feature2_c</span><span class="p">])</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+            <span class="n">feature1</span><span class="p">,</span> <span class="n">feature2</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">get_columns_dict</span><span class="p">([</span><span class="n">feature1_c</span><span class="p">,</span> <span class="n">feature2_c</span><span class="p">])</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
             <span class="n">corr_pairs</span><span class="p">[(</span><span class="n">feature1</span><span class="p">,</span> <span class="n">feature2</span><span class="p">)]</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
             <span class="k">for</span> <span class="n">label</span><span class="p">,</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">labels_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                 <span class="n">corr_pairs</span><span class="p">[(</span><span class="n">feature1</span><span class="p">,</span> <span class="n">feature2</span><span class="p">)][</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">feature1</span><span class="p">][</span><span class="n">class_labels</span> <span class="o">==</span> <span class="n">label</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
@@ -308,13 +308,15 @@
             <span class="n">correlation_plots</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">plot_fig</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">plotting</span><span class="o">.</span><span class="n">GridPlot</span><span class="p">(</span><span class="n">grid_columns</span><span class="p">,</span> <span class="o">*</span><span class="n">correlation_plots</span><span class="p">)</span>
 </div>
-<div class="viewcode-block" id="ClassificationReport.roc"><a class="viewcode-back" href="../../../report.html#rep.report.classification.ClassificationReport.roc">[docs]</a>    <span class="k">def</span> <span class="nf">roc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">signal_label</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+<div class="viewcode-block" id="ClassificationReport.roc"><a class="viewcode-back" href="../../../report.html#rep.report.classification.ClassificationReport.roc">[docs]</a>    <span class="k">def</span> <span class="nf">roc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">signal_label</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">physical_notion</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Calculate roc functions for data and return roc plot object</span>
 
 <span class="sd">        :param mask: mask for data, which will be used</span>
 <span class="sd">        :type mask: None or numbers.Number or array-like or str or function(pandas.DataFrame)</span>
 <span class="sd">        :param int grid_columns: count of columns for multi-rocs</span>
+<span class="sd">        :param bool physical_notion: if set to True, will show signal efficiency vs background rejection,</span>
+<span class="sd">            otherwise TPR vs FPR.</span>
 
 <span class="sd">        :rtype: plotting.FunctionsPlot</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -327,11 +329,20 @@
 
         <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">prediction</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">prediction</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="n">labels_active</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span> <span class="o">==</span> <span class="n">signal_label</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
-            <span class="n">roc_curves</span><span class="p">[</span><span class="n">name</span><span class="p">],</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">calc_ROC</span><span class="p">(</span><span class="n">prediction</span><span class="p">[</span><span class="n">mask</span><span class="p">,</span> <span class="n">signal_label</span><span class="p">],</span> <span class="n">labels_active</span><span class="p">,</span>
+            <span class="p">(</span><span class="n">tpr</span><span class="p">,</span> <span class="n">tnr</span><span class="p">),</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">calc_ROC</span><span class="p">(</span><span class="n">prediction</span><span class="p">[</span><span class="n">mask</span><span class="p">,</span> <span class="n">signal_label</span><span class="p">],</span> <span class="n">labels_active</span><span class="p">,</span>
                                                     <span class="n">sample_weight</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">weight</span><span class="p">[</span><span class="n">mask</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">physical_notion</span><span class="p">:</span>
+                <span class="n">roc_curves</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">tpr</span><span class="p">,</span> <span class="n">tnr</span><span class="p">)</span>
+                <span class="n">xlabel</span> <span class="o">=</span> <span class="s">&#39;Signal sensitivity&#39;</span>
+                <span class="n">ylabel</span> <span class="o">=</span> <span class="s">&#39;Bg rejection eff (specificity)&#39;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">roc_curves</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">tnr</span><span class="p">,</span> <span class="n">tpr</span><span class="p">)</span>
+                <span class="n">xlabel</span> <span class="o">=</span> <span class="s">&#39;false positive rate&#39;</span>
+                <span class="n">ylabel</span> <span class="o">=</span> <span class="s">&#39;true positive rate&#39;</span>
+
         <span class="n">plot_fig</span> <span class="o">=</span> <span class="n">plotting</span><span class="o">.</span><span class="n">FunctionsPlot</span><span class="p">(</span><span class="n">roc_curves</span><span class="p">)</span>
-        <span class="n">plot_fig</span><span class="o">.</span><span class="n">xlabel</span> <span class="o">=</span> <span class="s">&#39;Signal sensitivity&#39;</span>
-        <span class="n">plot_fig</span><span class="o">.</span><span class="n">ylabel</span> <span class="o">=</span> <span class="s">&#39;Bg rejection eff (specificity)&#39;</span>
+        <span class="n">plot_fig</span><span class="o">.</span><span class="n">xlabel</span> <span class="o">=</span> <span class="n">xlabel</span>
+        <span class="n">plot_fig</span><span class="o">.</span><span class="n">ylabel</span> <span class="o">=</span> <span class="n">ylabel</span>
         <span class="n">plot_fig</span><span class="o">.</span><span class="n">title</span> <span class="o">=</span> <span class="s">&#39;ROC curves&#39;</span>
         <span class="k">return</span> <span class="n">plot_fig</span>
 </div>
@@ -464,20 +475,25 @@
         <span class="n">plot_fig</span><span class="o">.</span><span class="n">ylabel</span> <span class="o">=</span> <span class="n">metric_label</span>
         <span class="k">return</span> <span class="n">plot_fig</span>
 </div>
-    <span class="k">def</span> <span class="nf">_learning_curve_additional</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">metric_func</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">mask</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_learning_curve_additional</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">metric_func</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">mask</span><span class="p">,</span> <span class="n">predict_only_masked</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Compute values of RocAuc (or some other metric) for particular classifier, mask and metric function.</span>
 <span class="sd">        :return: tuple(stages, values) with numbers of stages and corresponding</span>
 <span class="sd">        computed values of metric after each stage.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">_</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">weight</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_apply_mask</span><span class="p">(</span>
-            <span class="n">mask</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_features</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">weight</span><span class="p">)</span>
+
+        <span class="n">evaled_mask</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">weight</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_apply_mask</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">weight</span><span class="p">)</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_features</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">predict_only_masked</span><span class="p">:</span>
+            <span class="n">_</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_apply_mask</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
 
         <span class="n">curve</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
         <span class="n">stage_proba</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">estimators</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">staged_predict_proba</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">stage</span><span class="p">,</span> <span class="n">prediction</span> <span class="ow">in</span> <span class="n">islice</span><span class="p">(</span><span class="nb">enumerate</span><span class="p">(</span><span class="n">stage_proba</span><span class="p">),</span> <span class="n">step</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="n">step</span><span class="p">):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">predict_only_masked</span><span class="p">:</span>
+                <span class="n">prediction</span> <span class="o">=</span> <span class="n">prediction</span><span class="p">[</span><span class="n">evaled_mask</span><span class="p">]</span>
             <span class="n">curve</span><span class="p">[</span><span class="n">stage</span><span class="p">]</span> <span class="o">=</span> <span class="n">metric_func</span><span class="p">(</span><span class="n">labels</span><span class="p">,</span> <span class="n">prediction</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="n">weight</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">curve</span><span class="o">.</span><span class="n">keys</span><span class="p">(),</span> <span class="n">curve</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">curve</span><span class="o">.</span><span class="n">keys</span><span class="p">()),</span> <span class="nb">list</span><span class="p">(</span><span class="n">curve</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
 
 <div class="viewcode-block" id="ClassificationReport.feature_importance_shuffling"><a class="viewcode-back" href="../../../report.html#rep.report.classification.ClassificationReport.feature_importance_shuffling">[docs]</a>    <span class="k">def</span> <span class="nf">feature_importance_shuffling</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">metric</span><span class="o">=</span><span class="n">LogLoss</span><span class="p">(),</span> <span class="n">mask</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">grid_columns</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -504,7 +520,7 @@
         <span class="k">return</span> <span class="n">bin_indices</span>
 
 <div class="viewcode-block" id="ClassificationReport.efficiencies_2d"><a class="viewcode-back" href="../../../report.html#rep.report.classification.ClassificationReport.efficiencies_2d">[docs]</a>    <span class="k">def</span> <span class="nf">efficiencies_2d</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="p">,</span> <span class="n">efficiency</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">n_bins</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">ignored_sideband</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">labels_dict</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
-                        <span class="n">grid_columns</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">signal_label</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+                        <span class="n">grid_columns</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">signal_label</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s">&#39;RdBu&#39;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        For binary classification plots the dependence of efficiency on two columns</span>
 
@@ -520,6 +536,7 @@
 <span class="sd">        :param int grid_columns: count of columns in grid</span>
 <span class="sd">        :param float ignored_sideband: (0, 1) percent of plotting data</span>
 <span class="sd">        :param int signal_label: label to calculate efficiency threshold</span>
+<span class="sd">        :param str cmap: name of colormap used</span>
 
 <span class="sd">        :rtype: plotting.GridPlot</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -552,9 +569,7 @@
         <span class="n">sig_mask</span> <span class="o">=</span> <span class="n">class_labels</span> <span class="o">==</span> <span class="n">signal_label</span>
         <span class="k">for</span> <span class="n">classifier_name</span><span class="p">,</span> <span class="n">prediction</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">prediction</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="n">prediction</span> <span class="o">=</span> <span class="n">prediction</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span>
-            <span class="c"># important: this isn&#39;t completely correct, since we need weighted percentile.</span>
-            <span class="c"># TODO fix</span>
-            <span class="n">threshold_</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span><span class="n">prediction</span><span class="p">[</span><span class="n">sig_mask</span><span class="p">,</span> <span class="n">signal_label</span><span class="p">],</span> <span class="mi">100</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">-</span> <span class="n">efficiency</span><span class="p">))</span>
+            <span class="n">threshold_</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">weighted_quantile</span><span class="p">(</span><span class="n">prediction</span><span class="p">[</span><span class="n">sig_mask</span><span class="p">,</span> <span class="n">signal_label</span><span class="p">],</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">-</span> <span class="n">efficiency</span><span class="p">))</span>
             <span class="n">passed</span> <span class="o">=</span> <span class="n">prediction</span><span class="p">[:,</span> <span class="n">signal_label</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">threshold_</span>
             <span class="n">minlength</span> <span class="o">=</span> <span class="n">n_bins</span> <span class="o">**</span> <span class="mi">2</span>
             <span class="k">for</span> <span class="n">label</span><span class="p">,</span> <span class="n">label_name</span> <span class="ow">in</span> <span class="n">labels_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
@@ -562,14 +577,23 @@
                 <span class="n">label_mask</span> <span class="o">=</span> <span class="n">class_labels</span> <span class="o">==</span> <span class="n">label</span>
                 <span class="k">assert</span> <span class="n">numpy</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">bin_indices</span> <span class="o">&lt;</span> <span class="n">minlength</span><span class="p">)</span>
 
+                <span class="c"># mean efficiency</span>
+                <span class="n">mean_eff</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">label_mask</span> <span class="o">*</span> <span class="n">weight</span> <span class="o">*</span> <span class="n">passed</span><span class="p">)</span> <span class="o">/</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">label_mask</span> <span class="o">*</span> <span class="n">weight</span><span class="p">)</span>
+
                 <span class="n">bin_efficiencies</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">bincount</span><span class="p">(</span><span class="n">bin_indices</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="n">label_mask</span> <span class="o">*</span> <span class="n">weight</span> <span class="o">*</span> <span class="n">passed</span><span class="p">,</span> <span class="n">minlength</span><span class="o">=</span><span class="n">minlength</span><span class="p">)</span>
-                <span class="n">bin_efficiencies</span> <span class="o">/=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">bincount</span><span class="p">(</span><span class="n">bin_indices</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="n">label_mask</span> <span class="o">*</span> <span class="n">weight</span><span class="p">,</span> <span class="n">minlength</span><span class="o">=</span><span class="n">minlength</span><span class="p">)</span> <span class="o">+</span> <span class="mf">1e-6</span>
+                <span class="n">denominators</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">bincount</span><span class="p">(</span><span class="n">bin_indices</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="n">label_mask</span> <span class="o">*</span> <span class="n">weight</span><span class="p">,</span> <span class="n">minlength</span><span class="o">=</span><span class="n">minlength</span><span class="p">)</span>
+                <span class="n">bin_efficiencies</span> <span class="o">/=</span> <span class="n">denominators</span> <span class="o">+</span> <span class="mf">1e-6</span>
+                <span class="c"># For empty bins we will return mean (plots otherwise become ugly)</span>
+                <span class="n">bin_efficiencies</span><span class="p">[</span><span class="n">denominators</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">mean_eff</span>
 
                 <span class="n">plot_fig</span> <span class="o">=</span> <span class="n">plotting</span><span class="o">.</span><span class="n">Function2D_Plot</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="n">xlim</span><span class="o">=</span><span class="n">axis_limits</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">ylim</span><span class="o">=</span><span class="n">axis_limits</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
                 <span class="n">plot_fig</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">plot_fig</span><span class="o">.</span><span class="n">y</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="o">*</span><span class="n">bin_centers</span><span class="p">)</span>
                 <span class="n">plot_fig</span><span class="o">.</span><span class="n">z</span> <span class="o">=</span> <span class="n">bin_efficiencies</span><span class="o">.</span><span class="n">reshape</span><span class="p">([</span><span class="n">n_bins</span><span class="p">,</span> <span class="n">n_bins</span><span class="p">])</span>
                 <span class="n">plot_fig</span><span class="o">.</span><span class="n">xlabel</span><span class="p">,</span> <span class="n">plot_fig</span><span class="o">.</span><span class="n">ylabel</span> <span class="o">=</span> <span class="n">columns_labels</span>
                 <span class="n">plot_fig</span><span class="o">.</span><span class="n">title</span> <span class="o">=</span> <span class="s">&#39;Estimator {} efficiencies for class {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">classifier_name</span><span class="p">,</span> <span class="n">label_name</span><span class="p">)</span>
+                <span class="n">plot_fig</span><span class="o">.</span><span class="n">vmin</span> <span class="o">=</span> <span class="n">mean_eff</span> <span class="o">-</span> <span class="mf">0.2</span>
+                <span class="n">plot_fig</span><span class="o">.</span><span class="n">vmax</span> <span class="o">=</span> <span class="n">mean_eff</span> <span class="o">+</span> <span class="mf">0.2</span>
+                <span class="n">plot_fig</span><span class="o">.</span><span class="n">cmap</span> <span class="o">=</span> <span class="n">cmap</span>
                 <span class="n">plots</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">plot_fig</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">plotting</span><span class="o">.</span><span class="n">GridPlot</span><span class="p">(</span><span class="n">grid_columns</span><span class="p">,</span> <span class="o">*</span><span class="n">plots</span><span class="p">)</span></div></div>
@@ -605,7 +629,7 @@
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'../../../',
-            VERSION:'0.6.3',
+            VERSION:'0.6.4',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true

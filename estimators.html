@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Estimators (classification and regression) &mdash; REP (Reproducible Experiment Platform) 0.6.3 documentation</title>
+  <title>Estimators (classification and regression) &mdash; REP (Reproducible Experiment Platform) 0.6.4 documentation</title>
   
 
   
@@ -30,7 +30,7 @@
   
 
   
-    <link rel="top" title="REP (Reproducible Experiment Platform) 0.6.3 documentation" href="index.html"/>
+    <link rel="top" title="REP (Reproducible Experiment Platform) 0.6.4 documentation" href="index.html"/>
         <link rel="next" title="Meta Machine Learning" href="metaml.html"/>
         <link rel="prev" title="Data" href="data.html"/> 
 
@@ -322,6 +322,44 @@ component of a nested object.</p>
 </table>
 </dd></dl>
 
+<dl class="method">
+<dt id="rep.estimators.interface.Classifier.test_on">
+<code class="descname">test_on</code><span class="sig-paren">(</span><em>X</em>, <em>y</em>, <em>sample_weight=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/estimators/interface.html#Classifier.test_on"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.estimators.interface.Classifier.test_on" title="Permalink to this definition">¶</a></dt>
+<dd><p>Prepare classification report for a single classifier</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>X</strong> &#8211; data, pandas.DataFrame</li>
+<li><strong>y</strong> &#8211; target</li>
+<li><strong>sample_weight</strong> &#8211; weights, optional.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">ClassificationReport</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rep.estimators.interface.Classifier.test_on_lds">
+<code class="descname">test_on_lds</code><span class="sig-paren">(</span><em>lds</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/estimators/interface.html#Classifier.test_on_lds"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.estimators.interface.Classifier.test_on_lds" title="Permalink to this definition">¶</a></dt>
+<dd><p>Prepare classification report for a single classifier</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>lds</strong> (<a class="reference internal" href="data.html#rep.data.storage.LabeledDataStorage" title="rep.data.storage.LabeledDataStorage"><em>LabeledDataStorage</em></a>) &#8211; data</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">ClassificationReport</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="class">
@@ -483,6 +521,44 @@ component of a nested object.</p>
 </table>
 </dd></dl>
 
+<dl class="method">
+<dt id="rep.estimators.interface.Regressor.test_on">
+<code class="descname">test_on</code><span class="sig-paren">(</span><em>X</em>, <em>y</em>, <em>sample_weight=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/estimators/interface.html#Regressor.test_on"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.estimators.interface.Regressor.test_on" title="Permalink to this definition">¶</a></dt>
+<dd><p>Prepare regression report for a single classifier</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>X</strong> &#8211; data, pandas.DataFrame</li>
+<li><strong>y</strong> &#8211; target</li>
+<li><strong>sample_weight</strong> &#8211; weights, optional.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">RegressionReport</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rep.estimators.interface.Regressor.test_on_lds">
+<code class="descname">test_on_lds</code><span class="sig-paren">(</span><em>lds</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/estimators/interface.html#Regressor.test_on_lds"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.estimators.interface.Regressor.test_on_lds" title="Permalink to this definition">¶</a></dt>
+<dd><p>Prepare regression report for a single classifier</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>lds</strong> (<a class="reference internal" href="data.html#rep.data.storage.LabeledDataStorage" title="rep.data.storage.LabeledDataStorage"><em>LabeledDataStorage</em></a>) &#8211; data</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">RegressionReport</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 </dd></dl>
 
 </div>
@@ -490,7 +566,8 @@ component of a nested object.</p>
 <span id="sklearn-classifier-and-regressor"></span><h2>Sklearn classifier and regressor<a class="headerlink" href="#module-rep.estimators.sklearn" title="Permalink to this headline">¶</a></h2>
 <p>Sklearn wrapper for users is the same as sklearn model,
 has only one additional parameter <em>features</em> to choose necessary columns for training.
-If data has <code class="xref py py-class docutils literal"><span class="pre">numpy.array</span></code> type then behaviour will be the same as in sklearn.</p>
+If data has <code class="xref py py-class docutils literal"><span class="pre">numpy.array</span></code> type then behaviour will be the same as in sklearn.
+For complete list of available algorithms, see <a class="reference external" href="http://scikit-learn.org/stable/modules/classes.html">sklearn API</a>.</p>
 <dl class="class">
 <dt id="rep.estimators.sklearn.SklearnBase">
 <em class="property">class </em><code class="descclassname">rep.estimators.sklearn.</code><code class="descname">SklearnBase</code><span class="sig-paren">(</span><em>clf</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/estimators/sklearn.html#SklearnBase"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.estimators.sklearn.SklearnBase" title="Permalink to this definition">¶</a></dt>
@@ -704,7 +781,8 @@ This method allows monitoring of error after each stage.</p>
 <span id="tmva-classifier-and-regressor"></span><h2>TMVA classifier and regressor<a class="headerlink" href="#module-rep.estimators.tmva" title="Permalink to this headline">¶</a></h2>
 <p>These classes are wrappers for physics machine learning library TMVA used .root format files (c++ library).
 Now you can simply use it in python. TMVA contains classification and regression algorithms, including neural networks.
-<a class="reference external" href="http://mirror.yandex.ru/gentoo-distfiles/distfiles/TMVAUsersGuide-v4.03.pdf">TMVA guide</a></p>
+See <a class="reference external" href="http://mirror.yandex.ru/gentoo-distfiles/distfiles/TMVAUsersGuide-v4.03.pdf">TMVA guide</a>
+for list of available algorithms and parameters.</p>
 <dl class="class">
 <dt id="rep.estimators.tmva.TMVABase">
 <em class="property">class </em><code class="descclassname">rep.estimators.tmva.</code><code class="descname">TMVABase</code><span class="sig-paren">(</span><em>factory_options=''</em>, <em>method='kBDT'</em>, <em>**method_parameters</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/estimators/tmva.html#TMVABase"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.estimators.tmva.TMVABase" title="Permalink to this definition">¶</a></dt>
@@ -1020,19 +1098,40 @@ and this will prevent overfitting.</li>
 </tr>
 </tbody>
 </table>
+<dl class="attribute">
+<dt id="rep.estimators.xgboost.XGBoostBase.feature_importances_">
+<code class="descname">feature_importances_</code><a class="headerlink" href="#rep.estimators.xgboost.XGBoostBase.feature_importances_" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sklearn-way of returning feature importance.
+This returned as numpy.array, assuming that initially passed train_features=None</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="rep.estimators.xgboost.XGBoostBase.get_feature_importances">
+<code class="descname">get_feature_importances</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/estimators/xgboost.html#XGBoostBase.get_feature_importances"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.estimators.xgboost.XGBoostBase.get_feature_importances" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get features importance</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">pandas.DataFrame with column effect and <cite>index=features</cite></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="class">
 <dt id="rep.estimators.xgboost.XGBoostClassifier">
 <em class="property">class </em><code class="descclassname">rep.estimators.xgboost.</code><code class="descname">XGBoostClassifier</code><span class="sig-paren">(</span><em>features=None</em>, <em>n_estimators=100</em>, <em>nthreads=16</em>, <em>num_feature=None</em>, <em>gamma=None</em>, <em>eta=0.3</em>, <em>max_depth=6</em>, <em>scale_pos_weight=1.0</em>, <em>min_child_weight=1.0</em>, <em>subsample=1.0</em>, <em>colsample=1.0</em>, <em>base_score=0.5</em>, <em>verbose=0</em>, <em>missing=-999.0</em>, <em>random_state=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/estimators/xgboost.html#XGBoostClassifier"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.estimators.xgboost.XGBoostClassifier" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#rep.estimators.xgboost.XGBoostBase" title="rep.estimators.xgboost.XGBoostBase"><code class="xref py py-class docutils literal"><span class="pre">rep.estimators.xgboost.XGBoostBase</span></code></a>, <a class="reference internal" href="#rep.estimators.interface.Classifier" title="rep.estimators.interface.Classifier"><code class="xref py py-class docutils literal"><span class="pre">rep.estimators.interface.Classifier</span></code></a></p>
-<p>Implements classification (and multiclassification) from XGBoost library.</p>
+<p>Implements classification (and multiclassification) from XGBoost library. 
+Base class for XGBoostClassifier and XGBoostRegressor. XGBoost tree booster is used.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>features</strong> (<em>None or list(str)</em>) &#8211; list of features to train model</li>
 <li><strong>n_estimators</strong> (<em>int</em>) &#8211; the number of trees built.</li>
 <li><strong>nthreads</strong> (<em>int</em>) &#8211; number of parallel threads used to run xgboost.</li>
 <li><strong>num_feature</strong> (<em>None or int</em>) &#8211; feature dimension used in boosting, set to maximum dimension of the feature
@@ -1065,13 +1164,6 @@ and this will prevent overfitting.</li>
 </tr>
 </tbody>
 </table>
-<dl class="attribute">
-<dt id="rep.estimators.xgboost.XGBoostClassifier.feature_importances_">
-<code class="descname">feature_importances_</code><a class="headerlink" href="#rep.estimators.xgboost.XGBoostClassifier.feature_importances_" title="Permalink to this definition">¶</a></dt>
-<dd><p>Sklearn-way of returning feature importance.
-This returned as numpy.array, assuming that initially passed train_features=None</p>
-</dd></dl>
-
 <dl class="method">
 <dt id="rep.estimators.xgboost.XGBoostClassifier.fit">
 <code class="descname">fit</code><span class="sig-paren">(</span><em>X</em>, <em>y</em>, <em>sample_weight=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/estimators/xgboost.html#XGBoostClassifier.fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.estimators.xgboost.XGBoostClassifier.fit" title="Permalink to this definition">¶</a></dt>
@@ -1090,20 +1182,6 @@ array-like of shape [n_samples] or None if all weights are equal</li>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">self</p>
 </td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="rep.estimators.xgboost.XGBoostClassifier.get_feature_importances">
-<code class="descname">get_feature_importances</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/estimators/xgboost.html#XGBoostClassifier.get_feature_importances"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.estimators.xgboost.XGBoostClassifier.get_feature_importances" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get features importance</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">pandas.DataFrame with column effect and <cite>index=features</cite></td>
 </tr>
 </tbody>
 </table>
@@ -1141,13 +1219,13 @@ array-like of shape [n_samples] or None if all weights are equal</li>
 <dt id="rep.estimators.xgboost.XGBoostRegressor">
 <em class="property">class </em><code class="descclassname">rep.estimators.xgboost.</code><code class="descname">XGBoostRegressor</code><span class="sig-paren">(</span><em>features=None</em>, <em>n_estimators=100</em>, <em>nthreads=16</em>, <em>num_feature=None</em>, <em>gamma=None</em>, <em>eta=0.3</em>, <em>max_depth=6</em>, <em>min_child_weight=1.0</em>, <em>subsample=1.0</em>, <em>colsample=1.0</em>, <em>objective_type='linear'</em>, <em>base_score=0.5</em>, <em>verbose=0</em>, <em>missing=-999.0</em>, <em>random_state=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/estimators/xgboost.html#XGBoostRegressor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.estimators.xgboost.XGBoostRegressor" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#rep.estimators.xgboost.XGBoostBase" title="rep.estimators.xgboost.XGBoostBase"><code class="xref py py-class docutils literal"><span class="pre">rep.estimators.xgboost.XGBoostBase</span></code></a>, <a class="reference internal" href="#rep.estimators.interface.Regressor" title="rep.estimators.interface.Regressor"><code class="xref py py-class docutils literal"><span class="pre">rep.estimators.interface.Regressor</span></code></a></p>
-<p>Implements regression from XGBoost library.</p>
+<p>Implements regression from XGBoost library. 
+Base class for XGBoostClassifier and XGBoostRegressor. XGBoost tree booster is used.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>features</strong> (<em>None or list(str)</em>) &#8211; list of features to train model</li>
 <li><strong>n_estimators</strong> (<em>int</em>) &#8211; the number of trees built.</li>
 <li><strong>nthreads</strong> (<em>int</em>) &#8211; number of parallel threads used to run xgboost.</li>
 <li><strong>num_feature</strong> (<em>None or int</em>) &#8211; feature dimension used in boosting, set to maximum dimension of the feature
@@ -1158,6 +1236,7 @@ The larger, the more conservative the algorithm will be.</li>
 After each boosting step, we can directly get the weights of new features
 and eta actually shrinkage the feature weights to make the boosting process more conservative.</li>
 <li><strong>max_depth</strong> (<em>int</em>) &#8211; maximum depth of a tree.</li>
+<li><strong>scale_pos_weight</strong> (<em>float</em>) &#8211; ration of weights of the class 1 to the weights of the class 0.</li>
 <li><strong>min_child_weight</strong> (<em>float</em>) &#8211; <p>minimum sum of instance weight(hessian) needed in a child.
 If the tree partition step results in a leaf node with the sum of instance weight less than min_child_weight,
 then the building process will give up further partitioning.</p>
@@ -1174,24 +1253,11 @@ and this will prevent overfitting.</li>
 <li><strong>random_state</strong> (<em>int</em>) &#8211; random number seed.</li>
 <li><strong>verbose</strong> (<em>boot</em>) &#8211; if 1, will print messages during training</li>
 <li><strong>missing</strong> (<em>float</em>) &#8211; the number considered by xgboost as missing value.</li>
-<li><strong>objective_type</strong> (<em>str</em>) &#8211; <p>specify the learning task and the corresponding learning objective, and the options are below:</p>
-<ul>
-<li>&#8220;linear&#8221; &#8211; linear regression</li>
-<li>&#8220;logistic&#8221; &#8211; logistic regression</li>
-</ul>
-</li>
 </ul>
 </td>
 </tr>
 </tbody>
 </table>
-<dl class="attribute">
-<dt id="rep.estimators.xgboost.XGBoostRegressor.feature_importances_">
-<code class="descname">feature_importances_</code><a class="headerlink" href="#rep.estimators.xgboost.XGBoostRegressor.feature_importances_" title="Permalink to this definition">¶</a></dt>
-<dd><p>Sklearn-way of returning feature importance.
-This returned as numpy.array, assuming that initially passed train_features=None</p>
-</dd></dl>
-
 <dl class="method">
 <dt id="rep.estimators.xgboost.XGBoostRegressor.fit">
 <code class="descname">fit</code><span class="sig-paren">(</span><em>X</em>, <em>y</em>, <em>sample_weight=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/estimators/xgboost.html#XGBoostRegressor.fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.estimators.xgboost.XGBoostRegressor.fit" title="Permalink to this definition">¶</a></dt>
@@ -1210,20 +1276,6 @@ array-like of shape [n_samples] or None if all weights are equal</li>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">self</p>
 </td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="rep.estimators.xgboost.XGBoostRegressor.get_feature_importances">
-<code class="descname">get_feature_importances</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/estimators/xgboost.html#XGBoostRegressor.get_feature_importances"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.estimators.xgboost.XGBoostRegressor.get_feature_importances" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get features importance</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">pandas.DataFrame with column effect and <cite>index=features</cite></td>
 </tr>
 </tbody>
 </table>
@@ -1274,7 +1326,7 @@ array-like of shape [n_samples] or None if all weights are equal</li>
 <p>These classes are wrappers for <a class="reference external" href="http://theanets.readthedocs.org/">theanets</a> - neural network python library.</p>
 <dl class="class">
 <dt id="rep.estimators.theanets.TheanetsBase">
-<em class="property">class </em><code class="descclassname">rep.estimators.theanets.</code><code class="descname">TheanetsBase</code><span class="sig-paren">(</span><em>features=None</em>, <em>layers=(10</em>, <em>)</em>, <em>input_layer=-1</em>, <em>output_layer=-1</em>, <em>hidden_activation='logistic'</em>, <em>output_activation='linear'</em>, <em>input_noise=0</em>, <em>hidden_noise=0</em>, <em>input_dropouts=0</em>, <em>hidden_dropouts=0</em>, <em>decode_from=1</em>, <em>scaler='standard'</em>, <em>trainers=None</em>, <em>random_state=42</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/estimators/theanets.html#TheanetsBase"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.estimators.theanets.TheanetsBase" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">rep.estimators.theanets.</code><code class="descname">TheanetsBase</code><span class="sig-paren">(</span><em>features=None</em>, <em>layers=(10</em>, <em>)</em>, <em>input_layer=-1</em>, <em>output_layer=-1</em>, <em>hidden_activation='logistic'</em>, <em>output_activation='linear'</em>, <em>input_noise=0</em>, <em>hidden_noise=0</em>, <em>input_dropout=0</em>, <em>hidden_dropout=0</em>, <em>decode_from=1</em>, <em>weight_l1=0.01</em>, <em>weight_l2=0.01</em>, <em>scaler='standard'</em>, <em>trainers=None</em>, <em>random_state=42</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/estimators/theanets.html#TheanetsBase"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.estimators.theanets.TheanetsBase" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
 <p>Base class for estimators from Theanets library.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -1310,7 +1362,7 @@ example: [{&#8216;optimize&#8217;: sgd, &#8216;momentum&#8217;: 0.2}, {&#8216;op
 <a class="reference external" href="http://theanets.readthedocs.org/en/latest/training.html">http://theanets.readthedocs.org/en/latest/training.html</a></p>
 <dl class="method">
 <dt id="rep.estimators.theanets.TheanetsBase.fit">
-<code class="descname">fit</code><span class="sig-paren">(</span><em>X</em>, <em>y</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/estimators/theanets.html#TheanetsBase.fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.estimators.theanets.TheanetsBase.fit" title="Permalink to this definition">¶</a></dt>
+<code class="descname">fit</code><span class="sig-paren">(</span><em>X</em>, <em>y</em>, <em>sample_weight=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/estimators/theanets.html#TheanetsBase.fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.estimators.theanets.TheanetsBase.fit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Train the estimator from scratch.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -1319,6 +1371,7 @@ example: [{&#8216;optimize&#8217;: sgd, &#8216;momentum&#8217;: 0.2}, {&#8216;op
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>X</strong> (<em>pandas.DataFrame</em>) &#8211; data shape [n_samples, n_features]</li>
 <li><strong>y</strong> &#8211; values - array-like of shape [n_samples]</li>
+<li><strong>sample_weight</strong> &#8211; weights - array-like of shape [n_samples]</li>
 </ul>
 </td>
 </tr>
@@ -1383,7 +1436,7 @@ for instance:</p>
 
 <dl class="class">
 <dt id="rep.estimators.theanets.TheanetsClassifier">
-<em class="property">class </em><code class="descclassname">rep.estimators.theanets.</code><code class="descname">TheanetsClassifier</code><span class="sig-paren">(</span><em>features=None</em>, <em>layers=(10</em>, <em>)</em>, <em>input_layer=-1</em>, <em>output_layer=-1</em>, <em>hidden_activation='logistic'</em>, <em>output_activation='linear'</em>, <em>input_noise=0</em>, <em>hidden_noise=0</em>, <em>input_dropouts=0</em>, <em>hidden_dropouts=0</em>, <em>decode_from=1</em>, <em>scaler='standard'</em>, <em>trainers=None</em>, <em>random_state=42</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/estimators/theanets.html#TheanetsClassifier"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.estimators.theanets.TheanetsClassifier" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">rep.estimators.theanets.</code><code class="descname">TheanetsClassifier</code><span class="sig-paren">(</span><em>features=None</em>, <em>layers=(10</em>, <em>)</em>, <em>input_layer=-1</em>, <em>output_layer=-1</em>, <em>hidden_activation='logistic'</em>, <em>output_activation='linear'</em>, <em>input_noise=0</em>, <em>hidden_noise=0</em>, <em>input_dropout=0</em>, <em>hidden_dropout=0</em>, <em>decode_from=1</em>, <em>weight_l1=0.01</em>, <em>weight_l2=0.01</em>, <em>scaler='standard'</em>, <em>trainers=None</em>, <em>random_state=42</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/estimators/theanets.html#TheanetsClassifier"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.estimators.theanets.TheanetsClassifier" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#rep.estimators.theanets.TheanetsBase" title="rep.estimators.theanets.TheanetsBase"><code class="xref py py-class docutils literal"><span class="pre">rep.estimators.theanets.TheanetsBase</span></code></a>, <a class="reference internal" href="#rep.estimators.interface.Classifier" title="rep.estimators.interface.Classifier"><code class="xref py py-class docutils literal"><span class="pre">rep.estimators.interface.Classifier</span></code></a></p>
 <p>Classifier from Theanets library.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -1419,7 +1472,7 @@ example: [{&#8216;optimize&#8217;: sgd, &#8216;momentum&#8217;: 0.2}, {&#8216;op
 <a class="reference external" href="http://theanets.readthedocs.org/en/latest/training.html">http://theanets.readthedocs.org/en/latest/training.html</a></p>
 <dl class="method">
 <dt id="rep.estimators.theanets.TheanetsClassifier.partial_fit">
-<code class="descname">partial_fit</code><span class="sig-paren">(</span><em>X</em>, <em>y</em>, <em>keep_trainer=True</em>, <em>**trainer</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/estimators/theanets.html#TheanetsClassifier.partial_fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.estimators.theanets.TheanetsClassifier.partial_fit" title="Permalink to this definition">¶</a></dt>
+<code class="descname">partial_fit</code><span class="sig-paren">(</span><em>X</em>, <em>y</em>, <em>sample_weight=None</em>, <em>keep_trainer=True</em>, <em>**trainer</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/estimators/theanets.html#TheanetsClassifier.partial_fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.estimators.theanets.TheanetsClassifier.partial_fit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Train the classifier by training the existing classifier again.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -1474,7 +1527,7 @@ example: [{&#8216;optimize&#8217;: sgd, &#8216;momentum&#8217;: 0.2}, {&#8216;op
 
 <dl class="class">
 <dt id="rep.estimators.theanets.TheanetsRegressor">
-<em class="property">class </em><code class="descclassname">rep.estimators.theanets.</code><code class="descname">TheanetsRegressor</code><span class="sig-paren">(</span><em>features=None</em>, <em>layers=(10</em>, <em>)</em>, <em>input_layer=-1</em>, <em>output_layer=-1</em>, <em>hidden_activation='logistic'</em>, <em>output_activation='linear'</em>, <em>input_noise=0</em>, <em>hidden_noise=0</em>, <em>input_dropouts=0</em>, <em>hidden_dropouts=0</em>, <em>decode_from=1</em>, <em>scaler='standard'</em>, <em>trainers=None</em>, <em>random_state=42</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/estimators/theanets.html#TheanetsRegressor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.estimators.theanets.TheanetsRegressor" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">rep.estimators.theanets.</code><code class="descname">TheanetsRegressor</code><span class="sig-paren">(</span><em>features=None</em>, <em>layers=(10</em>, <em>)</em>, <em>input_layer=-1</em>, <em>output_layer=-1</em>, <em>hidden_activation='logistic'</em>, <em>output_activation='linear'</em>, <em>input_noise=0</em>, <em>hidden_noise=0</em>, <em>input_dropout=0</em>, <em>hidden_dropout=0</em>, <em>decode_from=1</em>, <em>weight_l1=0.01</em>, <em>weight_l2=0.01</em>, <em>scaler='standard'</em>, <em>trainers=None</em>, <em>random_state=42</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/estimators/theanets.html#TheanetsRegressor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.estimators.theanets.TheanetsRegressor" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#rep.estimators.theanets.TheanetsBase" title="rep.estimators.theanets.TheanetsBase"><code class="xref py py-class docutils literal"><span class="pre">rep.estimators.theanets.TheanetsBase</span></code></a>, <a class="reference internal" href="#rep.estimators.interface.Regressor" title="rep.estimators.interface.Regressor"><code class="xref py py-class docutils literal"><span class="pre">rep.estimators.interface.Regressor</span></code></a></p>
 <p>Regressor from Theanets library.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -2447,7 +2500,7 @@ otherwise a <code class="xref py py-class docutils literal"><span class="pre">Fe
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'./',
-            VERSION:'0.6.3',
+            VERSION:'0.6.4',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true

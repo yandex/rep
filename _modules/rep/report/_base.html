@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>rep.report._base &mdash; REP (Reproducible Experiment Platform) 0.6.3 documentation</title>
+  <title>rep.report._base &mdash; REP (Reproducible Experiment Platform) 0.6.4 documentation</title>
   
 
   
@@ -30,7 +30,7 @@
   
 
   
-    <link rel="top" title="REP (Reproducible Experiment Platform) 0.6.3 documentation" href="../../../index.html"/>
+    <link rel="top" title="REP (Reproducible Experiment Platform) 0.6.4 documentation" href="../../../index.html"/>
         <link rel="up" title="Module code" href="../../index.html"/> 
 
   
@@ -203,7 +203,7 @@
 
         <span class="k">return</span> <span class="n">plot_corr</span>
 
-    <span class="k">def</span> <span class="nf">learning_curve</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">metric</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">steps</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">metric_label</span><span class="o">=</span><span class="s">&#39;metric&#39;</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">learning_curve</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">metric</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">steps</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">metric_label</span><span class="o">=</span><span class="s">&#39;metric&#39;</span><span class="p">,</span> <span class="n">predict_only_masked</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get learning curves</span>
 
@@ -213,6 +213,9 @@
 <span class="sd">            otherwise dict with steps for each estimator</span>
 <span class="sd">        :type steps: int or dict</span>
 <span class="sd">        :param str metric_label: name for metric on plot</span>
+<span class="sd">        :param bool predict_only_masked: if True, will predict only for needed events.</span>
+<span class="sd">          When you build learning curves for FoldingClassifier/FoldingRegressor on the same dataset,</span>
+<span class="sd">          set this to False to get unbiased predictions.</span>
 
 <span class="sd">        :rtype: plotting.FunctionsPlot</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -220,12 +223,9 @@
 
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">metric</span><span class="p">,</span> <span class="nb">type</span><span class="p">):</span>
             <span class="k">print</span><span class="p">(</span><span class="n">metric_label</span><span class="p">,</span> <span class="s">&#39; is a type, not instance. Forgot to initialize?&#39;</span><span class="p">)</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">metric_func</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">metric</span><span class="p">)</span>
-            <span class="n">metric_func</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="n">weight</span><span class="p">)</span>
-        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
-            <span class="c"># Metrics doesn&#39;t have &#39;fit&#39; method</span>
-            <span class="k">pass</span>
+
+        <span class="n">metric_func</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">metric</span><span class="p">)</span>
+        <span class="n">utils</span><span class="o">.</span><span class="n">fit_metric</span><span class="p">(</span><span class="n">metric_func</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="n">weight</span><span class="p">)</span>
 
         <span class="n">quality</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">estimator_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">prediction</span><span class="p">:</span>
@@ -234,7 +234,8 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">step</span> <span class="o">=</span> <span class="n">steps</span><span class="p">[</span><span class="n">estimator_name</span><span class="p">]</span>
             <span class="k">try</span><span class="p">:</span>
-                <span class="n">quality</span><span class="p">[</span><span class="n">estimator_name</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_learning_curve_additional</span><span class="p">(</span><span class="n">estimator_name</span><span class="p">,</span> <span class="n">metric_func</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">mask</span><span class="p">)</span>
+                <span class="n">quality</span><span class="p">[</span><span class="n">estimator_name</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_learning_curve_additional</span><span class="p">(</span><span class="n">estimator_name</span><span class="p">,</span> <span class="n">metric_func</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">mask</span><span class="p">,</span>
+                                                                          <span class="n">predict_only_masked</span><span class="o">=</span><span class="n">predict_only_masked</span><span class="p">)</span>
             <span class="k">except</span> <span class="p">(</span><span class="ne">AttributeError</span><span class="p">,</span> <span class="ne">NotImplementedError</span><span class="p">):</span>
                 <span class="k">print</span><span class="p">(</span><span class="s">&quot;Estimator {} doesn&#39;t support stage predictions&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">estimator_name</span><span class="p">))</span>
         <span class="n">plot_fig</span> <span class="o">=</span> <span class="n">plotting</span><span class="o">.</span><span class="n">FunctionsPlot</span><span class="p">(</span><span class="n">quality</span><span class="p">)</span>
@@ -243,7 +244,8 @@
         <span class="n">plot_fig</span><span class="o">.</span><span class="n">title</span> <span class="o">=</span> <span class="s">&#39;Learning curves&#39;</span>
         <span class="k">return</span> <span class="n">plot_fig</span>
 
-    <span class="k">def</span> <span class="nf">_learning_curve_additional</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">metric_func</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">mask</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_learning_curve_additional</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">metric_func</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">mask</span><span class="p">,</span> <span class="n">predict_only_masked</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; returns tuple (x_values, quality_values), which describe the learning curve &quot;&quot;&quot;</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s">&#39;Should be implemented in descendants&#39;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">feature_importance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">grid_columns</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
@@ -283,11 +285,8 @@
             <span class="n">_</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">weights</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_apply_mask</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_features</span><span class="p">(</span><span class="n">estimator</span><span class="o">.</span><span class="n">features</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="p">,</span>
                                                         <span class="bp">self</span><span class="o">.</span><span class="n">weight</span><span class="p">)</span>
             <span class="n">metric_copy</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">metric</span><span class="p">)</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="n">metric_copy</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="n">weights</span><span class="p">)</span>
-            <span class="k">except</span><span class="p">:</span>
-                <span class="c"># metric doesn&#39;t support fitting</span>
-                <span class="k">pass</span>
+            <span class="n">utils</span><span class="o">.</span><span class="n">fit_metric</span><span class="p">(</span><span class="n">metric_copy</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="n">weights</span><span class="p">)</span>
+
             <span class="k">for</span> <span class="n">feature</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
                 <span class="n">data_modified</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
                 <span class="n">column</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">data_modified</span><span class="p">[</span><span class="n">feature</span><span class="p">])</span>
@@ -320,11 +319,7 @@
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">metric</span><span class="p">,</span> <span class="nb">type</span><span class="p">):</span>
             <span class="k">print</span><span class="p">(</span><span class="s">&#39;Metric is a type, not instance. Forgot to initialize?&#39;</span><span class="p">)</span>
         <span class="n">metric_func</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">metric</span><span class="p">)</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">metric_func</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="n">weight</span><span class="p">)</span>
-        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
-            <span class="c"># Metrics doesn&#39;t have &#39;fit&#39; method</span>
-            <span class="k">pass</span>
+        <span class="n">utils</span><span class="o">.</span><span class="n">fit_metric</span><span class="p">(</span><span class="n">metric_func</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="n">weight</span><span class="p">)</span>
 
         <span class="n">quality</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">estimator_name</span><span class="p">,</span> <span class="n">prediction</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">prediction</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
@@ -362,7 +357,7 @@
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'../../../',
-            VERSION:'0.6.3',
+            VERSION:'0.6.4',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true
