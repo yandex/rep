@@ -59,14 +59,14 @@ def test_complex_stacking_sk():
 
 def test_complex_stacking_tmva():
     # Ada over kFold over TMVA
-    base_kfold = FoldingClassifier(base_estimator=TMVAClassifier(), random_state=13)
+    base_kfold = FoldingClassifier(base_estimator=TMVAClassifier(method='kBDT', NTrees=10), random_state=13)
     check_classifier(SklearnClassifier(clf=AdaBoostClassifier(base_estimator=base_kfold, n_estimators=3)),
                      has_staged_pp=False, has_importances=False)
 
 
 def test_complex_stacking_xgboost():
     # Ada over kFold over xgboost
-    base_kfold = FoldingClassifier(base_estimator=XGBoostClassifier())
+    base_kfold = FoldingClassifier(base_estimator=XGBoostClassifier(n_estimators=10))
     check_classifier(SklearnClassifier(clf=AdaBoostClassifier(base_estimator=base_kfold, n_estimators=3)),
                      has_staged_pp=False, has_importances=False)
 

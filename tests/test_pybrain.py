@@ -103,7 +103,7 @@ def test_pybrain_multi_regression():
 
 
 def test_simple_stacking_pybrain():
-    base_pybrain = PyBrainClassifier()
+    base_pybrain = PyBrainClassifier(epochs=2)
     base_bagging = BaggingClassifier(base_estimator=base_pybrain, n_estimators=3)
     check_classifier(SklearnClassifier(clf=base_bagging), **classifier_params)
 

@@ -8,7 +8,8 @@ __author__ = 'Alex Rogozhnikov'
 
 def test_tmva():
     # check classifier
-    check_classifier(TMVAClassifier(), check_instance=True, has_staged_pp=False, has_importances=False)
+    cl = TMVAClassifier(method='kBDT', NTrees=10)
+    check_classifier(cl, check_instance=True, has_staged_pp=False, has_importances=False)
 
     cl = TMVAClassifier(method='kSVM', Gamma=0.25, Tol=0.001, sigmoid_function='identity')
     check_classifier(cl, check_instance=True, has_staged_pp=False, has_importances=False)

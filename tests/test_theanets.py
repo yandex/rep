@@ -42,11 +42,6 @@ regressor_params = {
 }
 
 
-@known_failure
-def test_exp_failure():
-    assert 0 == 1
-
-
 @retry_if_fails
 def test_theanets_params():
     check_params(TheanetsClassifier, layers=[1, 2], scaler=False, trainers=[{}, {'algo': 'nag', 'learning_rate': 0.1}])
@@ -74,7 +69,7 @@ def test_theanets_configurations():
 
 @retry_if_fails
 def test_theanets_regression():
-    check_regression(TheanetsRegressor(layers=[11],
+    check_regression(TheanetsRegressor(layers=[3],
                                        trainers=[{'algo': 'rmsprop', 'learning_rate': 0.1}]),
                      **regressor_params)
     check_regression(TheanetsRegressor(scaler=StandardScaler()), **regressor_params)

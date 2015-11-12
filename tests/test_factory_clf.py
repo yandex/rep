@@ -18,6 +18,7 @@ __author__ = 'Tatiana Likhomanenko'
 
 # TODO testing of right-classification part of estimators
 
+
 def test_factory():
     factory = ClassifiersFactory()
     try:
@@ -29,7 +30,8 @@ def test_factory():
     factory.add_classifier('ada', AdaBoostClassifier(n_estimators=20))
 
     X, y, sample_weight = generate_classification_data()
-    assert factory == factory.fit(X, y, sample_weight=sample_weight, features=list(X.columns), parallel_profile='threads-4')
+    assert factory == factory.fit(X, y, sample_weight=sample_weight, features=list(X.columns),
+                                  parallel_profile='threads-4')
     for cl in factory.values():
         assert list(cl.features) == list(X.columns)
     proba = factory.predict_proba(X, parallel_profile='threads-4')
@@ -71,9 +73,9 @@ def test_factory():
     report = factory.test_on_lds(LabeledDataStorage(X, y, sample_weight))
     report = factory.test_on(X, y, sample_weight=sample_weight)
     val = numpy.mean(X['column0'])
-    check_report_with_mask(report, "column0 > %f" % (val / 2.), X)
-    check_report_with_mask(report, lambda x: numpy.array(x['column0']) < val * 2., X)
-    check_report_with_mask(report, None, X)
+    yield check_report_with_mask, report, "column0 > %f" % (val / 2.), X
+    yield check_report_with_mask, report, lambda x: numpy.array(x['column0']) < val * 2., X
+    yield check_report_with_mask, report, None, X
 
 
 def roc_auc_score_mod(y_true, prob, sample_weight=None):

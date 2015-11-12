@@ -50,12 +50,13 @@ def test_gridsearch_on_tmva():
     scorer = FoldingScorer(metric)
 
     grid_param = OrderedDict({"MaxDepth": [4, 5], "NTrees": [10, 20]})
-    generator = SubgridParameterOptimizer(grid_param)
+    generator = SubgridParameterOptimizer(n_evaluations=5, param_grid=grid_param)
 
     try:
         from rep.estimators import TMVAClassifier
 
-        grid = GridOptimalSearchCV(TMVAClassifier(features=['column0', 'column1']), generator, scorer)
+        base_tmva = TMVAClassifier(features=['column0', 'column1'], method='kBDT')
+        grid = GridOptimalSearchCV(base_tmva, generator, scorer)
         classifier = check_grid(grid, False, False, False)
         # checking parameters
         assert len(classifier.features) == 2
