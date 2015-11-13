@@ -59,7 +59,7 @@ Apache 2.0, library is open-source.
 
 ### Minimal examples
 
-__REP__ wrappers are python compatible:
+__REP__ wrappers are sklearn compatible:
 
 ```python
 from rep.estimators import XGBoostClassifier, SklearnClassifier, TheanetsClassifier
@@ -97,6 +97,6 @@ from rep.report.metrics import RocAuc
 report.learning_curve(RocAuc(), steps=10)  
 ```
 
-You can read about other __REP__ tools (like distributed grid search) in documentation and howto examples.
+You can read about other __REP__ tools (like smart distributed grid search and folding) in documentation and howto examples.
 
 
