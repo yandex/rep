@@ -97,6 +97,7 @@ from rep.report.metrics import RocAuc
 report.learning_curve(RocAuc(), steps=10)  
 ```
 
-You can read about other __REP__ tools (like smart distributed grid search and folding) in documentation and howto examples.
+You can read about other __REP__ tools (like smart distributed grid search, folding and factory) 
+in documentation and howto examples.
 
 
