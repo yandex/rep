@@ -2,7 +2,6 @@ from __future__ import division, print_function, absolute_import
 from rep.test.test_estimators import check_classifier, check_regression
 from rep.estimators import TMVAClassifier, TMVARegressor
 
-
 __author__ = 'Alex Rogozhnikov'
 
 
