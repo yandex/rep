@@ -28,8 +28,15 @@ Main class linking the whole process is :class:`GridOptimalSearchCV`, which take
 
 Folding Scorer
 --------------
+Folding cross validation can be used in grid search optimization.
 
-.. autoclass:: FoldingScorer
+.. autoclass:: ClassificationFoldingScorer
+    :members:
+    :inherited-members:
+    :undoc-members:
+    :show-inheritance:
+
+.. autoclass:: RegressionFoldingScorer
     :members:
     :inherited-members:
     :undoc-members:
