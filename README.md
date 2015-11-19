@@ -53,6 +53,7 @@ However, if you want to install `REP` and all of its dependencies on your machin
 * [gitter chat, troubleshooting](https://gitter.im/yandex/rep)
 * [API, contributing new estimator](https://github.com/yandex/rep/wiki/Contributing-new-estimator)
 * [API, contributing new metric](https://github.com/yandex/rep/wiki/Contributing-new-metrics)
+* If you use REP in research, please consider [citing](http://arxiv.org/abs/1510.00624)
 
 ### License
 Apache 2.0, library is open-source.
