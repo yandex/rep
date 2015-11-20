@@ -17,7 +17,7 @@ import sys
 from .interface import Classifier, Regressor
 from .utils import check_inputs, score_to_proba, proba_to_two_dimension
 from six.moves import cPickle
-
+import signal
 
 __author__ = 'Tatiana Likhomanenko'
 
@@ -106,6 +106,7 @@ class TMVABase(object):
         try:
             self._run_tmva_training(add_info, X, y, sample_weight)
         finally:
+            # TODO kill process
             self._remove_tmp_directory(directory)
 
         return self
@@ -116,30 +117,35 @@ class TMVABase(object):
 
         :param info: class with additional information
         """
-        tmva_process = subprocess.Popen(
-            'cd "{directory}"; {executable} -c "from rep.estimators import _tmvaFactory; _tmvaFactory.main()"'.format(
-                directory=info.directory,
-                executable=sys.executable),
-            stdin=PIPE, stdout=PIPE, stderr=subprocess.STDOUT,
-            shell=True)
-
+        tmva_process = None
         try:
-            cPickle.dump(self, tmva_process.stdin)
-            cPickle.dump(info, tmva_process.stdin)
-            cPickle.dump(X, tmva_process.stdin)
-            cPickle.dump(y, tmva_process.stdin)
-            cPickle.dump(sample_weight, tmva_process.stdin)
-        except:
-            # continuing, next we check the output of process
-            pass
-        stdout, stderr = tmva_process.communicate()
-        assert tmva_process.returncode == 0, \
-            'ERROR: TMVA process is incorrect finished \n LOG: %s \n %s' % (stderr, stdout)
+            tmva_process = subprocess.Popen(
+                'cd "{directory}"; {executable} -c "from rep.estimators import _tmvaFactory; _tmvaFactory.main()"'.format(
+                    directory=info.directory,
+                    executable=sys.executable),
+                stdin=PIPE, stdout=PIPE, stderr=subprocess.STDOUT,
+                shell=True, preexec_fn=os.setsid)
 
-        xml_filename = os.path.join(info.directory, 'weights',
-                                    '{job}_{name}.weights.xml'.format(job=info.tmva_job, name=self._method_name))
-        with open(xml_filename, 'r') as xml_file:
-            self.formula_xml = xml_file.read()
+            try:
+                cPickle.dump(self, tmva_process.stdin)
+                cPickle.dump(info, tmva_process.stdin)
+                cPickle.dump(X, tmva_process.stdin)
+                cPickle.dump(y, tmva_process.stdin)
+                cPickle.dump(sample_weight, tmva_process.stdin)
+            except:
+                # continuing, next we check the output of process
+                pass
+            stdout, stderr = tmva_process.communicate()
+            assert tmva_process.returncode == 0, \
+                'ERROR: TMVA process is incorrect finished \n LOG: %s \n %s' % (stderr, stdout)
+
+            xml_filename = os.path.join(info.directory, 'weights',
+                                        '{job}_{name}.weights.xml'.format(job=info.tmva_job, name=self._method_name))
+            with open(xml_filename, 'r') as xml_file:
+                self.formula_xml = xml_file.read()
+        finally:
+            if tmva_process is not None:
+                os.killpg(tmva_process.pid, signal.SIGTERM)
 
     def _check_fitted(self):
         assert self.formula_xml is not None, "Classifier wasn't fitted, please call `fit` first"
@@ -173,25 +179,30 @@ class TMVABase(object):
 
         :param info: class with additional information
         """
-        tmva_process = subprocess.Popen(
-            'cd "{directory}"; {executable} -c "from rep.estimators import _tmvaReader; _tmvaReader.main()"'.format(
-                directory=info.directory,
-                executable=sys.executable),
-            stdin=PIPE, stdout=PIPE, stderr=subprocess.STDOUT,
-            shell=True)
-
+        tmva_process = None
         try:
-            cPickle.dump(info, tmva_process.stdin)
-            cPickle.dump(data, tmva_process.stdin)
-        except:
-            # Doing nothing, there is check later.
-            pass
-        stdout, stderr = tmva_process.communicate()
-        assert tmva_process.returncode == 0, \
-            'ERROR: TMVA process is incorrect finished \n LOG: %s \n %s' % (stderr, stdout)
-        with open(info.result_filename, 'rb') as predictions_file:
-            predictions = cPickle.load(predictions_file)
-        return predictions
+            tmva_process = subprocess.Popen(
+                'cd "{directory}"; {executable} -c "from rep.estimators import _tmvaReader; _tmvaReader.main()"'.format(
+                    directory=info.directory,
+                    executable=sys.executable),
+                stdin=PIPE, stdout=PIPE, stderr=subprocess.STDOUT,
+                shell=True)
+
+            try:
+                cPickle.dump(info, tmva_process.stdin)
+                cPickle.dump(data, tmva_process.stdin)
+            except:
+                # Doing nothing, there is check later.
+                pass
+            stdout, stderr = tmva_process.communicate()
+            assert tmva_process.returncode == 0, \
+                'ERROR: TMVA process is incorrect finished \n LOG: %s \n %s' % (stderr, stdout)
+            with open(info.result_filename, 'rb') as predictions_file:
+                predictions = cPickle.load(predictions_file)
+            return predictions
+        finally:
+            if tmva_process is not None:
+                os.killpg(tmva_process.pid, signal.SIGTERM)
 
 
 class TMVAClassifier(TMVABase, Classifier):
