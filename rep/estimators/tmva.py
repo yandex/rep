@@ -106,7 +106,6 @@ class TMVABase(object):
         try:
             self._run_tmva_training(add_info, X, y, sample_weight)
         finally:
-            # TODO kill process
             self._remove_tmp_directory(directory)
 
         return self
