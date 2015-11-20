@@ -230,8 +230,8 @@ class FoldingRegressor(FoldingBase, Regressor):
         :type vote_function: None or function
         :rtype: sequence of numpy.array of shape [n_samples, n_outputs]
         """
-        return self._folding_prediction(X, prediction_function=get_regressor_staged_predict,
-                                        vote_function=vote_function)
+        return self._staged_folding_prediction(X, prediction_function=get_regressor_staged_predict,
+                                               vote_function=vote_function)
 
     def get_feature_importances(self):
         """
