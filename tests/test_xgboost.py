@@ -7,7 +7,7 @@ from rep.test.test_estimators import check_classifier, check_regression, generat
 __author__ = 'Alex Rogozhnikov'
 
 
-def very_basic_xgboost_test():
+def test_basic_xgboost():
     X, y, w = generate_classification_data(n_classes=2)
     clf = XGBoostClassifier(n_estimators=10).fit(X, y)
     clf.predict(X)
