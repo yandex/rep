@@ -6,11 +6,11 @@
 
 __REP__ is ipython-based environment for conducting data-driven research in a consistent and reproducible way.
 
-Main features:
+## Main features:
 
   * unified python wrapper for different ML libraries (wrappers follow extended __scikit-learn__ interface)
-    * TMVA
     * Sklearn
+    * TMVA
     * XGBoost
     * uBoost
     * Theanets
@@ -24,6 +24,7 @@ Main features:
   * pluggable quality metrics for classification
   * meta-algorithm design (aka 'rep-lego')
 
+__REP__ is not trying to substitute __scikit-learn__, but extends it and provides better user experience.
 
 ### Howto examples
 
