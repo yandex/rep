@@ -28,7 +28,9 @@ install:
   - pip install .
 script:
   # - nosetests --nocapture -vd tests | grep -v "downhill.base:232"
-  - if [ "$TRAVIS_BRANCH" == "master" ]; then make push-latest fi
+  - echo "OK"
+after_success:
+  - [[ "$TRAVIS_BRANCH" == "master" &&  ]] && make push-latest
 cache:
   - apt: true
   - directories:
