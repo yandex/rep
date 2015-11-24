@@ -27,8 +27,7 @@ before_install:
 install:
   - pip install .
 script:
-  # - nosetests --nocapture -vd tests | grep -v "downhill.base:232"
-  - echo "OK"
+  - nosetests --nocapture -vd tests | grep -v "downhill.base:232"
 after_success:
   - if [[ "$TRAVIS_BRANCH" == "master" && "${TRAVIS_PYTHON_VERSION:0:1}" == "2" ]] ; then make push-latest ; fi
 cache:
