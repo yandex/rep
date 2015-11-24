@@ -54,7 +54,7 @@ inspect:
 	docker inspect $(REP_IMAGE) 
 
 push: rep-image
-        docker login -e="$(DOCKER_EMAIL)" -u="$(DOCKER_USERNAME)" -p="$(DOCKER_PASSWORD)"
+	docker login -e="$(DOCKER_EMAIL)" -u="$(DOCKER_USERNAME)" -p="$(DOCKER_PASSWORD)"
 	docker push $(REP_IMAGE)
 
 push-base:
