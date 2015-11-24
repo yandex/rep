@@ -1,5 +1,7 @@
 language: python
-sudo: false
+sudo: required
+services:
+  - docker
 addons:
   apt:
     packages:
@@ -25,8 +27,8 @@ before_install:
 install:
   - pip install .
 script:
-  - nosetests --nocapture -vd tests | grep -v "downhill.base:232"
-  #- travis_wait nosetests --nocapture -vd tests/z_test_notebook.py
+  # - nosetests --nocapture -vd tests | grep -v "downhill.base:232"
+  - if [ "$TRAVIS_BRANCH" == "master" ]; then make push-latest fi
 cache:
   - apt: true
   - directories:
