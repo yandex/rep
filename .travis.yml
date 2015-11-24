@@ -30,7 +30,7 @@ script:
   # - nosetests --nocapture -vd tests | grep -v "downhill.base:232"
   - echo "OK"
 after_success:
-  - [[ "$TRAVIS_BRANCH" == "master" && "${TRAVIS_PYTHON_VERSION:0:1}" == "2" ]] && make push-latest
+  - if [[ "$TRAVIS_BRANCH" == "master" && "${TRAVIS_PYTHON_VERSION:0:1}" == "2" ]] ; then make push-latest ; fi
 cache:
   - apt: true
   - directories:
