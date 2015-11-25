@@ -6,13 +6,12 @@
 #
 #
 
-set -x
+set +xv
 
 echo "Umask: "
 umask
 [ -z "$ENV_BIN_DIR" ] && source /etc/profile.d/rep_profile.sh
 
-set -v
 JUPYTER_CONFIG=$HOME/.jupyter/jupyter_notebook_config.py
 if [ "$JPY_API_TOKEN" != "" ] ; then
 	echo "Starting under Jupyterhub"
