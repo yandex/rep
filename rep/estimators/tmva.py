@@ -144,7 +144,10 @@ class TMVABase(object):
                 self.formula_xml = xml_file.read()
         finally:
             if tmva_process is not None:
-                os.killpg(tmva_process.pid, signal.SIGTERM)
+                try:
+                    os.killpg(tmva_process.pid, signal.SIGTERM)
+                except:
+                    pass
 
     def _check_fitted(self):
         assert self.formula_xml is not None, "Classifier wasn't fitted, please call `fit` first"
@@ -201,7 +204,10 @@ class TMVABase(object):
             return predictions
         finally:
             if tmva_process is not None:
-                os.killpg(tmva_process.pid, signal.SIGTERM)
+                try:
+                    os.killpg(tmva_process.pid, signal.SIGTERM)
+                except:
+                    pass
 
 
 class TMVAClassifier(TMVABase, Classifier):
