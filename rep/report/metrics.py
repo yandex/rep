@@ -453,8 +453,8 @@ class OptimalMetricNdim(BaseEstimator):
             sample_weight = numpy.ones(len(y_true))
 
         sample_weight = numpy.copy(sample_weight)
-        sample_weight[y_true == 0] /= numpy.sum(sample_weight[y_true == 0]) * self.expected_b
-        sample_weight[y_true == 1] /= numpy.sum(sample_weight[y_true == 1]) * self.expected_s
+        sample_weight[y_true == 0] /= numpy.sum(sample_weight[y_true == 0]) / self.expected_b
+        sample_weight[y_true == 1] /= numpy.sum(sample_weight[y_true == 1]) / self.expected_s
 
         thresholds = []
         for array in variables[:-1]:
