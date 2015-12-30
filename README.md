@@ -37,7 +37,7 @@ There are basic introductory notebooks (about python, IPython) and more advanced
 
 We provide the [docker image](https://registry.hub.docker.com/u/yandex/rep/) with `REP` and all it's dependencies 
 * [install with Docker on Linux](https://github.com/yandex/rep/wiki/Install-REP-with-Docker-(Linux))
-* [install with Docker on Mac and Windows](https://github.com/yandex/rep/wiki/Instal-REP-with-Docker-(Mac-OS-X))
+* [install with Docker on Mac and Windows](https://github.com/yandex/rep/wiki/Install-REP-with-Docker-(Mac-OS-X,-Windows))
 
 
 ### Installation with bare hands
