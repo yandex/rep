@@ -290,7 +290,7 @@ def get_efficiencies(prediction, spectator, sample_weight=None, bins_number=20,
         x_values = []
         y_values = []
         for num, (masses, probabilities) in enumerate(bins_data):
-            y_values.append(numpy.mean(probabilities > threshold))
+            y_values.append(numpy.average(probabilities > threshold, weights=sample_weight))
             if errors:
                 x_values.append((bin_edges[num + 1] + bin_edges[num]) / 2.)
             else:
