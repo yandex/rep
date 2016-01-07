@@ -281,7 +281,7 @@ def get_efficiencies(prediction, spectator, sample_weight=None, bins_number=20,
                       for eff in [0.2, 0.4, 0.5, 0.6, 0.8]]
 
     binner = Binner(spectator, bins_number=bins_number)
-    bins_data = binner.split_into_bins(spectator, prediction)
+    bins_data = binner.split_into_bins(spectator, prediction, sample_weight)
 
     bin_edges = numpy.array([spectator_min] + list(binner.limits) + [spectator_max])
     xerr = numpy.diff(bin_edges) / 2.
@@ -289,8 +289,8 @@ def get_efficiencies(prediction, spectator, sample_weight=None, bins_number=20,
     for threshold in thresholds:
         x_values = []
         y_values = []
-        for num, (masses, probabilities) in enumerate(bins_data):
-            y_values.append(numpy.average(probabilities > threshold, weights=sample_weight))
+        for num, (masses, probabilities, weights) in enumerate(bins_data):
+            y_values.append(numpy.average(probabilities > threshold, weights=weights))
             if errors:
                 x_values.append((bin_edges[num + 1] + bin_edges[num]) / 2.)
             else:
