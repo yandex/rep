@@ -289,16 +289,18 @@ def get_efficiencies(prediction, spectator, sample_weight=None, bins_number=20,
     for threshold in thresholds:
         x_values = []
         y_values = []
+        N_in_bin = []
         for num, (masses, probabilities, weights) in enumerate(bins_data):
             y_values.append(numpy.average(probabilities > threshold, weights=weights))
+            N_in_bin.append(numpy.sum(weights))
             if errors:
                 x_values.append((bin_edges[num + 1] + bin_edges[num]) / 2.)
             else:
                 x_values.append(numpy.mean(masses))
 
-        x_values, y_values = check_arrays(x_values, y_values)
+        x_values, y_values, N_in_bin = check_arrays(x_values, y_values, N_in_bin)
         if errors:
-            result[threshold] = (x_values, y_values, numpy.sqrt(y_values * (1 - y_values) / len(y_values)), xerr)
+            result[threshold] = (x_values, y_values, numpy.sqrt(y_values * (1 - y_values) / N_in_bin), xerr)
         else:
             result[threshold] = (x_values, y_values)
     return result
