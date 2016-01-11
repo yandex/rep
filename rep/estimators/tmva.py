@@ -118,8 +118,13 @@ class TMVABase(object):
         """
         tmva_process = None
         try:
+            # Problem with Mac OS El Capitan which is not garanteed to set DYLD_LIBRARY_PATH.
+            # This DYLD_LIBRARY_PATH can be used in root_numpy for dynamic loading ROOT libraries
+            # https://github.com/rootpy/root_numpy/issues/227#issuecomment-165981891
             tmva_process = subprocess.Popen(
-                'cd "{directory}"; {executable} -c "from rep.estimators import _tmvaFactory; _tmvaFactory.main()"'.format(
+                'export DYLD_LIBRARY_PATH={dyld}; cd "{directory}";'
+                '{executable} -c "import os; print os.environ; from rep.estimators import _tmvaFactory; _tmvaFactory.main()"'.format(
+                    dyld=os.environ.get('DYLD_LIBRARY_PATH', ""),
                     directory=info.directory,
                     executable=sys.executable),
                 stdin=PIPE, stdout=PIPE, stderr=subprocess.STDOUT,
@@ -183,8 +188,13 @@ class TMVABase(object):
         """
         tmva_process = None
         try:
+            # Problem with Mac OS El Capitan which is not garanteed to set DYLD_LIBRARY_PATH.
+            # This DYLD_LIBRARY_PATH can be used in root_numpy for dynamic loading ROOT libraries
+            # https://github.com/rootpy/root_numpy/issues/227#issuecomment-165981891
             tmva_process = subprocess.Popen(
-                'cd "{directory}"; {executable} -c "from rep.estimators import _tmvaReader; _tmvaReader.main()"'.format(
+                'export DYLD_LIBRARY_PATH={dyld}; cd "{directory}";'
+                '{executable} -c "from rep.estimators import _tmvaReader; _tmvaReader.main()"'.format(
+                    dyld=os.environ.get('DYLD_LIBRARY_PATH', ""),
                     directory=info.directory,
                     executable=sys.executable),
                 stdin=PIPE, stdout=PIPE, stderr=subprocess.STDOUT,
