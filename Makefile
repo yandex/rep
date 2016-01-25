@@ -1,4 +1,10 @@
-# Makefile is used for building & starting rep-containers
+# Makefile for building & starting rep-containers
+# arguments can be supplied by -e definitions: 
+#
+#    ENV -- filename with environment variables passed to docker container
+#    NOTEBOOKS -- folder with notebooks that will be mounted into docker container
+#    PORT -- port to listen for incoming connection
+#    ETC -- local folder that will be moundted to /etc_external into docker container
 #
 #
 ifeq (run,$(firstword $(MAKECMDGOALS)))
@@ -18,7 +24,11 @@ CONTAINER_NAME := $(shell basename $(CURDIR) | tr - _ )
 NOTEBOOKS ?= $(shell pwd)/notebooks
 ETC ?= $(shell pwd)/etc
 VOLUMES := -v $(ETC):/etc_external -v $(NOTEBOOKS):/notebooks
-DOCKER_ARGS := $(VOLUMES) -p 8888:8888
+PORT ?= 8888
+DOCKER_ARGS := $(VOLUMES) -p $(PORT):8888
+ifneq "$(ENV)" ""
+  DOCKER_ARGS := $(DOCKER_ARGS) --env-file=$(ENV)
+endif
 
 
 include .rep_version  # define REP_BASE_IMAGE, and REP_IMAGE
