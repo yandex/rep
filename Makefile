@@ -34,9 +34,12 @@ endif
 include .rep_version  # read REP_BASE_IMAGE, and REP_IMAGE
 
 help:
-	@echo Makefile targets and corresponding dependencies:
+	@echo Usage: make [-e VARIABLE=VALUE] targets
+	@echo "variables:"
+	@grep -h "#\s\+\w\+ -- " $(MAKEFILE_LIST) |sed "s/#\s//"
 	@echo
-	@fgrep -h "##" $(MAKEFILE_LIST) | fgrep -v fgrep | sed -e 's/\\$$//' | sed -e 's/##//'
+	@echo targets and corresponding dependencies:
+	@fgrep -h "##" $(MAKEFILE_LIST) | fgrep -v fgrep | sed -e 's/\\$$//' -e 's/^/   /' | sed -e 's/##//'
 
 .PHONY: run rep-image rep-base-image inspect
 
