@@ -2,14 +2,15 @@
 
 [![Join the chat at https://gitter.im/yandex/rep](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/yandex/rep?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![Build Status](https://travis-ci.org/yandex/rep.svg?branch=master)](https://travis-ci.org/yandex/rep)
+[![PyPI version](https://badge.fury.io/py/rep.svg)](https://badge.fury.io/py/rep)
 
 __REP__ is ipython-based environment for conducting data-driven research in a consistent and reproducible way.
 
-Main features:
+## Main features:
 
   * unified python wrapper for different ML libraries (wrappers follow extended __scikit-learn__ interface)
-    * TMVA
     * Sklearn
+    * TMVA
     * XGBoost
     * uBoost
     * Theanets
@@ -23,6 +24,7 @@ Main features:
   * pluggable quality metrics for classification
   * meta-algorithm design (aka 'rep-lego')
 
+__REP__ is not trying to substitute __scikit-learn__, but extends it and provides better user experience.
 
 ### Howto examples
 
@@ -35,7 +37,7 @@ There are basic introductory notebooks (about python, IPython) and more advanced
 
 We provide the [docker image](https://registry.hub.docker.com/u/yandex/rep/) with `REP` and all it's dependencies 
 * [install with Docker on Linux](https://github.com/yandex/rep/wiki/Install-REP-with-Docker-(Linux))
-* [install with Docker on Mac and Windows](https://github.com/yandex/rep/wiki/Instal-REP-with-Docker-(Mac-OS-X))
+* [install with Docker on Mac and Windows](https://github.com/yandex/rep/wiki/Install-REP-with-Docker-(Mac-OS-X,-Windows))
 
 
 ### Installation with bare hands
