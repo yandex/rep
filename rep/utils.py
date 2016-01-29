@@ -266,8 +266,8 @@ def get_efficiencies(prediction, spectator, sample_weight=None, bins_number=20,
 
         All the parts: x_values, y_values, y_err, x_err are numpy.arrays of the same length.
     """
-    prediction, spectator = \
-        check_arrays(prediction, spectator)
+    prediction, spectator, sample_weight = \
+        check_arrays(prediction, spectator, sample_weight)
 
     spectator_min, spectator_max = weighted_quantile(spectator, [ignored_sideband, (1. - ignored_sideband)])
     mask = (spectator >= spectator_min) & (spectator <= spectator_max)
@@ -281,6 +281,8 @@ def get_efficiencies(prediction, spectator, sample_weight=None, bins_number=20,
                       for eff in [0.2, 0.4, 0.5, 0.6, 0.8]]
 
     binner = Binner(spectator, bins_number=bins_number)
+    if sample_weight is None:
+        sample_weight = numpy.ones(len(prediction))
     bins_data = binner.split_into_bins(spectator, prediction, sample_weight)
 
     bin_edges = numpy.array([spectator_min] + list(binner.limits) + [spectator_max])
