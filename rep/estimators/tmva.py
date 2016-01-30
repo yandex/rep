@@ -123,7 +123,7 @@ class TMVABase(object):
             # https://github.com/rootpy/root_numpy/issues/227#issuecomment-165981891
             tmva_process = subprocess.Popen(
                 'export DYLD_LIBRARY_PATH={dyld}; cd "{directory}";'
-                '{executable} -c "import os; print os.environ; from rep.estimators import _tmvaFactory; _tmvaFactory.main()"'.format(
+                '{executable} -c "import os; from rep.estimators import _tmvaFactory; _tmvaFactory.main()"'.format(
                     dyld=os.environ.get('DYLD_LIBRARY_PATH', ""),
                     directory=info.directory,
                     executable=sys.executable),
