@@ -14,6 +14,8 @@ if six.PY3:
 IGNORE = re.compile(r'.*ipykee.*')
 # Also ignore ipython checkpoints
 IGNORE_FOLDERS = re.compile(r'.*\.ipynb_checkpoints.*')
+INCLUDE_NOTEBOOKS = re.compile(os.environ.get('TEST_NOTEBOOKS_REGEX', '.*'))
+EXCLUDE_NOTEBOOKS = re.compile(os.environ.get('SKIP_NOTEBOOKS_REGEX', '^$'))
 
 
 def test_notebooks_in_folder(folder='../howto/'):
@@ -22,7 +24,8 @@ def test_notebooks_in_folder(folder='../howto/'):
     for folder, _, files in os.walk(howto_path):
         if not IGNORE_FOLDERS.match(folder):
             for file_ in files:
-                if file_.endswith(r".ipynb") and not IGNORE.match(file_):
+                if file_.endswith(r".ipynb") and not IGNORE.match(file_) and \
+                    INCLUDE_NOTEBOOKS.search(file_) and not EXCLUDE_NOTEBOOKS.search(file_):
                     print("Testing %s" % file_)
                     # False means not check
                     yield check_single_notebook, os.path.join(folder, file_)
