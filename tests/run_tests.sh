@@ -13,6 +13,6 @@ export OPTIONS="-vd --nocapture -x"
 
 nosetests $OPTIONS $RUN_TESTS | grep -v "downhill.base:232" 
 RESULT=${PIPESTATUS[0]} 
-ls -al ../howto
+ls -alR ../howto
 
 exit $RESULT
