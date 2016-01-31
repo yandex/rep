@@ -27,18 +27,20 @@ before_install:
 install:
   - pip install .
 script:
-  - nosetests --nocapture -vd tests | grep -v "downhill.base:232" ; test ${PIPESTATUS[0]} -eq 0
+  - tests/run_tests.sh
 after_success:
-  - if [[ "$TRAVIS_BRANCH" == "master" && "${TRAVIS_PYTHON_VERSION:0:1}" == "2" ]] ; then make push-latest ; fi
+  - test "$TRAVIS_BRANCH" = "master" && test "${TRAVIS_PYTHON_VERSION:0:1}" = "2" && make push-latest
 cache:
-  - apt: true
-  - directories:
+  apt: true
+  directories:
     - $HOME/.theano
-#    - $HOME/.cache/pip
-#    - $HOME/miniconda/pkgs
-branches:
-  - only:
-    - develop
-    - master
+    - $HOME/.cache/pip
+    - $HOME/miniconda/pkgs
 notifications:
-  - email: false
+  email: false
+  webhooks:
+    urls:
+      - https://webhooks.gitter.im/e/4eb609958a03b4bc1df5
+    on_success: always  # options: [always|never|change] default: always
+    on_failure: always  # options: [always|never|change] default: always
+    on_start: always     # options: [always|never|change] default: always
