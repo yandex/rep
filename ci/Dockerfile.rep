@@ -26,13 +26,17 @@ RUN /bin/bash --login -c " \
   cd $HOME && \
   rm -rf $TEMP/build"
 
-RUN apt-get update
-RUN apt-get -y install mc telnet curl
+RUN apt-get update && \
+  apt-get -y install mc telnet curl
 
 # IPython setup
 #
 RUN mkdir /notebooks && \
     mkdir /etc_external
+
+RUN git clone https://github.com/damianavila/RISE.git && \
+  cd RISE && \
+  python setup.py install
 
 RUN /bin/bash --login -c " \
   jupyter notebook -y --generate-config &&\
