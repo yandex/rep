@@ -37,7 +37,7 @@ cache:
     - $HOME/.cache/pip
     - $HOME/miniconda/pkgs
 notifications:
-  email: false
+  email: true
   webhooks:
     urls:
       - https://webhooks.gitter.im/e/4eb609958a03b4bc1df5

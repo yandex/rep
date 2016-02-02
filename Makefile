@@ -7,26 +7,34 @@
 #    ETC -- local folder that will be moundted to /etc_external into docker container
 #
 #
-ifeq (run,$(firstword $(MAKECMDGOALS)))
-  # use the rest as arguments for "run"
-  RUN_ARGS := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
-  # ...and turn them into do-nothing targets
-  $(eval $(RUN_ARGS):;@:)
+
+
+define read_cmd_args
+	# use the rest as arguments for "run" or "exec"
+	CMD_ARGS := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
+endef
+
+ifeq (exec, $(firstword $(MAKECMDGOALS)))
+  $(eval $(call read_cmd_args))
+  ifeq ("", "$(CMD_ARGS)")
+    CMD_ARGS := bash
+  endif
 endif
-ifeq (exec,$(firstword $(MAKECMDGOALS)))
-  EXEC_ARGS := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
-  $(eval $(EXEC_ARGS):;@:)
+ifeq (run, $(firstword $(MAKECMDGOALS)))
+  $(eval $(call read_cmd_args))
 endif
-ifeq   "$(EXEC_ARGS)" ""
-  EXEC_ARGS := bash
+ifneq ("", "$(CMD_ARGS)")
+  # turn args into do-nothing targets  
+  $(eval $(CMD_ARGS):;@:)  
 endif
+
 CONTAINER_NAME := $(shell basename $(CURDIR) | tr - _ )
 NOTEBOOKS ?= $(shell pwd)/notebooks
 ETC ?= $(shell pwd)/etc
 VOLUMES := -v $(ETC):/etc_external -v $(NOTEBOOKS):/notebooks
 PORT ?= 8888
 DOCKER_ARGS := $(VOLUMES) -p $(PORT):8888
-ifneq "$(ENV)" ""
+ifneq ("", "$(ENV)")
   DOCKER_ARGS := $(DOCKER_ARGS) --env-file=$(ENV)
 endif
 
@@ -41,7 +49,8 @@ help:
 	@echo targets and corresponding dependencies:
 	@fgrep -h "##" $(MAKEFILE_LIST) | fgrep -v fgrep | sed -e 's/\\$$//' -e 's/^/   /' | sed -e 's/##//'
 
-.PHONY: run rep-image rep-base-image inspect
+.PHONY: run run-daemon restart logs rep-image rep-base-image \
+	inspect exec help stop remove push push-base tag-latest push-latest
 
 version:
 	@echo $(REP_IMAGE), $(REP_BASE_IMAGE)
@@ -60,16 +69,16 @@ local-dirs:
 	[ -d $(ETC) ] || mkdir -p $(ETC)
 
 run: local-dirs		## run REP interactively
-	docker run -ti --rm $(DOCKER_ARGS) --name $(CONTAINER_NAME) $(REP_IMAGE) $(RUN_ARGS) 
+	docker run -ti --rm $(DOCKER_ARGS) --name $(CONTAINER_NAME) $(REP_IMAGE) $(CMD_ARGS) 
 
 run-daemon: local-dirs	## run REP as a daemon
-	docker run -d $(DOCKER_ARGS) --name $(CONTAINER_NAME) $(REP_IMAGE) $(RUN_ARGS) 
+	docker run -d $(DOCKER_ARGS) --name $(CONTAINER_NAME) $(REP_IMAGE) $(CMD_ARGS) 
 
 restart:	## restart REP container
 	docker restart $(CONTAINER_NAME)
 
 exec:		## run command within REP container
-	docker exec -ti $(CONTAINER_NAME) $(EXEC_ARGS)
+	docker exec -ti $(CONTAINER_NAME) $(CMD_ARGS)
 
 logs:		## show container logs
 	docker logs $(CONTAINER_NAME)
