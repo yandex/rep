@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Meta Machine Learning &mdash; REP (Reproducible Experiment Platform) 0.6.4 documentation</title>
+  <title>Meta Machine Learning &mdash; REP (Reproducible Experiment Platform) 0.6.5 documentation</title>
   
 
   
@@ -30,7 +30,7 @@
   
 
   
-    <link rel="top" title="REP (Reproducible Experiment Platform) 0.6.4 documentation" href="index.html"/>
+    <link rel="top" title="REP (Reproducible Experiment Platform) 0.6.5 documentation" href="index.html"/>
         <link rel="next" title="Report for models" href="report.html"/>
         <link rel="prev" title="Estimators (classification and regression)" href="estimators.html"/> 
 
@@ -45,17 +45,27 @@
 
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
-      <div class="wy-side-nav-search">
-        
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
 
-        
-          <a href="index.html" class="icon icon-home"> REP (Reproducible Experiment Platform)
-        
+          
+            <a href="index.html" class="icon icon-home"> REP (Reproducible Experiment Platform)
+          
 
-        
-        </a>
+          
+          </a>
 
-        
+          
+            
+            
+              <div class="version">
+                0.6.5
+              </div>
+            
+          
+
+          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -64,14 +74,14 @@
   </form>
 </div>
 
-        
-      </div>
+          
+        </div>
 
-      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
-          
-              <ul class="current">
+            
+            
+                <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="data.html">Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="estimators.html">Estimators (classification and regression)</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="">Meta Machine Learning</a><ul>
@@ -94,10 +104,10 @@
 <li class="toctree-l1"><a class="reference external" href="http://nbviewer.ipython.org/github/yandex/rep/tree/master/howto/">Howto notebooks</a></li>
 </ul>
 
+            
           
-        
+        </div>
       </div>
-      &nbsp;
     </nav>
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
@@ -112,7 +122,13 @@
       
       <div class="wy-nav-content">
         <div class="rst-content">
-          <div role="navigation" aria-label="breadcrumbs navigation">
+          
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
   <ul class="wy-breadcrumbs">
     <li><a href="index.html">Docs</a> &raquo;</li>
       
@@ -896,7 +912,7 @@ You can define your own algorithm of step location of parameters grid.</p>
 </table>
 <dl class="method">
 <dt id="rep.metaml.gridsearch.AbstractParameterGenerator.add_result">
-<code class="descname">add_result</code><span class="sig-paren">(</span><em>state_indices</em>, <em>value</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/metaml/gridsearch.html#AbstractParameterGenerator.add_result"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.metaml.gridsearch.AbstractParameterGenerator.add_result" title="Permalink to this definition">¶</a></dt>
+<code class="descname">add_result</code><span class="sig-paren">(</span><em>state_indices</em>, <em>value</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.metaml.gridsearch.AbstractParameterGenerator.add_result" title="Permalink to this definition">¶</a></dt>
 <dd><p>After the model was trained and evaluated for specific set of parameters,
 we use this function to store result
 :param state_indices: tuple, which represents the space
@@ -917,7 +933,7 @@ we use this function to store result
 
 <dl class="method">
 <dt id="rep.metaml.gridsearch.AbstractParameterGenerator.generate_batch_points">
-<code class="descname">generate_batch_points</code><span class="sig-paren">(</span><em>size</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/metaml/gridsearch.html#AbstractParameterGenerator.generate_batch_points"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.metaml.gridsearch.AbstractParameterGenerator.generate_batch_points" title="Permalink to this definition">¶</a></dt>
+<code class="descname">generate_batch_points</code><span class="sig-paren">(</span><em>size</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.metaml.gridsearch.AbstractParameterGenerator.generate_batch_points" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate several points in parameter space at once (needed when using parallel computations)</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -933,14 +949,14 @@ we use this function to store result
 
 <dl class="method">
 <dt id="rep.metaml.gridsearch.AbstractParameterGenerator.generate_next_point">
-<code class="descname">generate_next_point</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/metaml/gridsearch.html#AbstractParameterGenerator.generate_next_point"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.metaml.gridsearch.AbstractParameterGenerator.generate_next_point" title="Permalink to this definition">¶</a></dt>
+<code class="descname">generate_next_point</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#rep.metaml.gridsearch.AbstractParameterGenerator.generate_next_point" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generating next random point in parameters space
 :return: tuple (indices, parameters)</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="rep.metaml.gridsearch.AbstractParameterGenerator.print_results">
-<code class="descname">print_results</code><span class="sig-paren">(</span><em>reorder=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/metaml/gridsearch.html#AbstractParameterGenerator.print_results"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.metaml.gridsearch.AbstractParameterGenerator.print_results" title="Permalink to this definition">¶</a></dt>
+<code class="descname">print_results</code><span class="sig-paren">(</span><em>reorder=True</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.metaml.gridsearch.AbstractParameterGenerator.print_results" title="Permalink to this definition">¶</a></dt>
 <dd><p>Prints the results of training</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -1299,9 +1315,10 @@ Each event will be predicted by the classifier</p>
   <div role="contentinfo">
     <p>
         &copy; Copyright 2014-2015, Yandex.
+
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -1319,7 +1336,7 @@ Each event will be predicted by the classifier</p>
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'./',
-            VERSION:'0.6.4',
+            VERSION:'0.6.5',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true

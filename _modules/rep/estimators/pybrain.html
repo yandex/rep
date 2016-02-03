@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>rep.estimators.pybrain &mdash; REP (Reproducible Experiment Platform) 0.6.4 documentation</title>
+  <title>rep.estimators.pybrain &mdash; REP (Reproducible Experiment Platform) 0.6.5 documentation</title>
   
 
   
@@ -30,7 +30,7 @@
   
 
   
-    <link rel="top" title="REP (Reproducible Experiment Platform) 0.6.4 documentation" href="../../../index.html"/>
+    <link rel="top" title="REP (Reproducible Experiment Platform) 0.6.5 documentation" href="../../../index.html"/>
         <link rel="up" title="Module code" href="../../index.html"/> 
 
   
@@ -44,17 +44,27 @@
 
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
-      <div class="wy-side-nav-search">
-        
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
 
-        
-          <a href="../../../index.html" class="icon icon-home"> REP (Reproducible Experiment Platform)
-        
+          
+            <a href="../../../index.html" class="icon icon-home"> REP (Reproducible Experiment Platform)
+          
 
-        
-        </a>
+          
+          </a>
 
-        
+          
+            
+            
+              <div class="version">
+                0.6.5
+              </div>
+            
+          
+
+          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -63,14 +73,14 @@
   </form>
 </div>
 
-        
-      </div>
+          
+        </div>
 
-      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
-          
-              <ul>
+            
+            
+                <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../data.html">Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../estimators.html">Estimators (classification and regression)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../metaml.html">Meta Machine Learning</a></li>
@@ -80,10 +90,10 @@
 <li class="toctree-l1"><a class="reference external" href="http://nbviewer.ipython.org/github/yandex/rep/tree/master/howto/">Howto notebooks</a></li>
 </ul>
 
+            
           
-        
+        </div>
       </div>
-      &nbsp;
     </nav>
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
@@ -98,7 +108,13 @@
       
       <div class="wy-nav-content">
         <div class="rst-content">
-          <div role="navigation" aria-label="breadcrumbs navigation">
+          
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
   <ul class="wy-breadcrumbs">
     <li><a href="../../../index.html">Docs</a> &raquo;</li>
       
@@ -303,8 +319,8 @@
 <span class="sd">        :return: self</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">net</span> <span class="o">=</span> <span class="bp">None</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">partial_fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
-</div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">partial_fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span></div>
+
 <div class="viewcode-block" id="PyBrainBase.partial_fit"><a class="viewcode-back" href="../../../estimators.html#rep.estimators.pybrain.PyBrainBase.partial_fit">[docs]</a>    <span class="k">def</span> <span class="nf">partial_fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Additional training of the estimator</span>
@@ -350,8 +366,8 @@
                                           <span class="n">validationProportion</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">validation_proportion</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">trainer</span><span class="o">.</span><span class="n">trainEpochs</span><span class="p">(</span><span class="n">epochs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">epochs</span><span class="p">,</span> <span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span>
-</div>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
 <div class="viewcode-block" id="PyBrainBase.is_fitted"><a class="viewcode-back" href="../../../estimators.html#rep.estimators.pybrain.PyBrainBase.is_fitted">[docs]</a>    <span class="k">def</span> <span class="nf">is_fitted</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Check if net is fitted</span>
@@ -359,8 +375,8 @@
 <span class="sd">        :return: If estimator was fitted</span>
 <span class="sd">        :rtype: bool</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">net</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span>
-</div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">net</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span></div>
+
 <div class="viewcode-block" id="PyBrainBase.set_params"><a class="viewcode-back" href="../../../estimators.html#rep.estimators.pybrain.PyBrainBase.set_params">[docs]</a>    <span class="k">def</span> <span class="nf">set_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Set the parameters of the estimator.</span>
@@ -381,8 +397,8 @@
                     <span class="n">scaler_params</span> <span class="o">=</span> <span class="p">{</span><span class="n">name</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="s">&#39;scaler__&#39;</span><span class="p">):]:</span> <span class="n">value</span><span class="p">}</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">scaler</span><span class="o">.</span><span class="n">set_params</span><span class="p">(</span><span class="o">**</span><span class="n">scaler_params</span><span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
-</div>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span></div>
+
     <span class="k">def</span> <span class="nf">_transform_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">fit</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
         <span class="n">X</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_features</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
         <span class="c"># The following line fights the bug in sklearn &lt; 0.16,</span>
@@ -468,9 +484,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">__dict__</span> <span class="o">=</span> <span class="nb">dict</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">net</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">net</span><span class="o">.</span><span class="n">sorted</span> <span class="o">=</span> <span class="bp">False</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">net</span><span class="o">.</span><span class="n">sortModules</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">net</span><span class="o">.</span><span class="n">sortModules</span><span class="p">()</span></div>
 
-</div>
+
 <div class="viewcode-block" id="PyBrainClassifier"><a class="viewcode-back" href="../../../estimators.html#rep.estimators.pybrain.PyBrainClassifier">[docs]</a><span class="k">class</span> <span class="nc">PyBrainClassifier</span><span class="p">(</span><span class="n">PyBrainBase</span><span class="p">,</span> <span class="n">Classifier</span><span class="p">):</span>
     <span class="n">__doc__</span> <span class="o">=</span> <span class="s">&quot;Implements classification from PyBrain library </span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">+</span> <span class="n">remove_first_line</span><span class="p">(</span><span class="n">PyBrainBase</span><span class="o">.</span><span class="n">__doc__</span><span class="p">)</span>
     <span class="n">_model_type</span> <span class="o">=</span> <span class="s">&#39;classification&#39;</span>
@@ -482,15 +498,15 @@
 <span class="sd">        :param X: pandas.DataFrame of shape [n_samples, n_features]</span>
 <span class="sd">        :rtype: numpy.array of shape [n_samples] with integer labels</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_activate_on_dataset</span><span class="p">(</span><span class="n">X</span><span class="o">=</span><span class="n">X</span><span class="p">)</span>
-</div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_activate_on_dataset</span><span class="p">(</span><span class="n">X</span><span class="o">=</span><span class="n">X</span><span class="p">)</span></div>
+
 <div class="viewcode-block" id="PyBrainClassifier.staged_predict_proba"><a class="viewcode-back" href="../../../estimators.html#rep.estimators.pybrain.PyBrainClassifier.staged_predict_proba">[docs]</a>    <span class="k">def</span> <span class="nf">staged_predict_proba</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        .. warning:: Isn&#39;t supported for PyBrain (**AttributeError** will be thrown).</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s">&quot;Staged predict_proba not supported for PyBrain&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s">&quot;Staged predict_proba not supported for PyBrain&quot;</span><span class="p">)</span></div></div>
 
-</div></div>
+
 <div class="viewcode-block" id="PyBrainRegressor"><a class="viewcode-back" href="../../../estimators.html#rep.estimators.pybrain.PyBrainRegressor">[docs]</a><span class="k">class</span> <span class="nc">PyBrainRegressor</span><span class="p">(</span><span class="n">PyBrainBase</span><span class="p">,</span> <span class="n">Regressor</span><span class="p">):</span>
     <span class="n">__doc__</span> <span class="o">=</span> <span class="s">&quot;Implements regression from PyBrain library </span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">+</span> <span class="n">remove_first_line</span><span class="p">(</span><span class="n">PyBrainBase</span><span class="o">.</span><span class="n">__doc__</span><span class="p">)</span>
     <span class="n">_model_type</span> <span class="o">=</span> <span class="s">&#39;regression&#39;</span>
@@ -505,8 +521,8 @@
         <span class="n">predictions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_activate_on_dataset</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_targets</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
             <span class="n">predictions</span> <span class="o">=</span> <span class="n">predictions</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
-        <span class="k">return</span> <span class="n">predictions</span>
-</div>
+        <span class="k">return</span> <span class="n">predictions</span></div>
+
 <div class="viewcode-block" id="PyBrainRegressor.staged_predict"><a class="viewcode-back" href="../../../estimators.html#rep.estimators.pybrain.PyBrainRegressor.staged_predict">[docs]</a>    <span class="k">def</span> <span class="nf">staged_predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        .. warning:: Isn&#39;t supported for PyBrain (**AttributeError** will be thrown).</span>
@@ -524,9 +540,10 @@
   <div role="contentinfo">
     <p>
         &copy; Copyright 2014-2015, Yandex.
+
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -544,7 +561,7 @@
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'../../../',
-            VERSION:'0.6.4',
+            VERSION:'0.6.5',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true

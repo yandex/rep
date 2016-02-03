@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>rep.utils &mdash; REP (Reproducible Experiment Platform) 0.6.4 documentation</title>
+  <title>rep.utils &mdash; REP (Reproducible Experiment Platform) 0.6.5 documentation</title>
   
 
   
@@ -30,7 +30,7 @@
   
 
   
-    <link rel="top" title="REP (Reproducible Experiment Platform) 0.6.4 documentation" href="../../index.html"/>
+    <link rel="top" title="REP (Reproducible Experiment Platform) 0.6.5 documentation" href="../../index.html"/>
         <link rel="up" title="Module code" href="../index.html"/> 
 
   
@@ -44,17 +44,27 @@
 
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
-      <div class="wy-side-nav-search">
-        
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
 
-        
-          <a href="../../index.html" class="icon icon-home"> REP (Reproducible Experiment Platform)
-        
+          
+            <a href="../../index.html" class="icon icon-home"> REP (Reproducible Experiment Platform)
+          
 
-        
-        </a>
+          
+          </a>
 
-        
+          
+            
+            
+              <div class="version">
+                0.6.5
+              </div>
+            
+          
+
+          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -63,14 +73,14 @@
   </form>
 </div>
 
-        
-      </div>
+          
+        </div>
 
-      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
-          
-              <ul>
+            
+            
+                <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../data.html">Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../estimators.html">Estimators (classification and regression)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../metaml.html">Meta Machine Learning</a></li>
@@ -80,10 +90,10 @@
 <li class="toctree-l1"><a class="reference external" href="http://nbviewer.ipython.org/github/yandex/rep/tree/master/howto/">Howto notebooks</a></li>
 </ul>
 
+            
           
-        
+        </div>
       </div>
-      &nbsp;
     </nav>
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
@@ -98,7 +108,13 @@
       
       <div class="wy-nav-content">
         <div class="rst-content">
-          <div role="navigation" aria-label="breadcrumbs navigation">
+          
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
   <ul class="wy-breadcrumbs">
     <li><a href="../../index.html">Docs</a> &raquo;</li>
       
@@ -165,9 +181,9 @@
         <span class="n">weighted_quantiles</span> <span class="o">/=</span> <span class="n">weighted_quantiles</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">weighted_quantiles</span> <span class="o">/=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">sample_weight</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">numpy</span><span class="o">.</span><span class="n">interp</span><span class="p">(</span><span class="n">quantiles</span><span class="p">,</span> <span class="n">weighted_quantiles</span><span class="p">,</span> <span class="n">array</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">numpy</span><span class="o">.</span><span class="n">interp</span><span class="p">(</span><span class="n">quantiles</span><span class="p">,</span> <span class="n">weighted_quantiles</span><span class="p">,</span> <span class="n">array</span><span class="p">)</span></div>
 
-</div>
+
 <div class="viewcode-block" id="reorder_by_first"><a class="viewcode-back" href="../../utils.html#rep.utils.reorder_by_first">[docs]</a><span class="k">def</span> <span class="nf">reorder_by_first</span><span class="p">(</span><span class="o">*</span><span class="n">arrays</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Applies the same permutation to all passed arrays,</span>
@@ -175,9 +191,9 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">arrays</span> <span class="o">=</span> <span class="n">check_arrays</span><span class="p">(</span><span class="o">*</span><span class="n">arrays</span><span class="p">)</span>
     <span class="n">order</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">arrays</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-    <span class="k">return</span> <span class="p">[</span><span class="n">arr</span><span class="p">[</span><span class="n">order</span><span class="p">]</span> <span class="k">for</span> <span class="n">arr</span> <span class="ow">in</span> <span class="n">arrays</span><span class="p">]</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">arr</span><span class="p">[</span><span class="n">order</span><span class="p">]</span> <span class="k">for</span> <span class="n">arr</span> <span class="ow">in</span> <span class="n">arrays</span><span class="p">]</span></div>
 
-</div>
+
 <div class="viewcode-block" id="check_sample_weight"><a class="viewcode-back" href="../../utils.html#rep.utils.check_sample_weight">[docs]</a><span class="k">def</span> <span class="nf">check_sample_weight</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">sample_weight</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Checks the weights, if None, returns array.</span>
 
@@ -191,9 +207,9 @@
         <span class="n">sample_weight</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">sample_weight</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">numpy</span><span class="o">.</span><span class="n">float</span><span class="p">)</span>
         <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">y_true</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">sample_weight</span><span class="p">),</span> \
             <span class="s">&quot;The length of weights is different: not {0}, but {1}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">y_true</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">sample_weight</span><span class="p">))</span>
-        <span class="k">return</span> <span class="n">sample_weight</span>
+        <span class="k">return</span> <span class="n">sample_weight</span></div>
 
-</div>
+
 <div class="viewcode-block" id="Flattener"><a class="viewcode-back" href="../../utils.html#rep.utils.Flattener">[docs]</a><span class="k">class</span> <span class="nc">Flattener</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Prepares normalization function for some set of values</span>
@@ -223,9 +239,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">predictions</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">sample_weight</span><span class="p">)</span> <span class="o">/</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">sample_weight</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">numpy</span><span class="o">.</span><span class="n">interp</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">predictions</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">numpy</span><span class="o">.</span><span class="n">interp</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">predictions</span><span class="p">)</span></div>
 
-</div>
+
 <div class="viewcode-block" id="Binner"><a class="viewcode-back" href="../../utils.html#rep.utils.Binner">[docs]</a><span class="k">class</span> <span class="nc">Binner</span><span class="p">:</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">values</span><span class="p">,</span> <span class="n">bins_number</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -242,12 +258,12 @@
 <span class="sd">        :param values: array of shape [n_samples]</span>
 <span class="sd">        :return: array of shape [n_samples]</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">numpy</span><span class="o">.</span><span class="n">searchsorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">limits</span><span class="p">,</span> <span class="n">values</span><span class="p">)</span>
-</div>
+        <span class="k">return</span> <span class="n">numpy</span><span class="o">.</span><span class="n">searchsorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">limits</span><span class="p">,</span> <span class="n">values</span><span class="p">)</span></div>
+
 <div class="viewcode-block" id="Binner.set_limits"><a class="viewcode-back" href="../../utils.html#rep.utils.Binner.set_limits">[docs]</a>    <span class="k">def</span> <span class="nf">set_limits</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">limits</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Change the thresholds inside bins.&quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">limits</span> <span class="o">=</span> <span class="n">limits</span>
-</div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">limits</span> <span class="o">=</span> <span class="n">limits</span></div>
+
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">bins_number</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;:return: number of bins&quot;&quot;&quot;</span>
@@ -266,9 +282,9 @@
         <span class="k">for</span> <span class="nb">bin</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">limits</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
             <span class="n">indices</span> <span class="o">=</span> <span class="n">bins</span> <span class="o">==</span> <span class="nb">bin</span>
             <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">array</span><span class="p">)[</span><span class="n">indices</span><span class="p">]</span> <span class="k">for</span> <span class="n">array</span> <span class="ow">in</span> <span class="n">arrays</span><span class="p">])</span>
-        <span class="k">return</span> <span class="n">result</span>
+        <span class="k">return</span> <span class="n">result</span></div></div>
 
-</div></div>
+
 <div class="viewcode-block" id="calc_ROC"><a class="viewcode-back" href="../../utils.html#rep.utils.calc_ROC">[docs]</a><span class="k">def</span> <span class="nf">calc_ROC</span><span class="p">(</span><span class="n">prediction</span><span class="p">,</span> <span class="n">signal</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">max_points</span><span class="o">=</span><span class="mi">10000</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculate roc curve, returns limited number of points.</span>
@@ -307,9 +323,9 @@
         <span class="n">err_tnr</span><span class="p">,</span> <span class="n">err_tpr</span> <span class="o">=</span> <span class="n">err_tnr</span><span class="p">[</span><span class="n">positions</span><span class="p">],</span> <span class="n">err_tpr</span><span class="p">[</span><span class="n">positions</span><span class="p">]</span>
         <span class="n">thresholds</span> <span class="o">=</span> <span class="n">thresholds</span><span class="p">[</span><span class="n">positions</span><span class="p">]</span>
 
-    <span class="k">return</span> <span class="p">(</span><span class="n">tpr</span><span class="p">,</span> <span class="n">tnr</span><span class="p">),</span> <span class="p">(</span><span class="n">err_tnr</span><span class="p">,</span> <span class="n">err_tpr</span><span class="p">),</span> <span class="n">thresholds</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">tpr</span><span class="p">,</span> <span class="n">tnr</span><span class="p">),</span> <span class="p">(</span><span class="n">err_tnr</span><span class="p">,</span> <span class="n">err_tpr</span><span class="p">),</span> <span class="n">thresholds</span></div>
 
-</div>
+
 <div class="viewcode-block" id="calc_feature_correlation_matrix"><a class="viewcode-back" href="../../utils.html#rep.utils.calc_feature_correlation_matrix">[docs]</a><span class="k">def</span> <span class="nf">calc_feature_correlation_matrix</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculate correlation matrix</span>
@@ -325,9 +341,9 @@
     <span class="n">values</span> <span class="o">-=</span> <span class="n">means</span>
     <span class="n">covariation</span> <span class="o">=</span> <span class="n">values</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">values</span> <span class="o">*</span> <span class="n">weights</span><span class="p">[:,</span> <span class="bp">None</span><span class="p">])</span>
     <span class="n">diag</span> <span class="o">=</span> <span class="n">covariation</span><span class="o">.</span><span class="n">diagonal</span><span class="p">()</span>
-    <span class="k">return</span> <span class="n">covariation</span> <span class="o">/</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">diag</span><span class="p">)[:,</span> <span class="bp">None</span><span class="p">]</span> <span class="o">/</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">diag</span><span class="p">)[</span><span class="bp">None</span><span class="p">,</span> <span class="p">:]</span>
+    <span class="k">return</span> <span class="n">covariation</span> <span class="o">/</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">diag</span><span class="p">)[:,</span> <span class="bp">None</span><span class="p">]</span> <span class="o">/</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">diag</span><span class="p">)[</span><span class="bp">None</span><span class="p">,</span> <span class="p">:]</span></div>
 
-</div>
+
 <div class="viewcode-block" id="calc_hist_with_errors"><a class="viewcode-back" href="../../utils.html#rep.utils.calc_hist_with_errors">[docs]</a><span class="k">def</span> <span class="nf">calc_hist_with_errors</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span> <span class="n">normed</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">x_range</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">ignored_sideband</span><span class="o">=</span><span class="mf">0.0</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculate data for error bar (for plot pdf with errors)</span>
@@ -355,9 +371,9 @@
         <span class="n">yerr</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="nb">sum</span><span class="p">(</span><span class="n">weight_bin</span> <span class="o">*</span> <span class="n">weight_bin</span><span class="p">))</span> <span class="o">*</span> <span class="n">normalization</span><span class="p">)</span>
     <span class="n">bins_mean</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">bins</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="n">bins</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">ans</span><span class="p">))]</span>
     <span class="n">xerr</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">bins</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">bins</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">ans</span><span class="p">))]</span>
-    <span class="k">return</span> <span class="n">bins_mean</span><span class="p">,</span> <span class="n">ans</span><span class="p">,</span> <span class="n">yerr</span><span class="p">,</span> <span class="n">xerr</span>
+    <span class="k">return</span> <span class="n">bins_mean</span><span class="p">,</span> <span class="n">ans</span><span class="p">,</span> <span class="n">yerr</span><span class="p">,</span> <span class="n">xerr</span></div>
 
-</div>
+
 <div class="viewcode-block" id="get_efficiencies"><a class="viewcode-back" href="../../utils.html#rep.utils.get_efficiencies">[docs]</a><span class="k">def</span> <span class="nf">get_efficiencies</span><span class="p">(</span><span class="n">prediction</span><span class="p">,</span> <span class="n">spectator</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">bins_number</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
                      <span class="n">thresholds</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">ignored_sideband</span><span class="o">=</span><span class="mf">0.0</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
@@ -385,8 +401,8 @@
 
 <span class="sd">        All the parts: x_values, y_values, y_err, x_err are numpy.arrays of the same length.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">prediction</span><span class="p">,</span> <span class="n">spectator</span> <span class="o">=</span> \
-        <span class="n">check_arrays</span><span class="p">(</span><span class="n">prediction</span><span class="p">,</span> <span class="n">spectator</span><span class="p">)</span>
+    <span class="n">prediction</span><span class="p">,</span> <span class="n">spectator</span><span class="p">,</span> <span class="n">sample_weight</span> <span class="o">=</span> \
+        <span class="n">check_arrays</span><span class="p">(</span><span class="n">prediction</span><span class="p">,</span> <span class="n">spectator</span><span class="p">,</span> <span class="n">sample_weight</span><span class="p">)</span>
 
     <span class="n">spectator_min</span><span class="p">,</span> <span class="n">spectator_max</span> <span class="o">=</span> <span class="n">weighted_quantile</span><span class="p">(</span><span class="n">spectator</span><span class="p">,</span> <span class="p">[</span><span class="n">ignored_sideband</span><span class="p">,</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">-</span> <span class="n">ignored_sideband</span><span class="p">)])</span>
     <span class="n">mask</span> <span class="o">=</span> <span class="p">(</span><span class="n">spectator</span> <span class="o">&gt;=</span> <span class="n">spectator_min</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">spectator</span> <span class="o">&lt;=</span> <span class="n">spectator_max</span><span class="p">)</span>
@@ -400,7 +416,9 @@
                       <span class="k">for</span> <span class="n">eff</span> <span class="ow">in</span> <span class="p">[</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">]]</span>
 
     <span class="n">binner</span> <span class="o">=</span> <span class="n">Binner</span><span class="p">(</span><span class="n">spectator</span><span class="p">,</span> <span class="n">bins_number</span><span class="o">=</span><span class="n">bins_number</span><span class="p">)</span>
-    <span class="n">bins_data</span> <span class="o">=</span> <span class="n">binner</span><span class="o">.</span><span class="n">split_into_bins</span><span class="p">(</span><span class="n">spectator</span><span class="p">,</span> <span class="n">prediction</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">sample_weight</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">sample_weight</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">prediction</span><span class="p">))</span>
+    <span class="n">bins_data</span> <span class="o">=</span> <span class="n">binner</span><span class="o">.</span><span class="n">split_into_bins</span><span class="p">(</span><span class="n">spectator</span><span class="p">,</span> <span class="n">prediction</span><span class="p">,</span> <span class="n">sample_weight</span><span class="p">)</span>
 
     <span class="n">bin_edges</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">spectator_min</span><span class="p">]</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">binner</span><span class="o">.</span><span class="n">limits</span><span class="p">)</span> <span class="o">+</span> <span class="p">[</span><span class="n">spectator_max</span><span class="p">])</span>
     <span class="n">xerr</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">bin_edges</span><span class="p">)</span> <span class="o">/</span> <span class="mf">2.</span>
@@ -408,21 +426,23 @@
     <span class="k">for</span> <span class="n">threshold</span> <span class="ow">in</span> <span class="n">thresholds</span><span class="p">:</span>
         <span class="n">x_values</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">y_values</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">num</span><span class="p">,</span> <span class="p">(</span><span class="n">masses</span><span class="p">,</span> <span class="n">probabilities</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">bins_data</span><span class="p">):</span>
-            <span class="n">y_values</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">probabilities</span> <span class="o">&gt;</span> <span class="n">threshold</span><span class="p">))</span>
+        <span class="n">N_in_bin</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">num</span><span class="p">,</span> <span class="p">(</span><span class="n">masses</span><span class="p">,</span> <span class="n">probabilities</span><span class="p">,</span> <span class="n">weights</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">bins_data</span><span class="p">):</span>
+            <span class="n">y_values</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">average</span><span class="p">(</span><span class="n">probabilities</span> <span class="o">&gt;</span> <span class="n">threshold</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="n">weights</span><span class="p">))</span>
+            <span class="n">N_in_bin</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">weights</span><span class="p">))</span>
             <span class="k">if</span> <span class="n">errors</span><span class="p">:</span>
                 <span class="n">x_values</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">bin_edges</span><span class="p">[</span><span class="n">num</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">bin_edges</span><span class="p">[</span><span class="n">num</span><span class="p">])</span> <span class="o">/</span> <span class="mf">2.</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">x_values</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">masses</span><span class="p">))</span>
 
-        <span class="n">x_values</span><span class="p">,</span> <span class="n">y_values</span> <span class="o">=</span> <span class="n">check_arrays</span><span class="p">(</span><span class="n">x_values</span><span class="p">,</span> <span class="n">y_values</span><span class="p">)</span>
+        <span class="n">x_values</span><span class="p">,</span> <span class="n">y_values</span><span class="p">,</span> <span class="n">N_in_bin</span> <span class="o">=</span> <span class="n">check_arrays</span><span class="p">(</span><span class="n">x_values</span><span class="p">,</span> <span class="n">y_values</span><span class="p">,</span> <span class="n">N_in_bin</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">errors</span><span class="p">:</span>
-            <span class="n">result</span><span class="p">[</span><span class="n">threshold</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">x_values</span><span class="p">,</span> <span class="n">y_values</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">y_values</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">y_values</span><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">y_values</span><span class="p">)),</span> <span class="n">xerr</span><span class="p">)</span>
+            <span class="n">result</span><span class="p">[</span><span class="n">threshold</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">x_values</span><span class="p">,</span> <span class="n">y_values</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">y_values</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">y_values</span><span class="p">)</span> <span class="o">/</span> <span class="n">N_in_bin</span><span class="p">),</span> <span class="n">xerr</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">result</span><span class="p">[</span><span class="n">threshold</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">x_values</span><span class="p">,</span> <span class="n">y_values</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">result</span>
+    <span class="k">return</span> <span class="n">result</span></div>
 
-</div>
+
 <div class="viewcode-block" id="train_test_split"><a class="viewcode-back" href="../../utils.html#rep.utils.train_test_split">[docs]</a><span class="k">def</span> <span class="nf">train_test_split</span><span class="p">(</span><span class="o">*</span><span class="n">arrays</span><span class="p">,</span> <span class="o">**</span><span class="n">kw_args</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Does the same thing as train_test_split, but preserves columns in DataFrames.</span>
 <span class="sd">    Uses the same parameters: test_size, train_size, random_state, and has the same interface</span>
@@ -451,9 +471,9 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">array</span><span class="p">)[</span><span class="n">train_indices</span><span class="p">])</span>
             <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">array</span><span class="p">)[</span><span class="n">test_indices</span><span class="p">])</span>
-    <span class="k">return</span> <span class="n">result</span>
+    <span class="k">return</span> <span class="n">result</span></div>
 
-</div>
+
 <div class="viewcode-block" id="train_test_split_group"><a class="viewcode-back" href="../../utils.html#rep.utils.train_test_split_group">[docs]</a><span class="k">def</span> <span class="nf">train_test_split_group</span><span class="p">(</span><span class="n">group_column</span><span class="p">,</span> <span class="o">*</span><span class="n">arrays</span><span class="p">,</span> <span class="o">**</span><span class="n">kw_args</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Does the same thing as train_test_split, but preserves names of columns in DataFrames.</span>
 <span class="sd">    Uses the same parameters: test_size, train_size, random_state, and has almost the same interface</span>
@@ -497,9 +517,9 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">array</span><span class="p">)[</span><span class="n">train_indices</span><span class="p">])</span>
             <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">array</span><span class="p">)[</span><span class="n">test_indices</span><span class="p">])</span>
-    <span class="k">return</span> <span class="n">result</span>
+    <span class="k">return</span> <span class="n">result</span></div>
 
-</div>
+
 <div class="viewcode-block" id="get_columns_dict"><a class="viewcode-back" href="../../utils.html#rep.utils.get_columns_dict">[docs]</a><span class="k">def</span> <span class="nf">get_columns_dict</span><span class="p">(</span><span class="n">columns</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Get (new column: old column) dict expressions.</span>
@@ -516,9 +536,9 @@
             <span class="n">result</span><span class="p">[</span><span class="n">column_split</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()]</span> <span class="o">=</span> <span class="n">column_split</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">result</span><span class="p">[</span><span class="n">column</span><span class="p">]</span> <span class="o">=</span> <span class="n">column</span>
-    <span class="k">return</span> <span class="n">result</span>
+    <span class="k">return</span> <span class="n">result</span></div>
 
-</div>
+
 <div class="viewcode-block" id="get_columns_in_df"><a class="viewcode-back" href="../../utils.html#rep.utils.get_columns_in_df">[docs]</a><span class="k">def</span> <span class="nf">get_columns_in_df</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">columns</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Get columns in data frame using *numexpr* evaluation</span>
@@ -539,9 +559,9 @@
             <span class="c"># warning - this thing is known to fail in threads</span>
             <span class="c"># numexpr.evaluate(column, local_dict=df)</span>
             <span class="n">df_new</span><span class="p">[</span><span class="n">column_new</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">eval</span><span class="p">(</span><span class="n">column</span><span class="p">,</span> <span class="n">engine</span><span class="o">=</span><span class="s">&#39;python&#39;</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">df_new</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">df_new</span><span class="p">)</span></div>
 
-</div>
+
 <div class="viewcode-block" id="check_arrays"><a class="viewcode-back" href="../../utils.html#rep.utils.check_arrays">[docs]</a><span class="k">def</span> <span class="nf">check_arrays</span><span class="p">(</span><span class="o">*</span><span class="n">arrays</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Left for consistency version of sklearn.validation.check_arrays</span>
 
@@ -558,9 +578,9 @@
             <span class="n">checked_arrays</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">None</span><span class="p">)</span>
     <span class="k">assert</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">shapes</span><span class="p">)</span> <span class="o">==</span> <span class="n">shapes</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">shapes</span><span class="p">),</span> <span class="s">&#39;Different shapes of the arrays {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
         <span class="n">shapes</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">checked_arrays</span>
+    <span class="k">return</span> <span class="n">checked_arrays</span></div>
 
-</div>
+
 <div class="viewcode-block" id="fit_metric"><a class="viewcode-back" href="../../utils.html#rep.utils.fit_metric">[docs]</a><span class="k">def</span> <span class="nf">fit_metric</span><span class="p">(</span><span class="n">metric</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kargs</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Simple wrapper to fit metrics, which checks if metrics has `fit` method.&quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">metric</span><span class="p">,</span> <span class="s">&#39;fit&#39;</span><span class="p">):</span>
@@ -577,9 +597,10 @@
   <div role="contentinfo">
     <p>
         &copy; Copyright 2014-2015, Yandex.
+
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -597,7 +618,7 @@
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'../../',
-            VERSION:'0.6.4',
+            VERSION:'0.6.5',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true

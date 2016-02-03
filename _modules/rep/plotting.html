@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>rep.plotting &mdash; REP (Reproducible Experiment Platform) 0.6.4 documentation</title>
+  <title>rep.plotting &mdash; REP (Reproducible Experiment Platform) 0.6.5 documentation</title>
   
 
   
@@ -30,7 +30,7 @@
   
 
   
-    <link rel="top" title="REP (Reproducible Experiment Platform) 0.6.4 documentation" href="../../index.html"/>
+    <link rel="top" title="REP (Reproducible Experiment Platform) 0.6.5 documentation" href="../../index.html"/>
         <link rel="up" title="Module code" href="../index.html"/> 
 
   
@@ -44,17 +44,27 @@
 
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
-      <div class="wy-side-nav-search">
-        
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
 
-        
-          <a href="../../index.html" class="icon icon-home"> REP (Reproducible Experiment Platform)
-        
+          
+            <a href="../../index.html" class="icon icon-home"> REP (Reproducible Experiment Platform)
+          
 
-        
-        </a>
+          
+          </a>
 
-        
+          
+            
+            
+              <div class="version">
+                0.6.5
+              </div>
+            
+          
+
+          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -63,14 +73,14 @@
   </form>
 </div>
 
-        
-      </div>
+          
+        </div>
 
-      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
-          
-              <ul>
+            
+            
+                <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../data.html">Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../estimators.html">Estimators (classification and regression)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../metaml.html">Meta Machine Learning</a></li>
@@ -80,10 +90,10 @@
 <li class="toctree-l1"><a class="reference external" href="http://nbviewer.ipython.org/github/yandex/rep/tree/master/howto/">Howto notebooks</a></li>
 </ul>
 
+            
           
-        
+        </div>
       </div>
-      &nbsp;
     </nav>
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
@@ -98,7 +108,13 @@
       
       <div class="wy-nav-content">
         <div class="rst-content">
-          <div role="navigation" aria-label="breadcrumbs navigation">
+          
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
   <ul class="wy-breadcrumbs">
     <li><a href="../../index.html">Docs</a> &raquo;</li>
       
@@ -273,10 +289,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_plot</span><span class="p">()</span>
 
         <span class="k">if</span> <span class="n">show_legend</span><span class="p">:</span>
-            <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s">&#39;best&#39;</span><span class="p">,</span> <span class="n">scatterpoints</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-</div>
+            <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s">&#39;best&#39;</span><span class="p">,</span> <span class="n">scatterpoints</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span></div>
+
 <div class="viewcode-block" id="AbstractPlot.plot_bokeh"><a class="viewcode-back" href="../../plotting.html#rep.plotting.AbstractPlot.plot_bokeh">[docs]</a>    <span class="k">def</span> <span class="nf">plot_bokeh</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xlim</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">ylim</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
-                   <span class="n">xlabel</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">show_legend</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+                   <span class="n">xlabel</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">show_legend</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span></div>
 
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Plot data using bokeh library. Use show() method for bokeh to see result.</span>
@@ -331,7 +347,7 @@
 
         <span class="n">current_plot</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_plot_bokeh</span><span class="p">(</span><span class="n">current_plot</span><span class="p">,</span> <span class="n">show_legend</span><span class="p">)</span>
         <span class="n">bkh</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">current_plot</span><span class="p">)</span>
-</div>
+
 <div class="viewcode-block" id="AbstractPlot.plot_plotly"><a class="viewcode-back" href="../../plotting.html#rep.plotting.AbstractPlot.plot_plotly">[docs]</a>    <span class="k">def</span> <span class="nf">plot_plotly</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plotly_filename</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">mpl_type</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">xlim</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">ylim</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
                     <span class="n">xlabel</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">show_legend</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">grid</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -409,8 +425,8 @@
         <span class="n">fig</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_plot_plotly</span><span class="p">(</span><span class="n">layout</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">py</span><span class="o">.</span><span class="n">iplot</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="n">figsize</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">PLOTLY_RESIZE</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="n">figsize</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">PLOTLY_RESIZE</span><span class="p">,</span>
-                        <span class="n">filename</span><span class="o">=</span><span class="n">save_name</span><span class="p">)</span>
-</div>
+                        <span class="n">filename</span><span class="o">=</span><span class="n">save_name</span><span class="p">)</span></div>
+
 <div class="viewcode-block" id="AbstractPlot.plot_tmva"><a class="viewcode-back" href="../../plotting.html#rep.plotting.AbstractPlot.plot_tmva">[docs]</a>    <span class="k">def</span> <span class="nf">plot_tmva</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_plot</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">style_file</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
                   <span class="n">xlim</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">ylim</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">xlabel</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">show_legend</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -472,9 +488,9 @@
         <span class="k">if</span> <span class="n">show_legend</span><span class="p">:</span>
             <span class="n">leg</span><span class="o">.</span><span class="n">Draw</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_tmva_keeper</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">graph</span><span class="p">,</span> <span class="n">leg</span><span class="p">))</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">canvas</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">canvas</span></div></div>
 
-</div></div>
+
 <div class="viewcode-block" id="GridPlot"><a class="viewcode-back" href="../../plotting.html#rep.plotting.GridPlot">[docs]</a><span class="k">class</span> <span class="nc">GridPlot</span><span class="p">(</span><span class="n">AbstractPlot</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Implements grid plots</span>
@@ -595,9 +611,9 @@
         <span class="k">return</span> <span class="n">fig</span>
 
     <span class="k">def</span> <span class="nf">_plot_tmva</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s">&quot;Not supported for tmva&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s">&quot;Not supported for tmva&quot;</span><span class="p">)</span></div>
 
-</div>
+
 <div class="viewcode-block" id="HStackPlot"><a class="viewcode-back" href="../../plotting.html#rep.plotting.HStackPlot">[docs]</a><span class="k">class</span> <span class="nc">HStackPlot</span><span class="p">(</span><span class="n">AbstractPlot</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Implements horizontal stack plots</span>
@@ -629,9 +645,9 @@
 
     <span class="k">def</span> <span class="nf">_plot_bokeh</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">current_plot</span><span class="p">,</span> <span class="n">show_legend</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
         <span class="n">obj</span> <span class="o">=</span> <span class="n">GridPlot</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">plots</span><span class="p">),</span> <span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">plots</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">_plot_bokeh</span><span class="p">(</span><span class="n">current_plot</span><span class="p">,</span> <span class="n">show_legend</span><span class="o">=</span><span class="n">show_legend</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">_plot_bokeh</span><span class="p">(</span><span class="n">current_plot</span><span class="p">,</span> <span class="n">show_legend</span><span class="o">=</span><span class="n">show_legend</span><span class="p">)</span></div>
 
-</div>
+
 <div class="viewcode-block" id="VStackPlot"><a class="viewcode-back" href="../../plotting.html#rep.plotting.VStackPlot">[docs]</a><span class="k">class</span> <span class="nc">VStackPlot</span><span class="p">(</span><span class="n">AbstractPlot</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Implements vertical stack plots</span>
@@ -659,9 +675,9 @@
 
     <span class="k">def</span> <span class="nf">_plot_bokeh</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">current_plot</span><span class="p">,</span> <span class="n">show_legend</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
         <span class="n">obj</span> <span class="o">=</span> <span class="n">GridPlot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">plots</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">_plot_bokeh</span><span class="p">(</span><span class="n">current_plot</span><span class="p">,</span> <span class="n">show_legend</span><span class="o">=</span><span class="n">show_legend</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">_plot_bokeh</span><span class="p">(</span><span class="n">current_plot</span><span class="p">,</span> <span class="n">show_legend</span><span class="o">=</span><span class="n">show_legend</span><span class="p">)</span></div>
 
-</div>
+
 <div class="viewcode-block" id="ErrorPlot"><a class="viewcode-back" href="../../plotting.html#rep.plotting.ErrorPlot">[docs]</a><span class="k">class</span> <span class="nc">ErrorPlot</span><span class="p">(</span><span class="n">AbstractPlot</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Implements error bars plots</span>
@@ -755,9 +771,9 @@
         <span class="k">return</span> <span class="n">mg</span><span class="p">,</span> <span class="n">leg</span>
 
     <span class="k">def</span> <span class="nf">_plot_bokeh</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">current_plot</span><span class="p">,</span> <span class="n">show_legend</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s">&quot;Not supported by bokeh&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s">&quot;Not supported by bokeh&quot;</span><span class="p">)</span></div>
 
-</div>
+
 <div class="viewcode-block" id="FunctionsPlot"><a class="viewcode-back" href="../../plotting.html#rep.plotting.FunctionsPlot">[docs]</a><span class="k">class</span> <span class="nc">FunctionsPlot</span><span class="p">(</span><span class="n">AbstractPlot</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Implements 1d-function plots</span>
@@ -823,9 +839,9 @@
             <span class="n">mg</span><span class="o">.</span><span class="n">Add</span><span class="p">(</span><span class="n">gr</span><span class="p">)</span>
             <span class="n">leg</span><span class="o">.</span><span class="n">AddEntry</span><span class="p">(</span><span class="n">gr</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="s">&quot;L&quot;</span><span class="p">)</span>
         <span class="n">mg</span><span class="o">.</span><span class="n">Draw</span><span class="p">(</span><span class="s">&quot;AC&quot;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">mg</span><span class="p">,</span> <span class="n">leg</span>
+        <span class="k">return</span> <span class="n">mg</span><span class="p">,</span> <span class="n">leg</span></div>
 
-</div>
+
 <div class="viewcode-block" id="ColorMap"><a class="viewcode-back" href="../../plotting.html#rep.plotting.ColorMap">[docs]</a><span class="k">class</span> <span class="nc">ColorMap</span><span class="p">(</span><span class="n">AbstractPlot</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Implements color map plots</span>
@@ -945,9 +961,9 @@
             <span class="p">(</span><span class="s">&#39;value&#39;</span><span class="p">,</span> <span class="s">&#39;@value&#39;</span><span class="p">)</span>
         <span class="p">])</span>
         <span class="n">current_plot</span><span class="o">.</span><span class="n">tools</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">hover</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">current_plot</span>
+        <span class="k">return</span> <span class="n">current_plot</span></div>
 
-</div>
+
 <div class="viewcode-block" id="ScatterPlot"><a class="viewcode-back" href="../../plotting.html#rep.plotting.ScatterPlot">[docs]</a><span class="k">class</span> <span class="nc">ScatterPlot</span><span class="p">(</span><span class="n">AbstractPlot</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Implements scatters plots</span>
@@ -1004,9 +1020,9 @@
             <span class="k">if</span> <span class="n">show_legend</span><span class="p">:</span>
                 <span class="n">legend_name</span> <span class="o">=</span> <span class="n">name</span>
             <span class="n">current_plot</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">x_val</span><span class="p">,</span> <span class="n">y_val</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">size</span> <span class="o">//</span> <span class="mi">5</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">alpha</span><span class="p">,</span> <span class="n">legend</span><span class="o">=</span><span class="n">legend_name</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">current_plot</span>
+        <span class="k">return</span> <span class="n">current_plot</span></div>
 
-</div>
+
 <div class="viewcode-block" id="BarPlot"><a class="viewcode-back" href="../../plotting.html#rep.plotting.BarPlot">[docs]</a><span class="k">class</span> <span class="nc">BarPlot</span><span class="p">(</span><span class="n">AbstractPlot</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Implements bar plots</span>
@@ -1094,9 +1110,9 @@
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s">&quot;Not supported for tmva&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_plot_bokeh</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">current_plot</span><span class="p">,</span> <span class="n">show_legend</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s">&quot;Not supported by bokeh&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s">&quot;Not supported by bokeh&quot;</span><span class="p">)</span></div>
 
-</div>
+
 <div class="viewcode-block" id="BarComparePlot"><a class="viewcode-back" href="../../plotting.html#rep.plotting.BarComparePlot">[docs]</a><span class="k">class</span> <span class="nc">BarComparePlot</span><span class="p">(</span><span class="n">AbstractPlot</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Implements bar plots</span>
@@ -1177,9 +1193,9 @@
                               <span class="n">height</span><span class="o">=</span><span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">sample</span><span class="o">.</span><span class="n">values</span><span class="p">()))[</span><span class="n">inds</span><span class="p">],</span> <span class="n">width</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span>
                               <span class="n">alpha</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">alpha</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span>
                               <span class="n">legend</span><span class="o">=</span><span class="n">legend_name</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">current_plot</span>
+        <span class="k">return</span> <span class="n">current_plot</span></div>
 
-</div>
+
 <div class="viewcode-block" id="Function2D_Plot"><a class="viewcode-back" href="../../plotting.html#rep.plotting.Function2D_Plot">[docs]</a><span class="k">class</span> <span class="nc">Function2D_Plot</span><span class="p">(</span><span class="n">AbstractPlot</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Implements 2d-functions plots</span>
@@ -1263,9 +1279,9 @@
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s">&quot;Not supported for tmva&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_plot_bokeh</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">current_plot</span><span class="p">,</span> <span class="n">show_legend</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s">&quot;Not supported for bokeh&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s">&quot;Not supported for bokeh&quot;</span><span class="p">)</span></div>
 
-</div>
+
 <div class="viewcode-block" id="Histogram2D_Plot"><a class="viewcode-back" href="../../plotting.html#rep.plotting.Histogram2D_Plot">[docs]</a><span class="k">class</span> <span class="nc">Histogram2D_Plot</span><span class="p">(</span><span class="n">AbstractPlot</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Implements correlations plots</span>
@@ -1345,9 +1361,9 @@
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s">&quot;Not supported for tmva&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_plot_bokeh</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">current_plot</span><span class="p">,</span> <span class="n">show_legend</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s">&quot;Not supported by bokeh&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s">&quot;Not supported by bokeh&quot;</span><span class="p">)</span></div>
 
-</div>
+
 <div class="viewcode-block" id="CorrelationPlot"><a class="viewcode-back" href="../../plotting.html#rep.plotting.CorrelationPlot">[docs]</a><span class="k">class</span> <span class="nc">CorrelationPlot</span><span class="p">(</span><span class="n">AbstractPlot</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Implements correlations plots</span>
@@ -1386,9 +1402,9 @@
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s">&quot;Not supported for tmva&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_plot_bokeh</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">current_plot</span><span class="p">,</span> <span class="n">show_legend</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s">&quot;Not supported by bokeh&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s">&quot;Not supported by bokeh&quot;</span><span class="p">)</span></div>
 
-</div>
+
 <div class="viewcode-block" id="CorrelationMapPlot"><a class="viewcode-back" href="../../plotting.html#rep.plotting.CorrelationMapPlot">[docs]</a><span class="k">class</span> <span class="nc">CorrelationMapPlot</span><span class="p">(</span><span class="n">AbstractPlot</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Implements correlations map plots</span>
@@ -1431,9 +1447,9 @@
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s">&quot;Not supported for tmva&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_plot_bokeh</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">current_plot</span><span class="p">,</span> <span class="n">show_legend</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s">&quot;Not supported by bokeh&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s">&quot;Not supported by bokeh&quot;</span><span class="p">)</span></div>
 
-</div>
+
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Helper module for displaying ROOT canvases in ipython notebooks</span>
 
@@ -1464,14 +1480,14 @@
     <span class="k">if</span> <span class="n">canvas</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">canvas</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">TCanvas</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">size</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">size</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">TCanvas</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">size</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">size</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span></div>
 
-</div>
+
 <div class="viewcode-block" id="default_canvas"><a class="viewcode-back" href="../../plotting.html#rep.plotting.default_canvas">[docs]</a><span class="k">def</span> <span class="nf">default_canvas</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&quot;icanvas&quot;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="mi">800</span><span class="p">,</span> <span class="mi">600</span><span class="p">)):</span>
     <span class="sd">&quot;&quot;&quot; deprecated &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">canvas</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">size</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">canvas</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">size</span><span class="p">)</span></div>
 
-</div>
+
 <span class="k">def</span> <span class="nf">_display_canvas</span><span class="p">(</span><span class="n">canvas</span><span class="p">):</span>
     <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">NamedTemporaryFile</span><span class="p">(</span><span class="n">suffix</span><span class="o">=</span><span class="s">&quot;.png&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file_png</span><span class="p">:</span>
         <span class="n">canvas</span><span class="o">.</span><span class="n">SaveAs</span><span class="p">(</span><span class="n">file_png</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
@@ -1502,6 +1518,7 @@
     <span class="n">png_formatter</span><span class="o">.</span><span class="n">for_type</span><span class="p">(</span><span class="n">ROOT</span><span class="o">.</span><span class="n">TF1</span><span class="p">,</span> <span class="n">_display_any</span><span class="p">)</span>
 <span class="k">except</span><span class="p">:</span>
     <span class="k">pass</span>
+
 </pre></div>
 
            </div>
@@ -1514,9 +1531,10 @@
   <div role="contentinfo">
     <p>
         &copy; Copyright 2014-2015, Yandex.
+
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -1534,7 +1552,7 @@
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'../../',
-            VERSION:'0.6.4',
+            VERSION:'0.6.5',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true

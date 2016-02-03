@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>rep.metaml.gridsearch &mdash; REP (Reproducible Experiment Platform) 0.6.4 documentation</title>
+  <title>rep.metaml.gridsearch &mdash; REP (Reproducible Experiment Platform) 0.6.5 documentation</title>
   
 
   
@@ -30,7 +30,7 @@
   
 
   
-    <link rel="top" title="REP (Reproducible Experiment Platform) 0.6.4 documentation" href="../../../index.html"/>
+    <link rel="top" title="REP (Reproducible Experiment Platform) 0.6.5 documentation" href="../../../index.html"/>
         <link rel="up" title="Module code" href="../../index.html"/> 
 
   
@@ -44,17 +44,27 @@
 
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
-      <div class="wy-side-nav-search">
-        
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
 
-        
-          <a href="../../../index.html" class="icon icon-home"> REP (Reproducible Experiment Platform)
-        
+          
+            <a href="../../../index.html" class="icon icon-home"> REP (Reproducible Experiment Platform)
+          
 
-        
-        </a>
+          
+          </a>
 
-        
+          
+            
+            
+              <div class="version">
+                0.6.5
+              </div>
+            
+          
+
+          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -63,14 +73,14 @@
   </form>
 </div>
 
-        
-      </div>
+          
+        </div>
 
-      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
-          
-              <ul>
+            
+            
+                <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../data.html">Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../estimators.html">Estimators (classification and regression)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../metaml.html">Meta Machine Learning</a></li>
@@ -80,10 +90,10 @@
 <li class="toctree-l1"><a class="reference external" href="http://nbviewer.ipython.org/github/yandex/rep/tree/master/howto/">Howto notebooks</a></li>
 </ul>
 
+            
           
-        
+        </div>
       </div>
-      &nbsp;
     </nav>
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
@@ -98,7 +108,13 @@
       
       <div class="wy-nav-content">
         <div class="rst-content">
-          <div role="navigation" aria-label="breadcrumbs navigation">
+          
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
   <ul class="wy-breadcrumbs">
     <li><a href="../../../index.html">Docs</a> &raquo;</li>
       
@@ -221,7 +237,7 @@
 <span class="n">__author__</span> <span class="o">=</span> <span class="s">&#39;Alex Rogozhnikov, Tatiana Likhomanenko&#39;</span>
 
 
-<div class="viewcode-block" id="AbstractParameterGenerator"><a class="viewcode-back" href="../../../metaml.html#rep.metaml.gridsearch.AbstractParameterGenerator">[docs]</a><span class="k">class</span> <span class="nc">AbstractParameterGenerator</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="AbstractParameterGenerator"><a class="viewcode-back" href="../../../metaml.html#rep.metaml.gridsearch.AbstractParameterGenerator">[docs]</a><span class="k">class</span> <span class="nc">AbstractParameterGenerator</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span></div>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param_grid</span><span class="p">,</span> <span class="n">n_evaluations</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">maximize</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -276,13 +292,13 @@
                     <span class="bp">self</span><span class="o">.</span><span class="n">queued_tasks_</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
                 <span class="k">return</span> <span class="n">result</span>
 
-<div class="viewcode-block" id="AbstractParameterGenerator.generate_next_point"><a class="viewcode-back" href="../../../metaml.html#rep.metaml.gridsearch.AbstractParameterGenerator.generate_next_point">[docs]</a>    <span class="k">def</span> <span class="nf">generate_next_point</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">generate_next_point</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Generating next random point in parameters space</span>
 <span class="sd">        :return: tuple (indices, parameters)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s">&#39;Should be overriden by descendant&#39;</span><span class="p">)</span>
-</div>
-<div class="viewcode-block" id="AbstractParameterGenerator.generate_batch_points"><a class="viewcode-back" href="../../../metaml.html#rep.metaml.gridsearch.AbstractParameterGenerator.generate_batch_points">[docs]</a>    <span class="k">def</span> <span class="nf">generate_batch_points</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">size</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">generate_batch_points</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">size</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Generate several points in parameter space at once (needed when using parallel computations)</span>
 
@@ -297,8 +313,8 @@
             <span class="k">except</span> <span class="ne">StopIteration</span><span class="p">:</span>
                 <span class="k">pass</span>
         <span class="k">return</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">state_indices</span><span class="p">)</span>
-</div>
-<div class="viewcode-block" id="AbstractParameterGenerator.add_result"><a class="viewcode-back" href="../../../metaml.html#rep.metaml.gridsearch.AbstractParameterGenerator.add_result">[docs]</a>    <span class="k">def</span> <span class="nf">add_result</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state_indices</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">add_result</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state_indices</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        After the model was trained and evaluated for specific set of parameters,</span>
 <span class="sd">        we use this function to store result</span>
@@ -306,7 +322,7 @@
 <span class="sd">        :param value: quality at this point</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">grid_scores_</span><span class="p">[</span><span class="n">state_indices</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
-</div>
+
     <span class="k">def</span> <span class="nf">_get_the_best_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">maximize</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">numpy</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
@@ -328,7 +344,7 @@
         <span class="n">function</span> <span class="o">=</span> <span class="nb">max</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">maximize</span> <span class="k">else</span> <span class="nb">min</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_indices_to_parameters</span><span class="p">(</span><span class="n">function</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">grid_scores_</span><span class="o">.</span><span class="n">items</span><span class="p">(),</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">])[</span><span class="mi">0</span><span class="p">])</span>
 
-<div class="viewcode-block" id="AbstractParameterGenerator.print_results"><a class="viewcode-back" href="../../../metaml.html#rep.metaml.gridsearch.AbstractParameterGenerator.print_results">[docs]</a>    <span class="k">def</span> <span class="nf">print_results</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reorder</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">print_results</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reorder</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Prints the results of training</span>
 
@@ -343,7 +359,7 @@
                                       <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_indices_to_parameters</span><span class="p">(</span><span class="n">state_indices</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">()])</span>
             <span class="k">print</span><span class="p">(</span><span class="s">&quot;{0:.3f}:  {1}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">state_string</span><span class="p">))</span>
 
-</div></div>
+
 <div class="viewcode-block" id="RandomParameterOptimizer"><a class="viewcode-back" href="../../../metaml.html#rep.metaml.gridsearch.RandomParameterOptimizer">[docs]</a><span class="k">class</span> <span class="nc">RandomParameterOptimizer</span><span class="p">(</span><span class="n">AbstractParameterGenerator</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param_grid</span><span class="p">,</span> <span class="n">n_evaluations</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">maximize</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -373,12 +389,12 @@
         <span class="n">indices</span> <span class="o">=</span> <span class="n">index</span><span class="p">,</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">indices_to_parameters_</span><span class="p">[</span><span class="n">indices</span><span class="p">]</span> <span class="o">=</span> <span class="n">params</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">queued_tasks_</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">indices</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">indices</span><span class="p">,</span> <span class="n">params</span>
-</div>
-    <span class="k">def</span> <span class="nf">_indices_to_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state_indices</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">indices_to_parameters_</span><span class="p">[</span><span class="n">state_indices</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">indices</span><span class="p">,</span> <span class="n">params</span></div>
 
-</div>
+    <span class="k">def</span> <span class="nf">_indices_to_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state_indices</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">indices_to_parameters_</span><span class="p">[</span><span class="n">state_indices</span><span class="p">]</span></div>
+
+
 <div class="viewcode-block" id="RegressionParameterOptimizer"><a class="viewcode-back" href="../../../metaml.html#rep.metaml.gridsearch.RegressionParameterOptimizer">[docs]</a><span class="k">class</span> <span class="nc">RegressionParameterOptimizer</span><span class="p">(</span><span class="n">AbstractParameterGenerator</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param_grid</span><span class="p">,</span> <span class="n">n_evaluations</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
                  <span class="n">start_evaluations</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">n_attempts</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">regressor</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">maximize</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
@@ -431,9 +447,9 @@
 
         <span class="c"># remember the task</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">queued_tasks_</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">new_state_indices</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">new_state_indices</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_indices_to_parameters</span><span class="p">(</span><span class="n">new_state_indices</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">new_state_indices</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_indices_to_parameters</span><span class="p">(</span><span class="n">new_state_indices</span><span class="p">)</span></div></div>
 
-</div></div>
+
 <div class="viewcode-block" id="AnnealingParameterOptimizer"><a class="viewcode-back" href="../../../metaml.html#rep.metaml.gridsearch.AnnealingParameterOptimizer">[docs]</a><span class="k">class</span> <span class="nc">AnnealingParameterOptimizer</span><span class="p">(</span><span class="n">AbstractParameterGenerator</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param_grid</span><span class="p">,</span> <span class="n">n_evaluations</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">temperature</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">maximize</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -490,12 +506,12 @@
                 <span class="n">new_state_indices</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generate_random_point</span><span class="p">(</span><span class="n">enqueue</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">queued_tasks_</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">new_state_indices</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">new_state_indices</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_indices_to_parameters</span><span class="p">(</span><span class="n">new_state_indices</span><span class="p">)</span>
-</div>
-<div class="viewcode-block" id="AnnealingParameterOptimizer.generate_batch_points"><a class="viewcode-back" href="../../../metaml.html#rep.metaml.gridsearch.AnnealingParameterOptimizer.generate_batch_points">[docs]</a>    <span class="k">def</span> <span class="nf">generate_batch_points</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">size</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s">&quot;Annealing optimization doesn&#39;t support batch-based optimization (on cluster)&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">new_state_indices</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_indices_to_parameters</span><span class="p">(</span><span class="n">new_state_indices</span><span class="p">)</span></div>
 
-</div></div>
+<div class="viewcode-block" id="AnnealingParameterOptimizer.generate_batch_points"><a class="viewcode-back" href="../../../metaml.html#rep.metaml.gridsearch.AnnealingParameterOptimizer.generate_batch_points">[docs]</a>    <span class="k">def</span> <span class="nf">generate_batch_points</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">size</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s">&quot;Annealing optimization doesn&#39;t support batch-based optimization (on cluster)&quot;</span><span class="p">)</span></div></div>
+
+
 <div class="viewcode-block" id="SubgridParameterOptimizer"><a class="viewcode-back" href="../../../metaml.html#rep.metaml.gridsearch.SubgridParameterOptimizer">[docs]</a><span class="k">class</span> <span class="nc">SubgridParameterOptimizer</span><span class="p">(</span><span class="n">AbstractParameterGenerator</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Uses Metropolis-like optimization.</span>
@@ -570,18 +586,18 @@
             <span class="k">if</span> <span class="n">new_state_indices</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">queued_tasks_</span><span class="p">:</span>
                 <span class="k">continue</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">queued_tasks_</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">new_state_indices</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">new_state_indices</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_indices_to_parameters</span><span class="p">(</span><span class="n">new_state_indices</span><span class="p">)</span>
-</div>
+            <span class="k">return</span> <span class="n">new_state_indices</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_indices_to_parameters</span><span class="p">(</span><span class="n">new_state_indices</span><span class="p">)</span></div>
+
 <div class="viewcode-block" id="SubgridParameterOptimizer.add_result"><a class="viewcode-back" href="../../../metaml.html#rep.metaml.gridsearch.SubgridParameterOptimizer.add_result">[docs]</a>    <span class="k">def</span> <span class="nf">add_result</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state_indices</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">state_indices</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s">&#39;subgrid&#39;</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">grid_scores_</span><span class="p">[</span><span class="n">_translate_key_from_subgrid</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">subgrid_indices</span><span class="p">,</span> <span class="n">state_indices</span><span class="p">[</span><span class="mi">1</span><span class="p">])]</span> <span class="o">=</span> <span class="n">value</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">subgrid_parameter_generator</span><span class="o">.</span><span class="n">add_result</span><span class="p">(</span><span class="n">state_indices</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">value</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">grid_scores_</span><span class="p">[</span><span class="n">state_indices</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">grid_scores_</span><span class="p">[</span><span class="n">state_indices</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span></div></div>
 
 
 <span class="c"># region supplementary functions</span>
-</div></div>
+
 <span class="k">def</span> <span class="nf">_check_param_grid</span><span class="p">(</span><span class="n">param_grid</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; Checks parameters of grid &quot;&quot;&quot;</span>
     <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">param_grid</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
@@ -700,9 +716,9 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">k_folder</span> <span class="o">=</span> <span class="n">StratifiedKFold</span><span class="p">(</span><span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="p">,</span> <span class="n">n_folds</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">folds</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">shuffle</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">random_state</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compute_score</span><span class="p">(</span><span class="n">k_folder</span><span class="p">,</span> <span class="n">get_classifier_probabilities</span><span class="p">,</span> <span class="n">base_estimator</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span>
-                                   <span class="n">sample_weight</span><span class="o">=</span><span class="n">sample_weight</span><span class="p">)</span>
+                                   <span class="n">sample_weight</span><span class="o">=</span><span class="n">sample_weight</span><span class="p">)</span></div>
 
-</div>
+
 <div class="viewcode-block" id="RegressionFoldingScorer"><a class="viewcode-back" href="../../../metaml.html#rep.metaml.gridsearch.RegressionFoldingScorer">[docs]</a><span class="k">class</span> <span class="nc">RegressionFoldingScorer</span><span class="p">(</span><span class="n">FoldingScorerBase</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Scorer, which implements logic of data folding and scoring for regression models. This is a function-like object</span>
@@ -732,8 +748,8 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">k_folder</span> <span class="o">=</span> <span class="n">KFold</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">y</span><span class="p">),</span> <span class="n">n_folds</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">folds</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">shuffle</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">random_state</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compute_score</span><span class="p">(</span><span class="n">k_folder</span><span class="p">,</span> <span class="n">get_regressor_prediction</span><span class="p">,</span> <span class="n">base_estimator</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span>
-                                   <span class="n">sample_weight</span><span class="o">=</span><span class="n">sample_weight</span><span class="p">)</span>
-</div>
+                                   <span class="n">sample_weight</span><span class="o">=</span><span class="n">sample_weight</span><span class="p">)</span></div>
+
 <span class="n">FoldingScorer</span> <span class="o">=</span> <span class="n">ClassificationFoldingScorer</span>
 
 
@@ -809,8 +825,8 @@
         <span class="n">best_estimator_</span> <span class="o">=</span> <span class="n">clone</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">base_estimator</span><span class="p">)</span>
         <span class="n">best_estimator_</span><span class="o">.</span><span class="n">set_params</span><span class="p">(</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">generator</span><span class="o">.</span><span class="n">best_params_</span><span class="p">)</span>
         <span class="n">best_estimator_</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="n">sample_weight</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">best_estimator_</span>
-</div>
+        <span class="k">return</span> <span class="n">best_estimator_</span></div>
+
 <div class="viewcode-block" id="GridOptimalSearchCV.fit"><a class="viewcode-back" href="../../../metaml.html#rep.metaml.gridsearch.GridOptimalSearchCV.fit">[docs]</a>    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Run fit with all sets of parameters.</span>
@@ -875,9 +891,10 @@
   <div role="contentinfo">
     <p>
         &copy; Copyright 2014-2015, Yandex.
+
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -895,7 +912,7 @@
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'../../../',
-            VERSION:'0.6.4',
+            VERSION:'0.6.5',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true

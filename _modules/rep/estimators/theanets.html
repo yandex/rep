@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>rep.estimators.theanets &mdash; REP (Reproducible Experiment Platform) 0.6.4 documentation</title>
+  <title>rep.estimators.theanets &mdash; REP (Reproducible Experiment Platform) 0.6.5 documentation</title>
   
 
   
@@ -30,7 +30,7 @@
   
 
   
-    <link rel="top" title="REP (Reproducible Experiment Platform) 0.6.4 documentation" href="../../../index.html"/>
+    <link rel="top" title="REP (Reproducible Experiment Platform) 0.6.5 documentation" href="../../../index.html"/>
         <link rel="up" title="Module code" href="../../index.html"/> 
 
   
@@ -44,17 +44,27 @@
 
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
-      <div class="wy-side-nav-search">
-        
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
 
-        
-          <a href="../../../index.html" class="icon icon-home"> REP (Reproducible Experiment Platform)
-        
+          
+            <a href="../../../index.html" class="icon icon-home"> REP (Reproducible Experiment Platform)
+          
 
-        
-        </a>
+          
+          </a>
 
-        
+          
+            
+            
+              <div class="version">
+                0.6.5
+              </div>
+            
+          
+
+          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -63,14 +73,14 @@
   </form>
 </div>
 
-        
-      </div>
+          
+        </div>
 
-      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
-          
-              <ul>
+            
+            
+                <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../data.html">Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../estimators.html">Estimators (classification and regression)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../metaml.html">Meta Machine Learning</a></li>
@@ -80,10 +90,10 @@
 <li class="toctree-l1"><a class="reference external" href="http://nbviewer.ipython.org/github/yandex/rep/tree/master/howto/">Howto notebooks</a></li>
 </ul>
 
+            
           
-        
+        </div>
       </div>
-      &nbsp;
     </nav>
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
@@ -98,7 +108,13 @@
       
       <div class="wy-nav-content">
         <div class="rst-content">
-          <div role="navigation" aria-label="breadcrumbs navigation">
+          
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
   <ul class="wy-breadcrumbs">
     <li><a href="../../../index.html">Docs</a> &raquo;</li>
       
@@ -281,8 +297,8 @@
                         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&#39;was unable to set parameter {}={} &#39;</span>
                                          <span class="s">&#39;to scaler {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">param_of_param</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">scaler</span><span class="p">))</span>
                 <span class="k">else</span><span class="p">:</span>
-                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">key</span> <span class="o">+</span> <span class="s">&#39; is an invalid parameter for a Theanets estimator&#39;</span><span class="p">)</span>
-</div>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">key</span> <span class="o">+</span> <span class="s">&#39; is an invalid parameter for a Theanets estimator&#39;</span><span class="p">)</span></div>
+
     <span class="k">def</span> <span class="nf">_transform_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Takes the features and transforms data using self.scaler, also fits the scaler if needed.</span>
@@ -320,8 +336,8 @@
             <span class="k">if</span> <span class="s">&#39;optimize&#39;</span> <span class="ow">in</span> <span class="n">trainer</span> <span class="ow">and</span> <span class="n">trainer</span><span class="p">[</span><span class="s">&#39;optimize&#39;</span><span class="p">]</span> <span class="ow">in</span> <span class="n">UNSUPPORTED_OPTIMIZERS</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="n">trainer</span><span class="p">[</span><span class="s">&#39;optimize&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s">&#39; is not supported&#39;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">partial_fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="n">sample_weight</span><span class="p">,</span> <span class="n">keep_trainer</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="o">**</span><span class="n">trainer</span><span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span>
-</div>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
     <span class="nd">@abstractmethod</span>
 <div class="viewcode-block" id="TheanetsBase.partial_fit"><a class="viewcode-back" href="../../../estimators.html#rep.estimators.theanets.TheanetsBase.partial_fit">[docs]</a>    <span class="k">def</span> <span class="nf">partial_fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">keep_trainer</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="o">**</span><span class="n">trainer</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -334,8 +350,8 @@
 <span class="sd">        :param dict trainer: parameters of the training algorithm we want to use now</span>
 <span class="sd">        :return: self</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">pass</span>
-</div>
+        <span class="k">pass</span></div>
+
     <span class="k">def</span> <span class="nf">_prepare_for_partial_fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">allow_multiple_targets</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">keep_trainer</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
                                  <span class="o">**</span><span class="n">trainer</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -379,9 +395,9 @@
                 <span class="s">&#39;rng&#39;</span><span class="p">:</span> <span class="n">check_random_state</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">random_state</span><span class="p">),</span>
                 <span class="s">&#39;weight_l1&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">weight_l1</span><span class="p">,</span>
                 <span class="s">&#39;weight_l2&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">weight_l2</span>
-        <span class="p">}</span>
+        <span class="p">}</span></div>
 
-</div>
+
 <div class="viewcode-block" id="TheanetsClassifier"><a class="viewcode-back" href="../../../estimators.html#rep.estimators.theanets.TheanetsClassifier">[docs]</a><span class="k">class</span> <span class="nc">TheanetsClassifier</span><span class="p">(</span><span class="n">TheanetsBase</span><span class="p">,</span> <span class="n">Classifier</span><span class="p">):</span>
     <span class="n">__doc__</span> <span class="o">=</span> <span class="s">&#39;Classifier from Theanets library. </span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">+</span> <span class="n">remove_first_line</span><span class="p">(</span><span class="n">TheanetsBase</span><span class="o">.</span><span class="n">__doc__</span><span class="p">)</span>
 
@@ -413,8 +429,8 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">exp</span><span class="o">.</span><span class="n">train</span><span class="p">([</span><span class="n">X</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">float32</span><span class="p">),</span> <span class="n">y</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">int32</span><span class="p">),</span> <span class="n">sample_weight</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">float32</span><span class="p">)],</span>
                            <span class="o">**</span><span class="n">params</span><span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span>
-</div>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
 <div class="viewcode-block" id="TheanetsClassifier.predict_proba"><a class="viewcode-back" href="../../../estimators.html#rep.estimators.theanets.TheanetsClassifier.predict_proba">[docs]</a>    <span class="k">def</span> <span class="nf">predict_proba</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Predict probabilities</span>
@@ -424,15 +440,15 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_fitted</span><span class="p">(),</span> <span class="s">&#39;Classifier wasn`t fitted, please call `fit` first&#39;</span>
         <span class="n">X</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_transform_data</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_features</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">allow_nans</span><span class="o">=</span><span class="bp">True</span><span class="p">))</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">exp</span><span class="o">.</span><span class="n">network</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">float32</span><span class="p">))</span>
-</div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">exp</span><span class="o">.</span><span class="n">network</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">float32</span><span class="p">))</span></div>
+
 <div class="viewcode-block" id="TheanetsClassifier.staged_predict_proba"><a class="viewcode-back" href="../../../estimators.html#rep.estimators.theanets.TheanetsClassifier.staged_predict_proba">[docs]</a>    <span class="k">def</span> <span class="nf">staged_predict_proba</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        .. warning:: not supported in Theanets (**NotImplementedError** will be thrown)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s">&#39;staged_predict_proba is not supported for theanets classifier&#39;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s">&#39;staged_predict_proba is not supported for theanets classifier&#39;</span><span class="p">)</span></div></div>
 
-</div></div>
+
 <div class="viewcode-block" id="TheanetsRegressor"><a class="viewcode-back" href="../../../estimators.html#rep.estimators.theanets.TheanetsRegressor">[docs]</a><span class="k">class</span> <span class="nc">TheanetsRegressor</span><span class="p">(</span><span class="n">TheanetsBase</span><span class="p">,</span> <span class="n">Regressor</span><span class="p">):</span>
     <span class="n">__doc__</span> <span class="o">=</span> <span class="s">&#39;Regressor from Theanets library. </span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">+</span> <span class="n">remove_first_line</span><span class="p">(</span><span class="n">TheanetsBase</span><span class="o">.</span><span class="n">__doc__</span><span class="p">)</span>
 
@@ -469,8 +485,8 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">exp</span><span class="o">.</span><span class="n">train</span><span class="p">([</span><span class="n">X</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">float32</span><span class="p">)],</span> <span class="o">**</span><span class="n">params</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">exp</span><span class="o">.</span><span class="n">train</span><span class="p">([</span><span class="n">X</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">float32</span><span class="p">),</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">float32</span><span class="p">)],</span> <span class="o">**</span><span class="n">params</span><span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span>
-</div>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
 <div class="viewcode-block" id="TheanetsRegressor.predict"><a class="viewcode-back" href="../../../estimators.html#rep.estimators.theanets.TheanetsRegressor.predict">[docs]</a>    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Predict values for all events in dataset</span>
@@ -480,8 +496,8 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_fitted</span><span class="p">(),</span> <span class="s">&quot;Regressor wasn&#39;t fitted, please call `fit` first&quot;</span>
         <span class="n">X</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_transform_data</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_features</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">allow_nans</span><span class="o">=</span><span class="bp">True</span><span class="p">))</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">exp</span><span class="o">.</span><span class="n">network</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">float32</span><span class="p">))</span>
-</div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">exp</span><span class="o">.</span><span class="n">network</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">float32</span><span class="p">))</span></div>
+
 <div class="viewcode-block" id="TheanetsRegressor.staged_predict"><a class="viewcode-back" href="../../../estimators.html#rep.estimators.theanets.TheanetsRegressor.staged_predict">[docs]</a>    <span class="k">def</span> <span class="nf">staged_predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        .. warning:: not supported in Theanets (**NotImplementedError** will be thrown)</span>
@@ -499,9 +515,10 @@
   <div role="contentinfo">
     <p>
         &copy; Copyright 2014-2015, Yandex.
+
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -519,7 +536,7 @@
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'../../../',
-            VERSION:'0.6.4',
+            VERSION:'0.6.5',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true

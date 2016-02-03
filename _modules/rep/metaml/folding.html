@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>rep.metaml.folding &mdash; REP (Reproducible Experiment Platform) 0.6.4 documentation</title>
+  <title>rep.metaml.folding &mdash; REP (Reproducible Experiment Platform) 0.6.5 documentation</title>
   
 
   
@@ -30,7 +30,7 @@
   
 
   
-    <link rel="top" title="REP (Reproducible Experiment Platform) 0.6.4 documentation" href="../../../index.html"/>
+    <link rel="top" title="REP (Reproducible Experiment Platform) 0.6.5 documentation" href="../../../index.html"/>
         <link rel="up" title="Module code" href="../../index.html"/> 
 
   
@@ -44,17 +44,27 @@
 
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
-      <div class="wy-side-nav-search">
-        
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
 
-        
-          <a href="../../../index.html" class="icon icon-home"> REP (Reproducible Experiment Platform)
-        
+          
+            <a href="../../../index.html" class="icon icon-home"> REP (Reproducible Experiment Platform)
+          
 
-        
-        </a>
+          
+          </a>
 
-        
+          
+            
+            
+              <div class="version">
+                0.6.5
+              </div>
+            
+          
+
+          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -63,14 +73,14 @@
   </form>
 </div>
 
-        
-      </div>
+          
+        </div>
 
-      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
-          
-              <ul>
+            
+            
+                <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../data.html">Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../estimators.html">Estimators (classification and regression)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../metaml.html">Meta Machine Learning</a></li>
@@ -80,10 +90,10 @@
 <li class="toctree-l1"><a class="reference external" href="http://nbviewer.ipython.org/github/yandex/rep/tree/master/howto/">Howto notebooks</a></li>
 </ul>
 
+            
           
-        
+        </div>
       </div>
-      &nbsp;
     </nav>
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
@@ -98,7 +108,13 @@
       
       <div class="wy-nav-content">
         <div class="rst-content">
-          <div role="navigation" aria-label="breadcrumbs navigation">
+          
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
   <ul class="wy-breadcrumbs">
     <li><a href="../../../index.html">Docs</a> &raquo;</li>
       
@@ -335,8 +351,8 @@
 <span class="sd">        :rtype: numpy.array of shape [n_samples, n_outputs]</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_folding_prediction</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">prediction_function</span><span class="o">=</span><span class="n">get_regressor_prediction</span><span class="p">,</span>
-                                        <span class="n">vote_function</span><span class="o">=</span><span class="n">vote_function</span><span class="p">)</span>
-</div>
+                                        <span class="n">vote_function</span><span class="o">=</span><span class="n">vote_function</span><span class="p">)</span></div>
+
 <div class="viewcode-block" id="FoldingRegressor.staged_predict"><a class="viewcode-back" href="../../../metaml.html#rep.metaml.folding.FoldingRegressor.staged_predict">[docs]</a>    <span class="k">def</span> <span class="nf">staged_predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">vote_function</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get predictions after each iteration of base estimator.</span>
@@ -349,24 +365,24 @@
 <span class="sd">        :type vote_function: None or function</span>
 <span class="sd">        :rtype: sequence of numpy.array of shape [n_samples, n_outputs]</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_folding_prediction</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">prediction_function</span><span class="o">=</span><span class="n">get_regressor_staged_predict</span><span class="p">,</span>
-                                        <span class="n">vote_function</span><span class="o">=</span><span class="n">vote_function</span><span class="p">)</span>
-</div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_staged_folding_prediction</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">prediction_function</span><span class="o">=</span><span class="n">get_regressor_staged_predict</span><span class="p">,</span>
+                                               <span class="n">vote_function</span><span class="o">=</span><span class="n">vote_function</span><span class="p">)</span></div>
+
 <div class="viewcode-block" id="FoldingRegressor.get_feature_importances"><a class="viewcode-back" href="../../../metaml.html#rep.metaml.folding.FoldingRegressor.get_feature_importances">[docs]</a>    <span class="k">def</span> <span class="nf">get_feature_importances</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get features importance</span>
 
 <span class="sd">        :rtype: pandas.DataFrame with column effect and `index=features`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_feature_importances</span><span class="p">()</span>
-</div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_feature_importances</span><span class="p">()</span></div>
+
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">feature_importances_</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Sklearn-way of returning feature importance.</span>
 <span class="sd">        This returned as numpy.array, assuming that initially passed train_features=None &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_feature_importances</span><span class="p">()</span><span class="o">.</span><span class="n">ix</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">features</span><span class="p">,</span> <span class="s">&#39;effect&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_feature_importances</span><span class="p">()</span><span class="o">.</span><span class="n">ix</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">features</span><span class="p">,</span> <span class="s">&#39;effect&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span></div>
 
-</div>
+
 <div class="viewcode-block" id="FoldingClassifier"><a class="viewcode-back" href="../../../metaml.html#rep.metaml.folding.FoldingClassifier">[docs]</a><span class="k">class</span> <span class="nc">FoldingClassifier</span><span class="p">(</span><span class="n">FoldingBase</span><span class="p">,</span> <span class="n">Classifier</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    This meta-classifier implements folding algorithm:</span>
@@ -413,8 +429,8 @@
 <span class="sd">        :type vote_function: None or function</span>
 <span class="sd">        :rtype: numpy.array of shape [n_samples]</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">numpy</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">vote_function</span><span class="o">=</span><span class="n">vote_function</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-</div>
+        <span class="k">return</span> <span class="n">numpy</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">vote_function</span><span class="o">=</span><span class="n">vote_function</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span></div>
+
 <div class="viewcode-block" id="FoldingClassifier.predict_proba"><a class="viewcode-back" href="../../../metaml.html#rep.metaml.folding.FoldingClassifier.predict_proba">[docs]</a>    <span class="k">def</span> <span class="nf">predict_proba</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">vote_function</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Predict probabilities. To get unbiased predictions on training dataset, pass training data</span>
@@ -428,8 +444,8 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_folding_prediction</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">prediction_function</span><span class="o">=</span><span class="n">get_classifier_probabilities</span><span class="p">,</span>
                                           <span class="n">vote_function</span><span class="o">=</span><span class="n">vote_function</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">result</span> <span class="o">/</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">keepdims</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
-</div>
+        <span class="k">return</span> <span class="n">result</span> <span class="o">/</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">keepdims</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span></div>
+
 <div class="viewcode-block" id="FoldingClassifier.staged_predict_proba"><a class="viewcode-back" href="../../../metaml.html#rep.metaml.folding.FoldingClassifier.staged_predict_proba">[docs]</a>    <span class="k">def</span> <span class="nf">staged_predict_proba</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">vote_function</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Predict probabilities after each stage of base_estimator.</span>
@@ -444,22 +460,23 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">proba</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_staged_folding_prediction</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">prediction_function</span><span class="o">=</span><span class="n">get_classifier_staged_proba</span><span class="p">,</span>
                                                      <span class="n">vote_function</span><span class="o">=</span><span class="n">vote_function</span><span class="p">):</span>
-            <span class="k">yield</span> <span class="n">proba</span> <span class="o">/</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">proba</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">keepdims</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
-</div>
+            <span class="k">yield</span> <span class="n">proba</span> <span class="o">/</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">proba</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">keepdims</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span></div>
+
 <div class="viewcode-block" id="FoldingClassifier.get_feature_importances"><a class="viewcode-back" href="../../../metaml.html#rep.metaml.folding.FoldingClassifier.get_feature_importances">[docs]</a>    <span class="k">def</span> <span class="nf">get_feature_importances</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get features importance</span>
 
 <span class="sd">        :rtype: pandas.DataFrame with column effect and `index=features`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_feature_importances</span><span class="p">()</span>
-</div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_feature_importances</span><span class="p">()</span></div>
+
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">feature_importances_</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Sklearn-way of returning feature importance.</span>
 <span class="sd">        This returned as numpy.array, assuming that initially passed train_features=None &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_feature_importances</span><span class="p">()</span><span class="o">.</span><span class="n">ix</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">features</span><span class="p">,</span> <span class="s">&#39;effect&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
-</pre></div></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_feature_importances</span><span class="p">()</span><span class="o">.</span><span class="n">ix</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">features</span><span class="p">,</span> <span class="s">&#39;effect&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span></div>
+
+</pre></div>
 
            </div>
           </div>
@@ -471,9 +488,10 @@
   <div role="contentinfo">
     <p>
         &copy; Copyright 2014-2015, Yandex.
+
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -491,7 +509,7 @@
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'../../../',
-            VERSION:'0.6.4',
+            VERSION:'0.6.5',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true
