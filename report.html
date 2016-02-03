@@ -987,6 +987,39 @@ Here we use normalization, so maximal s and b are equal to 1.</p>
 </table>
 </dd></dl>
 
+<dl class="class">
+<dt id="rep.report.metrics.OptimalMetricNdim">
+<em class="property">class </em><code class="descclassname">rep.report.metrics.</code><code class="descname">OptimalMetricNdim</code><span class="sig-paren">(</span><em>metric</em>, <em>expected_s=1.0</em>, <em>expected_b=1.0</em>, <em>step=10</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/report/metrics.html#OptimalMetricNdim"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.report.metrics.OptimalMetricNdim" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">sklearn.base.BaseEstimator</span></code></p>
+<dl class="docutils">
+<dt>Class to calculate optimal thresholds on prediction_1, prediction_2, .. prediction_n simultaneously using some binary metric.</dt>
+<dd>This metric differs from <a class="reference internal" href="#rep.report.metrics.OptimalMetric" title="rep.report.metrics.OptimalMetric"><code class="xref py py-class docutils literal"><span class="pre">OptimalMetric</span></code></a></dd>
+</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>metric</strong> (<em>function</em>) &#8211; metrics(s, b) -&gt; float, binary metric</li>
+<li><strong>expected_s</strong> &#8211; float, total weight of signal</li>
+<li><strong>expected_b</strong> &#8211; float, total weight of background</li>
+<li><strong>step</strong> (<em>int</em>) &#8211; step in sorted array of predictions for each dimension to choose thresholds</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>(data are taken with values greater or equal to thresholds)</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">proba1</span> <span class="o">=</span> <span class="n">classifier1</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">X</span><span class="p">)[:,</span> <span class="mi">1</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">proba2</span> <span class="o">=</span> <span class="n">classifier2</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">X</span><span class="p">)[:,</span> <span class="mi">1</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">optimal_ndim</span> <span class="o">=</span> <span class="n">OptimalMetricNdim</span><span class="p">(</span><span class="n">ams</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">optimal_ndim</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="p">,</span> <span class="n">proba1</span><span class="p">,</span> <span class="n">proba2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c"># returns optimal AUC and thresholds for proba1 and proba2</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="mf">0.99</span><span class="p">,</span> <span class="p">(</span><span class="mf">0.88</span><span class="p">,</span> <span class="mf">0.45</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
 </div>
 </div>
 </div>

@@ -224,9 +224,8 @@
 
 <span class="sd">.. autofunction:: significance</span>
 
-
-
-
+<span class="sd">.. autoclass:: OptimalMetricNdim</span>
+<span class="sd">    :show-inheritance:</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">division</span><span class="p">,</span> <span class="n">print_function</span><span class="p">,</span> <span class="n">absolute_import</span>
@@ -547,7 +546,7 @@
         <span class="k">return</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">sample_weight</span><span class="p">[(</span><span class="n">y</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">proba</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">threshold</span><span class="p">)])</span> <span class="o">/</span> <span class="nb">sum</span><span class="p">(</span><span class="n">sample_weight</span><span class="p">[</span><span class="n">y</span> <span class="o">==</span> <span class="mi">1</span><span class="p">])</span></div>
 
 
-<span class="k">class</span> <span class="nc">OptimalMetricNdim</span><span class="p">(</span><span class="n">BaseEstimator</span><span class="p">):</span>
+<div class="viewcode-block" id="OptimalMetricNdim"><a class="viewcode-back" href="../../../report.html#rep.report.metrics.OptimalMetricNdim">[docs]</a><span class="k">class</span> <span class="nc">OptimalMetricNdim</span><span class="p">(</span><span class="n">BaseEstimator</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Class to calculate optimal thresholds on prediction_1, prediction_2, .. prediction_n simultaneously using some binary metric.</span>
 <span class="sd">        This metric differs from :class:`OptimalMetric`</span>
@@ -619,7 +618,7 @@
             <span class="k">if</span> <span class="p">(</span><span class="n">optimal_metric_value</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">optimal_metric_value</span> <span class="o">&lt;</span> <span class="n">metric_values</span><span class="p">[</span><span class="n">ind_optimal</span><span class="p">]):</span>
                 <span class="n">optimal_metric_value</span> <span class="o">=</span> <span class="n">metric_values</span><span class="p">[</span><span class="n">ind_optimal</span><span class="p">]</span>
                 <span class="n">optimal_threshold</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">threshold</span><span class="p">)</span> <span class="o">+</span> <span class="p">[</span><span class="n">sorted_last_pred</span><span class="p">[</span><span class="n">ind_optimal</span><span class="p">]]</span>
-        <span class="k">return</span> <span class="n">optimal_metric_value</span><span class="p">,</span> <span class="n">optimal_threshold</span>
+        <span class="k">return</span> <span class="n">optimal_metric_value</span><span class="p">,</span> <span class="n">optimal_threshold</span></div>
 </pre></div>
 
            </div>
