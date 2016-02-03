@@ -49,6 +49,10 @@ RUN /bin/bash --login -c " \
   python setup.py install \
   "
 
+RUN /bin/bash --login -c " \
+  pip install hep_ml \
+  "
+
 VOLUME ["/notebooks", "/etc_external"]
 EXPOSE $PORT_JUPYTER
 CMD ["/bin/bash", "--login", "-c", "./start.sh"]
