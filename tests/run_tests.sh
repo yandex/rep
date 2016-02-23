@@ -7,7 +7,7 @@ HERE=$(cd `dirname $0`; pwd)
 cd $HERE
 
 #export TEST_NOTEBOOKS_REGEX=01
-export SKIP_NOTEBOOKS_REGEX=05-howto-plot
+#export SKIP_NOTEBOOKS_REGEX=05-howto-plot
 export OPTIONS="-vd --nocapture -x"
 #export OPTIONS+=" --collect-only"  # dry-run
 

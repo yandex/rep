@@ -26,8 +26,8 @@ RUN /bin/bash --login -c " \
   cd $HOME && \
   rm -rf $TEMP/build"
 
-RUN apt-get update
-RUN apt-get -y install mc telnet curl
+RUN apt-get update && \
+  apt-get -y install mc telnet curl
 
 # IPython setup
 #
@@ -42,6 +42,13 @@ c.NotebookApp.open_browser = False \n\
 c.NotebookApp.port = $PORT_JUPYTER \n \" \
   | tee -a $HOME/.jupyter/jupyter_notebook_config.py \
   "
+
+RUN /bin/bash --login -c " \
+  git clone https://github.com/damianavila/RISE.git && \
+  cd RISE && \
+  python setup.py install \
+  "
+
 VOLUME ["/notebooks", "/etc_external"]
 EXPOSE $PORT_JUPYTER
 CMD ["/bin/bash", "--login", "-c", "./start.sh"]
