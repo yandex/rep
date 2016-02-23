@@ -4,7 +4,7 @@
 #    ENV -- filename with environment variables passed to docker container
 #    NOTEBOOKS -- folder with notebooks that will be mounted into docker container
 #    PORT -- port to listen for incoming connection
-#    ETC -- local folder that will be moundted to /etc_external into docker container
+#    ETC -- local folder that will be mounted to /etc_external into docker container
 #
 #
 

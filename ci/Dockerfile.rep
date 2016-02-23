@@ -30,7 +30,6 @@ RUN apt-get update && \
   apt-get -y install mc telnet curl
 
 # IPython setup
-#
 RUN mkdir /notebooks && \
     mkdir /etc_external
 
