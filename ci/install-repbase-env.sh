@@ -79,18 +79,6 @@ fi
 conda uninstall --yes -q gcc qt
 conda clean --yes -s -p -l -i -t
 
-# install xgboost
-git clone https://github.com/dmlc/xgboost.git
-pushd xgboost
-# taking particular xgboost commit, which is working
-git checkout 8e4dc4336849c24ae48636ae60f5faddbb789038
-./build.sh
-cd python-package
-python setup.py install
-popd
-rm -rf xgboost
-# end install xgboost
-
 # test installed packages
 pushd $ENV_BIN_DIR/.. 
 source 'bin/thisroot.sh' || halt "Error installing ROOT"
