@@ -3,8 +3,8 @@
 # script that runs inside REP docker container to install modules that
 # are found in specified folder (/etc_external/modules by default)
 # Usage: $0 [modules_folder]
-#
-#
+
+
 halt() {
 	echo $*
 	exit

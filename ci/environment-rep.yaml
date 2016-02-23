@@ -20,4 +20,4 @@ dependencies:
     - theanets==0.6.2
     - pybrain==0.3
     - mpld3==0.2
-    - xgboost == 0.4a30
+    - xgboost==0.4a30

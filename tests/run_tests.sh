@@ -1,18 +1,17 @@
 #!/bin/bash
 
-RUN_TESTS=""
-#RUN_TESTS="z_test_notebook"
+TESTS_MASK=""
+# TESTS_MASK="z_test_notebook"
 
+# finding directory
 HERE=$(cd `dirname $0`; pwd)
 cd $HERE
 
-#export TEST_NOTEBOOKS_REGEX=01
-#export SKIP_NOTEBOOKS_REGEX=05-howto-plot
-export OPTIONS="-vd --nocapture -x"
-#export OPTIONS+=" --collect-only"  # dry-run
+export NOSETESTS_OPTIONS="-vd --nocapture -x"
 
-nosetests $OPTIONS $RUN_TESTS | grep -v "downhill.base:232" 
-RESULT=${PIPESTATUS[0]} 
+nosetests $NOSETESTS_OPTIONS TESTS_MASK
+
+# listing all the files recursively in howto folder
 ls -alR ../howto
 
 exit $RESULT

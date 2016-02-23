@@ -1,6 +1,8 @@
 #!/bin/bash
+# installing REP environment with miniconda
 
-halt() {
+# define a function to print error before exiting
+function halt{
   echo -e $*
   exit 1
 }
@@ -31,10 +33,11 @@ if [ $SYSTEM == "Linux" ] && which apt-get > /dev/null && ! dpkg -l |grep libxpm
         libxpm-dev
 fi
 
-mkdir -p $HOME/.config/matplotlib && 
-  echo 'backend: agg' > $HOME/.config/matplotlib/matplotlibrc
+# matplotlib and ROOT both using DISPLAY environment variable
+# changing matplotlib configuration file to avoid this
+mkdir -p $HOME/.config/matplotlib && echo 'backend: agg' > $HOME/.config/matplotlib/matplotlibrc
 
-# exit existing env
+# exit existing envirnoments
 [ -n "$VIRTUAL_ENV" ] && deactivate
 [ -n "$CONDA_ENV_PATH" ] && source deactivate
 
@@ -86,9 +89,9 @@ popd
 python -c 'import ROOT, root_numpy' || halt "Error installing root_numpy"
 python -c 'import xgboost' || halt "Error installing XGboost"
 # environment
-cat << EOF
-# add to your environment:
-export PATH=$HOME/miniconda/bin:$PATH
-source activate $REP_ENV_NAME
-pushd $ENV_BIN_DIR/.. ; source 'bin/thisroot.sh' ; popd
+cat <<- EOF
+    # add to your environment:
+    export PATH=$HOME/miniconda/bin:$PATH
+    source activate $REP_ENV_NAME
+    pushd $ENV_BIN_DIR/.. ; source 'bin/thisroot.sh' ; popd
 EOF

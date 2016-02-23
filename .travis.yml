@@ -20,7 +20,7 @@ python:
 before_install:
   - set -x
   - source ci/install-repbase-env.sh
-# DEBUG
+  # printing DEBUG information
   - which python
   - conda list
   - echo $LD_LIBRARY_PATH
