@@ -2,7 +2,7 @@
 # installing REP environment with miniconda
 
 # define a function to print error before exiting
-function halt{
+function halt {
   echo -e $*
   exit 1
 }
@@ -88,7 +88,7 @@ source 'bin/thisroot.sh' || halt "Error installing ROOT"
 popd
 python -c 'import ROOT, root_numpy' || halt "Error installing root_numpy"
 python -c 'import xgboost' || halt "Error installing XGboost"
-# environment
+# printing message about environment
 cat <<- EOF
     # add to your environment:
     export PATH=$HOME/miniconda/bin:$PATH
