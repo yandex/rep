@@ -18,7 +18,6 @@ REP_ENV_NAME="rep_py${PYTHON_MAJOR_VERSION}"
 
 HERE="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-[ -z "$HOME" ] && export HOME="/root"
 # checking that system has apt-get
 if which apt-get > /dev/null; then
     sudo apt-get update
@@ -46,10 +45,12 @@ mkdir -p $HOME/.config/matplotlib && echo 'backend: agg' > $HOME/.config/matplot
 [ -n "$CONDA_ENV_PATH" ] && source deactivate
 
 if ! which conda ; then
+    # install miniconda
+    # TODO use single starting miniconda
     if [ "$PYTHON_MAJOR_VERSION" == "3" ]; then
-        MINICONDA_FILE="Miniconda-latest-Linux-x86_64.sh"
-    else
         MINICONDA_FILE="Miniconda3-latest-Linux-x86_64.sh"
+    else
+        MINICONDA_FILE="Miniconda-latest-Linux-x86_64.sh"
     fi
     wget http://repo.continuum.io/miniconda/$MINICONDA_FILE -O miniconda.sh
     chmod +x miniconda.sh
@@ -64,19 +65,9 @@ REP_ENV_FILE="$HERE/environment-rep.yaml"
 JUPYTERHUB_ENV_FILE="$HERE/environment-jupyterhub.yaml"
 echo "Create conda venv $REP_ENV_NAME"
 conda env create -q --name $REP_ENV_NAME --file $REP_ENV_FILE > /dev/null
+echo "Create conda venv jupyterhub_py3"
+conda env create -q --name jupyterhub_py3 --file $JUPYTERHUB_ENV_FILE > /dev/null
 source activate $REP_ENV_NAME || halt "Error installing $REP_ENV_NAME environment"
-
-# TODO do we really need this?
-if [ "$PYTHON_MAJOR_VERSION" == "3" ] ; then
-  # fix for root_numpy 4.3.0 from remenska
-  echo $PYTHONPATH
-  SITES_PACKAGES=$CONDA_ENV_PATH/lib/python3.4/site-packages
-  echo $SITES_PACKAGES
-  ls -l $SITES_PACKAGES
-  EGG=$SITES_PACKAGES/root_numpy-*.egg
-  PATH_FILE=$SITES_PACKAGES/root_numpy.pth
-  [ -d $EGG ] && [ ! -f $PATH_FILE ] && pushd $SITES_PACKAGES && echo "./root_numpy-"* > $PATH_FILE && popd
-fi
 
 echo 'Removing conda packages and caches'
 conda uninstall --yes -q gcc qt
