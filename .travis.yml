@@ -2,18 +2,6 @@ language: python
 sudo: required
 services:
   - docker
-addons:
-  apt:
-    packages:
-    - build-essential
-    - libatlas-dev
-    - libatlas-base-dev
-    - liblapack-dev
-    - libffi-dev
-    - wget
-    - gfortran
-    - libxft-dev
-    - libxpm-dev
 python:
   - "2.7"
   - "3.4"
