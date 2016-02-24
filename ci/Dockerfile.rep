@@ -26,13 +26,8 @@ RUN /bin/bash --login -c " \
   cd $HOME && \
   rm -rf $TEMP/build"
 
-RUN apt-get update && \
-  apt-get -y install mc telnet curl
-
+# TODO MOVE
 # IPython setup
-RUN mkdir /notebooks && \
-    mkdir /etc_external
-
 RUN /bin/bash --login -c " \
   jupyter notebook -y --generate-config &&\
   /bin/echo -e \"\
@@ -42,12 +37,14 @@ c.NotebookApp.port = $PORT_JUPYTER \n \" \
   | tee -a $HOME/.jupyter/jupyter_notebook_config.py \
   "
 
-RUN /bin/bash --login -c " \
-  git clone https://github.com/damianavila/RISE.git && \
-  cd RISE && \
-  python setup.py install \
-  "
+# create folder for notebooks
+RUN mkdir /notebooks
+# create folder for extensions
+RUN mkdir /etc_external
 
+# registering mounting points
 VOLUME ["/notebooks", "/etc_external"]
+# registering port
 EXPOSE $PORT_JUPYTER
+# starting IPython process
 CMD ["/bin/bash", "--login", "-c", "./start.sh"]

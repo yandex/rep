@@ -17,10 +17,10 @@ fi
 REP_ENV_NAME="rep_py${PYTHON_MAJOR_VERSION}"
 
 HERE="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-SYSTEM=$(uname -s)
 
 [ -z "$HOME" ] && export HOME="/root"
-if [ $SYSTEM == "Linux" ] && which apt-get > /dev/null && ! dpkg -l | grep libxpm-dev > /dev/null ; then
+# checking that system has apt-get
+if which apt-get > /dev/null; then
     sudo apt-get update
     sudo apt-get install -y  \
         build-essential \
@@ -31,7 +31,10 @@ if [ $SYSTEM == "Linux" ] && which apt-get > /dev/null && ! dpkg -l | grep libxp
         gfortran \
         git \
         libxft-dev \
-        libxpm-dev
+        libxpm-dev \
+        mc \
+        telnet \
+        curl
 fi
 
 # matplotlib and ROOT both using DISPLAY environment variable
@@ -54,19 +57,10 @@ if ! which conda ; then
     conda update --yes conda
 fi
 
-system_speficifc_env() {
-    NAME=$1
-    SYSTEM=$2
-    [ -f "${NAME/%.yaml/_${SYSTEM}.yaml}" ] && NAME="${NAME/%.yaml/_${SYSTEM}.yaml}"
-    echo $NAME
-}
-
-REP_ENV_FILE=`system_speficifc_env $HERE/environment-rep.yaml $SYSTEM`
-JUPYTERHUB_ENV_FILE=`system_speficifc_env $HERE/environment-jupyterhub.yaml $SYSTEM`
+REP_ENV_FILE="$HERE/environment-rep.yaml"
+JUPYTERHUB_ENV_FILE="$HERE/environment-jupyterhub.yaml"
 echo "Create env $REP_ENV_NAME"
 conda env create -q --name $REP_ENV_NAME --file $REP_ENV_FILE > /dev/null
-echo "Create env jupyterhub_py3"
-conda env create -q --name jupyterhub_py3 --file $JUPYTERHUB_ENV_FILE > /dev/null
 source activate $REP_ENV_NAME || halt "Error installing $REP_ENV_NAME environment"
 
 # TODO do we really need this?
