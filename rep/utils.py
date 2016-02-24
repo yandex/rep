@@ -4,7 +4,6 @@ Different helpful functions, objects, methods are collected here.
 
 from __future__ import division, print_function, absolute_import
 from collections import OrderedDict
-import numexpr
 
 import numpy
 import pandas
@@ -423,6 +422,7 @@ def get_columns_in_df(df, columns):
         else:
             # warning - this thing is known to fail in threads
             # numexpr.evaluate(column, local_dict=df)
+            # thus we are using python engine :(
             df_new[column_new] = df.eval(column, engine='python')
     return pandas.DataFrame(df_new)
 

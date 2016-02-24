@@ -8,7 +8,6 @@ pyzmq == 14.7.0
 openpyxl < 2.0.0
 requests[security] >= 2.5.1
 Jinja2 >= 2.8
-numexpr >= 2.4.4
 plotly == 1.8.6
 bokeh == 0.10.0
 mpld3 == 0.2
