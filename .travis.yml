@@ -18,7 +18,6 @@ python:
   - "2.7"
   - "3.4"
 before_install:
-  - set -x
   - source ci/install-repbase-env.sh
   # printing DEBUG information
   - which python
@@ -27,7 +26,13 @@ before_install:
 install:
   - pip install .
 script:
-  - tests/run_tests.sh
+  # listing everything in howto folder recursively
+  - ls -alR ./howto/
+  # testing all but notebooks
+  - nosetests -v --detailed-errors --nocapture --stop ./tests/test_*
+  # testing notebooks
+  - nosetests -v --detailed-errors --nocapture --stop ./tests/z_test_*
+  # if on master and tests passed successfully, trigger rebuilding of docker image.
   - if [[ "$TRAVIS_BRANCH" = "master" && "${TRAVIS_PYTHON_VERSION:0:1}" = "2" ]] ; then make push-latest ; fi
 cache:
   apt: true
@@ -42,4 +47,4 @@ notifications:
       - https://webhooks.gitter.im/e/4eb609958a03b4bc1df5
     on_success: always  # options: [always|never|change] default: always
     on_failure: always  # options: [always|never|change] default: always
-    on_start: always     # options: [always|never|change] default: always
+    on_start: always    # options: [always|never|change] default: always
