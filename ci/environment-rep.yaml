@@ -1,6 +1,6 @@
 name: rep
 channels:
-  - remenska
+  - nlesc
 dependencies:
   - ipython-notebook=4.0.4
   - matplotlib=1.4.3
