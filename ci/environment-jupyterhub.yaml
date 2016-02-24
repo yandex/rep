@@ -1,6 +1,7 @@
 name: jupyterhub_py3
 dependencies:
   - python=3.4
+  - nomkl
   - ipython-notebook=4.0.4
   - matplotlib=1.4.3
   - numpy=1.10.2
