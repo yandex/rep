@@ -15,17 +15,16 @@
 
 from __future__ import division, print_function, absolute_import
 from sklearn.preprocessing.data import StandardScaler
+from sklearn.metrics import roc_auc_score
+from sklearn.ensemble import BaggingClassifier
 from rep.test.test_estimators import check_classifier, check_regression, check_params, \
     check_classification_reproducibility
 from rep.test.test_estimators import generate_classification_data
-from sklearn.metrics import roc_auc_score
-from sklearn.ensemble import BaggingClassifier
 from rep.estimators.sklearn import SklearnClassifier
 from rep.estimators.theanets import TheanetsClassifier, TheanetsRegressor
-import climate
+
 from tests import known_failure, retry_if_fails
 
-climate.enable_default_logging(default_level='ERROR')
 
 __author__ = 'Lisa Ignatyeva, Tatiana Likhomanenko, Alex Rogozhnikov'
 

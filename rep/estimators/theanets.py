@@ -36,6 +36,12 @@ UNSUPPORTED_OPTIMIZERS = {'sample', 'hf'}
 # sample has too different interface from what we support here
 # currently, hf now does not work in theanets, see https://github.com/lmjohns3/theanets/issues/62
 
+# to keep climate from printing anything, uncomment following:
+# import os
+# import climate
+# null_file = open(os.devnull, "w")
+# climate.enable_default_logging(default_level='ERROR', stream=null_file)
+
 
 class TheanetsBase(object):
     """Base class for estimators from Theanets library.
