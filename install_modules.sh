@@ -5,15 +5,11 @@
 # Usage: $0 [modules_folder]
 
 
-halt() {
-	echo $*
-	exit
-}
 
 MODULES_DIR="/etc_external/modules"
 [ -n "$1" ] && MODULES_DIR=$1
 echo "Installing modules from $MODULES_DIR"
-[ -d $MODULES_DIR ] || halt "no $MODULES_DIR directory found"
+[ -d $MODULES_DIR ] || (echo "no $MODULES_DIR directory found" && exit)
 for x in $MODULES_DIR/*; do
   if [ $x == "$MODULES_DIR/requirements.txt" ] ; then
     echo "processing $x"
