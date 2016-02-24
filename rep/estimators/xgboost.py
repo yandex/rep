@@ -275,16 +275,21 @@ class XGBoostClassifier(XGBoostBase, Classifier):
         if self.n_classes_ >= 2:
             return prediction.reshape(X.shape[0], self.n_classes_)
 
-    def staged_predict_proba(self, X, step=10):
+    def staged_predict_proba(self, X, step=None):
         """
         Predicts probabilities on each stage for data X.
         :param pandas.DataFrame X: data shape [n_samples, n_features]
-        :param int step: step for returned iterations
+        :param int step: step for returned iterations (None by default).
+            XGBoost does not implement this functionality and we need to
+            predict from the beginning each time.
+            With `None` passed step is chosen to have 10 points in learning curve.
         :return: iterator
         .. warning: this method may be very slow, it takes iterations^2 / step time.
         """
         self._check_fitted()
         X_dmat = self._make_dmatrix(self._get_features(X))
+        if step is None:
+            step = max(self.n_estimators // 10, 1)
 
         # TODO use applying tree-by-tree
         for i in range(1, self.n_estimators // step + 1):
@@ -355,17 +360,22 @@ class XGBoostRegressor(XGBoostBase, Regressor):
         X_dmat = self._make_dmatrix(self._get_features(X))
         return self.xgboost_classifier.predict(X_dmat, ntree_limit=0)
 
-    def staged_predict(self, X, step=10):
+    def staged_predict(self, X, step=None):
         """
         Predicts regression target at each stage for X.
 
         :param pandas.DataFrame X: data shape [n_samples, n_features]
-        :param int step: step for returned iterations
+        :param int step: step for returned iterations (None by default).
+            XGBoost does not implement this functionality and we need to
+            predict from the beginning each time.
+            With `None` passed step is chosen to have 10 points in learning curve.
         :return: iterator
         .. warning: this method may be very slow, it takes iterations^2 / step time
         """
         self._check_fitted()
         X_dmat = self._make_dmatrix(self._get_features(X))
+        if step is None:
+            step = max(self.n_estimators // 10, 1)
 
         # TODO use applying tree-by-tree
         for i in range(1, self.n_estimators // step + 1):
