@@ -39,7 +39,7 @@ cache:
   directories:
     - $HOME/.theano
     - $HOME/.cache/pip
-    - $HOME/miniconda/pkgs
+    # - $HOME/miniconda/pkgs
 notifications:
   email: true
   webhooks:
