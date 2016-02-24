@@ -5,7 +5,6 @@
 # Usage: $0 [modules_folder]
 
 
-
 MODULES_DIR="/etc_external/modules"
 [ -n "$1" ] && MODULES_DIR=$1
 echo "Installing modules from $MODULES_DIR"
@@ -14,7 +13,7 @@ for x in $MODULES_DIR/*; do
   if [ $x == "$MODULES_DIR/requirements.txt" ] ; then
     echo "processing $x"
     pip install -r $x
-    continue
+  else
+    [ -d $x ] && pip install $x
   fi
-  [ -d $x ] && pip install $x
 done

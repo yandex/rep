@@ -13,7 +13,7 @@ def find_version():
     # The version line must have the form like following:
     # __version__ = '0.x.x'
     version_match = re.search(r"^__version__ = ['\"]([^'\"]*)['\"]",
-                              version_file, re.M)
+                              version_file, re.MULTILINE)
     # TODO better check
     candidate = str(version_match.group(1))
     assert str.startswith(candidate, '0.6')
@@ -34,9 +34,9 @@ with io.open(os.path.join(here, 'requirements.txt')) as f:
 setup(
     name="rep",
     version=find_version(),
-    description="infrastructure for computational experiments on shared big datasets",
+    description="infrastructure for computational experiments in machine learning",
     long_description="Reproducible Experiment Platform is a collaborative software infrastructure for computational " \
-                     "experiments on shared big datasets, which allows obtaining reproducible, repeatable results " \
+                     "experiments in machine learning, which allows obtaining reproducible, repeatable results " \
                      "and consistent comparisons of the obtained results.",
     url='https://github.com/yandex/rep',
 
