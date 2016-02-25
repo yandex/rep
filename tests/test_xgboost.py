@@ -23,9 +23,20 @@ def test_xgboost():
 
 
 def test_xgboost_works_with_different_dtypes():
-    for dtype in ['float32', 'float64', 'int32', 'int64', 'uint32']:
+    dtypes = ['float32', 'float64', 'int32', 'int64', 'uint32']
+    for dtype in dtypes:
         X, y, weights = generate_classification_data(n_classes=2, distance=5)
-        clf = XGBoostClassifier(n_estimators=10).fit(X.astype(dtype=dtype),
-                                      y.astype(dtype=dtype),
-                                      sample_weight=weights.astype(dtype))
+        clf = XGBoostClassifier(n_estimators=10)
+        clf.fit(X.astype(dtype=dtype), y.astype(dtype=dtype), sample_weight=weights.astype(dtype))
         probabilities = clf.predict_proba(X.astype(dtype))
+
+    # testing single pandas.DataFrame with different dtypes
+    X, y, weights = generate_classification_data(n_classes=2, distance=5)
+    import pandas
+    X = pandas.DataFrame()
+    for dtype in dtypes:
+        X[dtype] = numpy.random.normal(0, 10, size=len(y)).astype(dtype)
+    clf = XGBoostClassifier(n_estimators=10)
+    clf.fit(X, y, sample_weight=weights)
+    probabilities = clf.predict_proba(X)
+
