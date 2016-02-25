@@ -21,3 +21,11 @@ def test_xgboost():
     check_classifier(XGBoostClassifier(n_estimators=20), n_classes=4)
     check_regression(XGBoostRegressor(n_estimators=20))
 
+
+def test_xgboost_works_with_different_dtypes():
+    for dtype in ['float32', 'float64', 'int32', 'int64', 'uint32']:
+        X, y, weights = generate_classification_data(n_classes=2, distance=5)
+        clf = XGBoostClassifier(n_estimators=10).fit(X.astype(dtype=dtype),
+                                      y.astype(dtype=dtype),
+                                      sample_weight=weights.astype(dtype))
+        probabilities = clf.predict_proba(X.astype(dtype))
