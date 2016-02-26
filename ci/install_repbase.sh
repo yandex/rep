@@ -46,13 +46,8 @@ mkdir -p $HOME/.config/matplotlib && echo 'backend: agg' > $HOME/.config/matplot
 [ -n "$CONDA_ENV_PATH" ] && source deactivate
 
 if ! which conda ; then
-    # install miniconda
-    # TODO use single starting miniconda
-    if [ "$PYTHON_MAJOR_VERSION" == "3" ]; then
-        MINICONDA_FILE="Miniconda3-latest-Linux-x86_64.sh"
-    else
-        MINICONDA_FILE="Miniconda-latest-Linux-x86_64.sh"
-    fi
+    # install python2 miniconda
+    MINICONDA_FILE="Miniconda-latest-Linux-x86_64.sh"
     wget http://repo.continuum.io/miniconda/$MINICONDA_FILE -O miniconda.sh
     chmod +x miniconda.sh
     ./miniconda.sh -b -p $HOME/miniconda || halt "Error installing miniconda"
@@ -75,7 +70,7 @@ conda uninstall --yes -q gcc qt
 conda clean --yes -s -p -l -i -t
 
 echo "Creating conda venv $REP_ENV_NAME"
-conda env create -q --name $REP_ENV_NAME --file $REP_ENV_FILE > /dev/null
+conda env create -q --name $REP_ENV_NAME python=$PYTHON_MAJOR_VERSION --file $REP_ENV_FILE > /dev/null
 source activate $REP_ENV_NAME || halt "Error installing $REP_ENV_NAME environment"
 
 echo "Removing conda packages and caches"
