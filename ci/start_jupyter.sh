@@ -9,7 +9,6 @@ set +xv
 echo "Current umask: " $(umask)
 [ -z "$ENV_BIN_DIR" ] && source /etc/profile.d/rep_profile.sh
 
-JUPYTER_CONFIG=$HOME/.jupyter/jupyter_notebook_config.py
 if [ "$JPY_API_TOKEN" != "" ] ; then
 	echo "Starting under Jupyterhub"
 	jupyter kernelspec install-self
@@ -47,6 +46,7 @@ if [ "$SSL_KEYFILE" != "" ] ; then
 	JUPYTER_OPTIONS+=" --keyfile=$SSL_KEYFILE"
 fi
 
+JUPYTER_CONFIG=$HOME/.jupyter/jupyter_notebook_config.py
 
 if [ "$PASSWORD" != "" ] ; then
 	sha=`python -c "from notebook.auth import passwd; print passwd('$PASSWORD')"`
