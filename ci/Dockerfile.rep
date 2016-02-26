@@ -4,21 +4,18 @@ MAINTAINER Andrey Ustyuzhanin <anaderi@yandex-team.ru>
 ENV TEMP /tmp
 ENV SHELL /bin/bash
 ENV PORT_JUPYTER=8888
-ENV HOME /root
+# RUN ln -snf /bin/bash /bin/sh
 
+# copying howto
+COPY ./howto /REP_howto
+
+# copying everything
 RUN mkdir $TEMP/build
-COPY setup.py README.md AUTHORS requirements.txt $TEMP/build/
-COPY rep $TEMP/build/rep
-COPY tests $TEMP/build/tests
-COPY *.sh $HOME/
-COPY .rep_version $HOME/
-COPY howto /REP_howto
+COPY ./ $TEMP/build/
+# copy scripts
+COPY ./ci/*.sh $HOME/
 RUN chmod +x $HOME/*.sh
 
-RUN ln -snf /bin/bash /bin/sh
-
-RUN echo "umask 0002" >> /etc/profile.d/rep_profile.sh
-RUN echo -e "source /etc/profile.d/rep_profile.sh" >> $HOME/.bashrc
 
 RUN /bin/bash --login -c " \
   cd $TEMP/build && \
@@ -47,4 +44,4 @@ VOLUME ["/notebooks", "/etc_external"]
 # registering port
 EXPOSE $PORT_JUPYTER
 # starting IPython process
-CMD ["/bin/bash", "--login", "-c", "./start.sh"]
+CMD ["/bin/bash", "--login", "-c", "./start_jupyter.sh"]
