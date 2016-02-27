@@ -1,10 +1,10 @@
 """
 There are different plotting backends supported:
 
-    * *matplotlib* (default, de-facto standard plotting library),
-    * *plotly* (proprietary package with interactive plots, information is kept on the server),
+    * *matplotlib* (default, de-facto standard plotting library in python),
     * *ROOT* (the library used by CERN people),
     * *bokeh* (open-source package with interactive plots)
+
 """
 from __future__ import division, print_function, absolute_import
 from abc import ABCMeta, abstractmethod
@@ -17,7 +17,6 @@ import matplotlib.pyplot as plt
 import numpy
 import tempfile
 from IPython.core import display
-
 
 COLOR_ARRAY = ['red', 'blue', 'green', 'cyan', 'MediumVioletRed', 'k', 'navy', 'lime', 'CornflowerBlue',
                "coral", 'DeepPink', 'LightBlue', 'yellow', 'Purple', 'YellowGreen', 'magenta']
@@ -44,7 +43,6 @@ class AbstractPlot(object):
     __metaclass__ = ABCMeta
 
     def __init__(self):
-        self.PLOTLY_RESIZE = 60
         self.BOKEH_RESIZE = 50
         self.TMVA_RESIZE = 80
         self.xlim = None
@@ -54,34 +52,12 @@ class AbstractPlot(object):
         self.title = ""
         self.figsize = (13, 7)
         self.fontsize = 14
-        self.plotly_filename = 'example'
         self.new_plot = False
         self.canvas = None
         self._tmva_keeper = []
 
-    @staticmethod
-    def _plotly_config():
-        try:
-            import ConfigParser
-        except ImportError:
-            # python 3
-            import configparser as ConfigParser
-
-        config = ConfigParser.RawConfigParser()
-        config.read('config_plotly')
-        configParameters = config.defaults()
-        api_user = configParameters['api_user'].strip()
-        api_key = configParameters['api_key'].strip()
-        user = configParameters['user'].strip()
-
-        return api_user, api_key, user
-
     @abstractmethod
     def _plot(self):
-        pass
-
-    @abstractmethod
-    def _plot_plotly(self, layout):
         pass
 
     @abstractmethod
@@ -212,85 +188,6 @@ class AbstractPlot(object):
 
         current_plot = self._plot_bokeh(current_plot, show_legend)
         bkh.show(current_plot)
-
-    def plot_plotly(self, plotly_filename=None, mpl_type=False, xlim=None, ylim=None, title=None, figsize=None,
-                    xlabel=None, ylabel=None, fontsize=None, show_legend=True, grid=False):
-        """
-        Plot data using plotly library in IPython
-
-        :param plotly_filename: name for resulting plot file on server (use unique name, else the same plot will be showen)
-        :type plotly_filename: None or str
-        :param bool mpl_type: use or not plotly converter from matplotlib (experimental parameter)
-        :param xlim: x-axis range
-        :param ylim: y-axis range
-        :type xlim: None or tuple(x_min, x_max)
-        :type ylim: None or tuple(y_min, y_max)
-        :param title: title
-        :type title: None or str
-        :param figsize: figure size
-        :type figsize: None or tuple(weight, height)
-        :param xlabel: x-axis name
-        :type xlabel: None or str
-        :param ylabel: y-axis name
-        :type ylabel: None or str
-        :param fontsize: font size
-        :type fontsize: None or int
-        :param bool show_legend: show or not labels for plots
-        :param bool grid: show grid or not
-        """
-        import plotly.plotly as py
-        from plotly import graph_objs
-        from ipykernel import connect
-
-        plotly_filename = self.plotly_filename if plotly_filename is None else plotly_filename
-        try:
-            connection_file_path = connect.find_connection_file()
-            connection_file = os.path.basename(connection_file_path)
-            if '-' in connection_file:
-                kernel_id = connection_file.split('-', 1)[1].split('.')[0]
-            else:
-                kernel_id = connection_file.split('.')[0]
-        except Exception as e:
-            kernel_id = "no_kernel"
-
-        PLOTLY_API_USER, PLOTLY_API_KEY, PLOTLY_USER = self._plotly_config()
-        save_name = '{user}_{id}:{name}'.format(user=PLOTLY_USER, id=kernel_id, name=plotly_filename)
-        py.sign_in(PLOTLY_API_USER, PLOTLY_API_KEY)
-
-        if mpl_type:
-            self.plot(new_plot=True, xlim=xlim, ylim=ylim, title=title, figsize=figsize, xlabel=xlabel, ylabel=ylabel,
-                      fontsize=fontsize, grid=grid)
-            mpl_fig = plt.gcf()
-            update = dict(
-                layout=dict(
-                    showlegend=show_legend
-                ),
-                data=[dict(name=leg) for leg in mpl_fig.legends]
-            )
-
-            return py.iplot_mpl(mpl_fig, width=self.figsize[0] * 60,
-                                update=update,
-                                height=self.figsize[1] * 60,
-                                filename=save_name,
-                                fileopt='overwrite')
-
-        xlabel = self.xlabel if xlabel is None else xlabel
-        ylabel = self.ylabel if ylabel is None else ylabel
-        title = self.title if title is None else title
-        figsize = self.figsize if figsize is None else figsize
-        fontsize = self.fontsize if fontsize is None else fontsize
-
-        layout = graph_objs.Layout(yaxis={'title': ylabel, 'ticks': ''}, xaxis={'title': xlabel, 'ticks': ''},
-                                   showlegend=show_legend, title=title,
-                                   font=graph_objs.Font(family='Courier New, monospace', size=fontsize),
-                                   width=figsize[0] * self.PLOTLY_RESIZE,
-                                   height=figsize[1] * self.PLOTLY_RESIZE
-        )
-
-        fig = self._plot_plotly(layout)
-
-        return py.iplot(fig, width=figsize[0] * self.PLOTLY_RESIZE, height=figsize[1] * self.PLOTLY_RESIZE,
-                        filename=save_name)
 
     def plot_tmva(self, new_plot=False, style_file=None, figsize=None,
                   xlim=None, ylim=None, title=None, xlabel=None, ylabel=None, show_legend=True):
@@ -430,51 +327,6 @@ class GridPlot(AbstractPlot):
 
         return splts, splts_empty
 
-    def _plot_plotly(self, layout):
-        import plotly.tools as tls
-        from copy import deepcopy
-
-        axis_style_empty = dict(
-            title='',
-            showline=False,
-            showgrid=False,
-            zeroline=False,
-            showticklabels=False
-        )
-
-        fig = tls.make_subplots(rows=self.rows, cols=self.columns, horizontal_spacing=0.3 / self.columns,
-                               vertical_spacing=0.3 / self.rows)
-        splts, splts_empty = self._get_splts(self.rows, self.columns, len(self.plots))
-
-        for index, plotter in zip(splts, self.plots):
-            fig_one = plotter._plot_plotly(deepcopy(layout))
-            for data in fig_one['data']:
-                data['xaxis'] = 'x%d' % index
-                data['yaxis'] = 'y%d' % index
-
-            fig_one['layout']['xaxis%d' % index] = fig_one['layout']['xaxis']
-            fig_one['layout']['yaxis%d' % index] = fig_one['layout']['yaxis']
-            fig_one['layout']['xaxis%d' % index].update(anchor='y%d' % index,
-                                                        title=plotter.xlabel + '<br>%s' % plotter.title)
-
-            fig_one['layout']['yaxis%d' % index].update(title=plotter.ylabel)
-
-            # fig_one['layout']['title%d' % index] = plotter.title
-
-            fig_one['layout'].pop('xaxis')
-            fig_one['layout'].pop('yaxis')
-            fig_one['layout'].pop('title')
-
-            fig['data'] += fig_one['data']
-
-            fig['layout'].update(fig_one['layout'])
-
-        for index in splts_empty:
-            fig['layout']['xaxis{}'.format(index)].update(axis_style_empty)
-            fig['layout']['yaxis{}'.format(index)].update(axis_style_empty)
-        fig['layout'].update(autosize=False)
-        return fig
-
     def _plot_tmva(self):
         raise NotImplementedError("Not supported for tmva")
 
@@ -501,10 +353,6 @@ class HStackPlot(AbstractPlot):
             plt.subplot(1, len(self.plots), i + 1)
             plotter.plot(fontsize=self.fontsize_, show_legend=self.show_legend_)
 
-    def _plot_plotly(self, layout):
-        obj = GridPlot(len(self.plots), *self.plots)
-        return obj._plot_plotly(layout)
-
     def _plot_tmva(self):
         raise NotImplementedError("Not supported for tmva")
 
@@ -530,10 +378,6 @@ class VStackPlot(AbstractPlot):
         for i, plotter in enumerate(self.plots):
             plt.subplot(len(self.plots), 1, i + 1)
             plotter.plot(fontsize=self.fontsize_, show_legend=self.show_legend_)
-
-    def _plot_plotly(self, layout):
-        obj = GridPlot(1, *self.plots)
-        return obj._plot_plotly(layout)
 
     def _plot_tmva(self):
         raise NotImplementedError("Not supported for tmva")
@@ -573,47 +417,6 @@ class ErrorPlot(AbstractPlot):
                 y_mod = y
             err_bar = plt.errorbar(x, y_mod, yerr=yerr_mod, xerr=xerr, label=name, fmt='o', ms=self.size)
             err_bar[0].set_label('_nolegend_')
-
-    def _plot_plotly(self, layout):
-        data = []
-        for name, val in self.errors.items():
-            color = next(_COLOR_CYCLE)
-            x, y, yerr, xerr = val
-            yerr_mod = yerr
-            if self.log:
-                y_mod = numpy.log(y)
-                if yerr is not None:
-                    yerr_mod = numpy.log(y + yerr) - y_mod
-            else:
-                y_mod = y
-            data.append({"x": x,
-                         "y": y_mod,
-                         'error_y': {'type': 'data',
-                                     'array': yerr_mod,
-                                     'thickness': 1,
-                                     'width': 3,
-                                     'opacity': 1,
-                                     'color': color},
-                         'error_x': {'type': 'data',
-                                     'array': xerr,
-                                     'thickness': 1,
-                                     'width': 3,
-                                     'opacity': 1,
-                                     "color": color},
-                         "name": name,
-                         "type": "scatter",
-                         'mode': 'markers',
-
-                         "marker": {
-                             "opacity": 30,
-                             "size": self.size,
-                             "color": color
-                         }
-            })
-        from plotly import graph_objs
-
-        fig = graph_objs.Figure(data=graph_objs.Data(data), layout=layout)
-        return fig
 
     def _plot_tmva(self):
         import ROOT
@@ -668,23 +471,6 @@ class FunctionsPlot(AbstractPlot):
             current_plot.line(x_val, y_val, line_width=2, legend=legend_name, color=color)
         return current_plot
 
-    def _plot_plotly(self, layout):
-        data = []
-
-        for name, data_xy in self.functions.items():
-            color = next(_COLOR_CYCLE)
-            x_val, y_val = data_xy
-            data.append({
-                'name': name,
-                'x': x_val,
-                'y': y_val,
-                'line': {'color': color}
-            })
-        from plotly import graph_objs
-
-        fig = graph_objs.Figure(data=graph_objs.Data(data), layout=layout)
-        return fig
-
     def _plot_tmva(self):
         import ROOT
 
@@ -720,24 +506,6 @@ class ColorMap(AbstractPlot):
     :param float vmin: min value for color map
     :param float vmax: max value for color map
 
-    .. note:: for plotly use
-
-        * 'Greys', black to light-grey
-        * 'YIGnBu', white to green to blue to dark-blue
-        * 'Greens', dark-green to light-green
-        * 'YIOrRd', red to orange to gold to tan to white
-        * 'Bluered', bright-blue to purple to bright-red
-        * 'RdBu', blue to red (dim, the default color scale)
-        * 'Picnic', blue to light-blue to white to pink to red
-
-        currently only available from the GUI, a slight alternative to 'Jet'
-
-        * 'Portland', blue to green to yellow to orange to red (dim)
-        * 'Jet', blue to light-blue to green to yellow to orange to red (bright)
-        * 'Hot', tan to yellow to red to black
-        * 'Blackbody', black to red to yellow to white to light-blue
-        * 'Earth', blue to green to yellow to brown to tan to white
-        * 'Electric', black to purple to orange to yellow to tan to white
     """
 
     def __init__(self, matrix, labels=None, cmap='jet', vmin=-1, vmax=1):
@@ -756,30 +524,6 @@ class ColorMap(AbstractPlot):
         if self.labels is not None:
             plt.xticks(numpy.arange(0.5, len(self.labels) + 0.5), self.labels, fontsize=self.fontsize, rotation=90)
             plt.yticks(numpy.arange(0.5, len(self.labels) + 0.5), self.labels, fontsize=self.fontsize)
-
-    def _plot_plotly(self, layout):
-        from plotly import graph_objs
-
-        colorbar_plotly = graph_objs.ColorBar(
-            thickness=15,  # color bar thickness in px
-            ticks='outside',  # tick outside colorbar
-        )
-        data = [{'type': 'heatmap',
-                 'z': self.matrix,  # link 2D array
-                 'x': self.labels,  # link x-axis labels
-                 'y': self.labels,  # link y-axis labels
-                 'colorscale': self.cmap,  # (!) select pre-defined colormap
-                 'colorbar': colorbar_plotly,
-                 'zmin': self.vmin,
-                 'zmax': self.vmax,
-                 'zauto': False
-                }]
-        layout['xaxis'].update(
-            tickangle=-90
-        )
-
-        fig = graph_objs.Figure(data=graph_objs.Data(data), layout=layout)
-        return fig
 
     def _plot_tmva(self):
         raise NotImplementedError("Not supported for tmva")
@@ -854,26 +598,6 @@ class ScatterPlot(AbstractPlot):
             plt.scatter(scatter[0], scatter[1], s=self.size, c=next(_COLOR_CYCLE),
                         alpha=alpha_normed, label=name)
 
-    def _plot_plotly(self, layout):
-        data = []
-        for name, scatter in self.scatters.items():
-            color = next(_COLOR_CYCLE)
-            data.append({"x": scatter[0],
-                         "y": scatter[1],
-                         "name": name,
-                         "type": "scatter",
-                         'mode': 'markers',
-
-                         "marker": {
-                             "opacity": self.alpha,
-                             "size": self.size // 5,
-                             "color": color
-                         }})
-        from plotly import graph_objs
-
-        fig = graph_objs.Figure(data=graph_objs.Data(data), layout=layout)
-        return fig
-
     def _plot_tmva(self):
         raise NotImplementedError("Not supported for tmva")
 
@@ -939,38 +663,6 @@ class BarPlot(AbstractPlot):
                         edgecolor=color, color=color, ecolor=color, linewidth=1,
                         width=bin_widths, label=label, alpha=0.5, hatch="/", fill=False)
 
-    def _plot_plotly(self, layout):
-        from plotly import graph_objs
-
-        data = []
-        norm = "count"
-        if self.normalization:
-            norm = 'probability density'
-        for label, sample in self.data.items():
-            color = next(_COLOR_CYCLE)
-            prediction, weight, style = sample
-            if self.value_range is None:
-                c_min, c_max = numpy.min(prediction), numpy.max(prediction)
-            else:
-                c_min, c_max = self.value_range
-            data.append({
-                'name': label,
-                'x': prediction,
-                'type': 'histogram',
-                'histnorm': norm,
-                'opacity': 0.5,
-                'autobinx': False,
-                'marker': {'color': color},
-                'xbins': graph_objs.XBins(
-                    start=c_min,
-                    end=c_max,
-                    size=1. * abs(c_max - c_min) / self.bins
-                )
-            })
-        layout.update(barmode='overlay')
-        fig = graph_objs.Figure(data=graph_objs.Data(data), layout=layout)
-        return fig
-
     def _plot_tmva(self):
         raise NotImplementedError("Not supported for tmva")
 
@@ -1014,28 +706,6 @@ class BarComparePlot(AbstractPlot):
 
         plt.xticks(length * numpy.arange(len(inds)), xticks_labels, rotation=90)
 
-    def _plot_plotly(self, layout):
-        from plotly import graph_objs
-
-        if self.sortby is not None:
-            inds = numpy.argsort(list(self.data[self.sortby].values()))[::-1]
-        else:
-            inds = numpy.arange(len(self.data[list(self.data.keys())[0]]))
-
-        data = []
-        for label, sample in self.data.items():
-            color = next(_COLOR_CYCLE)
-            data.append({
-                'name': label,
-                'x': numpy.array(list(sample.keys()))[inds],
-                'y': numpy.array(list(sample.values()))[inds],
-                'type': 'bar',
-                'opacity': 0.5,
-                'marker': {'color': color}
-            })
-        fig = graph_objs.Figure(data=graph_objs.Data(data), layout=layout)
-        return fig
-
     def _plot_tmva(self):
         raise NotImplementedError("Not supported for tmva")
 
@@ -1076,24 +746,6 @@ class Function2D_Plot(AbstractPlot):
     :param float vmin: value, corresponding to minimum on cmap
     :param float vmax: value, corresponding to maximum on cmap
 
-    .. note:: for plotly use
-
-        * 'Greys', black to light-grey
-        * 'YIGnBu', white to green to blue to dark-blue
-        * 'Greens', dark-green to light-green
-        * 'YIOrRd', red to orange to gold to tan to white
-        * 'Bluered', bright-blue to purple to bright-red
-        * 'RdBu', blue to red (dim, the default color scale)
-        * 'Picnic', blue to light-blue to white to pink to red
-
-        currently only available from the GUI, a slight alternative to 'Jet'
-
-        * 'Portland', blue to green to yellow to orange to red (dim)
-        * 'Jet', blue to light-blue to green to yellow to orange to red (bright)
-        * 'Hot', tan to yellow to red to black
-        * 'Blackbody', black to red to yellow to white to light-blue
-        * 'Earth', blue to green to yellow to brown to tan to white
-        * 'Electric', black to purple to orange to yellow to tan to white
     """
 
     def __init__(self, function, xlim, ylim, xsteps=100, ysteps=100, cmap='Blues',
@@ -1114,31 +766,6 @@ class Function2D_Plot(AbstractPlot):
         colormap = plt.pcolor(self.x, self.y, self.z, cmap=self.cmap, vmin=self.vmin, vmax=self.vmax)
         cb = plt.colorbar(colormap)
         cb.set_label('value')
-
-    def _plot_plotly(self, layout):
-        from plotly import graph_objs
-
-        colorbar_plotly = graph_objs.ColorBar(
-            thickness=15,  # color bar thickness in px
-            ticks='outside',  # tick outside colorbar
-            title='value'
-        )
-        data = [{'type': 'heatmap',
-                 'z': self.z,
-                 'y': map(str, list(self.y[:, 0])),
-                 'x': map(str, list(self.x[0, :])),
-                 'colorscale': self.cmap,
-                 'colorbar': colorbar_plotly,
-                }]
-        if self.vmin is not None:
-            data[0]['zmin'] = self.vmin
-            data[0]['zauto'] = False
-        if self.vmax is not None:
-            data[0]['zmax'] = self.vmax
-            data[0]['zauto'] = False
-
-        fig = graph_objs.Figure(data=graph_objs.Data(data), layout=layout)
-        return fig
 
     def _plot_tmva(self):
         raise NotImplementedError("Not supported for tmva")
@@ -1182,46 +809,6 @@ class Histogram2D_Plot(AbstractPlot):
         cb = plt.colorbar(colormap)
         cb.set_label('value')
 
-    def _plot_plotly(self, layout):
-        from plotly import graph_objs
-
-        colorbar_plotly = graph_objs.ColorBar(
-            thickness=15,  # color bar thickness in px
-            ticks='outside',  # tick outside colorbar
-            title='value'
-        )
-        X, Y = self.data
-        data = [{'type': 'histogram2d',
-                 'y': Y,
-                 'x': X,
-                 'colorscale': self.cmap,
-                 'colorbar': colorbar_plotly,
-                }]
-        if self.vmin is not None:
-            data[0]['zmin'] = self.vmin
-            data[0]['zauto'] = False
-        if self.vmax is not None:
-            data[0]['zmax'] = self.vmax
-            data[0]['zauto'] = False
-        if self.range is None:
-            data[0]['nbinsx'] = self.binsX
-            data[0]['nbinsy'] = self.binsY
-        else:
-            start, end = self.range[1]
-            size = 1. * (end - start) / self.binsY
-            data[0]['ybins']= {'start': start, 'end': end, 'size': size}
-            data[0]['autobiny'] =False
-            start, end = self.range[0]
-            size = 1. * (end - start) / self.binsX
-            data[0]['xbins']= {'start': start, 'end': end, 'size': size}
-            data[0]['autobinx'] =False
-        if self.normed:
-            data[0]['histnorm'] = 'probability'
-
-
-        fig = graph_objs.Figure(data=graph_objs.Data(data), layout=layout)
-        return fig
-
     def _plot_tmva(self):
         raise NotImplementedError("Not supported for tmva")
 
@@ -1259,9 +846,6 @@ class CorrelationPlot(AbstractPlot):
             y_std[i] = numpy.std(y_pop)
         plt.errorbar(x_center, y_center, y_std)
         plt.xlim(ex[0], ex[-1])
-
-    def _plot_plotly(self, layout):
-        raise NotImplementedError("Not supported for plotly")
 
     def _plot_tmva(self):
         raise NotImplementedError("Not supported for tmva")
@@ -1304,9 +888,6 @@ class CorrelationMapPlot(AbstractPlot):
         cb = plt.colorbar()
         plt.xlim(ex[0], ex[-1])
         cb.set_label('log10(N)')
-
-    def _plot_plotly(self, layout):
-        raise NotImplementedError("Not supported for plotly")
 
     def _plot_tmva(self):
         raise NotImplementedError("Not supported for tmva")
@@ -1367,8 +948,10 @@ def _display_any(obj):
         ip_img = display.Image(filename=file_png.name, format='png', embed=True)
     return ip_img._repr_png_()
 
+
 try:
     import ROOT
+
     ROOT.gROOT.SetBatch()
 
     # register display function with PNG formatter:
@@ -1383,4 +966,3 @@ try:
     png_formatter.for_type(ROOT.TF1, _display_any)
 except:
     pass
-
