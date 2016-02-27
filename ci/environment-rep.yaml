@@ -2,22 +2,23 @@ name: rep
 channels:
   - nlesc
 dependencies:
-  - ipython-notebook=4.0.4
   - nomkl
+  - ipython-notebook=4.0.4
   - matplotlib=1.4.3
   - numpy=1.10.2
   - pandas=0.17.*
-  - root_numpy
-  - rootpy
-  - root=5*
   - scikit-learn=0.17
   - scipy=0.16.*
   - six=1.10.0
   - bokeh=0.10
+  - root_numpy
+  - rootpy
+  - root=5*
   - pip:
     - neurolab==0.3.5
     - theano==0.7.0
     - theanets==0.6.2
     - pybrain==0.3
     - mpld3==0.2
+    - hep_ml==0.4
     - xgboost==0.4a30
