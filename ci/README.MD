@@ -13,7 +13,6 @@ Docker image with REP is built in two steps:
 1. `docker-base` is built with all dependencies (including ROOT).
     - `Dockerfile.repbase` is used (see the code).
     - it installs conda environments with all packages
-    - 
  
 2. `docker-rep` is built on the top of `docker-base`.
     - `Dockerfile.rep` is used.

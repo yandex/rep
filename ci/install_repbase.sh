@@ -27,16 +27,21 @@ if which apt-get > /dev/null; then
         libatlas-base-dev \
         liblapack-dev \
         libffi-dev \
-        wget \
         gfortran \
         git \
         libxft-dev \
         libxpm-dev \
-        mc \
+        wget \
         telnet \
         curl
+    # cleaning everything we can
     sudo apt-get clean
+    sudo apt-get autoclean
+    sudo apt-get autoremove
 fi
+
+# TODO delete printing
+du -sh /
 
 # matplotlib and ROOT both using DISPLAY environment variable
 # changing matplotlib configuration file to avoid conflict
@@ -70,6 +75,10 @@ echo "Removing conda packages and caches"
 conda uninstall --yes -q gcc qt
 conda clean --yes -s -p -l -i -t
 
+# TODO delete printing
+du -sh /
+
+
 echo "Creating conda venv $REP_ENV_NAME"
 conda env create -q --name $REP_ENV_NAME python=$PYTHON_MAJOR_VERSION --file $REP_ENV_FILE > /dev/null
 source activate $REP_ENV_NAME || halt "Error installing $REP_ENV_NAME environment"
@@ -77,6 +86,10 @@ source activate $REP_ENV_NAME || halt "Error installing $REP_ENV_NAME environmen
 echo "Removing conda packages and caches"
 conda uninstall --yes -q gcc qt
 conda clean --yes -s -p -l -i -t
+
+# TODO delete printing
+du -sh /
+
 
 # test installed packages
 source "${ENV_BIN_DIR}/thisroot.sh" || halt "Error installing ROOT"

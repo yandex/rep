@@ -1,3 +1,6 @@
+# configuration file for CircleCI testing (http://circleci.com)
+# the goal is to test that docker image builds successfully
+
 machine:
   services:
     - docker
@@ -17,3 +20,5 @@ test:
     - curl --retry 10 --retry-delay 5 -v http://localhost:8888
     - wget http://localhost:8888 -O output.html
     - cat output.html
+    # TODO testing of setup.py
+    # TODO check something in output

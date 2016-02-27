@@ -14,8 +14,8 @@ def find_version():
     # __version__ = '0.x.x'
     version_match = re.search(r"^__version__ = ['\"]([^'\"]*)['\"]",
                               version_file, re.MULTILINE)
-    # TODO better check
     candidate = str(version_match.group(1))
+    # TODO better check
     assert str.startswith(candidate, '0.6')
     if version_match:
         return candidate
