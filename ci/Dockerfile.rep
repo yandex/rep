@@ -4,7 +4,7 @@ MAINTAINER Andrey Ustyuzhanin <anaderi@yandex-team.ru>
 ENV TEMP /tmp
 ENV SHELL /bin/bash
 ENV PORT_JUPYTER=8888
-# RUN ln -snf /bin/bash /bin/sh
+ENV HOME /root
 
 # copying howto
 COPY ./howto /REP_howto
@@ -16,6 +16,10 @@ COPY ./ $TEMP/build/
 COPY ./ci/*.sh $HOME/
 RUN chmod +x $HOME/*.sh
 
+# Debugging TODO delete
+RUN ls $HOME
+RUN ls /REP_howto
+RUN ls $TEMP/build
 
 RUN /bin/bash --login -c " \
   cd $TEMP/build && \
@@ -44,4 +48,4 @@ VOLUME ["/notebooks", "/etc_external"]
 # registering port
 EXPOSE $PORT_JUPYTER
 # starting IPython process
-CMD ["/bin/bash", "--login", "-c", "./start_jupyter.sh"]
+CMD ["/bin/bash", "--login", "-c", "$HOME/start_jupyter.sh"]

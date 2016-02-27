@@ -35,6 +35,7 @@ if which apt-get > /dev/null; then
         mc \
         telnet \
         curl
+    sudo apt-get clean
 fi
 
 # matplotlib and ROOT both using DISPLAY environment variable
