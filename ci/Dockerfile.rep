@@ -40,11 +40,9 @@ c.NotebookApp.port = $PORT_JUPYTER \n \" \
 
 # create folder for notebooks
 RUN mkdir /notebooks
-# create folder for extensions
-RUN mkdir /etc_external
 
 # registering mounting points
-VOLUME ["/notebooks", "/etc_external"]
+VOLUME ["/notebooks"]
 # registering port
 EXPOSE $PORT_JUPYTER
 # starting IPython process

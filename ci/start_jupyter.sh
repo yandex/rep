@@ -6,8 +6,11 @@
 
 set +xv
 
-echo "Current umask: " $(umask)
 [ -z "$ENV_BIN_DIR" ] && source /etc/profile.d/rep_profile.sh
+
+if [ "$INSTALL_PIP_MODULES" != "" ] ; then
+	pip install $INSTALL_PIP_MODULES
+fi
 
 if [ "$JPY_API_TOKEN" != "" ] ; then
 	echo "Starting under Jupyterhub"
@@ -66,8 +69,6 @@ if [ "$JUPYTER_PORT" != "" ] ; then
 fi
 
 [[ -d /REP_howto && ! -L /notebooks/rep_howto ]] && ln -s /REP_howto /notebooks/rep_howto
-
-$HOME/install_modules.sh
 
 cat .rep_version
 source .rep_version
