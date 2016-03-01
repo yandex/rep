@@ -11,7 +11,9 @@ function halt {
 }
 
 PYTHON_MAJOR_VERSION=2
-[ -n "$1" ] && PYTHON_MAJOR_VERSION=$1
+if [ -n "$1" ]; then
+    PYTHON_MAJOR_VERSION=$1
+fi
 # when testing on travis, we use travis variable
 if [ -n "$TRAVIS_PYTHON_VERSION" ] ; then
     PYTHON_MAJOR_VERSION=${TRAVIS_PYTHON_VERSION:0:1}
@@ -41,7 +43,7 @@ if which apt-get > /dev/null; then
 fi
 
 # TODO delete printing
-du -sh /
+du -s /
 
 # matplotlib and ROOT both using DISPLAY environment variable
 # changing matplotlib configuration file to avoid conflict
@@ -76,7 +78,7 @@ conda uninstall --yes -q gcc qt
 conda clean --yes -s -p -l -i -t
 
 # TODO delete printing
-du -sh /
+du -s /
 
 
 echo "Creating conda venv $REP_ENV_NAME"
@@ -88,7 +90,7 @@ conda uninstall --yes -q gcc qt
 conda clean --yes -s -p -l -i -t
 
 # TODO delete printing
-du -sh /
+du -s /
 
 
 # test installed packages
