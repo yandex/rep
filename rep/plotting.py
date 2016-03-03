@@ -9,10 +9,8 @@ There are different plotting backends supported:
 from __future__ import division, print_function, absolute_import
 from abc import ABCMeta, abstractmethod
 import itertools
-import os
 from IPython import get_ipython
 
-import matplotlib
 import matplotlib.pyplot as plt
 import numpy
 import tempfile
@@ -31,7 +29,6 @@ _COLOR_CYCLE = itertools.cycle(COLOR_ARRAY)
 _COLOR_CYCLE_BOKEH = itertools.cycle(COLOR_ARRAY_BOKEH)
 _COLOR_CYCLE_TMVA = itertools.cycle(COLOR_ARRAY_TMVA)
 
-matplotlib.rcParams['axes.color_cycle'] = COLOR_ARRAY
 
 __author__ = 'Tatiana Likhomanenko'
 
@@ -78,7 +75,7 @@ class AbstractPlot(object):
         """
         Plot data using matplotlib library. Use show() method for matplotlib to see result or ::
 
-            %pylab inline
+            %matplotlib inline
 
         in IPython to see plot as cell output.
 
@@ -225,9 +222,9 @@ class AbstractPlot(object):
 
         if new_plot or self.canvas is None:
             _COLOR_CYCLE_TMVA = itertools.cycle(COLOR_ARRAY_TMVA)
-            t = numpy.random.randint(10, 100000)
+            t = numpy.random.randint(low=100, high=100000)
             figsize = (figsize[0] * self.TMVA_RESIZE, figsize[1] * self.TMVA_RESIZE)
-            self.canvas = canvas("canvas%d" % t, figsize)
+            self.canvas = canvas("canvas{}".format(t), figsize)
 
         if style_file is not None:
             ROOT.gROOT.LoadMacro(style_file)
@@ -328,7 +325,7 @@ class GridPlot(AbstractPlot):
         return splts, splts_empty
 
     def _plot_tmva(self):
-        raise NotImplementedError("Not supported for tmva")
+        raise NotImplementedError("Not supported for TMVA")
 
 
 class HStackPlot(AbstractPlot):
@@ -354,7 +351,7 @@ class HStackPlot(AbstractPlot):
             plotter.plot(fontsize=self.fontsize_, show_legend=self.show_legend_)
 
     def _plot_tmva(self):
-        raise NotImplementedError("Not supported for tmva")
+        raise NotImplementedError("Not supported for TMVA")
 
     def _plot_bokeh(self, current_plot, show_legend=True):
         obj = GridPlot(len(self.plots), *self.plots)
@@ -380,7 +377,7 @@ class VStackPlot(AbstractPlot):
             plotter.plot(fontsize=self.fontsize_, show_legend=self.show_legend_)
 
     def _plot_tmva(self):
-        raise NotImplementedError("Not supported for tmva")
+        raise NotImplementedError("Not supported for TMVA")
 
     def _plot_bokeh(self, current_plot, show_legend=True):
         obj = GridPlot(1, *self.plots)
@@ -421,8 +418,8 @@ class ErrorPlot(AbstractPlot):
     def _plot_tmva(self):
         import ROOT
 
-        mg = ROOT.TMultiGraph()
-        leg = ROOT.TLegend(0.2, 0.2, 0.5, 0.4)
+        multigraph = ROOT.TMultiGraph()
+        legend = ROOT.TLegend(0.2, 0.2, 0.5, 0.4)
         for name, val in self.errors.items():
             color = next(_COLOR_CYCLE_TMVA)
             x, y, yerr, xerr = val
@@ -433,10 +430,10 @@ class ErrorPlot(AbstractPlot):
             gr.SetFillStyle(0)
             gr.SetLineColor(color)
             gr.SetLineWidth(0)
-            mg.Add(gr)
-            leg.AddEntry(gr, name)
-        mg.Draw("AP")
-        return mg, leg
+            multigraph.Add(gr)
+            legend.AddEntry(gr, name)
+        multigraph.Draw("AP")
+        return multigraph, legend
 
     def _plot_bokeh(self, current_plot, show_legend=True):
         raise NotImplementedError("Not supported by bokeh")
@@ -474,8 +471,8 @@ class FunctionsPlot(AbstractPlot):
     def _plot_tmva(self):
         import ROOT
 
-        mg = ROOT.TMultiGraph()
-        leg = ROOT.TLegend(0.2, 0.2, 0.5, 0.4)
+        multigraph = ROOT.TMultiGraph()
+        legend = ROOT.TLegend(0.2, 0.2, 0.5, 0.4)
         for name, data_xy in self.functions.items():
             color = next(_COLOR_CYCLE_TMVA)
             x_val, y_val = data_xy
@@ -487,10 +484,10 @@ class FunctionsPlot(AbstractPlot):
             gr.SetLineColor(color)
             gr.SetLineWidth(1)
             gr.SetFillStyle(0)
-            mg.Add(gr)
-            leg.AddEntry(gr, name, "L")
-        mg.Draw("AC")
-        return mg, leg
+            multigraph.Add(gr)
+            legend.AddEntry(gr, name, "L")
+        multigraph.Draw("AC")
+        return multigraph, legend
 
 
 class ColorMap(AbstractPlot):
@@ -526,7 +523,7 @@ class ColorMap(AbstractPlot):
             plt.yticks(numpy.arange(0.5, len(self.labels) + 0.5), self.labels, fontsize=self.fontsize)
 
     def _plot_tmva(self):
-        raise NotImplementedError("Not supported for tmva")
+        raise NotImplementedError("Not supported for TMVA")
 
     def _plot_bokeh(self, current_plot, show_legend=True):
         from bokeh.models.tools import HoverTool
@@ -599,7 +596,7 @@ class ScatterPlot(AbstractPlot):
                         alpha=alpha_normed, label=name)
 
     def _plot_tmva(self):
-        raise NotImplementedError("Not supported for tmva")
+        raise NotImplementedError("Not supported for TMVA")
 
     def _plot_bokeh(self, current_plot, show_legend=True):
         for i, (name, scatter) in enumerate(self.scatters.items()):
@@ -664,7 +661,7 @@ class BarPlot(AbstractPlot):
                         width=bin_widths, label=label, alpha=0.5, hatch="/", fill=False)
 
     def _plot_tmva(self):
-        raise NotImplementedError("Not supported for tmva")
+        raise NotImplementedError("Not supported for TMVA")
 
     def _plot_bokeh(self, current_plot, show_legend=True):
         raise NotImplementedError("Not supported by bokeh")
@@ -707,7 +704,7 @@ class BarComparePlot(AbstractPlot):
         plt.xticks(length * numpy.arange(len(inds)), xticks_labels, rotation=90)
 
     def _plot_tmva(self):
-        raise NotImplementedError("Not supported for tmva")
+        raise NotImplementedError("Not supported for TMVA")
 
     def _plot_bokeh(self, current_plot, show_legend=True):
         length = len(self.data) + self.step
@@ -768,7 +765,7 @@ class Function2D_Plot(AbstractPlot):
         cb.set_label('value')
 
     def _plot_tmva(self):
-        raise NotImplementedError("Not supported for tmva")
+        raise NotImplementedError("Not supported for TMVA")
 
     def _plot_bokeh(self, current_plot, show_legend=True):
         raise NotImplementedError("Not supported for bokeh")
@@ -810,7 +807,7 @@ class Histogram2D_Plot(AbstractPlot):
         cb.set_label('value')
 
     def _plot_tmva(self):
-        raise NotImplementedError("Not supported for tmva")
+        raise NotImplementedError("Not supported for TMVA")
 
     def _plot_bokeh(self, current_plot, show_legend=True):
         raise NotImplementedError("Not supported by bokeh")
@@ -848,7 +845,7 @@ class CorrelationPlot(AbstractPlot):
         plt.xlim(ex[0], ex[-1])
 
     def _plot_tmva(self):
-        raise NotImplementedError("Not supported for tmva")
+        raise NotImplementedError("Not supported for TMVA")
 
     def _plot_bokeh(self, current_plot, show_legend=True):
         raise NotImplementedError("Not supported by bokeh")
@@ -890,7 +887,7 @@ class CorrelationMapPlot(AbstractPlot):
         cb.set_label('log10(N)')
 
     def _plot_tmva(self):
-        raise NotImplementedError("Not supported for tmva")
+        raise NotImplementedError("Not supported for TMVA")
 
     def _plot_bokeh(self, current_plot, show_legend=True):
         raise NotImplementedError("Not supported by bokeh")
@@ -909,8 +906,6 @@ Usage example:
     fun1.Draw()
     c1
 
-More examples: http://mazurov.github.io/webfest2013/
-
 @author alexander.mazurov@cern.ch
 @author andrey.ustyuzhanin@cern.ch
 @date 2013-08-09
@@ -927,11 +922,6 @@ def canvas(name="icanvas", size=(800, 600)):
         return canvas
     else:
         return ROOT.TCanvas(name, name, size[0], size[1])
-
-
-def default_canvas(name="icanvas", size=(800, 600)):
-    """ deprecated """
-    return canvas(name=name, size=size)
 
 
 def _display_canvas(canvas):
@@ -955,7 +945,7 @@ try:
     ROOT.gROOT.SetBatch()
 
     # register display function with PNG formatter:
-    png_formatter = get_ipython().display_formatter.formatters['image/png']  # noqa
+    png_formatter = get_ipython().display_formatter.formatters['image/png']
 
     # Register ROOT types in ipython
     #
@@ -963,6 +953,6 @@ try:
     #   In  [2]: canvas
     #   Out [2]: [image will be here]
     png_formatter.for_type(ROOT.TCanvas, _display_canvas)
-    png_formatter.for_type(ROOT.TF1, _display_any)
+    # png_formatter.for_type(ROOT.TF1, _display_any)
 except:
     pass
