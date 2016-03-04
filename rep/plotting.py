@@ -29,7 +29,6 @@ _COLOR_CYCLE = itertools.cycle(COLOR_ARRAY)
 _COLOR_CYCLE_BOKEH = itertools.cycle(COLOR_ARRAY_BOKEH)
 _COLOR_CYCLE_TMVA = itertools.cycle(COLOR_ARRAY_TMVA)
 
-
 __author__ = 'Tatiana Likhomanenko'
 
 
@@ -897,14 +896,13 @@ class CorrelationMapPlot(AbstractPlot):
 Helper module for displaying ROOT canvases in ipython notebooks
 
 Usage example:
-    # Save this file as rootnotes.py to your working directory.
 
-    c1 = default_canvas()
-    fun1 = TF1( 'fun1', 'abs(sin(x)/x)', 0, 10)
-    c1.SetGridx()
-    c1.SetGridy()
-    fun1.Draw()
-    c1
+    canvas1 = default_canvas()
+    sinc_function = TF1( 'fun1', 'abs(sin(x)/x)', 0, 10)
+    canvas1.SetGridx()
+    canvas1.SetGridy()
+    sinc_function.Draw()
+    canvas1
 
 @author alexander.mazurov@cern.ch
 @author andrey.ustyuzhanin@cern.ch
@@ -914,14 +912,22 @@ Usage example:
 
 def canvas(name="icanvas", size=(800, 600)):
     """Helper method for creating canvas"""
-
-    # Check if icanvas already exists
+    import ROOT
+    # Check if canvas already exists
     canvas = ROOT.gROOT.FindObject(name)
-    assert len(size) == 2
     if canvas:
         return canvas
     else:
-        return ROOT.TCanvas(name, name, size[0], size[1])
+        width, height = size
+        return ROOT.TCanvas(name, name, width, height)
+
+
+def default_canvas(name="icanvas", size=(800, 600)):
+    """
+    Create canvas with specific name amd sizes.
+    If canvas with this name already exists, it will be returned
+    """
+    return canvas(name=name, size=size)
 
 
 def _display_canvas(canvas):
@@ -932,6 +938,7 @@ def _display_canvas(canvas):
 
 
 def _display_any(obj):
+    import ROOT
     with tempfile.NamedTemporaryFile(suffix=".png") as file_png:
         obj.Draw()
         ROOT.gPad.SaveAs(file_png.name)
