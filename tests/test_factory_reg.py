@@ -10,10 +10,7 @@ from six.moves import cPickle
 from rep.report import RegressionReport
 from rep.test.test_estimators import generate_classification_data
 
-
 __author__ = 'Tatiana Likhomanenko'
-
-# TODO testing of right-classification of estimators
 
 
 def test_factory():
@@ -41,7 +38,7 @@ def test_factory():
     for key, iterator in factory.staged_predict(X).items():
         assert key != 'tmva', 'tmva does not support staged pp'
         for p in iterator:
-            assert p.shape == (len(X), )
+            assert p.shape == (len(X),)
 
         # checking that last iteration coincides with previous
         assert numpy.all(p == values[key])

@@ -11,6 +11,7 @@ from abc import ABCMeta
 import pandas
 import numpy
 
+from sklearn.utils import check_random_state
 from .utils import normalize_weights, remove_first_line
 from .interface import Classifier, Regressor
 from .utils import check_inputs
@@ -117,8 +118,13 @@ class XGBoostBase(object):
         :param dict kwargs: additional parameters
         :return: self
         """
-        # TODO check with RandomState (not none and not int)
-        seed = 0 if self.random_state is None else self.random_state
+        if self.random_state is None:
+            seed = 0
+        elif isinstance(self.random_state, int):
+            seed = self.random_state
+        else:
+            seed = check_random_state(self.random_state).randint(0, 10000)
+
         self.objective = estimator_type
         params = {"nthread": self.nthreads,
                   "eta": self.eta,

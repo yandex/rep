@@ -3,6 +3,7 @@ from __future__ import division, print_function, absolute_import
 import numpy
 from rep.estimators import XGBoostClassifier, XGBoostRegressor
 from rep.test.test_estimators import check_classifier, check_regression, generate_classification_data
+from sklearn.utils import check_random_state
 
 __author__ = 'Alex Rogozhnikov'
 
@@ -54,3 +55,14 @@ def test_xgboost_feature_importance():
     assert len(original_features) == len(clf.feature_importances_)
 
 
+def test_xgboost_random_states():
+    X, y, weights = generate_classification_data(n_classes=2, distance=5)
+    for random_state in [145, None, check_random_state(None), check_random_state(145)]:
+        clf1 = XGBoostClassifier(n_estimators=5, max_depth=1, subsample=0.1, random_state=random_state)
+        clf1.fit(X, y)
+        clf2 = XGBoostClassifier(n_estimators=5, max_depth=1, subsample=0.1, random_state=random_state)
+        clf2.fit(X, y)
+        if isinstance(random_state, numpy.random.RandomState):
+            assert not numpy.allclose(clf1.predict_proba(X), clf2.predict_proba(X)), 'seed: {}'.format(random_state)
+        else:
+            assert numpy.allclose(clf1.predict_proba(X), clf2.predict_proba(X)), 'seed: {}'.format(random_state)

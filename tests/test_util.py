@@ -59,8 +59,6 @@ def test_get_columns(n_samples=10000):
 
     result = utils.get_columns_in_df(df, ['a: a-b+b', 'b: b + 0 * c** 2.', 'c: c + 1 + c * (b - b)'])
     result['c'] -= 1
-    assert not numpy.allclose(result, df + 1e-3), 'test not working'
-
     assert numpy.allclose(result, df), 'result of evaluation is incorrect'
 
 
