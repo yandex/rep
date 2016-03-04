@@ -169,9 +169,9 @@ def calc_ROC(prediction, signal, sample_weight=None, max_points=10000):
 
     assert set(signal) == {0, 1}, "the labels should be 0 and 1, labels are " + str(set(signal))
     fpr, tpr, thresholds = roc_curve(signal, prediction, sample_weight=sample_weight)
-    tpr = numpy.insert(tpr, 0, 0.)
-    fpr = numpy.insert(fpr, 0, 0.)
-    thresholds = numpy.insert(thresholds, 0, thresholds[0] + 1.)
+    tpr = numpy.insert(tpr, 0, [0.])
+    fpr = numpy.insert(fpr, 0, [0.])
+    thresholds = numpy.insert(thresholds, 0, [thresholds[0] + 1.])
     tnr = 1 - fpr
 
     weight_bck = sample_weight[signal == 0]
@@ -313,7 +313,7 @@ def train_test_split(*arrays, **kw_args):
 
     :param arrays: arrays to split
     :type arrays: list[numpy.array] or list[pandas.DataFrame]
-    :param bool allow_none, default False (specially for sample_weight - both to None)
+    :param bool allow_none: default False (specially for sample_weight - both to None)
     """
     from sklearn import cross_validation
     allow_none = kw_args.pop('allow_none', False)

@@ -15,16 +15,16 @@ import shutil
 import sys
 
 from .interface import Classifier, Regressor
-from .utils import check_inputs, score_to_proba, proba_to_two_dimension
+from .utils import check_inputs, score_to_proba, proba_to_two_dimensions
 from six.moves import cPickle
 import signal
 
-__author__ = 'Tatiana Likhomanenko'
+__author__ = 'Tatiana Likhomanenko, Alex Rogozhnikov'
 
 logger = getLogger(__name__)
 # those parameters that shall not be passed to options of TMVA classifier
-_PASS_PARAMETERS = {'random_state'}
-__all__ = ['TMVABase', 'TMVAClassifier', 'TMVARegressor']
+_IGNORED_PARAMETERS = {'random_state'}
+__all__ = ['TMVAClassifier', 'TMVARegressor']
 
 
 class _AdditionalInformation:
@@ -53,27 +53,23 @@ class _AdditionalInformationPredict:
 
 
 class TMVABase(object):
-    """
-    TMVABase - base estimator for tmva wrappers.
-
-    Parameters:
-    -----------
-    :param str method: algorithm method (default='kBDT')
-    :param features: features used in training
-    :type features: list[str] or None
-    :param str factory_options: system options
-    :param dict method_parameters: estimator options
-
-    .. note:: TMVA doesn't support staged predictions and features importances =((
-    """
-
     __metaclass__ = ABCMeta
 
     def __init__(self,
                  factory_options="",
                  method='kBDT',
                  **method_parameters):
+        """
+        TMVABase - base estimator for tmva wrappers.
 
+        :param str method: algorithm method (default='kBDT')
+        :param features: features used in training
+        :type features: list[str] or None
+        :param str factory_options: system options
+        :param dict method_parameters: estimator options
+
+        .. note:: TMVA doesn't support staged predictions and features importances :(
+        """
         self.method = method
         self._method_name = 'REP_Estimator'
         self.factory_options = factory_options
@@ -188,7 +184,7 @@ class TMVABase(object):
         """
         tmva_process = None
         try:
-            # Problem with Mac OS El Capitan which is not garanteed to set DYLD_LIBRARY_PATH.
+            # Problem with Mac OS El Capitan (10.11) which is not guaranteed to set DYLD_LIBRARY_PATH.
             # This DYLD_LIBRARY_PATH can be used in root_numpy for dynamic loading ROOT libraries
             # https://github.com/rootpy/root_numpy/issues/227#issuecomment-165981891
             tmva_process = subprocess.Popen(
@@ -221,49 +217,41 @@ class TMVABase(object):
 
 
 class TMVAClassifier(TMVABase, Classifier):
-    """
-    TMVAClassifier wraps classifiers from TMVA (CERN library for machine learning)
-
-    Parameters:
-    -----------
-    :param str method: algorithm method (default='kBDT')
-    :param features: features used in training
-    :type features: list[str] or None
-    :param str factory_options: options, for example::
-
-        "!V:!Silent:Color:Transformations=I;D;P;G,D"
-
-    :param str sigmoid_function: function which is used to convert TMVA output to probabilities;
-
-        * *identity* (use for svm, mlp) --- the same output, use this for methods returning class probabilities
-
-        * *sigmoid* --- sigmoid transformation, use it if output varies in range [-infinity, +infinity]
-
-        * *bdt* (for bdt algorithms output varies in range [-1, 1])
-
-        * *sig_eff=0.4* --- for rectangular cut optimization methods,
-        for instance, here 0.4 will be used as signal efficiency to evaluate MVA,
-        (put any float number from [0, 1])
-
-    :param dict method_parameters: estimator options, example: NTrees=100, BoostType='Grad'
-
-    .. warning::
-        TMVA doesn't support *staged_predict_proba()* and *feature_importances__*
-
-    .. warning::
-        TMVA doesn't support multiclassification, only two-class classification
-
-    `TMVA guide <http://mirror.yandex.ru/gentoo-distfiles/distfiles/TMVAUsersGuide-v4.03.pdf>`_
-    """
-
     def __init__(self,
                  method='kBDT',
                  features=None,
                  factory_options="",
                  sigmoid_function='bdt',
                  **method_parameters):
+        """
+        TMVAClassifier wraps classifiers from TMVA (CERN library for machine learning)
 
-        # !V:!Silent:Color:Transformations=I;D;P;G,D
+        :param str method: algorithm method (default='kBDT')
+        :param features: features used in training
+        :type features: list[str] or None
+        :param str factory_options: options, for example::
+
+            "!V:!Silent:Color:Transformations=I;D;P;G,D"
+
+        :param str sigmoid_function: function which is used to convert TMVA output to probabilities;
+
+            * *identity* (use for svm, mlp) --- the same output, use this for methods returning class probabilities
+            * *sigmoid* --- sigmoid transformation, use it if output varies in range [-infinity, +infinity]
+            * *bdt* (for bdt algorithms output varies in range [-1, 1])
+            * *sig_eff=0.4* --- for rectangular cut optimization methods,
+            for instance, here 0.4 will be used as signal efficiency to evaluate MVA,
+            (put any float number from [0, 1])
+
+        :param dict method_parameters: estimator options, example: NTrees=100, BoostType='Grad'
+
+        .. warning::
+            TMVA doesn't support *staged_predict_proba()* and *feature_importances__*
+
+            TMVA doesn't support multiclassification, only two-class classification
+
+        `TMVA guide <http://mirror.yandex.ru/gentoo-distfiles/distfiles/TMVAUsersGuide-v4.03.pdf>`_
+        """
+
         TMVABase.__init__(self, factory_options=factory_options, method=method, **method_parameters)
         Classifier.__init__(self, features=features)
         self.sigmoid_function = sigmoid_function
@@ -282,7 +270,7 @@ class TMVAClassifier(TMVABase, Classifier):
             if hasattr(self, k):
                 setattr(self, k, v)
             else:
-                if k in _PASS_PARAMETERS:
+                if k in _IGNORED_PARAMETERS:
                     continue
                 self.method_parameters[k] = v
 
@@ -290,13 +278,7 @@ class TMVAClassifier(TMVABase, Classifier):
         """
         Get parameters for this estimator.
 
-        deep: boolean, optional
-
-            If True, will return the parameters for this estimator and contained subobjects that are estimators.
-
-        params : mapping of string to any
-
-            Parameter names mapped to their values.
+        :return: dict, parameter names mapped to their values.
         """
         parameters = self.method_parameters.copy()
         parameters['method'] = self.method
@@ -339,15 +321,15 @@ class TMVAClassifier(TMVABase, Classifier):
     def _convert_output(self, prediction):
         variants = {'bdt', 'sigmoid', 'identity'}
         if 'sig_eff' in self.sigmoid_function:
-            return proba_to_two_dimension(prediction)
+            return proba_to_two_dimensions(prediction)
         assert self.sigmoid_function in variants, \
             'sigmoid_function parameter must be one of {}, instead of {}'.format(variants, self.sigmoid_function)
         if self.sigmoid_function == 'sigmoid':
             return score_to_proba(prediction)
         elif self.sigmoid_function == 'bdt':
-            return proba_to_two_dimension((prediction + 1.) / 2.)
+            return proba_to_two_dimensions((prediction + 1.) / 2.)
         else:
-            return proba_to_two_dimension(prediction)
+            return proba_to_two_dimensions(prediction)
 
     def staged_predict_proba(self, X):
         """
@@ -362,32 +344,29 @@ class TMVAClassifier(TMVABase, Classifier):
 
 
 class TMVARegressor(TMVABase, Regressor):
-    """
-    TMVARegressor wraps regressors from TMVA (CERN library for machine learning)
-
-    Parameters:
-    -----------
-    :param str method: algorithm method (default='kBDT')
-    :param features: features used in training
-    :type features: list[str] or None
-    :param str factory_options: options, for example::
-
-        "!V:!Silent:Color:Transformations=I;D;P;G,D"
-
-    :param dict method_parameters: estimator options, example: NTrees=100, BoostType=Grad
-
-    .. note::
-        TMVA doesn't support *staged_predict()* and *feature_importances__*
-
-    `TMVA guide <http://mirror.yandex.ru/gentoo-distfiles/distfiles/TMVAUsersGuide-v4.03.pdf>`_
-    """
-
     def __init__(self,
                  method='kBDT',
                  features=None,
                  factory_options="",
                  **method_parameters):
+        """
+        TMVARegressor wraps regressors from TMVA (CERN library for machine learning)
 
+
+        :param str method: algorithm method (default='kBDT')
+        :param features: features used in training
+        :type features: list[str] or None
+        :param str factory_options: options, for example::
+
+            "!V:!Silent:Color:Transformations=I;D;P;G,D"
+
+        :param dict method_parameters: estimator options, example: NTrees=100, BoostType=Grad
+
+        .. warning::
+            TMVA doesn't support *staged_predict()* and *feature_importances__*
+
+        `TMVA guide <http://mirror.yandex.ru/gentoo-distfiles/distfiles/TMVAUsersGuide-v4.03.pdf>`_
+        """
         TMVABase.__init__(self, factory_options=factory_options, method=method, **method_parameters)
         Regressor.__init__(self, features=features)
 
@@ -401,7 +380,7 @@ class TMVARegressor(TMVABase, Regressor):
             if hasattr(self, k):
                 setattr(self, k, v)
             else:
-                if k in _PASS_PARAMETERS:
+                if k in _IGNORED_PARAMETERS:
                     continue
                 self.method_parameters[k] = v
 
@@ -409,13 +388,7 @@ class TMVARegressor(TMVABase, Regressor):
         """
         Get parameters for this estimator.
 
-        deep: boolean, optional
-
-            If True, will return the parameters for this estimator and contained subobjects that are estimators.
-
-        params : mapping of string to any
-
-            Parameter names mapped to their values.
+        :return: dict, parameter names mapped to their values.
         """
         parameters = self.method_parameters.copy()
         parameters['method'] = self.method
@@ -425,7 +398,7 @@ class TMVARegressor(TMVABase, Regressor):
 
     def fit(self, X, y, sample_weight=None):
         """
-        Train the classifier
+        Train the classifier.
 
         :param pandas.DataFrame X: data shape [n_samples, n_features]
         :param y: values - array-like of shape [n_samples]
@@ -441,7 +414,7 @@ class TMVARegressor(TMVABase, Regressor):
 
     def predict(self, X):
         """
-        Predict data
+        Build predictions for new observations.
 
         :param pandas.DataFrame X: data shape [n_samples, n_features]
         :return: numpy.array of shape n_samples with values

@@ -5,9 +5,9 @@ Estimators (classification and regression)
 
 This module contains wrappers with :class:`sklearn` interface for different machine learning libraries:
 
-* TMVA
+* scikit-learn
 
-* sklearn
+* TMVA
 
 * XGBoost
 
@@ -17,11 +17,9 @@ This module contains wrappers with :class:`sklearn` interface for different mach
 
 * theanets.
 
-We defined some interface for classifiers' and regressors' wrappers, so new wrappers can be added for another libraries
+**REP** defines interface for classifiers' and regressors' wrappers, so new wrappers can be added for another libraries
 following the same interface. Notably the interface has backward compatibility with scikit-learn library.
 
-Sklearn wrapper is the same sklearn model, but it operates with :class:`pandas.DataFrame` data (though supports :class:`numpy.ndarray` as well)
-and can use only those features user pointed in constructor (:class:`pandas.DataFrame` provides named columns).
 
 
 Estimators interfaces (for classification and regression)

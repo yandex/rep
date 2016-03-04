@@ -253,7 +253,7 @@ class XGBoostClassifier(XGBoostBase, Classifier):
 
     def fit(self, X, y, sample_weight=None):
         """
-        Train the classifier
+        Train the classifier.
 
         :param pandas.DataFrame X: data shape [n_samples, n_features]
         :param y: labels of events - array-like of shape [n_samples]
@@ -341,7 +341,7 @@ class XGBoostRegressor(XGBoostBase, Regressor):
 
     def fit(self, X, y, sample_weight=None):
         """
-        Train the classifier on training dataset
+        Train the regressor.
 
         :param pandas.DataFrame X: data shape [n_samples, n_features]
         :param y: regression targets of events - array-like of shape [n_samples]

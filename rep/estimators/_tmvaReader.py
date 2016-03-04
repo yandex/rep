@@ -1,5 +1,5 @@
 """
-    TMVA reader runs with additional information
+Supplementary script to predict using a TMVA model.
 """
 
 from __future__ import division, print_function, absolute_import

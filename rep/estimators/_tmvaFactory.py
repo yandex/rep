@@ -1,5 +1,5 @@
 """
-    TMVA factory runs with classifier and additional information
+Supplementary script to train a classifier.
 """
 
 from __future__ import division, print_function, absolute_import

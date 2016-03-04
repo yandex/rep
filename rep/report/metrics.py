@@ -24,8 +24,8 @@ Once fitted, then for every stage computation will be very fast.
     `API of metrics <https://github.com/yandex/rep/wiki/Contributing-new-metrics>`_ for details and explanations on API.
 
 
-Correspondence between physical terms and ML terms
---------------------------------------------------
+Correspondence between physics terms and ML terms
+-------------------------------------------------
 
 Some notation used below:
 
@@ -383,7 +383,7 @@ class OptimalAMS(OptimalMetric):
 
 class FPRatTPR(BaseEstimator, MetricMixin):
     def __init__(self, tpr):
-        """Fix TPR value on roc curve and return corresponding FPR value.
+        """Fix TPR value on ROC curve and return corresponding FPR value.
 
         :param float tpr: target value true positive rate, from range (0, 1)
         """
@@ -398,7 +398,7 @@ class FPRatTPR(BaseEstimator, MetricMixin):
 
 class TPRatFPR(BaseEstimator, MetricMixin):
     def __init__(self, fpr):
-        """Fix FPR value on roc curve and return corresponding TPR value.
+        """Fix FPR value on ROC curve and return corresponding TPR value.
 
         :param float fpr: target value false positive rate, from range (0, 1)
         """
@@ -413,14 +413,15 @@ class TPRatFPR(BaseEstimator, MetricMixin):
 
 class OptimalMetricNdim(BaseEstimator):
     """
-    Class to calculate optimal thresholds on prediction_1, prediction_2, .. prediction_n simultaneously using some binary metric.
-        This metric differs from :class:`OptimalMetric`
+    Class to calculate optimal thresholds on predictions of several classifier
+    (prediction_1, prediction_2, .. prediction_n) simultaneously to maximize some binary metric.
+
+    This metric differs from :class:`OptimalMetric`
 
     :param function metric: metrics(s, b) -> float, binary metric
     :param expected_s: float, total weight of signal
     :param expected_b: float, total weight of background
     :param int step: step in sorted array of predictions for each dimension to choose thresholds
-    (data are taken with values greater or equal to thresholds)
 
     >>> proba1 = classifier1.predict_proba(X)[:, 1]
     >>> proba2 = classifier2.predict_proba(X)[:, 1]
