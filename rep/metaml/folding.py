@@ -1,5 +1,7 @@
 """
-This is specific meta-algorithm based on the idea of cross-validation.
+:class:`FoldingClassifier` and :class:`FoldingRegressor` provide an easy way
+to run k-Folding cross-validation. Also it is a nice way to combine predictions of trained classifiers.
+
 """
 from __future__ import division, print_function, absolute_import
 
@@ -199,7 +201,7 @@ class FoldingRegressor(FoldingBase, Regressor):
     __doc__ = FoldingBase.__doc__.format(estimator='regressor')
 
     def fit(self, X, y, sample_weight=None):
-        FoldingBase.fit(self, X, y, sample_weight=sample_weight)
+        return FoldingBase.fit(self, X, y, sample_weight=sample_weight)
 
     fit.__doc__ = FoldingBase.fit.__doc__.format(estimator='regressor')
 
@@ -258,7 +260,7 @@ class FoldingClassifier(FoldingBase, Classifier):
     __doc__ = FoldingBase.__doc__.format(estimator='classifier')
 
     def fit(self, X, y, sample_weight=None):
-        FoldingBase.fit(self, X, y, sample_weight=sample_weight)
+        return FoldingBase.fit(self, X, y, sample_weight=sample_weight)
 
     fit.__doc__ = FoldingBase.fit.__doc__.format(estimator='classifier')
 
