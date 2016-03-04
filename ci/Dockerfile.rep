@@ -40,7 +40,6 @@ c.NotebookApp.port = $PORT_JUPYTER \n \" \
 
 # create folder for notebooks
 RUN mkdir /notebooks
-
 # registering mounting points
 VOLUME ["/notebooks"]
 # registering port

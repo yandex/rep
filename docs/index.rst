@@ -10,8 +10,8 @@ REP (Reproducible Experiment Platform) library provides functionality for all yo
 .. raw:: html
 
     <div style='height: 36px;'>
-    <iframe src="https://ghbtns.com/github-btn.html?user=yandex&repo=rep&type=star&count=true" frameborder="0" scrolling="0" width="110px" height="20px"></iframe>
-    <iframe src="https://ghbtns.com/github-btn.html?user=yandex&repo=rep&type=watch&count=true&v=2" frameborder="0" scrolling="0" width="110px" height="20px"></iframe>
+    <iframe src="https://ghbtns.com/github-btn.html?user=yandex&repo=rep&type=star&count=true" frameborder="0" scrolling="0" width="120px" height="23px"></iframe>
+    <iframe src="https://ghbtns.com/github-btn.html?user=yandex&repo=rep&type=watch&count=true&v=2" frameborder="0" scrolling="0" width="120px" height="23px"></iframe>
     <div style='clear: both' ></div>
     </div>
 
@@ -21,15 +21,10 @@ It includes:
   * :doc:`estimators` is sklearn-like wrappers for variety of machine learning libraries:
 
     * TMVA
-
     * Sklearn
-
     * XGBoost
-
     * Pybrain
-
     * Neurolab
-
     * Theanets.
 
     These can be used as base estimators in sklearn.
@@ -40,11 +35,8 @@ It includes:
   * :doc:`plotting` is  wrapper for different plotting libraries including interactive plots
 
     * matplotlib
-
     * bokeh
-
     * tmva
-
     * plotly
   * :doc:`parallel` describes REP way to parallelize tasks
   * :doc:`data` defines LabeledDataStorage - a custom way to store training data in a single object

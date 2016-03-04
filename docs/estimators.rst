@@ -5,17 +5,12 @@ Estimators (classification and regression)
 
 This module contains wrappers with :class:`sklearn` interface for different machine learning libraries:
 
-* scikit-learn
-
-* TMVA
-
-* XGBoost
-
-* pybrain
-
-* neurolab
-
-* theanets.
+    * scikit-learn
+    * TMVA
+    * XGBoost
+    * pybrain
+    * neurolab
+    * theanets.
 
 **REP** defines interface for classifiers' and regressors' wrappers, so new wrappers can be added for another libraries
 following the same interface. Notably the interface has backward compatibility with scikit-learn library.
