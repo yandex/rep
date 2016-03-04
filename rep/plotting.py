@@ -135,7 +135,6 @@ class AbstractPlot(object):
         """
         Plot data using bokeh library. Use show() method for bokeh to see result.
 
-        :param bool new_plot: create or not new figure
         :param xlim: x-axis range
         :param ylim: y-axis range
         :type xlim: None or tuple(x_min, x_max)
@@ -307,26 +306,6 @@ class GridPlot(AbstractPlot):
         grid = models.GridPlot(children=lst)
         return grid
 
-    @staticmethod
-    def _get_splts(n_row, n_col, n):
-
-        n_splt = n_row * n_col
-        n_empty = n_splt - n
-
-        tmp1d = numpy.arange(1, n_splt + 1)  # => [1,2,..,n_splt]
-        tmp2d = numpy.resize(tmp1d, (n_row, n_col))  # => [[1,2,..,N_rowcol],..[..,n_splt]]
-        tmp2d_flip = tmp2d[::-1, :]  # => [[..,N_spl],..[1,2,..,N_rowcol]]
-
-        tmp1d_in_order = tmp2d_flip.flatten().tolist()  # => [..,N_spl,..,1,2,..N_rowcol]
-
-        splts_empty = range(n_col - n_empty + 1, n_col + 1)  # indices of empty subplots
-
-        for splt in splts_empty:
-            tmp1d_in_order.remove(splt)  # remove indices of empty subplots
-        splts = tmp1d_in_order  # and get the complete list of subplots
-
-        return splts, splts_empty
-
     def _plot_tmva(self):
         raise NotImplementedError("Not supported for TMVA")
 
@@ -362,15 +341,12 @@ class HStackPlot(AbstractPlot):
 
 
 class VStackPlot(AbstractPlot):
-    """
-    Implements vertical stack plots
-
-    Parameters:
-    -----------
-    :param list[AbstractPlot] plots: plot objects
-    """
-
     def __init__(self, *plots):
+        """
+        Implements vertical stack plots
+
+        :param list[AbstractPlot] plots: plot objects
+        """
         super(VStackPlot, self).__init__()
         self.plots = plots
 
@@ -388,18 +364,15 @@ class VStackPlot(AbstractPlot):
 
 
 class ErrorPlot(AbstractPlot):
-    """
-    Implements error bars plots
-
-    Parameters:
-    -----------
-    :param errors: name - x points, y points, y errors, x errors
-    :type errors: dict[str, tuple(array, array, array, array)]
-    :param int size: size of scatters
-    param bool log: logarithm scaling
-    """
-
     def __init__(self, errors, size=2, log=False):
+        """
+        Implements error bars plots
+
+        :param errors: name - x points, y points, y errors, x errors
+        :type errors: dict[str, tuple(array, array, array, array)]
+        :param int size: size of scatters
+        param bool log: logarithm scaling
+        """
         super(ErrorPlot, self).__init__()
         self.errors = errors
         self.size = size
@@ -407,15 +380,15 @@ class ErrorPlot(AbstractPlot):
 
     def _plot(self):
         for name, val in self.errors.items():
-            x, y, yerr, xerr = val
-            yerr_mod = yerr
+            x, y, y_err, x_err = val
+            y_err_mod = y_err
             if self.log:
                 y_mod = numpy.log(y)
-                if yerr is not None:
-                    yerr_mod = numpy.log(y + yerr) - y_mod
+                if y_err is not None:
+                    y_err_mod = numpy.log(y + y_err) - y_mod
             else:
                 y_mod = y
-            err_bar = plt.errorbar(x, y_mod, yerr=yerr_mod, xerr=xerr, label=name, fmt='o', ms=self.size)
+            err_bar = plt.errorbar(x, y_mod, yerr=y_err_mod, xerr=x_err, label=name, fmt='o', ms=self.size)
             err_bar[0].set_label('_nolegend_')
 
     def _plot_tmva(self):
@@ -443,16 +416,13 @@ class ErrorPlot(AbstractPlot):
 
 
 class FunctionsPlot(AbstractPlot):
-    """
-    Implements 1d-function plots
-
-    Parameters:
-    -----------
-    :param functions: dict which maps label of curve to x, y coordinates of points
-    :type functions: dict[str, tuple(array, array)]
-    """
-
     def __init__(self, functions):
+        """
+        Implements 1d-function plots
+
+        :param functions: dict which maps label of curve to x, y coordinates of points
+        :type functions: dict[str, tuple(array, array)]
+        """
         super(FunctionsPlot, self).__init__()
         self.functions = functions
 
@@ -494,21 +464,17 @@ class FunctionsPlot(AbstractPlot):
 
 
 class ColorMap(AbstractPlot):
-    """
-    Implements color map plots
-
-    Parameters:
-    -----------
-    :param numpy.ndarray matrix: matrix
-    :param labels: names for each matrix-row
-    :type labels: None or list[str]
-    :param str cmap: color map name
-    :param float vmin: min value for color map
-    :param float vmax: max value for color map
-
-    """
-
     def __init__(self, matrix, labels=None, cmap='jet', vmin=-1, vmax=1):
+        """
+        Implements color map plots
+
+        :param numpy.ndarray matrix: matrix
+        :param labels: names for each matrix-row
+        :type labels: None or list[str]
+        :param str cmap: color map name
+        :param float vmin: min value for color map
+        :param float vmax: max value for color map
+        """
         super(ColorMap, self).__init__()
         self.matrix = matrix
         self.labels = labels if labels is not None else range(matrix.shape[0])
@@ -574,18 +540,16 @@ class ColorMap(AbstractPlot):
 
 
 class ScatterPlot(AbstractPlot):
-    """
-    Implements scatters plots
-
-    Parameters:
-    -----------
-    :param scatters: name - x points, y points
-    :type scatters: dict[str, tuple(array, array)]
-    :param int size: scatters size
-    :param float alpha: transparency
-    """
-
     def __init__(self, scatters, alpha=0.1, size=20):
+        """
+        Implements scatters plots
+
+        :param scatters: name - x points, y points
+        :type scatters: dict[str, tuple(array, array)]
+        :param int size: scatters size
+        :param float alpha: transparency
+        """
+
         super(ScatterPlot, self).__init__()
         self.scatters = scatters
         self.alpha = alpha
@@ -613,21 +577,20 @@ class ScatterPlot(AbstractPlot):
 
 
 class BarPlot(AbstractPlot):
-    """
-    Implements bar plots
-
-    Parameters:
-    -----------
-    :param data: name - value, weight, style ('filled', another)
-    :type data: dict[str, tuple(array, array, str)]
-    :param bins: bins for histogram
-    :type bins: int or list[float]
-    :param bool normalization: normalize to pdf histogram or not
-    :param value_range: min and max values
-    :type value_range: None or tuple
-    """
-
     def __init__(self, data, bins=30, normalization=True, value_range=None):
+        """
+        Implements bar plots
+
+        Parameters:
+        -----------
+        :param data: name - value, weight, style ('filled', another)
+        :type data: dict[str, tuple(array, array, str)]
+        :param bins: bins for histogram
+        :type bins: int or list[float]
+        :param bool normalization: normalize to pdf histogram or not
+        :param value_range: min and max values
+        :type value_range: None or tuple
+        """
         super(BarPlot, self).__init__()
         self.data = data
         self.bins = bins
@@ -671,24 +634,21 @@ class BarPlot(AbstractPlot):
 
 
 class BarComparePlot(AbstractPlot):
-    """
-    Implements bar plots
+    def __init__(self, data, alpha=0.5, sort_by=None, step=5):
+        """
+        Implements bar plots
 
-    Parameters:
-    -----------
-    :param data:
-    :type data: dict[str, dict(str, float)]
-    :param float alpha: opacity
-    :param sortby: sort bars by this data key
-    :type sortby: None or str
-    :param int step: length
-    """
-
-    def __init__(self, data, alpha=0.5, sortby=None, step=5):
+        :param data:
+        :type data: dict[str, dict(str, float)]
+        :param float alpha: opacity
+        :param sort_by: sort bars by this data key
+        :type sort_by: None or str
+        :param int step: length
+        """
         super(BarComparePlot, self).__init__()
         self.data = data
         self.alpha = alpha
-        self.sortby = sortby
+        self.sortby = sort_by
         self.step = step
 
     def _plot(self):
@@ -716,7 +676,7 @@ class BarComparePlot(AbstractPlot):
         else:
             inds = numpy.array(range(len(self.data[list(self.data.keys())[0]])))
 
-        xticks_labels = numpy.array(list(self.data[list(self.data.keys())[0]].keys()))[inds]
+        # xticks_labels = numpy.array(list(self.data[list(self.data.keys())[0]].keys()))[inds]
 
         for move, (label, sample) in enumerate(self.data.items()):
             color = next(_COLOR_CYCLE_BOKEH)
@@ -732,24 +692,20 @@ class BarComparePlot(AbstractPlot):
 
 
 class Function2D_Plot(AbstractPlot):
-    """
-    Implements 2d-functions plots
-
-    Parameters:
-    -----------
-    :param function function: vector function (X, Y)
-    :param tuple(float, float) xlim: x ranges
-    :param tuple(float, float) ylim: y ranges
-    :param int xsteps: count of points for approximation on x-axis
-    :param int ysteps: count of points for approximation on y-axis
-    :param str cmap: color map
-    :param float vmin: value, corresponding to minimum on cmap
-    :param float vmax: value, corresponding to maximum on cmap
-
-    """
-
     def __init__(self, function, xlim, ylim, xsteps=100, ysteps=100, cmap='Blues',
                  vmin=None, vmax=None):
+        """
+        Implements 2d-functions plots
+
+        :param function function: vector function (X, Y)
+        :param tuple(float, float) xlim: x ranges
+        :param tuple(float, float) ylim: y ranges
+        :param int xsteps: count of points for approximation on x-axis
+        :param int ysteps: count of points for approximation on y-axis
+        :param str cmap: color map
+        :param float vmin: value, corresponding to minimum on cmap
+        :param float vmax: value, corresponding to maximum on cmap
+        """
         super(Function2D_Plot, self).__init__()
 
         x = numpy.linspace(xlim[0], xlim[1], xsteps)
@@ -775,24 +731,22 @@ class Function2D_Plot(AbstractPlot):
 
 
 class Histogram2D_Plot(AbstractPlot):
-    """
-    Implements correlations plots
-
-    Parameters:
-    -----------
-    :param (array, array) data: name var, name var - values for first, values for second
-    :param bins: count of bins
-    :type bins: int or list[float]
-    :param str cmap: color map
-    :param float cmin: value, corresponding to minimum on cmap
-    :param float cmax: value, corresponding to maximum on cmap
-    :param bool normed: normalize histogram
-    :param range: array_like shape(2, 2), optional, default: None
-        [[xmin, xmax], [ymin, ymax]]. All values outside of this range will be
-        considered outliers and not tallied in the histogram.
-    """
-
     def __init__(self, data, bins=30, cmap='Blues', cmin=None, cmax=None, range=None, normed=False):
+        """
+        Implements correlations plots
+
+        :param (array, array) data: name var, name var - values for first, values for second
+        :param bins: count of bins
+        :type bins: int or list[float]
+        :param str cmap: color map
+        :param float cmin: value, corresponding to minimum on cmap
+        :param float cmax: value, corresponding to maximum on cmap
+        :param bool normed: normalize histogram
+        :param range: array_like shape(2, 2), optional, default: None
+            [[xmin, xmax], [ymin, ymax]]. All values outside of this range will be
+            considered outliers and not tallied in the histogram.
+
+        """
         super(Histogram2D_Plot, self).__init__()
         self.data = data
         self.binsX, self.binsY = (bins, bins) if isinstance(bins, int) else bins
@@ -817,17 +771,15 @@ class Histogram2D_Plot(AbstractPlot):
 
 
 class CorrelationPlot(AbstractPlot):
-    """
-    Implements correlations plots
-
-    Parameters:
-    -----------
-    :param (array, array) data: values for first, values for second
-    :param bins: count of bins
-    :type bins: int or list[float]
-    """
-
     def __init__(self, data, bins=30):
+        """
+        Implements correlations plots
+
+        :param (array, array) data: values for first, values for second
+        :param bins: count of bins
+        :type bins: int or list[float]
+
+        """
         super(CorrelationPlot, self).__init__()
         self.data = data
         self.bins = bins
@@ -855,17 +807,15 @@ class CorrelationPlot(AbstractPlot):
 
 
 class CorrelationMapPlot(AbstractPlot):
-    """
-    Implements correlations map plots
-
-    Parameters:
-    -----------
-    :param (array, array) data: name var, name var - values for first, values for second
-    :param bins: count of bins
-    :type bins: int or list[float]
-    """
-
     def __init__(self, data, bins=30):
+        """
+        Implements correlations map plots
+
+        :param (array, array) data: name var, name var - values for first, values for second
+        :param bins: count of bins
+        :type bins: int or list[float]
+
+        """
         super(CorrelationMapPlot, self).__init__()
         self.data = data
         self.bins = bins
@@ -915,7 +865,10 @@ Usage example:
 
 
 def canvas(name="canvas1", size=(800, 600)):
-    """Helper method for creating canvas"""
+    """
+    Helper method for creating canvas
+    If canvas with this name already exists, it will be returned
+    """
     import ROOT
     # Check if canvas already exists
     canvas = ROOT.gROOT.FindObject(name)
@@ -926,14 +879,6 @@ def canvas(name="canvas1", size=(800, 600)):
         return ROOT.TCanvas(name, name, width, height)
 
 
-def default_canvas(name="canvas1", size=(800, 600)):
-    """
-    Create canvas with specific name amd sizes.
-    If canvas with this name already exists, it will be returned
-    """
-    return canvas(name=name, size=size)
-
-
 def _display_canvas(canvas):
     with tempfile.NamedTemporaryFile(suffix=".png") as file_png:
         canvas.SaveAs(file_png.name)
@@ -941,29 +886,12 @@ def _display_canvas(canvas):
     return ip_img._repr_png_()
 
 
-def _display_any(obj):
-    import ROOT
-    with tempfile.NamedTemporaryFile(suffix=".png") as file_png:
-        obj.Draw()
-        ROOT.gPad.SaveAs(file_png.name)
-        ip_img = display.Image(filename=file_png.name, format='png', embed=True)
-    return ip_img._repr_png_()
-
-
 try:
     import ROOT
-
     ROOT.gROOT.SetBatch()
 
     # register display function with PNG formatter:
     png_formatter = get_ipython().display_formatter.formatters['image/png']
-
-    # Register ROOT types in ipython
-    #
-    #   In  [1]: canvas = rootnotes.canvas()
-    #   In  [2]: canvas
-    #   Out [2]: [image will be here]
     png_formatter.for_type(ROOT.TCanvas, _display_canvas)
-    # png_formatter.for_type(ROOT.TF1, _display_any)
 except:
     pass

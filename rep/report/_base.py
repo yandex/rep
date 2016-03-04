@@ -141,7 +141,7 @@ class AbstractReport:
             try:
                 df = estimator.get_feature_importances()
                 df = {column: dict(df[column]) for column in df.columns}
-                plot = plotting.BarComparePlot(df, sortby='effect')
+                plot = plotting.BarComparePlot(df, sort_by='effect')
                 plot.title = 'Feature importance for %s' % name
                 plot.fontsize = 10
                 importance_plots.append(plot)
@@ -176,7 +176,7 @@ class AbstractReport:
                 predictions = self._predict(estimator, data_modified)
                 result[feature] = metric_copy(labels, predictions, sample_weight=weights)
 
-            plot_fig = plotting.BarComparePlot({name: result}, sortby=name)
+            plot_fig = plotting.BarComparePlot({name: result}, sort_by=name)
             plot_fig.title = 'Feature importance for %s' % name
             plot_fig.fontsize = 10
             importances_plots.append(plot_fig)
