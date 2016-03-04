@@ -54,8 +54,13 @@ mkdir -p $HOME/.config/matplotlib && echo 'backend: agg' > $HOME/.config/matplot
 [ -n "$CONDA_ENV_PATH" ] && source deactivate
 
 if ! which conda ; then
-    # install python2 miniconda
-    MINICONDA_FILE="Miniconda-latest-Linux-x86_64.sh"
+    # install miniconda
+    # TODO use single starting miniconda
+    if [ "$PYTHON_MAJOR_VERSION" == "3" ]; then
+        MINICONDA_FILE="Miniconda3-latest-Linux-x86_64.sh"
+    else
+        MINICONDA_FILE="Miniconda-latest-Linux-x86_64.sh"
+    fi
     wget http://repo.continuum.io/miniconda/$MINICONDA_FILE -O miniconda.sh
     chmod +x miniconda.sh
     ./miniconda.sh -b -p $HOME/miniconda || halt "Error installing miniconda"
