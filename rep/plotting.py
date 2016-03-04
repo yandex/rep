@@ -28,6 +28,7 @@ BOKEH_CMAP = [
 _COLOR_CYCLE = itertools.cycle(COLOR_ARRAY)
 _COLOR_CYCLE_BOKEH = itertools.cycle(COLOR_ARRAY_BOKEH)
 _COLOR_CYCLE_TMVA = itertools.cycle(COLOR_ARRAY_TMVA)
+_BOKEH_OUTPUT_NOTEBOOK_ACTIVATED = False
 
 __author__ = 'Tatiana Likhomanenko'
 
@@ -152,9 +153,10 @@ class AbstractPlot(object):
         :param bool show_legend: show or not labels for plots
         """
         global _COLOR_CYCLE_BOKEH
+        global _BOKEH_OUTPUT_NOTEBOOK_ACTIVATED
         import bokeh.plotting as bkh
         from bokeh.models import Range1d
-        from bokeh.properties import value
+        from bokeh.core.properties import value
 
         figsize = self.figsize if figsize is None else figsize
         xlabel = self.xlabel if xlabel is None else xlabel
@@ -168,7 +170,9 @@ class AbstractPlot(object):
 
         figsize = (figsize[0] * self.BOKEH_RESIZE, figsize[1] * self.BOKEH_RESIZE)
 
-        bkh.output_notebook()
+        if not _BOKEH_OUTPUT_NOTEBOOK_ACTIVATED:
+            bkh.output_notebook()
+            _BOKEH_OUTPUT_NOTEBOOK_ACTIVATED = True
 
         current_plot = bkh.figure(title=title, plot_width=figsize[0], plot_height=figsize[1])
         _COLOR_CYCLE_BOKEH = itertools.cycle(COLOR_ARRAY_BOKEH)
@@ -276,9 +280,9 @@ class GridPlot(AbstractPlot):
             plotter.plot(fontsize=self.fontsize_, show_legend=self.show_legend_)
 
     def _plot_bokeh(self, current_plot, show_legend=True):
-        import bokeh.models as mdl
+        from bokeh import models
         import bokeh.plotting as bkh
-        from bokeh.properties import value
+        from bokeh.core.properties import value
 
         lst = []
         row_lst = []
@@ -286,9 +290,9 @@ class GridPlot(AbstractPlot):
             cur_plot = bkh.figure(title=plotter.title, plot_width=self.one_figsize[0] * self.BOKEH_RESIZE,
                                   plot_height=self.one_figsize[1] * self.BOKEH_RESIZE)
             if plotter.xlim is not None:
-                cur_plot.x_range = mdl.Range1d(start=plotter.xlim[0], end=plotter.xlim[1])
+                cur_plot.x_range = models.Range1d(start=plotter.xlim[0], end=plotter.xlim[1])
             if plotter.ylim is not None:
-                cur_plot.y_range = mdl.Range1d(start=plotter.ylim[0], end=plotter.ylim[1])
+                cur_plot.y_range = models.Range1d(start=plotter.ylim[0], end=plotter.ylim[1])
             cur_plot.title_text_font_size = value("{}pt".format(plotter.fontsize))
             cur_plot.xaxis.axis_label = plotter.xlabel
             cur_plot.yaxis.axis_label = plotter.ylabel
@@ -300,7 +304,7 @@ class GridPlot(AbstractPlot):
             row_lst.append(cur_plot)
         if len(row_lst) > 0:
             lst.append(row_lst)
-        grid = mdl.GridPlot(children=lst)
+        grid = models.GridPlot(children=lst)
         return grid
 
     @staticmethod
@@ -560,7 +564,7 @@ class ColorMap(AbstractPlot):
         current_plot.axis.major_tick_line_color = None
         hover = current_plot.select(dict(type=HoverTool))
         if not hover:
-            hover = HoverTool(plot=current_plot, always_active=True)
+            hover = HoverTool(plot=current_plot)
         hover.tooltips = OrderedDict([
             ('labels', '@x @y'),
             ('value', '@value')
@@ -867,14 +871,14 @@ class CorrelationMapPlot(AbstractPlot):
         self.bins = bins
 
     def _plot(self):
-        (binsX, binsY) = (self.bins, self.bins) if isinstance(self.bins, int) else self.bins
+        (bins_x, bins_y) = (self.bins, self.bins) if isinstance(self.bins, int) else self.bins
         X, Y = self.data
-        H, ex, ey = numpy.histogram2d(X, Y, bins=(binsX, binsY))
+        H, ex, ey = numpy.histogram2d(X, Y, bins=(bins_x, bins_y))
         x_center = numpy.diff(ex) / 2 + ex[0:-1]
         x_digit = numpy.digitize(X, ex)
-        y_center = numpy.empty(binsY)
-        y_std = numpy.empty(binsY)
-        for i in range(binsX):
+        y_center = numpy.empty(bins_y)
+        y_std = numpy.empty(bins_y)
+        for i in range(bins_x):
             y_pop = Y[numpy.where(x_digit == i + 1)[0]]
             y_center[i] = numpy.mean(y_pop)
             y_std[i] = numpy.std(y_pop)
@@ -910,7 +914,7 @@ Usage example:
 """
 
 
-def canvas(name="icanvas", size=(800, 600)):
+def canvas(name="canvas1", size=(800, 600)):
     """Helper method for creating canvas"""
     import ROOT
     # Check if canvas already exists
@@ -922,7 +926,7 @@ def canvas(name="icanvas", size=(800, 600)):
         return ROOT.TCanvas(name, name, width, height)
 
 
-def default_canvas(name="icanvas", size=(800, 600)):
+def default_canvas(name="canvas1", size=(800, 600)):
     """
     Create canvas with specific name amd sizes.
     If canvas with this name already exists, it will be returned
