@@ -194,7 +194,7 @@ class XGBoostBase(object):
         """
         self._check_fitted()
         feature_score = self.xgboost_classifier.get_fscore()
-        reordered_scores = numpy.zeros(len(feature_score))
+        reordered_scores = numpy.zeros(len(self.features))
         for name, score in feature_score.items():
             reordered_scores[int(name)] = score
         return pandas.DataFrame({'effect': reordered_scores}, index=self.features)

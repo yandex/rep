@@ -40,3 +40,17 @@ def test_xgboost_works_with_different_dtypes():
     clf.fit(X, y, sample_weight=weights)
     probabilities = clf.predict_proba(X)
 
+
+def test_xgboost_feature_importance():
+    X, y, weights = generate_classification_data(n_classes=2, distance=5)
+    clf = XGBoostClassifier(n_estimators=1, max_depth=1)
+    clf.fit(X, y)
+    importances = clf.get_feature_importances()
+    original_features = set(X.columns)
+    importances_features = set(importances.index)
+    print(original_features, importances_features)
+    assert original_features == importances_features, 'feature_importances_ return something wrong'
+
+    assert len(original_features) == len(clf.feature_importances_)
+
+
