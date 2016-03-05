@@ -1,4 +1,4 @@
-.. _report:
+.. _parallel:
 
 Parallel computing
 ==================

@@ -253,16 +253,13 @@ class AbstractPlot(object):
 
 
 class GridPlot(AbstractPlot):
-    """
-    Implements grid plots
-
-    Parameters:
-    -----------
-    :param int columns: count of columns in grid
-    :param list[AbstractPlot] plots: plot objects
-    """
-
     def __init__(self, columns=3, *plots):
+        """
+        Implements grid of plots (set of plots organized in a grid).
+
+        :param int columns: count of columns in grid
+        :param list[AbstractPlot] plots: plot objects
+        """
         super(GridPlot, self).__init__()
         self.plots = plots
         self.columns = columns
@@ -311,15 +308,12 @@ class GridPlot(AbstractPlot):
 
 
 class HStackPlot(AbstractPlot):
-    """
-    Implements horizontal stack plots
-
-    Parameters:
-    -----------
-    :param list[AbstractPlot] plots: plot objects
-    """
-
     def __init__(self, *plots):
+        """
+        Horizontal stack of plots.
+
+        :param list[AbstractPlot] plots: plot objects
+        """
         super(HStackPlot, self).__init__()
         self.plots = plots
         width = sum([elem.figsize[0] for elem in self.plots])
@@ -371,7 +365,7 @@ class ErrorPlot(AbstractPlot):
         :param errors: name - x points, y points, y errors, x errors
         :type errors: dict[str, tuple(array, array, array, array)]
         :param int size: size of scatters
-        param bool log: logarithm scaling
+        :param bool log: logarithm scaling
         """
         super(ErrorPlot, self).__init__()
         self.errors = errors
@@ -581,8 +575,6 @@ class BarPlot(AbstractPlot):
         """
         Implements bar plots
 
-        Parameters:
-        -----------
         :param data: name - value, weight, style ('filled', another)
         :type data: dict[str, tuple(array, array, str)]
         :param bins: bins for histogram
@@ -745,7 +737,6 @@ class Histogram2D_Plot(AbstractPlot):
         :param range: array_like shape(2, 2), optional, default: None
             [[xmin, xmax], [ymin, ymax]]. All values outside of this range will be
             considered outliers and not tallied in the histogram.
-
         """
         super(Histogram2D_Plot, self).__init__()
         self.data = data
@@ -814,7 +805,6 @@ class CorrelationMapPlot(AbstractPlot):
         :param (array, array) data: name var, name var - values for first, values for second
         :param bins: count of bins
         :type bins: int or list[float]
-
         """
         super(CorrelationMapPlot, self).__init__()
         self.data = data

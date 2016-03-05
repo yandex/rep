@@ -340,14 +340,12 @@ def train_test_split_group(group_column, *arrays, **kw_args):
     Modification of :class:`train_test_split` which alters splitting rule.
 
     :param group_column: array-like of shape [n_samples] with indices of groups,
-    events from one group will be kept together (all events in train or all events in test).
-    If `group_column` is used, train_size and test_size will refer to number of groups, not events
-
+        events from one group will be kept together (all events in train or all events in test).
+        If `group_column` is used, train_size and test_size will refer to number of groups, not events
     :param arrays: arrays to split
     :type arrays: list[numpy.array] or list[pandas.DataFrame]
-
     :param bool allow_none: default False
-    (specially for sample_weight - after splitting train and test of `None` are `None` too)
+        (useful for sample_weight - after splitting train and test of `None` are again `None`)
     """
     from sklearn import cross_validation
     allow_none = kw_args.pop('allow_none', None)

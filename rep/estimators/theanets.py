@@ -46,8 +46,6 @@ UNSUPPORTED_OPTIMIZERS = {'sample', 'hf'}
 class TheanetsBase(object):
     """Base class for estimators from Theanets library.
 
-    Parameters:
-    -----------
     :param features: list of features to train model
     :type features: None or list(str)
     :param layers: a sequence of values specifying the **hidden** layer configuration for the network.
@@ -173,6 +171,7 @@ class TheanetsBase(object):
     def _transform_data(self, data, y=None):
         """
         Takes the features and transforms data using self.scaler, also fits the scaler if needed.
+
         :param data: data which should be scaled
         :param y: labels for this data
         :return: transformed data
@@ -194,9 +193,6 @@ class TheanetsBase(object):
         :param y: values - array-like of shape [n_samples]
         :param sample_weight: weights - array-like of shape [n_samples]
         :return: self
-
-        .. note:: if `trainer['optimize'] == 'pretrain'` (unsupervised training)
-        `y` can be specific vector, details see in `partial_fit`
         """
         self.exp = None
         if self.trainers is None:
@@ -244,6 +240,7 @@ class TheanetsBase(object):
     def _construct_layers(self, input_layer, output_layer):
         """
         Build a layer list, including correct input/output layers' sizes.
+
         :param int input_layer: input layer size taken from the data
         :param int output_layer: output layer size taken from the data
         :return: list layers
@@ -284,8 +281,6 @@ class TheanetsClassifier(TheanetsBase, Classifier):
         :param dict trainer: parameters of the training algorithm we want to use now
         :return: self
 
-        .. note:: if `trainer['optimize'] == 'pretrain'` (unsupervised training)
-        `y` can be any vector just with information `numpy.unique(y) == classes`
         """
         X, y, sample_weight = self._prepare_for_partial_fit(X, y, sample_weight=sample_weight,
                                                             keep_trainer=keep_trainer, **trainer)
@@ -335,8 +330,6 @@ class TheanetsRegressor(TheanetsBase, Regressor):
         :param dict trainer: parameters of the training algorithm we want to use now
         :return: self
 
-        .. note:: if `trainer['optimize'] == 'pretrain'` (unsupervised training)
-        `y` can be any vector just with information about number of targets `numpy.shape(y)`
         """
         allow_multiple_targets = False if len(numpy.shape(y)) == 1 else True
         X, y, sample_weight = self._prepare_for_partial_fit(X, y, sample_weight=sample_weight,

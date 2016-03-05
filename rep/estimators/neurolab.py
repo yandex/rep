@@ -56,8 +56,6 @@ CANT_CLASSIFY = ('hopfield-recurrent', 'competing-layer', 'hemming-recurrent', '
 class NeurolabBase(object):
     """Base class for estimators from Neurolab library.
 
-    Parameters:
-    -----------
     :param features: features used in training
     :type features: list[str] or None
     :param list[int] layers: sequence, number of units inside each **hidden** layer.

@@ -134,10 +134,9 @@ class ClassifiersFactory(AbstractFactory):
         :param  classifier: classifier object
 
             .. note:: if type == sklearn.base.BaseEstimator, then features=None is used,
-            to specify features used by classifier, wrap it with `SklearnClassifier`
+                to specify features used by classifier, wrap it with `SklearnClassifier`
+
         :type classifier: sklearn.base.BaseEstimator or estimators.interface.Classifier
-
-
         """
         if isinstance(classifier, Classifier):
             self[name] = classifier
@@ -238,7 +237,8 @@ class RegressorsFactory(AbstractFactory):
             If name coincides with one already used, the old regressor will be replaced by one passed.
         :param regressor: regressor object
 
-            .. note:: if type == sklearn.base.BaseEstimator, then features=None is used
+            .. note:: if type == sklearn.base.BaseEstimator, then features=None is used,
+                to specify features used by regressor, wrap it with `SklearnRegressor`
         :type regressor: sklearn.base.BaseEstimator or estimators.interface.Regressor
 
         """

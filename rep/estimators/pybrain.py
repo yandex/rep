@@ -1,8 +1,8 @@
 """
 These classes are wrappers for `pybrain <http://pybrain.org/docs/>`_ - neural network python library.
 
-.. warning:: pybrain training isn't reproducible (training again with same parameters
-will produce different neural network)
+.. warning:: pybrain training isn't reproducible
+    (training again with the same parameters produces different neural network)
 
 
 """
@@ -49,8 +49,6 @@ LAYER_CLASS = {'BiasUnit': structure.BiasUnit,
 class PyBrainBase(object):
     """Base class for estimator from PyBrain.
 
-    Parameters:
-    -----------
     :param features: features used in training.
     :type features: list[str] or None
     :param scaler: transformer to apply to the input objects

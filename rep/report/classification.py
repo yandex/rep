@@ -34,19 +34,17 @@ BAR_TYPES = {'error_bar', 'bar'}
 
 
 class ClassificationReport(AbstractReport):
-    """
-    Test estimators on any data. Supports ROC curve, prediction distribution, features information
-    (correlation matrix, distribution, scatter plots for pairs of features),
-    efficiencies for thresholds (evaluate flatness of predictions for important feature),
-    correlation with prediction for necessary feature, any metrics of quality.
-
-    Parameters:
-    -----------
-    :param classifiers: estimators
-    :type classifiers: dict[str, Classifier]
-    :param LabeledDataStorage lds: data
-    """
     def __init__(self, classifiers, lds):
+        """
+        Test estimators on any data. Supports ROC curve, prediction distribution, features information
+        (correlation matrix, distribution, scatter plots for pairs of features),
+        efficiencies for thresholds (evaluate flatness of predictions for important feature),
+        correlation with prediction for necessary feature, any metrics of quality.
+
+        :param classifiers: estimators
+        :type classifiers: dict[str, Classifier]
+        :param LabeledDataStorage lds: data
+        """
 
         for name, classifier in classifiers.items():
             assert isinstance(classifier, Classifier), "Object {} doesn't implement interface".format(name)

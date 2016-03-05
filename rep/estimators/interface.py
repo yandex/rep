@@ -1,19 +1,20 @@
 """
-There are interfaces for **classification** and **regression** wrappers.
+**REP** wrappers are derived from :class:`Classifier` and :class:`Regressor`
+depending on the problem of interest.
+
+Below you can see the standard methods available in wrappers.
+
 """
 from __future__ import division, print_function, absolute_import
 from abc import ABCMeta, abstractmethod
-import logging
 
 import numpy
 import pandas
-
 from sklearn.base import BaseEstimator, ClassifierMixin, RegressorMixin
+
 from .utils import _get_features
 
 __author__ = 'Tatiana Likhomanenko, Alex Rogozhnikov'
-
-logger = logging.getLogger(__name__)
 
 
 class Classifier(BaseEstimator, ClassifierMixin):
@@ -259,4 +260,3 @@ class Regressor(BaseEstimator, RegressorMixin):
         from ..data import LabeledDataStorage
         lds = LabeledDataStorage(data=X, target=y, sample_weight=sample_weight)
         return self.test_on_lds(lds=lds)
-

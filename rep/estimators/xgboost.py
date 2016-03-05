@@ -3,20 +3,17 @@ Wrapper for `XGBoost <https://github.com/dmlc/xgboost>`_ library.
 """
 from __future__ import division, print_function, absolute_import
 
-from logging import getLogger
 import tempfile
 import os
 from abc import ABCMeta
 
 import pandas
 import numpy
-
 from sklearn.utils import check_random_state
+
 from .utils import normalize_weights, remove_first_line
 from .interface import Classifier, Regressor
 from .utils import check_inputs
-
-logger = getLogger(__name__)
 
 __author__ = 'Mikhail Hushchyn, Alex Rogozhnikov'
 __all__ = ['XGBoostBase', 'XGBoostClassifier', 'XGBoostRegressor']
@@ -31,8 +28,6 @@ class XGBoostBase(object):
     """
     Base class for XGBoostClassifier and XGBoostRegressor. XGBoost tree booster is used.
 
-    Parameters:
-    -----------
     :param int n_estimators: the number of trees built.
     :param int nthreads: number of parallel threads used to run xgboost.
     :param num_feature: feature dimension used in boosting, set to maximum dimension of the feature
@@ -147,12 +142,8 @@ class XGBoostBase(object):
         if self.gamma is not None:
             params["gamma"] = self.gamma
 
-        try:
-            xgmat = self._make_dmatrix(X, y, sample_weight)
-            self.xgboost_classifier = xgb.train(params, xgmat, num_boost_round=self.n_estimators)
-        except TypeError as e:
-            logger.error('There is error in the parameters or in input data format.')
-            raise e
+        xgboost_matrix = self._make_dmatrix(X, y, sample_weight)
+        self.xgboost_classifier = xgb.train(params, xgboost_matrix, num_boost_round=self.n_estimators)
 
         return self
 
@@ -284,12 +275,14 @@ class XGBoostClassifier(XGBoostBase, Classifier):
     def staged_predict_proba(self, X, step=None):
         """
         Predicts probabilities on each stage for data X.
+
         :param pandas.DataFrame X: data shape [n_samples, n_features]
         :param int step: step for returned iterations (None by default).
             XGBoost does not implement this functionality and we need to
             predict from the beginning each time.
             With `None` passed step is chosen to have 10 points in learning curve.
         :return: iterator
+
         .. warning: this method may be very slow, it takes iterations^2 / step time.
         """
         self._check_fitted()
@@ -376,6 +369,7 @@ class XGBoostRegressor(XGBoostBase, Regressor):
             predict from the beginning each time.
             With `None` passed step is chosen to have 10 points in learning curve.
         :return: iterator
+
         .. warning: this method may be very slow, it takes iterations^2 / step time
         """
         self._check_fitted()

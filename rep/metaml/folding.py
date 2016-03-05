@@ -49,8 +49,7 @@ class FoldingBase(object):
                  features=None,
                  parallel_profile=None):
         """
-        Parameters:
-        -----------
+
         :param sklearn.BaseEstimator base_estimator: base classifier, which will be used for training
         :param int n_folds: count of folds
         :param features: features used in training

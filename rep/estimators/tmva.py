@@ -239,8 +239,8 @@ class TMVAClassifier(TMVABase, Classifier):
             * *sigmoid* --- sigmoid transformation, use it if output varies in range [-infinity, +infinity]
             * *bdt* (for bdt algorithms output varies in range [-1, 1])
             * *sig_eff=0.4* --- for rectangular cut optimization methods,
-            for instance, here 0.4 will be used as signal efficiency to evaluate MVA,
-            (put any float number from [0, 1])
+               for instance, here 0.4 will be used as signal efficiency to evaluate MVA,
+               (put any float number from [0, 1])
 
         :param dict method_parameters: estimator options, example: NTrees=100, BoostType='Grad'
 

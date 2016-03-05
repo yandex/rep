@@ -215,11 +215,7 @@ class OptimalAccuracy(BaseEstimator, MetricMixin):
         Estimation of binary classification accuracy for
 
         :param sb_ratio: ratio of signal (class 1) and background (class 0).
-            If none, the parameter is taken from test data.
-
-        Example:
-        ~~~~~~~~
-
+            If none, the parameter is estimated from test data.
         """
         self.sb_ratio = sb_ratio
 

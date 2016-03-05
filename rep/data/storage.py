@@ -17,23 +17,21 @@ RANDINT = 10000000
 
 
 class LabeledDataStorage(object):
-    """
-    This class implements interface of data for estimators training. It contains data, labels and weights -
-    all information to train model.
-
-    Parameters:
-    -----------
-    :param pandas.DataFrame ds: data
-    :param target: labels for classification and values for regression (set None for predict methods)
-    :type target: None or numbers.Number or array-like
-    :param sample_weight: weight (set None for predict methods)
-    :type sample_weight: None or numbers.Number or array-like
-    :param random_state: for pseudo random generator
-    :type random_state: None or int or RandomState
-    :param bool shuffle: shuffle or not data
-
-    """
     def __init__(self, data, target=None, sample_weight=None, random_state=None, shuffle=False):
+        """
+        This class implements interface of data for estimators training. It contains data, labels and weights -
+        all information to train model.
+
+        :param pandas.DataFrame data: features, array-like of shape [n_samples, n_features]
+        :param target: labels for classification and values for regression (set None for predict methods)
+        :type target: None or numbers.Number or array-like
+        :param sample_weight: weight (set None for predict methods)
+        :type sample_weight: None or numbers.Number or array-like
+        :param random_state: for pseudo random generator
+        :type random_state: None or int or RandomState
+        :param bool shuffle: shuffle or not data
+
+        """
         self.data = data
         self.target = self._get_key(self.data, target)
         self.sample_weight = self._get_key(self.data, sample_weight, allow_nones=True)
