@@ -41,6 +41,7 @@ It includes:
   * :doc:`parallel` describes REP way to parallelize tasks
   * :doc:`data` defines LabeledDataStorage - a custom way to store training data in a single object
   * :doc:`utils`  contains additional functions
+  * :doc:`reproducibility` is a recipe to make research reliable
   * `Howto notebooks <http://nbviewer.ipython.org/github/yandex/rep/tree/master/howto/>`_ contains examples
 
 Main repository: http://github.com/yandex/rep
@@ -58,4 +59,5 @@ Contents:
     parallel
     data
     utils
+    reproducibility
     Howto notebooks <http://nbviewer.ipython.org/github/yandex/rep/tree/master/howto/>

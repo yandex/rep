@@ -1,8 +1,14 @@
 """
-This file contains definitions for useful metrics in specific **REP** format.
+
+Metric-object API
+-----------------
+
+**REP** introduces several metric functions in specific format.
+Metric functions following this format can be used in grid search and reports.
+
 In general case, metrics follow standard sklearn convention for **estimators**, provides
 
-    * constructor (you should create instance of metric!):
+    * constructor (you should create an instance of metric!), all fine-tuning should be done at this step:
 
     >>> metric = RocAuc(positive_label=2)
 
@@ -11,14 +17,32 @@ In general case, metrics follow standard sklearn convention for **estimators**, 
 
     >>> metric.fit(X, y, sample_weight=None)
 
-    * computation of metrics by probabilities (important: samples passed to probabilities ):
+    * computation of metrics by probabilities (important: metric should be computed on exactly same dataset as was used on previous step):
 
+    >>> # in case of classification
     >>> proba = classifier.predict_proba(X)
     >>> metric(y, proba, sample_weight=None)
-
+    >>> # in case of regression
+    >>> prediction = regressor.predict(X)
+    >>> metric(y, prediction, sample_weight=None)
 
 This way metrics can be used in learning curves, for instance.
-Once fitted, then for every stage computation will be very fast.
+Once fitted (and heavy computations done in fitting), then for every stage computation is fast.
+
+
+Metric-function (convenience) API
+---------------------------------
+
+Many metric functions do not require complex settings and different precomputing,
+ so **REP** also works with functions having following API:
+
+    >>> # for classification
+    >>> metric(y, probabilities, sample_weight=None)
+    >>> # for regression
+    >>> metric(y, predictions, sample_weight=None)
+
+As an example, `mean_squared_error` and `mean_absolute_error` from sklearn can be used in **REP**.
+
 
 .. seealso::
     `API of metrics <https://github.com/yandex/rep/wiki/Contributing-new-metrics>`_ for details and explanations on API.
@@ -75,8 +99,11 @@ Available Metric functions
 .. autoclass:: FPRatTPR
     :show-inheritance:
 
+
 Supplementary functions
 -----------------------
+
+Building blocks that should be useful to create new metrics.
 
 .. autoclass:: MetricMixin
     :show-inheritance:
