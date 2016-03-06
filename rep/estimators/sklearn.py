@@ -41,7 +41,7 @@ class SklearnBase(object):
         Train the {estimator}.
 
         :param pandas.DataFrame X: data shape [n_samples, n_features]
-        :param y: labels of events - array-like of shape [n_samples]
+        :param y: target of training - array-like of shape [n_samples]
         :param sample_weight: weight of events,
                array-like of shape [n_samples] or None if all weights are equal
 
