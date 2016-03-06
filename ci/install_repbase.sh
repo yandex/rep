@@ -3,6 +3,7 @@
 # Usage: $0 [PYTHON_MAJOR_VERSION=2]
 # e.g. for python 3: $0 3
 
+PORT_JUPYTER='8888'
 
 # define a function to print error before exiting
 function halt {
@@ -19,7 +20,6 @@ if [ -n "$TRAVIS_PYTHON_VERSION" ] ; then
     PYTHON_MAJOR_VERSION=${TRAVIS_PYTHON_VERSION:0:1}
 fi
 REP_ENV_NAME="rep_py${PYTHON_MAJOR_VERSION}"
-
 
 # checking that system has apt-get
 if which apt-get > /dev/null; then
@@ -41,9 +41,6 @@ if which apt-get > /dev/null; then
     sudo apt-get autoclean
     sudo apt-get autoremove
 fi
-
-# TODO delete printing
-du -s /
 
 # matplotlib and ROOT both using DISPLAY environment variable
 # changing matplotlib configuration file to avoid conflict
@@ -82,9 +79,6 @@ echo "Removing conda packages and caches"
 conda uninstall --yes -q gcc qt
 conda clean --yes -s -p -l -i -t
 
-# TODO delete printing
-du -s /
-
 
 echo "Creating conda venv $REP_ENV_NAME"
 conda env create -q --name $REP_ENV_NAME python=$PYTHON_MAJOR_VERSION --file $REP_ENV_FILE > /dev/null
@@ -94,14 +88,21 @@ echo "Removing conda packages and caches"
 conda uninstall --yes -q gcc qt
 conda clean --yes -s -p -l -i -t
 
-# TODO delete printing
-du -s /
-
 
 # test installed packages
 source "${ENV_BIN_DIR}/thisroot.sh" || halt "Error installing ROOT"
 python -c 'import ROOT, root_numpy' || halt "Error installing root_numpy"
 python -c 'import xgboost' || halt "Error installing XGBoost"
+
+# IPython setup
+jupyter notebook -y --generate-config
+# Listening to all IPs
+cat >$HOME/.jupyter/jupyter_notebook_config.py <<EOL_CONFIG
+c.NotebookApp.ip = '*'
+c.NotebookApp.open_browser = False
+c.NotebookApp.port = ${PORT_JUPYTER}
+EOL_CONFIG
+
 
 # printing message about environment
 cat << EOL_MESSAGE
