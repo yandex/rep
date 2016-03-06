@@ -64,7 +64,7 @@ Shortly, all you need to get running container with REP is:
    * after image is downloaded, it is automatically started
 3. click on preview link. This opens a browser with Jupyter.
 
-Process is demonstrated below (docker image was already downloaded, so this waiting step is skipped):
+Process is demonstrated below (docker image was already downloaded, so waiting step is skipped):
 
 .. image:: images/kitematic.gif
 
