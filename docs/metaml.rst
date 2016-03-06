@@ -3,8 +3,9 @@
 Meta Machine Learning
 =====================
 
-Meta machine learning is specific algorithms, like complicated hierarchical algorithm, hyperparameters optimization parameters.
-Also there is Factory which allows you to train set of models and compare them very simply.
+Meta machine learning contains specific ML-algorithms, that are taking some classification/regression model as an input.
+
+Also there is a Factory which allows training set of models and comparing them very simply.
 
 Factory
 -------
@@ -69,6 +70,13 @@ Grid Search
 Folding
 -------
 .. automodule:: rep.metaml.folding
+    :members:
+    :show-inheritance:
+    :undoc-members:
+
+Cache
+-----
+.. automodule:: rep.metaml.cache
     :members:
     :show-inheritance:
     :undoc-members:
