@@ -626,21 +626,21 @@ class BarPlot(AbstractPlot):
 
 
 class BarComparePlot(AbstractPlot):
-    def __init__(self, data, alpha=0.5, sort_by=None, step=5):
+    def __init__(self, data, alpha=0.5, sortby=None, step=5):
         """
         Implements bar plots
 
         :param data:
         :type data: dict[str, dict(str, float)]
         :param float alpha: opacity
-        :param sort_by: sort bars by this data key
-        :type sort_by: None or str
+        :param sortby: sort bars by this data key
+        :type sortby: None or str
         :param int step: length
         """
         super(BarComparePlot, self).__init__()
         self.data = data
         self.alpha = alpha
-        self.sortby = sort_by
+        self.sortby = sortby
         self.step = step
 
     def _plot(self):
