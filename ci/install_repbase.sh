@@ -43,6 +43,7 @@ if which apt-get > /dev/null; then
     sudo apt-get autoremove
 fi
 
+
 # matplotlib and ROOT both using DISPLAY environment variable
 # changing matplotlib configuration file to avoid conflict
 mkdir -p $HOME/.config/matplotlib && echo 'backend: agg' > $HOME/.config/matplotlib/matplotlibrc
