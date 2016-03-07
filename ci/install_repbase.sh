@@ -3,6 +3,7 @@
 # Usage: $0 [PYTHON_MAJOR_VERSION=2]
 # e.g. for python 3: $0 3
 
+set +x
 
 # define a function to print error before exiting
 function halt {
@@ -42,8 +43,6 @@ if which apt-get > /dev/null; then
     sudo apt-get autoremove
 fi
 
-# TODO delete printing
-du -s /
 
 # matplotlib and ROOT both using DISPLAY environment variable
 # changing matplotlib configuration file to avoid conflict
@@ -82,8 +81,6 @@ echo "Removing conda packages and caches"
 #conda uninstall --yes -q gcc qt
 conda clean --yes -s -p -l -i -t
 
-# TODO delete printing
-du -s /
 
 
 echo "Creating conda venv $REP_ENV_NAME"
@@ -94,8 +91,6 @@ echo "Removing conda packages and caches"
 #conda uninstall --yes -q gcc qt
 conda clean --yes -s -p -l -i -t
 
-# TODO delete printing
-du -s /
 
 
 # test installed packages
