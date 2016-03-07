@@ -59,6 +59,7 @@ However, if you want to install `REP` and all of its dependencies on your machin
 * [gitter chat, troubleshooting](https://gitter.im/yandex/rep)
 * [API, contributing new estimator](https://github.com/yandex/rep/wiki/Contributing-new-estimator)
 * [API, contributing new metric](https://github.com/yandex/rep/wiki/Contributing-new-metrics)
+* [Tutorial](https://github.com/yandexdataschool/REP_tutorial) based on [Flavour of physics challenge](https://www.kaggle.com/c/flavours-of-physics)
 * If you use REP in research, please consider [citing](http://arxiv.org/abs/1510.00624)
 
 ### License

@@ -3,7 +3,6 @@ channels:
   - nlesc
 dependencies:
   - nomkl
-  - ipython-notebook=4.0.4
   - matplotlib=1.4.3
   - numpy=1.10.4
   - pandas=0.17.1
@@ -14,6 +13,7 @@ dependencies:
   - rootpy
   - root=5*
   - pip:
+    - jupyter==1.0.0
     - bokeh==0.11.1
     - neurolab==0.3.5
     - theano==0.7.0

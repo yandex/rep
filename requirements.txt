@@ -3,7 +3,7 @@ scipy >= 0.16.0
 matplotlib == 1.4.3
 pandas == 0.17.1
 scikit-learn == 0.17
-ipython[all] == 4.0.0
+jupyter == 1.0.0
 pyzmq == 14.7.0
 openpyxl < 2.0.0
 requests[security] >= 2.5.1
