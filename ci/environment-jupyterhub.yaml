@@ -1,13 +1,13 @@
 name: jupyterhub_py3
 
 dependencies:
-  - ipython-notebook=4.0.4
   - python=3.4
   - nomkl
+  - ipython-notebook=4.0.4
   - matplotlib=1.5.1
   - numpy=1.10.4
   - pandas=0.17.1
-#  - scikit-learn=0.17
+  - scikit-learn=0.17
   - scipy=0.17.0
   - six=1.10.0
   - pip:
@@ -19,5 +19,4 @@ dependencies:
     # - mpld3==0.2
     # - xgboost==0.4a30
     # - hep_ml==0.4
-#    - jupyter == 1.0.0
     - jupyterhub

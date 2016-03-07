@@ -3,8 +3,6 @@
 # Usage: $0 [PYTHON_MAJOR_VERSION=2]
 # e.g. for python 3: $0 3
 
-# TODO remove debugging:
-set -v
 
 PORT_JUPYTER='8888'
 
@@ -79,7 +77,7 @@ conda env create -q --name jupyterhub_py3 --file $JUPYTERHUB_ENV_FILE > /dev/nul
 source activate jupyterhub_py3 || halt "Error installing jupyterhub_py3 environment"
 
 echo "Removing conda packages and caches"
-#conda uninstall --yes -q gcc qt
+conda uninstall --force --yes -q gcc qt
 conda clean --yes -s -p -l -i -t
 
 
@@ -88,7 +86,7 @@ conda env create -q --name $REP_ENV_NAME python=$PYTHON_MAJOR_VERSION --file $RE
 source activate $REP_ENV_NAME || halt "Error installing $REP_ENV_NAME environment"
 
 echo "Removing conda packages and caches"
-#conda uninstall --yes -q gcc qt
+conda uninstall --force --yes -q gcc qt
 conda clean --yes -s -p -l -i -t
 
 
@@ -99,8 +97,9 @@ python -c 'import xgboost' || halt "Error installing XGBoost"
 
 # IPython setup
 jupyter notebook -y --generate-config
-# Listening to all IPs
+
 cat >$HOME/.jupyter/jupyter_notebook_config.py <<EOL_CONFIG
+# Listening to all IPs
 c.NotebookApp.ip = '*'
 c.NotebookApp.open_browser = False
 c.NotebookApp.port = ${PORT_JUPYTER}
@@ -114,6 +113,3 @@ cat << EOL_MESSAGE
     source activate \$REP_ENV_NAME
     source \$ENV_BIN_DIR/thisroot.sh
 EOL_MESSAGE
-
-# TODO remove debugging:
-set +v

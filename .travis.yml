@@ -28,12 +28,6 @@ script:
   - if [[ "$TRAVIS_BRANCH" = "master" && "${TRAVIS_PYTHON_VERSION:0:1}" = "2" ]] ; then make push-latest ; fi
   # reseting flag
   - set +e
-cache:
-  apt: true
-#  directories:
-#    - $HOME/.theano
-#    - $HOME/.cache/pip
-#    - $HOME/miniconda/pkgs
 notifications:
   email: true
   webhooks:

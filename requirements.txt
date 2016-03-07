@@ -2,7 +2,7 @@ numpy >= 1.10.0
 scipy >= 0.16.0
 matplotlib == 1.5.1
 pandas == 0.17.1
-scikit-learn == 0.17
+scikit-learn == 0.17.1
 ipython[all] == 4.0.0
 pyzmq == 14.7.0
 openpyxl < 2.0.0
