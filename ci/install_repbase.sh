@@ -114,3 +114,5 @@ cat << EOL_MESSAGE
     source activate \$REP_ENV_NAME
     source \$ENV_BIN_DIR/thisroot.sh
 EOL_MESSAGE
+
+set +x
