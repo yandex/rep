@@ -16,4 +16,4 @@ def test_notebooks_in_folder(folder='../howto/'):
     for file_name in os.listdir(howto_path):
         if file_name.endswith(r".ipynb"):
             print("Testing %s" % file_name)
-            yield check_single_notebook, os.path.join(folder, file_name)
+            yield check_single_notebook, os.path.join(howto_path, file_name)

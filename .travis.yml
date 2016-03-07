@@ -20,6 +20,7 @@ script:
   - ls -alR ./howto/
   # setting flag: don't proceed if one of commands fails.
   - set -e
+  - mkdir -p ./.cache/rep
   # testing all but notebooks
   - nosetests -v --detailed-errors --nocapture ./tests/test_*
   # testing only notebooks
