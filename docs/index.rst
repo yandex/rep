@@ -5,7 +5,7 @@
 Welcome to REP's documentation!
 ===============================
 
-REP (Reproducible Experiment Platform) library provides functionality for all your basic needs to deal with machine learning.
+REP (Reproducible Experiment Platform) library provides functionality for all basic needs to deal with machine learning.
 
 .. raw:: html
 
@@ -46,8 +46,15 @@ It includes:
 
 Main repository: http://github.com/yandex/rep
 
-Contents:
-=========
+Installation
+============
+
+REP provides several installation ways.
+
+Please find instructions at the `repository <https://github.com/yandex/REP>`_ main page.
+
+Documentation index:
+====================
 .. toctree::
     :maxdepth: 2
 
