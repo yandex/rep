@@ -4,7 +4,7 @@
 # e.g. for python 3: $0 3
 
 # TODO remove debugging:
-set +x
+set -x
 
 PORT_JUPYTER='8888'
 
