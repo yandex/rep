@@ -1,5 +1,5 @@
 """
-FeatureSplitter defined in this module.
+:class:`FeatureSplitter`  defined in this module.
 
 This meta-algorithm is handy to train different models for subsets of the data
 without manually splitting the data into parts.

@@ -33,7 +33,9 @@ Example of usage
 >>> clf.predict_proba(testX)
 
 However in the following situation:
+
 >>> clf = FoldingClassifier(CacheClassifier('xgboost', XGBoostClassifier()))
+
 cache is not going to work, because for each fold a copy of classifier is created.
 Each time after looking at cache, a version with same parameters, but different data will be found.
 
@@ -74,7 +76,7 @@ class CacheBase(object):
     def __init__(self, name, clf, features=None):
         """
         Cache {estimator} allows to save trained models in lazy way.
-        Useful when training {estimator} taked much time.
+        Useful when training {estimator} takes much time.
 
         On the next run, stored model in cache will be used instead of fitting again.
 
