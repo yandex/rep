@@ -10,6 +10,8 @@ function halt {
   exit 1
 }
 
+# TODO change to single parameter (together with travis testing)
+
 PYTHON_MAJOR_VERSION=2
 if [ -n "$1" ]; then
     PYTHON_MAJOR_VERSION=$1
