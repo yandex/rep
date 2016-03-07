@@ -58,3 +58,9 @@ docs/tmp*
 
 # OS X garbage
 .DS_Store
+
+# Debian things
+debian/reproducible-experiment-platform
+debian/files
+*.substvars
+*.debhelper.log

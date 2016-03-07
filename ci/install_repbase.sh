@@ -4,8 +4,6 @@
 # e.g. for python 3: $0 3
 
 
-PORT_JUPYTER='8888'
-
 # define a function to print error before exiting
 function halt {
   echo -e $*
@@ -94,17 +92,6 @@ conda clean --yes -s -p -l -i -t
 source "${ENV_BIN_DIR}/thisroot.sh" || halt "Error installing ROOT"
 python -c 'import ROOT, root_numpy' || halt "Error installing root_numpy"
 python -c 'import xgboost' || halt "Error installing XGBoost"
-
-# IPython setup
-jupyter notebook -y --generate-config
-
-cat >$HOME/.jupyter/jupyter_notebook_config.py <<EOL_CONFIG
-# Listening to all IPs
-c.NotebookApp.ip = '*'
-c.NotebookApp.open_browser = False
-c.NotebookApp.port = ${PORT_JUPYTER}
-EOL_CONFIG
-
 
 # printing message about environment
 cat << EOL_MESSAGE
