@@ -16,27 +16,12 @@ COPY ./ $TEMP/build/
 COPY ./ci/*.sh $HOME/
 RUN chmod +x $HOME/*.sh
 
-# Debugging TODO delete
-RUN ls $HOME
-RUN ls /REP_howto
-RUN ls $TEMP/build
-
 RUN /bin/bash --login -c " \
   cd $TEMP/build && \
   pip install . && \
   cd $HOME && \
   rm -rf $TEMP/build"
 
-# TODO MOVE
-# IPython setup
-RUN /bin/bash --login -c " \
-  jupyter notebook -y --generate-config &&\
-  /bin/echo -e \"\
-c.NotebookApp.ip = '*' \n\
-c.NotebookApp.open_browser = False \n\
-c.NotebookApp.port = $PORT_JUPYTER \n \" \
-  | tee -a $HOME/.jupyter/jupyter_notebook_config.py \
-  "
 
 # create folder for notebooks
 RUN mkdir /notebooks

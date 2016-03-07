@@ -30,10 +30,10 @@ script:
   - set +e
 cache:
   apt: true
-  directories:
-    - $HOME/.theano
-    - $HOME/.cache/pip
-    - $HOME/miniconda/pkgs
+#  directories:
+#    - $HOME/.theano
+#    - $HOME/.cache/pip
+#    - $HOME/miniconda/pkgs
 notifications:
   email: true
   webhooks:
