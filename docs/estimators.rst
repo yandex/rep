@@ -176,3 +176,11 @@ Regression
     >>> pred = xgb.predict(test_data)
     >>> numpy.sqrt(mean_squared_error(test_labels, pred))
     65.557743652940133
+
+
+Compatible libraries
+--------------------
+
+REP can deal with any library which supports scikit-learn interface.
+
+Examples of compatible libraries: `nolearn`, `skflow`, `gplearn` and `hep_ml`.
