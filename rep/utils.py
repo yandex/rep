@@ -423,7 +423,7 @@ def get_columns_in_df(df, columns):
 
 def check_arrays(*arrays):
     """
-    Left for consistency, version of sklearn.validation.check_arrays
+    Left for consistency, version of `sklearn.validation.check_arrays`
 
     :param list[iterable] arrays: arrays with same length of first dimension.
     """
