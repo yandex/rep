@@ -155,7 +155,7 @@ class XGBoostBase(object):
 
     def __getstate__(self):
         result = self.__dict__.copy()
-        del result['xgboost_classifier']
+        del result['xgboost_estimator']
         if self.xgboost_estimator is None:
             result['dumped_xgboost'] = None
         else:
