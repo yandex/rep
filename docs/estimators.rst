@@ -12,7 +12,7 @@ This module contains wrappers with :class:`sklearn` interface for different mach
     * neurolab
     * theanets.
 
-**REP** defines interface for classifiers' and regressors' wrappers, so new wrappers can be added for another libraries
+**REP** defines interface for classifiers' and regressors' wrappers, thus new wrappers can be added for another libraries
 following the same interface. Notably the interface has backward compatibility with scikit-learn library.
 
 
@@ -183,4 +183,4 @@ Compatible libraries
 
 REP can deal with any library which supports scikit-learn interface.
 
-Examples of compatible libraries: `nolearn`, `skflow`, `gplearn` and `hep_ml`.
+Examples of compatible libraries: `nolearn <http://pythonhosted.org/nolearn/>`_, `skflow <https://github.com/tensorflow/skflow/>`_, `gplearn <http://gplearn.readthedocs.org/en/latest/>`_ and `hep_ml <https://arogozhnikov.github.io/hep_ml/>`_.

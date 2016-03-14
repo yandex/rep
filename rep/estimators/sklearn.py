@@ -4,11 +4,11 @@
 From user perspective, wrapped sklearn model behaves in the same way as non-wrapped,
 but has one additional parameter *features* to choose necessary columns to use in training.
 
-Typically, models from **REP** are used with pandas.DataFrames,
+Typically, models from **REP** are used with `pandas.DataFrames`,
 which makes it possible to name needed variables or give some variables specific role in the training.
 
 If data has :class:`numpy.array` type then behaviour will be the same as in sklearn.
-For complete list of available algorithms, see `sklearn API <http://scikit-learn.org/stable/modules/classes.html>`_.
+For complete list of the available algorithms, see `sklearn API <http://scikit-learn.org/stable/modules/classes.html>`_.
 """
 from __future__ import division, print_function, absolute_import
 from abc import ABCMeta
@@ -23,7 +23,7 @@ __all__ = ['SklearnClassifier', 'SklearnRegressor']
 
 class SklearnBase(object):
     """
-    SklearnBase is base for wrappers over sklearn-like models.
+    SklearnBase is a base for wrappers over sklearn-like models.
     All attributes will be returned for base estimator.
     """
 
@@ -31,7 +31,6 @@ class SklearnBase(object):
 
     def __init__(self, clf):
         """
-
         :param clf: estimator to be used in training.
         """
         self.clf = clf
@@ -41,8 +40,8 @@ class SklearnBase(object):
         Train the {estimator}.
 
         :param pandas.DataFrame X: data shape [n_samples, n_features]
-        :param y: target of training - array-like of shape [n_samples]
-        :param sample_weight: weight of events,
+        :param y: target of training, array-like of shape [n_samples]
+        :param sample_weight: weight of samples,
                array-like of shape [n_samples] or None if all weights are equal
 
         :return: self
@@ -61,16 +60,16 @@ class SklearnBase(object):
         # In order not to break pickling/unpickling.
         if name in ['__getstate__', '__setstate__']:
             raise AttributeError()
-        # Those methods not defined here will be used directly from classifier
+        # Those methods not defined here will be used directly from the estimator
         base = self.clf
         return base.__getattribute__(name)
 
     def set_params(self, **params):
         """
         Set the parameters of this estimator.
-        Parameters of base estimator can be accessed (for example param `depth`) by both *depth* and *clf__depth*.
+        Parameters of the base estimator can be accessed (for example param `depth`) by both *depth* and *clf__depth*.
 
-        :param dict params: parameters to set in model
+        :param dict params: parameters to set in the model
         """
         params_for_clf = {}
         for name, value in params.items():
@@ -88,7 +87,7 @@ class SklearnBase(object):
 class SklearnClassifier(SklearnBase, Classifier):
     def __init__(self, clf, features=None):
         """
-        SklearnClassifier is wrapper over sklearn-like **classifiers**.
+        SklearnClassifier is a wrapper over sklearn-like **classifiers**.
 
         :param sklearn.BaseEstimator clf: classifier to train. Should be sklearn-compatible.
         :param features: features used in training
@@ -107,37 +106,25 @@ class SklearnClassifier(SklearnBase, Classifier):
     fit.__doc__ = SklearnBase._fit.__doc__.format(estimator='classifier')
 
     def predict(self, X):
-        """
-        Predict labels for new events.
-
-        :param X: pandas.DataFrame of shape [n_samples, n_features]
-        :rtype: numpy.array of shape [n_samples] with labels/values
-        """
         return self.clf.predict(self._get_features(X))
 
-    def predict_proba(self, X):
-        """
-        Predict probabilities for each class label on dataset
+    predict.__doc__ = Classifier.predict.__doc__
 
-        :param X: pandas.DataFrame of shape [n_samples, n_features]
-        :rtype: numpy.array of shape [n_samples, n_classes] with probabilities
-        """
+    def predict_proba(self, X):
         return self.clf.predict_proba(self._get_features(X))
 
-    def staged_predict_proba(self, X):
-        """
-        Predicts probabilities on each stage of training.
+    predict_proba.__doc__ = Classifier.predict_proba.__doc__
 
-        :param X: pandas.DataFrame of shape [n_samples, n_features]
-        :return: iterator
-        """
+    def staged_predict_proba(self, X):
         return self.clf.staged_predict_proba(self._get_features(X))
+
+    staged_predict_proba.__doc__ = Classifier.staged_predict_proba.__doc__
 
 
 class SklearnRegressor(SklearnBase, Regressor):
     def __init__(self, clf, features=None):
         """
-        SklearnRegressor is wrapper over sklearn-like **regressors**
+        SklearnRegressor is a wrapper over sklearn-like **regressors**
 
         :param sklearn.BaseEstimator clf: classifier to train. Should be sklearn-compatible.
         :param features: features used in training
@@ -155,13 +142,9 @@ class SklearnRegressor(SklearnBase, Regressor):
     fit.__doc__ = SklearnBase._fit.__doc__.format(estimator='classifier')
 
     def predict(self, X):
-        """
-        Build predictions for new events.
-
-        :param X: pandas.DataFrame of shape [n_samples, n_features]
-        :rtype: numpy.array of shape [n_samples] with labels/values
-        """
         return self.clf.predict(self._get_features(X))
+
+    predict.__doc__ = Regressor.predict.__doc__
 
     def staged_predict(self, X):
         """
@@ -171,3 +154,5 @@ class SklearnRegressor(SklearnBase, Regressor):
         :return: iterator
         """
         return self.clf.staged_predict(self._get_features(X))
+
+    staged_predict.__doc__ = Regressor.staged_predict.__doc__

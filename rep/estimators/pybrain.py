@@ -1,8 +1,8 @@
 """
-These classes are wrappers for `pybrain <http://pybrain.org/docs/>`_ - neural network python library.
+These classes are wrappers for the `PyBrain library <http://pybrain.org/docs/>`_ --- a neural network python library.
 
 .. warning:: pybrain training isn't reproducible
-    (training again with the same parameters produces different neural network)
+    (training with the same parameters produces different neural network each time)
 
 
 """
@@ -34,7 +34,6 @@ from pybrain import structure
 from .interface import Classifier, Regressor
 from .utils import check_inputs, check_scaler, one_hot_transform, remove_first_line
 
-
 __author__ = 'Artem Zhirokhov, Alex Rogozhnikov, Tatiana Likhomanenko'
 __all__ = ['PyBrainBase', 'PyBrainClassifier', 'PyBrainRegressor']
 
@@ -47,54 +46,55 @@ LAYER_CLASS = {'BiasUnit': structure.BiasUnit,
 
 
 class PyBrainBase(object):
-    """Base class for estimator from PyBrain.
+    """A base class for the estimator from the PyBrain.
 
     :param features: features used in training.
     :type features: list[str] or None
-    :param scaler: transformer to apply to the input objects
-    :type scaler: str or sklearn-like transformer or False (do not scale features)
+    :param scaler: transformer which is applied to the input samples. If it is False, scaling will not be used
+    :type scaler: str or sklearn-like transformer or False
     :param bool use_rprop: flag to indicate whether we should use Rprop or SGD trainer
     :param bool verbose: print train/validation errors.
-    :param random_state: ignored parameter, pybrain training isn't reproducible
+    :param random_state: it is ignored parameter, pybrain training is not reproducible
 
     **Net parameters:**
 
     :param list[int] layers: indicate how many neurons in each hidden(!) layer; default is 1 hidden layer with 10 neurons
-    :param list[str] hiddenclass: classes of the hidden layers; default is 'SigmoidLayer'
+    :param list[str] hiddenclass: classes of the hidden layers; default is `'SigmoidLayer'`
     :param dict params: other net parameters:
-        bias and outputbias (boolean) flags to indicate whether the network should have the corresponding biases,
-        both default to True;
-        peepholes (boolean);
-        recurrent (boolean) if the `recurrent` flag is set, a :class:`RecurrentNetwork` will be created,
-        otherwise a :class:`FeedForwardNetwork`
+
+        * `bias` and `outputbias` (boolean) flags to indicate whether the network should have the corresponding biases,
+          both default to True;
+        * `peepholes` (boolean);
+        * `recurrent` (boolean): if the `recurrent` flag is set, a :class:`RecurrentNetwork` will be created,
+          otherwise a :class:`FeedForwardNetwork`
 
     **Gradient descent trainer parameters:**
 
     :param float learningrate: gives the ratio of which parameters are changed into the direction of the gradient
     :param float lrdecay: the learning rate decreases by lrdecay, which is used to multiply the learning rate after each training step
-    :param float momentum: the ratio by which the gradient of the last timestep is used
+    :param float momentum: the ratio by which the gradient of the last time step is used
     :param boolean batchlearning: if set, the parameters are updated only at the end of each epoch. Default is False
-    :param float weightdecay: corresponds to the weightdecay rate, where 0 is no weight decay at all
+    :param float weightdecay: corresponds to the `weightdecay` rate, where 0 is no weight decay at all
 
     **Rprop trainer parameters:**
 
-    :param float etaminus: factor by which step width is decreased when overstepping (0.5)
-    :param float etaplus: factor by which step width is increased when following gradient (1.2)
+    :param float etaminus: factor by which a step width is decreased when overstepping (default=0.5)
+    :param float etaplus: factor by which a step width is increased when following gradient (default=1.2)
     :param float delta: step width for each weight
-    :param float deltamin: minimum step width (1e-6)
-    :param float deltamax: maximum step width (5.0)
-    :param float delta0: initial step width (0.1)
+    :param float deltamin: minimum step width (default=1e-6)
+    :param float deltamax: maximum step width (default=5.0)
+    :param float delta0: initial step width (default=0.1)
 
     **Training termination parameters**
 
-    :param int epochs: number of iterations of training; if < 0 then classifier trains until convergence
-    :param int max_epochs: if is given, at most that many epochs are trained
-    :param int continue_epochs: each time validation error decreases, try for continue_epochs epochs to find a better one
+    :param int epochs: number of iterations in training; if < 0 then estimator trains until converge
+    :param int max_epochs: maximum number of epochs the trainer should train if it is given
+    :param int continue_epochs: each time validation error decreases, try for `continue_epochs` epochs to find a better one
     :param float validation_proportion: the ratio of the dataset that is used for the validation dataset
 
     .. note::
 
-        Details about parameters: http://pybrain.org/docs/
+        Details about parameters `here <http://pybrain.org/docs/>`_.
     """
     __metaclass__ = ABCMeta
     # to be overriden in descendants.
@@ -162,7 +162,7 @@ class PyBrainBase(object):
         """
         if self.hiddenclass is not None:
             assert len(self.layers) == len(
-                self.hiddenclass), 'Number of hidden layers does not match number of hidden classes'
+                    self.hiddenclass), 'Number of hidden layers does not match number of hidden classes'
             if self.hiddenclass[0] == 'BiasUnit':
                 raise ValueError('BiasUnit should not be the first unit class')
 
@@ -172,13 +172,10 @@ class PyBrainBase(object):
 
     def fit(self, X, y):
         """
-        Train the estimator
+        Train a classification/regression model on the data.
 
-        :param pandas.DataFrame X: data shape [n_samples, n_features]
-        :param y: labels of events - array-like of shape [n_samples]
-        :param sample_weight: weight of events,
-               array-like of shape [n_samples] or None if all weights are equal
-
+        :param pandas.DataFrame X: data of shape [n_samples, n_features]
+        :param y: values for samples --- array-like of shape [n_samples]
         :return: self
         """
         self.net = None
@@ -186,16 +183,15 @@ class PyBrainBase(object):
 
     def partial_fit(self, X, y):
         """
-        Additional training of the estimator
+        Additional training of the classification/regression model.
 
-        :param pandas.DataFrame X: data shape [n_samples, n_features]
-        :param y: labels of events - array-like of shape [n_samples]
-
+        :param pandas.DataFrame X: data of shape [n_samples, n_features]
+        :param y: values for samples, array-like of shape [n_samples]
         :return: self
         """
         dataset = self._prepare_dataset(X, y, self._model_type)
 
-        if not self.is_fitted():
+        if not self._is_fitted():
             self._prepare_net(dataset=dataset, model_type=self._model_type)
 
         if self.use_rprop:
@@ -231,11 +227,10 @@ class PyBrainBase(object):
             trainer.trainEpochs(epochs=self.epochs, )
         return self
 
-    def is_fitted(self):
+    def _is_fitted(self):
         """
-        Check if net is fitted
+        Check if the estimator is fitted or not.
 
-        :return: If estimator was fitted
         :rtype: bool
         """
         return self.net is not None
@@ -244,7 +239,7 @@ class PyBrainBase(object):
         """
         Set the parameters of the estimator.
 
-        Names of parameters are the same as in constructor.
+        Names of the parameters are the same as in the constructor.
         """
         for name, value in params.items():
             if hasattr(self, name):
@@ -263,6 +258,14 @@ class PyBrainBase(object):
                     self.params[name] = value
 
     def _transform_data(self, X, y=None, fit=True):
+        """
+        Transform input samples by the scaler.
+
+        :param pandas.DataFrame X: input data
+        :param y: array-like target
+        :param bool fit: true if scaler is not trained yet
+        :return: array-like transformed data
+        """
         X = self._get_features(X)
         # The following line fights the bug in sklearn < 0.16,
         # most of transformers there modify X if it is pandas.DataFrame.
@@ -273,12 +276,20 @@ class PyBrainBase(object):
         return self.scaler.transform(data_temp)
 
     def _prepare_dataset(self, X, y, model_type):
+        """
+        Prepare data in pybrain format.
+
+        :param pandas.DataFrame X: data of shape [n_samples, n_features]
+        :param y: values for samples --- array-like of shape [n_samples]
+        :param str model_type: classification or regression label
+        :return: self
+        """
         X, y, sample_weight = check_inputs(X, y, sample_weight=None, allow_none_weights=True,
                                            allow_multiple_targets=model_type == 'regression')
-        X = self._transform_data(X, y, fit=not self.is_fitted())
+        X = self._transform_data(X, y, fit=not self._is_fitted())
 
         if model_type == 'classification':
-            if not self.is_fitted():
+            if not self._is_fitted():
                 self._set_classes(y)
             target = one_hot_transform(y, n_classes=len(self.classes_))
         elif model_type == 'regression':
@@ -288,7 +299,7 @@ class PyBrainBase(object):
                 # multi regression
                 target = y
 
-            if not self.is_fitted():
+            if not self._is_fitted():
                 self.n_targets = target.shape[1]
         else:
             raise ValueError('Wrong model type')
@@ -300,6 +311,12 @@ class PyBrainBase(object):
         return dataset
 
     def _prepare_net(self, dataset, model_type):
+        """
+        Prepare net for training.
+
+        :param pybrain.datasets.SupervisedDataSet dataset: dataset in pybrain format
+        :param str model_type: classification or regression label
+        """
         self._check_params()
 
         if self.hiddenclass is None:
@@ -309,7 +326,7 @@ class PyBrainBase(object):
                        'outputbias': True,
                        'peepholes': False,
                        'recurrent': False,
-        }
+                       }
         for key in self.params:
             if key not in net_options.keys():
                 raise ValueError('Unexpected parameter: {}'.format(key))
@@ -331,7 +348,13 @@ class PyBrainBase(object):
         self.net.sortModules()
 
     def _activate_on_dataset(self, X):
-        assert self.is_fitted(), "Net isn't fitted, please call 'fit' first"
+        """
+        Predict data.
+
+        :param pandas.DataFrame X: data to be predicted
+        :return: array-like predictions [n_samples, n_targets]
+        """
+        assert self._is_fitted(), "Net isn't fitted, please call 'fit' first"
 
         X = self._transform_data(X, fit=False)
         y_test_dummy = numpy.zeros((len(X), 1))
@@ -351,43 +374,35 @@ class PyBrainBase(object):
 
 
 class PyBrainClassifier(PyBrainBase, Classifier):
-    __doc__ = "Implements classification from PyBrain library \n" + remove_first_line(PyBrainBase.__doc__)
+    __doc__ = "Implements a classification model from the PyBrain library. \n" + remove_first_line(PyBrainBase.__doc__)
     _model_type = 'classification'
 
     def predict_proba(self, X):
-        """
-        Predict labels for all events in dataset
-
-        :param X: pandas.DataFrame of shape [n_samples, n_features]
-        :rtype: numpy.array of shape [n_samples] with integer labels
-        """
         return self._activate_on_dataset(X=X)
+
+    predict_proba.__doc__ = Classifier.predict_proba.__doc__
 
     def staged_predict_proba(self, X):
         """
-        .. warning:: Isn't supported for PyBrain (**AttributeError** will be thrown).
+        .. warning:: This function is not supported for PyBrain (**AttributeError** will be thrown).
         """
-        raise AttributeError("Staged predict_proba not supported for PyBrain")
+        raise AttributeError("'staged_predict_proba' is not supported by the PyBrain networks")
 
 
 class PyBrainRegressor(PyBrainBase, Regressor):
-    __doc__ = "Implements regression from PyBrain library \n" + remove_first_line(PyBrainBase.__doc__)
+    __doc__ = "Implements a regression model from the PyBrain library. \n" + remove_first_line(PyBrainBase.__doc__)
     _model_type = 'regression'
 
     def predict(self, X):
-        """
-        Predict values for all events in dataset.
-
-        :param X: pandas.DataFrame of shape [n_samples, n_features]
-        :rtype: numpy.array of shape [n_samples] or shape [n_samples, n_targets] with predicted values
-        """
         predictions = self._activate_on_dataset(X)
         if self.n_targets == 1:
             predictions = predictions.flatten()
         return predictions
 
+    predict.__doc__ = Classifier.predict.__doc__
+
     def staged_predict(self, X):
         """
-        .. warning:: Isn't supported for PyBrain (**AttributeError** will be thrown).
+        .. warning:: This function is not supported for PyBrain (**AttributeError** will be thrown).
         """
-        raise AttributeError("Staged predict not supported for PyBrain")
+        raise AttributeError("'staged_predict' is not supported by the PyBrain networks")

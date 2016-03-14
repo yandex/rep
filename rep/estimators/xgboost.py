@@ -1,5 +1,5 @@
 """
-Wrapper for `XGBoost <https://github.com/dmlc/xgboost>`_ library.
+These classes are wrappers for `XGBoost library <https://github.com/dmlc/xgboost>`_.
 """
 from __future__ import division, print_function, absolute_import
 
@@ -26,22 +26,22 @@ except ImportError as e:
 
 class XGBoostBase(object):
     """
-    Base class for XGBoostClassifier and XGBoostRegressor. XGBoost tree booster is used.
+    A base class for the XGBoostClassifier and XGBoostRegressor. XGBoost tree booster is used.
 
-    :param int n_estimators: the number of trees built.
-    :param int nthreads: number of parallel threads used to run xgboost.
+    :param int n_estimators: number of trees built.
+    :param int nthreads: number of parallel threads used to run XGBoost.
     :param num_feature: feature dimension used in boosting, set to maximum dimension of the feature
-        (set automatically by xgboost, no need to be set by user).
+        (set automatically by XGBoost, no need to be set by user).
     :type num_feature: None or int
     :param float gamma: minimum loss reduction required to make a further partition on a leaf node of the tree.
         The larger, the more conservative the algorithm will be.
     :type gamma: None or float
-    :param float eta: step size shrinkage used in update to prevent overfitting.
+    :param float eta: (or learning rate) step size shrinkage used in update to prevent overfitting.
         After each boosting step, we can directly get the weights of new features
-        and eta actually shrinkage the feature weights to make the boosting process more conservative.
+        and eta actually shrinkages the feature weights to make the boosting process more conservative.
     :param int max_depth: maximum depth of a tree.
     :param float scale_pos_weight: ration of weights of the class 1 to the weights of the class 0.
-    :param float min_child_weight: minimum sum of instance weight(hessian) needed in a child.
+    :param float min_child_weight: minimum sum of instance weight (hessian) needed in a child.
         If the tree partition step results in a leaf node with the sum of instance weight less than min_child_weight,
         then the building process will give up further partitioning.
 
@@ -51,9 +51,10 @@ class XGBoostBase(object):
         and this will prevent overfitting.
     :param float colsample: subsample ratio of columns when constructing each tree.
     :param float base_score: the initial prediction score of all instances, global bias.
-    :param int random_state: random number seed.
+    :param random_state: state for a pseudo random generator
+    :type random_state: None or int or RandomState
     :param boot verbose: if 1, will print messages during training
-    :param float missing: the number considered by xgboost as missing value.
+    :param float missing: the number considered by XGBoost as missing value.
     """
 
     __metaclass__ = ABCMeta
@@ -90,26 +91,31 @@ class XGBoostBase(object):
         self.verbose = verbose
         self.random_state = random_state
         self._num_class = None
-        self.xgboost_classifier = None
+        self.xgboost_estimator = None
 
     def _make_dmatrix(self, X, y=None, sample_weight=None):
+        """
+        Create XGBoost data from initial data.
+
+        :return: XGBoost DMatrix
+        """
         feature_names = [str(i) for i in range(X.shape[1])]
         matrix = xgb.DMatrix(data=X, label=y, weight=sample_weight,
                              missing=self.missing, feature_names=feature_names)
         return matrix
 
     def _check_fitted(self):
-        assert self.xgboost_classifier is not None, "Classifier wasn't fitted, please call `fit` first"
+        assert self.xgboost_estimator is not None, "Classifier wasn't fitted, please call `fit` first"
 
     def _fit(self, X, y, estimator_type, sample_weight=None, **kwargs):
         """
-        Train the classifier
+        Train a classification/regression model on the data.
 
-        :param pandas.DataFrame X: data shape [n_samples, n_features]
-        :param y: labels of events - array-like of shape [n_samples]
-        :param sample_weight: weight of events,
+        :param pandas.DataFrame X: data of shape [n_samples, n_features]
+        :param y: labels of samples, array-like of shape [n_samples]
+        :param sample_weight: weight of samples,
                array-like of shape [n_samples] or None if all weights are equal
-        :param str estimator_type: type of estimator (binary, reg or mult)
+        :param str estimator_type: type of the estimator (binary, reg or mult)
         :param dict kwargs: additional parameters
         :return: self
         """
@@ -143,14 +149,14 @@ class XGBoostBase(object):
             params["gamma"] = self.gamma
 
         xgboost_matrix = self._make_dmatrix(X, y, sample_weight)
-        self.xgboost_classifier = xgb.train(params, xgboost_matrix, num_boost_round=self.n_estimators)
+        self.xgboost_estimator = xgb.train(params, xgboost_matrix, num_boost_round=self.n_estimators)
 
         return self
 
     def __getstate__(self):
         result = self.__dict__.copy()
         del result['xgboost_classifier']
-        if self.xgboost_classifier is None:
+        if self.xgboost_estimator is None:
             result['dumped_xgboost'] = None
         else:
             with tempfile.NamedTemporaryFile() as dump:
@@ -162,7 +168,7 @@ class XGBoostBase(object):
     def __setstate__(self, dict):
         self.__dict__ = dict
         if dict['dumped_xgboost'] is None:
-            self.xgboost_classifier = None
+            self.xgboost_estimator = None
         else:
             with tempfile.NamedTemporaryFile() as dump:
                 with open(dump.name, 'wb') as dumpfile:
@@ -170,27 +176,27 @@ class XGBoostBase(object):
                 self._load_model(dump.name)
             # HACK error in xgboost reloading
             if '_num_class' in dict:
-                self.xgboost_classifier.set_param({'num_class': dict['_num_class']})
+                self.xgboost_estimator.set_param({'num_class': dict['_num_class']})
         del dict['dumped_xgboost']
 
     def _save_model(self, path_to_dump):
-        """ Save xgboost model"""
+        """ Save XGBoost model"""
         self._check_fitted()
-        self.xgboost_classifier.save_model(path_to_dump)
+        self.xgboost_estimator.save_model(path_to_dump)
 
     def _load_model(self, path_to_dumped_model):
-        """ Load xgboost model to classifier """
+        """ Load XGBoost model to estimator """
         assert os.path.exists(path_to_dumped_model), 'there is no such file: {}'.format(path_to_dumped_model)
-        self.xgboost_classifier = xgb.Booster({'nthread': self.nthreads}, model_file=path_to_dumped_model)
+        self.xgboost_estimator = xgb.Booster({'nthread': self.nthreads}, model_file=path_to_dumped_model)
 
     def get_feature_importances(self):
         """
-        Get features importance
+        Get features importances.
 
-        :return: pandas.DataFrame with column effect and `index=features`
+        :rtype: pandas.DataFrame with `index=self.features`
         """
         self._check_fitted()
-        feature_score = self.xgboost_classifier.get_fscore()
+        feature_score = self.xgboost_estimator.get_fscore()
         reordered_scores = numpy.zeros(len(self.features))
         for name, score in feature_score.items():
             reordered_scores[int(name)] = score
@@ -205,7 +211,7 @@ class XGBoostBase(object):
 
 
 class XGBoostClassifier(XGBoostBase, Classifier):
-    __doc__ = 'Implements classification (and multiclassification) from XGBoost library. \n'\
+    __doc__ = 'Implements classification model from XGBoost library. \n'\
               + remove_first_line(XGBoostBase.__doc__)
 
     def __init__(self, features=None,
@@ -243,15 +249,6 @@ class XGBoostClassifier(XGBoostBase, Classifier):
         Classifier.__init__(self, features=features)
 
     def fit(self, X, y, sample_weight=None):
-        """
-        Train the classifier.
-
-        :param pandas.DataFrame X: data shape [n_samples, n_features]
-        :param y: labels of events - array-like of shape [n_samples]
-        :param sample_weight: weight of events,
-               array-like of shape [n_samples] or None if all weights are equal
-        :return: self
-        """
         X, y, sample_weight = check_inputs(X, y, sample_weight=sample_weight, allow_none_weights=False)
         sample_weight = normalize_weights(y, sample_weight=sample_weight, per_class=False)
         X = self._get_features(X)
@@ -259,28 +256,26 @@ class XGBoostClassifier(XGBoostBase, Classifier):
         if self.n_classes_ >= 2:
             return self._fit(X, y, 'multi:softprob', sample_weight=sample_weight, num_class=self.n_classes_)
 
-    def predict_proba(self, X):
-        """
-        Predict probabilities for data X.
+    fit.__doc__ = Classifier.fit.__doc__
 
-        :param pandas.DataFrame X: data shape [n_samples, n_features]
-        :rtype: numpy.array of shape [n_samples, n_classes] with probabilities
-        """
+    def predict_proba(self, X):
         self._check_fitted()
         X_dmat = self._make_dmatrix(self._get_features(X))
-        prediction = self.xgboost_classifier.predict(X_dmat, ntree_limit=0)
+        prediction = self.xgboost_estimator.predict(X_dmat, ntree_limit=0)
         if self.n_classes_ >= 2:
             return prediction.reshape(X.shape[0], self.n_classes_)
 
+    predict_proba.__doc__ = Classifier.predict_proba.__doc__
+
     def staged_predict_proba(self, X, step=None):
         """
-        Predicts probabilities on each stage for data X.
+        Predict probabilities for data for each class label on each stage..
 
-        :param pandas.DataFrame X: data shape [n_samples, n_features]
+        :param pandas.DataFrame X: data of shape [n_samples, n_features]
         :param int step: step for returned iterations (None by default).
             XGBoost does not implement this functionality and we need to
             predict from the beginning each time.
-            With `None` passed step is chosen to have 10 points in learning curve.
+            With `None` passed step is chosen to have 10 points in the learning curve.
         :return: iterator
 
         .. warning: this method may be very slow, it takes iterations^2 / step time.
@@ -292,12 +287,12 @@ class XGBoostClassifier(XGBoostBase, Classifier):
 
         # TODO use applying tree-by-tree
         for i in range(1, self.n_estimators // step + 1):
-            prediction = self.xgboost_classifier.predict(X_dmat, ntree_limit=i * step)
+            prediction = self.xgboost_estimator.predict(X_dmat, ntree_limit=i * step)
             yield prediction.reshape(X.shape[0], self.n_classes_)
 
 
 class XGBoostRegressor(XGBoostBase, Regressor):
-    __doc__ = 'Implements regression from XGBoost library. \n' + remove_first_line(XGBoostBase.__doc__)
+    __doc__ = 'Implements regression model from XGBoost library. \n' + remove_first_line(XGBoostBase.__doc__)
 
     def __init__(self, features=None,
                  n_estimators=100,
@@ -333,44 +328,33 @@ class XGBoostRegressor(XGBoostBase, Regressor):
         self.objective_type = objective_type
 
     def fit(self, X, y, sample_weight=None):
-        """
-        Train the regressor.
-
-        :param pandas.DataFrame X: data shape [n_samples, n_features]
-        :param y: regression targets of events - array-like of shape [n_samples]
-        :param sample_weight: weight of events,
-               array-like of shape [n_samples] or None if all weights are equal
-        :return: self
-        """
         X, y, sample_weight = check_inputs(X, y, sample_weight=sample_weight, allow_none_weights=False)
         sample_weight = normalize_weights(y, sample_weight=sample_weight, per_class=False)
         X = self._get_features(X)
         assert self.objective_type in {'linear', 'logistic'}, 'Objective parameter is not valid'
         return self._fit(X, y, "reg:{}".format(self.objective_type), sample_weight=sample_weight)
 
-    def predict(self, X):
-        """
-        Predicts regression target for X.
+    fit.__doc__ = Regressor.fit.__doc__
 
-        :param pandas.DataFrame X: data shape [n_samples, n_features]
-        :rtype: numpy.array of shape [n_samples, n_classes] with probabilities
-        """
+    def predict(self, X):
         self._check_fitted()
         X_dmat = self._make_dmatrix(self._get_features(X))
-        return self.xgboost_classifier.predict(X_dmat, ntree_limit=0)
+        return self.xgboost_estimator.predict(X_dmat, ntree_limit=0)
+
+    predict.__doc__ = Regressor.predict.__doc__
 
     def staged_predict(self, X, step=None):
         """
-        Predicts regression target at each stage for X.
+        Predicts values for data on each stage.
 
-        :param pandas.DataFrame X: data shape [n_samples, n_features]
+        :param X: pandas.DataFrame of shape [n_samples, n_features]
         :param int step: step for returned iterations (None by default).
             XGBoost does not implement this functionality and we need to
             predict from the beginning each time.
-            With `None` passed step is chosen to have 10 points in learning curve.
+            With `None` passed step is chosen to have 10 points in the learning curve.
         :return: iterator
 
-        .. warning: this method may be very slow, it takes iterations^2 / step time
+        .. warning: this method may be very slow, it takes iterations^2 / step time.
         """
         self._check_fitted()
         X_dmat = self._make_dmatrix(self._get_features(X))
@@ -379,4 +363,4 @@ class XGBoostRegressor(XGBoostBase, Regressor):
 
         # TODO use applying tree-by-tree
         for i in range(1, self.n_estimators // step + 1):
-            yield self.xgboost_classifier.predict(X_dmat, ntree_limit=i * step)
+            yield self.xgboost_estimator.predict(X_dmat, ntree_limit=i * step)

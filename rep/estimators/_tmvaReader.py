@@ -19,10 +19,10 @@ __author__ = 'Tatiana Likhomanenko'
 
 def tmva_process(info, data):
     """
-    Create TMVA classification factory, train, test and evaluate all methods
+    Create a TMVA reader and predict data.
 
     :param rep.estimators.tmva._AdditionalInformationPredict info: additional information
-    :param pandas.DataFrame data: test data
+    :param pandas.DataFrame data: data to predict
 
     """
     import ROOT
@@ -55,7 +55,7 @@ def main():
     else:
         stdin = sys.stdin.buffer
 
-    # Reading the configuration from stdin
+    # Reading the configuration from the stdin
     info = pickle.load(stdin)
     data = pickle.load(stdin)
     assert isinstance(info, tmva._AdditionalInformationPredict)
