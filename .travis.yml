@@ -5,8 +5,8 @@ matrix:
           python: 2.7
           sudo: required
 
-       # - os: osx
-       #   language: generic
+        - os: osx
+          language: generic
 before_install:
   - if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
       brew update;
