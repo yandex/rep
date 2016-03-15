@@ -3,10 +3,10 @@
 Parallel computing
 ==================
 
-Many problems in machine learning require training several or many classifiers.
-At the same time in applications training single model can take from minuted to hours.
+Many problems in machine learning require training several or many estimators.
+At the same time in applications single model training can take from minutes to hours.
 
-In order to get things done faster, we can use parallel computing.
+In order to get things done faster we can use parallel computing.
 
 Such meta-algorithms as:
 
@@ -20,7 +20,7 @@ support `parallel_profile` option. The following options exist:
  * :code:`parallel_profile='threads-3'` to run in 3 threads on a single machine (you can use any, not necessarily 3)
  * :code:`parallel_profile='my_ipython_cluster_name'` to use IPython cluster.
 
-More details about IPython cluster (`ipyparallel`) is available at http://ipyparallel.readthedocs.org/en/latest/ .
+More details about IPython cluster (`ipyparallel`) is available `here <http://ipyparallel.readthedocs.org/en/latest/>`_.
 
 Important remark: since algorithms inside **REP** interplays with each other, you can combine parallel computations.
 You can run `GridOptimalSearchCV` (using IPython cluster) to optimize `FoldingClassifier` (using threads)

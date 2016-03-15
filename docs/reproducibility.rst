@@ -10,19 +10,19 @@ One of the hardest problems in research connected with data is to make the resea
 
 * Scientific libraries (specially libraries of machine learning) usually either deprecated,
   or evolve and have to break backward compatibility.
-  Nobody wants to use old libraries but nobody wants to face problems of evolving libraries
+  Nobody wants to use old libraries but nobody wants to face problems of evolving libraries.
 
-* Apart from main libraries you use directly, there are numerous dependencies and dependencies of dependencies.
+* Apart from the main libraries you use directly, there are numerous dependencies and dependencies of dependencies.
   Just to give an idea: minimalistic python for data (numpy + scipy + matplotlib) distribution already takes ~1GB.
 
-  Same situation with ROOT / MATLAB / R / any other scientific environment.
+  The same situation with ROOT / MATLAB / R / any other scientific environment.
 
 * It's not a good idea to hope on setting versions of `pip` dependencies.
 
   There are numerous dependencies (compilers/linkers/headers/utilities/BLAS/lapack/FFTW/whatever) that
   have effect and that are constantly evolving.
 
-  Creating solid system
+  Creating solid system.
 
 Solution we are using: docker containerization.
 

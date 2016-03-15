@@ -29,20 +29,20 @@ It includes:
 
     These can be used as base estimators in sklearn.
 
-  * :doc:`metaml` contains factory (the set of estimators), grid search, folding algorithm. Also parallel execution on a cluster is supported
+  * :doc:`metaml` contains factory (the set of estimators), grid search, folding algorithm. Also parallel execution on a cluster is supported.
   * :doc:`metrics` implement some basis for metrics used in reports and during grid search.
-  * :doc:`report` contains helpful classes to get model result information on any dataset
-  * :doc:`plotting` is  wrapper for different plotting libraries including interactive plots
+  * :doc:`report` contains helpful classes to get model result information on any dataset.
+  * :doc:`plotting` is a wrapper for different plotting libraries including interactive plots.
 
     * matplotlib
     * bokeh
     * tmva
-    * plotly
-  * :doc:`parallel` describes REP way to parallelize tasks
-  * :doc:`data` defines LabeledDataStorage - a custom way to store training data in a single object
-  * :doc:`utils`  contains additional functions
-  * :doc:`reproducibility` is a recipe to make research reliable
-  * `Howto notebooks <http://nbviewer.ipython.org/github/yandex/rep/tree/master/howto/>`_ contains examples
+
+  * :doc:`parallel` describes REP way to parallelize tasks.
+  * :doc:`data` defines LabeledDataStorage - a custom way to store training data in a single object.
+  * :doc:`utils`  contains additional functions.
+  * :doc:`reproducibility` is a recipe to make research reliable.
+  * `Howto notebooks <http://nbviewer.ipython.org/github/yandex/rep/tree/master/howto/>`_ contains examples.
 
 Main repository: http://github.com/yandex/rep
 

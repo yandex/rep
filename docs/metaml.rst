@@ -5,7 +5,7 @@ Meta Machine Learning
 
 Meta machine learning contains specific ML-algorithms, that are taking some classification/regression model as an input.
 
-Also there is a Factory which allows training set of models and comparing them very simply.
+Also there is a Factory which allows set of models training and comparing them very simply.
 
 Factory
 -------
