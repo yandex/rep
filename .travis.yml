@@ -1,17 +1,44 @@
-# Travis (https://travis-ci.org) configuration file
-
 language: python
-sudo: required
-services:
-  - docker
-python:
-  - "2.7"
-  - "3.4"
+matrix:
+    include:
+        - os: linux
+          python: 2.7
+          sudo: required
+
+       # - os: osx
+       #   language: generic
 before_install:
-  - source ci/install_repbase.sh
+  - if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
+      brew update;
+      brew install python;
+
+      brew install homebrew/science/root;
+
+      which root;
+      which root;
+      cat 'TRY IMPORT ROOT';
+      python -c "import ROOT";
+
+      virtualenv venv -p python2.7;
+      source venv/bin/activate
+
+      source $(brew --prefix root)/libexec/thisroot.sh;
+      which root;
+      which root;
+      cat 'TRY IMPORT ROOT again';
+      python -c "import ROOT";
+
+      # to install libraries by its order, otherwise scikit-learn will be installed at first and failled.
+      pip install pip -U;
+      pip install -r requirements.txt;
+      pip install rootpy
+      pip install root_numpy;
+    else
+      source ci/install_repbase.sh;
+      conda list;
+    fi
   # printing DEBUG information
   - which python
-  - conda list
   - echo $LD_LIBRARY_PATH
 install:
   - pip install .
@@ -23,10 +50,6 @@ script:
   - mkdir -p ./.cache/rep
   # testing all but notebooks
   - nosetests -v --detailed-errors --nocapture ./tests/test_*
-  # testing only notebooks
-  - nosetests -v --detailed-errors --nocapture --stop ./tests/z_test_*
-  # if on master and tests passed successfully, trigger rebuilding of docker image.
-  - if [[ "$TRAVIS_BRANCH" = "master" && "${TRAVIS_PYTHON_VERSION:0:1}" = "2" ]] ; then make push-latest ; fi
   # reseting flag
   - set +e
 notifications:
