@@ -43,7 +43,7 @@ def score_to_proba(score):
     return proba
 
 
-def proba_to_two_dimension(probability):
+def proba_to_two_dimensions(probability):
     proba = numpy.zeros([len(probability), 2])
     proba[:, 1] = probability
     proba[:, 0] = 1 - proba[:, 1]
@@ -58,7 +58,7 @@ def proba_to_score(proba):
 
 
 def normalize_weights(y, sample_weight, per_class=True):
-    """Returns normalized weights. Mean = 1.
+    """Returns normalized weights with average = 1.
 
     :param y: answers
     :param sample_weight: original weights (can not be None)
@@ -164,7 +164,8 @@ def one_hot_transform(y, n_classes=None, dtype='float32'):
 def remove_first_line(string):
     """
     Returns the copy of string without first line (needed for descriptions which differ in one line)
-    :param string:
-    :return: copy of string.
+
+    :param string: initial string
+    :return: copy of string without first line
     """
     return '\n'.join(string.split('\n')[1:])

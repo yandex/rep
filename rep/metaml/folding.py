@@ -1,19 +1,21 @@
 """
-This is specific meta-algorithm based on the idea of cross-validation.
+:class:`FoldingClassifier` and :class:`FoldingRegressor` provide an easy way
+to run k-Folding cross-validation. Also it is a nice way to combine predictions of trained classifiers.
+
 """
 from __future__ import division, print_function, absolute_import
 
 import numpy
-from sklearn import clone
-
+import pandas
 from six.moves import zip
-from . import utils
+
+from sklearn import clone
 from sklearn.cross_validation import KFold
-from sklearn.utils.validation import check_random_state
+from sklearn.utils import check_random_state
+from . import utils
 from .factory import train_estimator
 from ..estimators.interface import Classifier, Regressor
 from ..estimators.utils import check_inputs
-import pandas
 
 __author__ = 'Tatiana Likhomanenko, Alex Rogozhnikov'
 __all__ = ['FoldingClassifier', 'FoldingRegressor']
@@ -24,7 +26,20 @@ from .utils import get_classifier_probabilities, get_classifier_staged_proba, ge
 
 class FoldingBase(object):
     """
-    Base class for FoldingClassifier and FoldingRegressor
+    This meta-{estimator} implements folding algorithm:
+
+    * split training data into n equal parts;
+    * train n {estimator}s, each one is trained using n-1 folds
+
+    To get unbiased predictions for data, pass the **same** dataset (with same order of events)
+    as in training to prediction methods,
+    in which case each event is predicted with base {estimator} which didn't use that event during training.
+
+    To use information from not one, but several estimators during predictions,
+    provide appropriate voting function. Examples of voting function:
+
+    >>> voting = lambda x: numpy.mean(x, axis=0)
+    >>> voting = lambda x: numpy.median(x, axis=0)
     """
 
     def __init__(self,
@@ -33,6 +48,17 @@ class FoldingBase(object):
                  random_state=None,
                  features=None,
                  parallel_profile=None):
+        """
+
+        :param sklearn.BaseEstimator base_estimator: base classifier, which will be used for training
+        :param int n_folds: count of folds
+        :param features: features used in training
+        :type features: None or list[str]
+        :param parallel_profile: profile for IPython cluster, None to compute locally.
+        :type parallel_profile: None or str
+        :param random_state: random state for reproducibility
+        :type random_state: None or int or RandomState
+        """
         self.estimators = []
         self.parallel_profile = parallel_profile
         self.n_folds = n_folds
@@ -60,7 +86,7 @@ class FoldingBase(object):
 
     def fit(self, X, y, sample_weight=None):
         """
-        Train the classifier, will train several base classifiers on overlapping
+        Train the model, will train several base {estimator}s on overlapping
         subsets of training dataset.
 
         :param X: pandas.DataFrame of shape [n_samples, n_features]
@@ -170,33 +196,13 @@ class FoldingBase(object):
 
 
 class FoldingRegressor(FoldingBase, Regressor):
-    """
-    This meta-regressor implements folding algorithm:
+    # inherit documentation
+    __doc__ = FoldingBase.__doc__.format(estimator='regressor')
 
-    * training data is splitted into n equal parts;
+    def fit(self, X, y, sample_weight=None):
+        return FoldingBase.fit(self, X, y, sample_weight=sample_weight)
 
-    * we train n regressors, each one is trained using n-1 folds
-
-    To build unbiased predictions for data, pass the **same** dataset (with same order of events)
-    as in training to `predict` or `staged_predict`, in which case
-    classifier will use to predict each event that base classifier which didn't use that event during training.
-
-    To use information from not one, but several estimators during predictions,
-    provide appropriate voting function. Examples of voting function:
-    >>> voting = lambda x: numpy.mean(x, axis=0)
-    >>> voting = lambda x: numpy.median(x, axis=0)
-
-    Parameters:
-    -----------
-    :param sklearn.BaseEstimator base_estimator: base classifier, which will be used for training
-    :param int n_folds: count of folds
-    :param features: features used in training
-    :type features: None or list[str]
-    :param parallel_profile: profile for IPython cluster, None to compute locally.
-    :type parallel_profile: None or str
-    :param random_state: random state for reproducibility
-    :type random_state: None or int or RandomState
-    """
+    fit.__doc__ = FoldingBase.fit.__doc__.format(estimator='regressor')
 
     def _prepare_data(self, X, y, sample_weight):
         X = self._get_features(X)
@@ -249,34 +255,13 @@ class FoldingRegressor(FoldingBase, Regressor):
 
 
 class FoldingClassifier(FoldingBase, Classifier):
-    """
-    This meta-classifier implements folding algorithm:
+    # inherit documentation
+    __doc__ = FoldingBase.__doc__.format(estimator='classifier')
 
-    * training data is splitted into n equal parts;
+    def fit(self, X, y, sample_weight=None):
+        return FoldingBase.fit(self, X, y, sample_weight=sample_weight)
 
-    * we train n classifiers, each one is trained using n-1 folds
-
-
-    To build unbiased predictions for data, pass the **same** dataset (with same order of events)
-    as in training to `predict`, `predict_proba` or `staged_predict_proba`, in which case
-    classifier will use to predict each event that base classifier which didn't use that event during training.
-
-    To use information from not one, but several estimators during predictions,
-    provide appropriate voting function. Examples of voting function:
-    >>> voting = lambda x: numpy.mean(x, axis=0)
-    >>> voting = lambda x: numpy.median(x, axis=0)
-
-    Parameters:
-    -----------
-    :param sklearn.BaseEstimator base_estimator: base classifier, which will be used for training
-    :param int n_folds: count of folds
-    :param features: features used in training
-    :type features: None or list[str]
-    :param parallel_profile: profile for IPython cluster, None to compute locally.
-    :type parallel_profile: None or str
-    :param random_state: random state for reproducibility
-    :type random_state: None or int or RandomState
-    """
+    fit.__doc__ = FoldingBase.fit.__doc__.format(estimator='classifier')
 
     def _prepare_data(self, X, y, sample_weight):
         X = self._get_features(X)
@@ -340,4 +325,3 @@ class FoldingClassifier(FoldingBase, Classifier):
         """Sklearn-way of returning feature importance.
         This returned as numpy.array, assuming that initially passed train_features=None """
         return self.get_feature_importances().ix[self.features, 'effect'].values
-

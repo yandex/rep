@@ -19,9 +19,3 @@ Regression Report
     :members:
     :inherited-members:
     :undoc-members:
-
-Metrics
--------
-
-.. automodule:: rep.report.metrics
-

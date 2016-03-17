@@ -4,7 +4,6 @@
 #    ENV -- filename with environment variables passed to docker container
 #    NOTEBOOKS -- folder with notebooks that will be mounted into docker container
 #    PORT -- port to listen for incoming connection
-#    ETC -- local folder that will be moundted to /etc_external into docker container
 #
 #
 
@@ -30,8 +29,7 @@ endif
 
 CONTAINER_NAME := $(shell basename $(CURDIR) | tr - _ )
 NOTEBOOKS ?= $(shell pwd)/notebooks
-ETC ?= $(shell pwd)/etc
-VOLUMES := -v $(ETC):/etc_external -v $(NOTEBOOKS):/notebooks
+VOLUMES := -v $(NOTEBOOKS):/notebooks
 PORT ?= 8888
 DOCKER_ARGS := $(VOLUMES) -p $(PORT):8888
 ifneq ("", "$(ENV)")
@@ -66,7 +64,6 @@ rep-image:	## build REP image
 
 local-dirs:
 	[ -d $(NOTEBOOKS) ] || mkdir -p $(NOTEBOOKS)
-	[ -d $(ETC) ] || mkdir -p $(ETC)
 
 run: local-dirs		## run REP interactively
 	docker run -ti --rm $(DOCKER_ARGS) --name $(CONTAINER_NAME) $(REP_IMAGE) $(CMD_ARGS) 

@@ -2,7 +2,7 @@ from __future__ import division, print_function, absolute_import
 
 import numpy
 from sklearn.ensemble import AdaBoostClassifier, GradientBoostingRegressor
-from sklearn.svm import SVC
+from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, roc_auc_score
 
 from rep.estimators import SklearnClassifier, SklearnRegressor
@@ -92,8 +92,8 @@ def test_folding_classifier():
     folding_str = FoldingClassifier(base_ada, n_folds=2)
     check_folding(folding_str, True, True, True)
 
-    base_svm = SklearnClassifier(SVC())
-    folding_str = FoldingClassifier(base_svm, n_folds=4)
+    base_log_reg = SklearnClassifier(LogisticRegression())
+    folding_str = FoldingClassifier(base_log_reg, n_folds=4)
     check_folding(folding_str, True, False, False)
 
 
