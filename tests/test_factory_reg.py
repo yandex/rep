@@ -17,7 +17,7 @@ def test_factory():
     factory = RegressorsFactory()
     try:
         from rep.estimators.tmva import TMVARegressor
-        factory.add_regressor('tmva', TMVARegressor())
+        factory.add_regressor('tmva', TMVARegressor(factory_options="Silent=True:V=False:DrawProgressBar=False"))
     except ImportError:
         pass
     factory.add_regressor('rf', RandomForestRegressor(n_estimators=10))
