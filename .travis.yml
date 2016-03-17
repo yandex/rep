@@ -46,9 +46,17 @@ script:
   - set -e
   - mkdir -p ./.cache/rep
   # testing all but notebooks
-  - nosetests -v --detailed-errors --nocapture ./tests/test_*
+  - if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
+      nosetests -v --detailed-errors --nocapture ./tests/test_*;
+    else
+      THEANO_FLAGS='gcc.cxxflags="-march=core2"' nosetests -v --detailed-errors --nocapture ./tests/test_*;
+    fi
   # testing only notebooks
-  - nosetests -v --detailed-errors --nocapture --stop ./tests/z_test_*
+  - if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
+      nosetests -v --detailed-errors --nocapture --stop ./tests/z_test_*;
+    else
+      THEANO_FLAGS='gcc.cxxflags="-march=core2"' nosetests -v --detailed-errors --nocapture --stop ./tests/z_test_*;
+    fi
   # if on master and tests passed successfully, trigger rebuilding of docker image.
   - if [[ "$TRAVIS_BRANCH" = "master" && "${TRAVIS_PYTHON_VERSION:0:1}" = "2" ]] ; then make push-latest ; fi
   # reseting flag
