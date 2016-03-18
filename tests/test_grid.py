@@ -55,7 +55,8 @@ def test_gridsearch_on_tmva():
     try:
         from rep.estimators import TMVAClassifier
 
-        base_tmva = TMVAClassifier(features=['column0', 'column1'], method='kBDT')
+        base_tmva = TMVAClassifier(factory_options="Silent=True:V=False:DrawProgressBar=False",
+                                   features=['column0', 'column1'], method='kBDT')
         grid = GridOptimalSearchCV(base_tmva, generator, scorer)
         classifier = check_grid(grid, False, False, False)
         # checking parameters

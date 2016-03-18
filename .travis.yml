@@ -1,17 +1,41 @@
 # Travis (https://travis-ci.org) configuration file
 
-language: python
 sudo: required
 services:
   - docker
-python:
-  - "2.7"
-  - "3.4"
+matrix:
+    include:
+        - os: linux
+          python: 2.7
+          sudo: required
+
+        - os: linux
+          python: 3.4
+          sudo: required
+
+        - os: osx
+          env: TRAVIS_PYTHON_VERSION=2.7
+          language: generic
+
 before_install:
-  - source ci/install_repbase.sh
+  - if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
+      brew update > /dev/null;
+      brew install python;
+      brew install homebrew/science/root;
+      virtualenv venv -p python$TRAVIS_PYTHON_VERSION;
+      source venv/bin/activate;
+      source $(brew --prefix root)/libexec/thisroot.sh;
+      pip install pip -U;
+      pip install -r requirements.txt;
+      pip install rootpy root_numpy;
+      mkdir -p $HOME/.matplotlib;
+      echo 'backend:TkAgg' > $HOME/.matplotlib/matplotlibrc;
+    else
+      source ci/install_repbase.sh;
+      conda list;
+    fi
   # printing DEBUG information
   - which python
-  - conda list
   - echo $LD_LIBRARY_PATH
 install:
   - pip install .
@@ -22,9 +46,17 @@ script:
   - set -e
   - mkdir -p ./.cache/rep
   # testing all but notebooks
-  - nosetests -v --detailed-errors --nocapture ./tests/test_*
+  - if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
+      nosetests -v --detailed-errors --nocapture ./tests/test_*;
+    else
+      THEANO_FLAGS='gcc.cxxflags="-march=core2"' nosetests -v --detailed-errors --nocapture ./tests/test_*;
+    fi
   # testing only notebooks
-  - nosetests -v --detailed-errors --nocapture --stop ./tests/z_test_*
+  - if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
+      nosetests -v --detailed-errors --nocapture --stop ./tests/z_test_*;
+    else
+      THEANO_FLAGS='gcc.cxxflags="-march=core2"' nosetests -v --detailed-errors --nocapture --stop ./tests/z_test_*;
+    fi
   # if on master and tests passed successfully, trigger rebuilding of docker image.
   - if [[ "$TRAVIS_BRANCH" = "master" && "${TRAVIS_PYTHON_VERSION:0:1}" = "2" ]] ; then make push-latest ; fi
   # reseting flag

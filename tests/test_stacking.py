@@ -45,7 +45,7 @@ def test_simple_stacking_sklearn():
 
 
 def test_simple_stacking_tmva():
-    base_tmva = TMVAClassifier()
+    base_tmva = TMVAClassifier(factory_options="Silent=True:V=False:DrawProgressBar=False")
     check_classifier(SklearnClassifier(clf=BaggingClassifier(base_estimator=base_tmva, n_estimators=3, random_state=13)),
                      has_staged_pp=False, has_importances=False)
 
@@ -59,7 +59,8 @@ def test_complex_stacking_sk():
 
 def test_complex_stacking_tmva():
     # Ada over kFold over TMVA
-    base_kfold = FoldingClassifier(base_estimator=TMVAClassifier(method='kBDT', NTrees=10), random_state=13)
+    base_kfold = FoldingClassifier(base_estimator=TMVAClassifier(factory_options="Silent=True:V=False:DrawProgressBar=False",
+                                                                 method='kBDT', NTrees=10), random_state=13)
     check_classifier(SklearnClassifier(clf=AdaBoostClassifier(base_estimator=base_kfold, n_estimators=3)),
                      has_staged_pp=False, has_importances=False)
 
