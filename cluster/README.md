@@ -11,12 +11,11 @@ prerequisites:
 
 ## Start
 
-`make start-master`
-`make start-slaves` will start slaves
-to test
-`make test-cluster`
+`make start-master` -- start master
 
-jupyter with REP will be acccessible by port 8888 of node hosting master instance.
+`make start-slaves` -- start slaves (by number of lines in `cluster.txt`)
+
+jupyter with REP will be acccessible by port 8888 of master instance.
 
 
 ## Stop
@@ -28,7 +27,7 @@ jupyter with REP will be acccessible by port 8888 of node hosting master instanc
 
 to check cluster status `make test-cluster`
 
-to add 5 more slaves: ```make -e N=5 start-slaves```
+to add, say, 5 more slaves: ```make -e N=5 start-slaves```
 
 
 
