@@ -1,6 +1,5 @@
-# import ipyparallel as ipp
-
-# c = ipp.Client(profile="default")
+import ipyparallel as ipp
+c = ipp.Client(profile="default")
 
 import numpy, pandas
 import os

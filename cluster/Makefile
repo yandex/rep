@@ -6,13 +6,13 @@
 #  HEADIP -- IP of head of the cluster
 #
 
-N ?= 1  ## number of nodes in 
 HEADIP ?= 10.16.23.10
 DOCKER_NODE=docker -H tcp://0.0.0.0:2375
 # NODE_OPTS=-H tcp://0.0.0.0:2375
 PSSH=parallel-ssh
 CLUSTER=cluster.txt
 CLUSTER_SWARM=_cluster_swarm.txt
+N ?= $(shell cat ${CLUSTER} | wc -l) ## number of nodes in the cluster
 SWARM_OPT=-H tcp://localhost:31338
 DOCKER_PACKAGE=docker-engine=1.10.3-0~wheezy
 SWARM_IMAGE=swarm:1.1.3
@@ -21,6 +21,7 @@ IMAGE_BUILD=yandex/rep-ipp:0.6.5
 HERE:=$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 SHELL=/bin/bash
 MASTER=ipp_master
+SHARED_HOME=/home/ipp
 LOCAL_IMAGE_BUILD=${HEADIP}:5000/${IMAGE_BUILD}
 
 help:
@@ -108,16 +109,17 @@ swarm-info: ## check swarm
 #### CLUSTER
 
 start-master-interactive:
-	docker run -p 32000-32100:32000-32100 --name ${MASTER} -ti --rm -v ${HERE}/security:/root/.ipython/profile_default/security ${LOCAL_IMAGE_BUILD} bash
+	docker run -p 32000-32100:32000-32100 --name ${MASTER} -ti --rm -v ${SHARED_HOME}/security:/root/.ipython/profile_default/security ${LOCAL_IMAGE_BUILD} bash
 
 start-master:
-	docker run -p 32000-32100:32000-32100  -p 8888:8888 -e IPPHUB_IP=${HEADIP} --name ${MASTER} -d -v ${HERE}/security:/root/.ipython/profile_default/security ${LOCAL_IMAGE_BUILD}
+	docker run -p 32000-32100:32000-32100  -p 8888:8888 -e IPPHUB_IP=${HEADIP} --name ${MASTER} -d -v ${SHARED_HOME}/security:/root/.ipython/profile_default/security ${LOCAL_IMAGE_BUILD}
 	( echo -e "GET /\n\n" | nc localhost 8888 ) || exit 1
 
 start-slaves:
+	sleep 2
 	for i in `seq $N` ; do \
 		echo "start slave $$i" ; \
-		docker ${SWARM_OPT} run -d -v ${HERE}/security:/root/.ipython/profile_default/security ${LOCAL_IMAGE_BUILD} bash --login -c ipengine || exit 1 ; \
+		docker ${SWARM_OPT} run -d -v ${SHARED_HOME}/security:/root/.ipython/profile_default/security ${LOCAL_IMAGE_BUILD} bash --login -c ipengine || exit 1 ; \
 	done
 	echo "Running `docker ${SWARM_OPT} ps -q |wc -l` slave(s)"
 
