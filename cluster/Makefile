@@ -89,6 +89,8 @@ pclean-id: ${CLUSTER}
 puptime: ## uptime cluster
 	${PSSH} -h ${CLUSTER} -i uptime
 
+### SWARM 
+
 _check-swarm-stopped:
 	if [[ `docker ps | grep swarm` != "" ]] ; then echo "swarm master is already running" ; exit 1; fi
 
@@ -103,31 +105,34 @@ restart-swarm: stop-swarm start-swarm ## restart swarm master
 swarm-info: ## check swarm
 	docker ${SWARM_OPT} info
 
+#### CLUSTER
+
 start-master-interactive:
-	docker run -p 32000-32100:32000-32100 --name ${MASTER} -ti --rm -v /home/ipp/security:/root/.ipython/profile_default/security ${LOCAL_IMAGE_BUILD} bash
+	docker run -p 32000-32100:32000-32100 --name ${MASTER} -ti --rm -v ${HERE}/security:/root/.ipython/profile_default/security ${LOCAL_IMAGE_BUILD} bash
 
 start-master:
-	docker run -p 32000-32100:32000-32100  -p 8888:8888 -e IPPHUB_IP=${HEADIP} --name ${MASTER} -d -v /home/ipp/security:/root/.ipython/profile_default/security ${LOCAL_IMAGE_BUILD}
-	echo "test" | nc localhost 8888
+	docker run -p 32000-32100:32000-32100  -p 8888:8888 -e IPPHUB_IP=${HEADIP} --name ${MASTER} -d -v ${HERE}/security:/root/.ipython/profile_default/security ${LOCAL_IMAGE_BUILD}
+	( echo -e "GET /\n\n" | nc localhost 8888 ) || exit 1
 
 start-slaves:
 	for i in `seq $N` ; do \
 		echo "start slave $$i" ; \
-		docker ${SWARM_OPT} run -d -v /home/ipp/security:/root/.ipython/profile_default/security ${LOCAL_IMAGE_BUILD} bash --login -c ipengine || exit 1 ; \
+		docker ${SWARM_OPT} run -d -v ${HERE}/security:/root/.ipython/profile_default/security ${LOCAL_IMAGE_BUILD} bash --login -c ipengine || exit 1 ; \
 	done
-	echo "Running `docker ${SWARM_OPT} ps -q |wc -l` clusters"
+	echo "Running `docker ${SWARM_OPT} ps -q |wc -l` slave(s)"
 
 is-master-running:
 	docker ps -a | grep "${MASTER}$$" > /dev/null
+	( echo -e "GET /\n\n" | nc localhost 8888 ) || exit 1
 
-test-master: is-master-running ## test parallel script 
-	docker cp test ${MASTER}:/root
+test-cluster: is-master-running list-slaves ## test parallel script 
+	docker cp tests ${MASTER}:/root
 	docker exec ${MASTER} bash --login -c 'for p in tests/* ; do echo $$p ; python $$p || exit 1 ; done'
 
 exec-master: is-master-running
 	docker exec -ti ${MASTER} bash 
 
-start-cluster: start-master start-slaves test-master
+start-cluster: start-master start-slaves list-slaves test-cluster
 
 list-slaves: 
 	docker ${SWARM_OPT} ps --no-trunc
@@ -140,13 +145,13 @@ stop-master: is-master-running
 	docker rm ${MASTER}
 
 stop-cluster: stop-slaves stop-master
-	echo OK
+	echo Cluster stopped
 
 #### REGISTRY
 
 start-registry:
-	mkdir -p /home/ipp/registry
-	docker run -d -p 5000:5000 --restart=always --name registry -v /home/ipp/registry:/var/lib/registry registry:2 
+	test -d ${HERE}/registry || mkdir -p ${HERE}/registry
+	docker run -d -p 5000:5000 --restart=always --name registry -v ${HERE}/registry:/var/lib/registry registry:2 
 	echo http://${HEADIP}:5000
 
 stop-registry:
@@ -158,8 +163,7 @@ list-registry:
 	curl http://10.16.23.10:5000/v2/_catalog
 
 build-image:
-	#docker build -t ${IMAGE_BUILD} ipp-image
-	# docker ${SWARM_OPT} build -t ${IMAGE_BUILD} ipp-image
+	docker build -t ${IMAGE_BUILD} .
 	docker tag ${IMAGE_BUILD} ${LOCAL_IMAGE_BUILD}
 
 push-image:
@@ -181,7 +185,7 @@ rm-images: ${CLUSTER} ## remove all images
 	${PSSH} -h ${CLUSTER} -i '${DOCKER_NODE} images -q | xargs ${DOCKER_NODE} rmi'
 
 rm-user-containers: ${CLUSTER} ## stop & remove user containers
-	${PSSH} -h ${CLUSTER} --timeout=0 -i '${DOCKER_NODE} ps -q|xargs ${DOCKER_NODE} -f rm'
+	${PSSH} -h ${CLUSTER} --timeout=0 -i '${DOCKER_NODE} ps -a -q|xargs --no-run-if-empty ${DOCKER_NODE} rm'
 
 swarm-ps: ## list containers running in swarm
 	docker ${SWARM_OPT} ps

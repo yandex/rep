@@ -25,8 +25,11 @@ jupyter with REP will be acccessible by port 8888 of node hosting master instanc
 
 ## Maintenance
 
-to add more slaves:
 
-```make -e N=5 start-slaves``` -- start 5 more slaves
+to check cluster status `make test-cluster`
+
+to add 5 more slaves: ```make -e N=5 start-slaves```
+
+
 
 ## Troubleshooting
