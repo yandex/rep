@@ -12,7 +12,7 @@ DOCKER_NODE=docker -H tcp://0.0.0.0:2375
 PSSH=parallel-ssh
 CLUSTER=cluster.txt
 CLUSTER_SWARM=_cluster_swarm.txt
-N ?= $(shell cat ${CLUSTER} | wc -l) ## number of nodes in the cluster
+N ?= $(shell cat ${CLUSTER} | wc -l) # number of nodes in the cluster
 SWARM_OPT=-H tcp://localhost:31338
 DOCKER_PACKAGE=docker-engine=1.10.3-0~wheezy
 SWARM_IMAGE=swarm:1.1.3
