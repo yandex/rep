@@ -12,7 +12,9 @@ DOCKER_NODE=docker -H tcp://0.0.0.0:2375
 PSSH=parallel-ssh
 CLUSTER=cluster.txt
 CLUSTER_SWARM=_cluster_swarm.txt
-N ?= $(shell cat ${CLUSTER} | wc -l) # number of nodes in the cluster
+KERNELS_PER_NODE = 2
+N_NODES ?= $(shell cat ${CLUSTER} | wc -l) # number of nodes in the cluster
+N_KERNELS = $(shell echo $$(( ${N_NODES} * ${KERNELS_PER_NODE} )))
 SWARM_OPT=-H tcp://localhost:31338
 DOCKER_PACKAGE=docker-engine=1.10.3-0~wheezy
 SWARM_IMAGE=swarm:1.1.3
@@ -23,6 +25,11 @@ SHELL=/bin/bash
 MASTER=ipp_master
 SHARED_HOME=/home/ipp
 LOCAL_IMAGE_BUILD=${HEADIP}:5000/${IMAGE_BUILD}
+SHARED_VOLUME=/soft
+PASSWORD=kraCluster
+HOSTNAME=kra.com
+RUN_OPTIONS=-v ${SHARED_VOLUME}:/notebooks/${SHARED_VOLUME} -v ${SHARED_HOME}/security:/root/.ipython/profile_default/security -e PASSWORD=${PASSWORD} -e GENERATE_SSL_HOSTNAME=${HOSTNAME}
+
 
 help:
 	@echo Usage: make [-e VARIABLE=VALUE] targets
@@ -109,17 +116,17 @@ swarm-info: ## check swarm
 #### CLUSTER
 
 start-master-interactive:
-	docker run -p 32000-32100:32000-32100 --name ${MASTER} -ti --rm -v ${SHARED_HOME}/security:/root/.ipython/profile_default/security ${LOCAL_IMAGE_BUILD} bash
+	docker run -p 32000-32100:32000-32100 --name ${MASTER} -ti --rm ${RUN_OPTIONS} ${LOCAL_IMAGE_BUILD} bash
 
-start-master:
-	docker run -p 32000-32100:32000-32100  -p 8888:8888 -e IPPHUB_IP=${HEADIP} --name ${MASTER} -d -v ${SHARED_HOME}/security:/root/.ipython/profile_default/security ${LOCAL_IMAGE_BUILD}
+start-master: ## start master
+	docker run -p 32000-32100:32000-32100 -p 8888:8888 -e IPPHUB_IP=${HEADIP} --name ${MASTER} -d ${RUN_OPTIONS} ${LOCAL_IMAGE_BUILD}
 	( echo -e "GET /\n\n" | nc localhost 8888 ) || exit 1
 
-start-slaves:
+start-slaves: ## start slaves
 	sleep 2
-	for i in `seq $N` ; do \
+	for i in `seq ${N_KERNELS}` ; do \
 		echo "start slave $$i" ; \
-		docker ${SWARM_OPT} run -d -v ${SHARED_HOME}/security:/root/.ipython/profile_default/security ${LOCAL_IMAGE_BUILD} bash --login -c ipengine || exit 1 ; \
+		docker ${SWARM_OPT} run -d ${RUN_OPTIONS} ${LOCAL_IMAGE_BUILD} bash --login -c ipengine || exit 1 ; \
 	done
 	echo "Running `docker ${SWARM_OPT} ps -q |wc -l` slave(s)"
 
@@ -134,9 +141,11 @@ test-cluster: is-master-running list-slaves ## test parallel script
 exec-master: is-master-running
 	docker exec -ti ${MASTER} bash 
 
-start-cluster: start-master start-slaves list-slaves test-cluster
+start-cluster: start-master start-slaves list-slaves test-cluster ## start cluster
 
-list-slaves: 
+restart-cluster: stop-cluster start-cluster ## restart cluster
+
+list-slaves:  ## list slaves
 	docker ${SWARM_OPT} ps --no-trunc
 
 stop-slaves:
@@ -145,6 +154,9 @@ stop-slaves:
 stop-master: is-master-running
 	docker stop ${MASTER}
 	docker rm ${MASTER}
+
+restart-slaves: stop-slaves start-slaves  ## restart slaves
+	echo Slaves restarted
 
 stop-cluster: stop-slaves stop-master
 	echo Cluster stopped
@@ -178,7 +190,7 @@ pull-image-swarm:
 ##### Obsolete?
 
 ps-user-containers: ${CLUSTER} ## list container running on the cluster
-	${PSSH} -h ${CLUSTER} -i '${DOCKER_NODE} ps -a'
+	${PSSH} -h ${CLUSTER} -i '${DOCKER_NODE} ps '
 
 images: ${CLUSTER} ## list images created at clusters
 	${PSSH} -h ${CLUSTER} -i '${DOCKER_NODE} images'
