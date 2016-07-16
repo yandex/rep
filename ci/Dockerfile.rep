@@ -6,19 +6,20 @@ ENV SHELL /bin/bash
 ENV PORT_JUPYTER=8888
 ENV HOME /root
 
+# copying howto
+COPY ./howto /REP_howto
+
+# copying everything
 RUN mkdir $TEMP/build
-COPY setup.py README.md AUTHORS requirements.txt $TEMP/build/
-COPY rep $TEMP/build/rep
-COPY tests $TEMP/build/tests
-COPY *.sh $HOME/
-COPY .rep_version $HOME/
-COPY howto /REP_howto
+COPY ./ $TEMP/build/
+# copy scripts
+COPY ./ci/*.sh $HOME/
 RUN chmod +x $HOME/*.sh
 
-RUN ln -snf /bin/bash /bin/sh
-
-RUN echo "umask 0002" >> /etc/profile.d/rep_profile.sh
-RUN echo -e "source /etc/profile.d/rep_profile.sh" >> $HOME/.bashrc
+# Debugging TODO delete
+RUN ls $HOME
+RUN ls /REP_howto
+RUN ls $TEMP/build
 
 RUN /bin/bash --login -c " \
   cd $TEMP/build && \
@@ -26,14 +27,8 @@ RUN /bin/bash --login -c " \
   cd $HOME && \
   rm -rf $TEMP/build"
 
-RUN apt-get update && \
-  apt-get -y install mc telnet curl
-
+# TODO MOVE
 # IPython setup
-#
-RUN mkdir /notebooks && \
-    mkdir /etc_external
-
 RUN /bin/bash --login -c " \
   jupyter notebook -y --generate-config &&\
   /bin/echo -e \"\
@@ -43,12 +38,12 @@ c.NotebookApp.port = $PORT_JUPYTER \n \" \
   | tee -a $HOME/.jupyter/jupyter_notebook_config.py \
   "
 
-RUN /bin/bash --login -c " \
-  git clone https://github.com/damianavila/RISE.git && \
-  cd RISE && \
-  python setup.py install \
-  "
+# create folder for notebooks
+RUN mkdir /notebooks
 
-VOLUME ["/notebooks", "/etc_external"]
+# registering mounting points
+VOLUME ["/notebooks"]
+# registering port
 EXPOSE $PORT_JUPYTER
-CMD ["/bin/bash", "--login", "-c", "./start.sh"]
+# starting IPython process
+CMD ["/bin/bash", "--login", "-c", "$HOME/start_jupyter.sh"]

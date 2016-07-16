@@ -34,19 +34,17 @@ BAR_TYPES = {'error_bar', 'bar'}
 
 
 class ClassificationReport(AbstractReport):
-    """
-    Test estimators on any data. Supports ROC curve, prediction distribution, features information
-    (correlation matrix, distribution, scatter plots for pairs of features),
-    efficiencies for thresholds (evaluate flatness of predictions for important feature),
-    correlation with prediction for necessary feature, any metrics of quality.
-
-    Parameters:
-    -----------
-    :param classifiers: estimators
-    :type classifiers: dict[str, Classifier]
-    :param LabeledDataStorage lds: data
-    """
     def __init__(self, classifiers, lds):
+        """
+        Test estimators on any data. Supports ROC curve, prediction distribution, features information
+        (correlation matrix, distribution, scatter plots for pairs of features),
+        efficiencies for thresholds (evaluate flatness of predictions for important feature),
+        correlation with prediction for necessary feature, any metrics of quality.
+
+        :param classifiers: estimators
+        :type classifiers: dict[str, Classifier]
+        :param LabeledDataStorage lds: data
+        """
 
         for name, classifier in classifiers.items():
             assert isinstance(classifier, Classifier), "Object {} doesn't implement interface".format(name)
@@ -189,14 +187,13 @@ class ClassificationReport(AbstractReport):
             correlation_plots.append(plot_fig)
         return plotting.GridPlot(grid_columns, *correlation_plots)
 
-    def roc(self, mask=None, signal_label=1, physical_notion=True):
+    def roc(self, mask=None, signal_label=1, physics_notion=False):
         """
         Calculate roc functions for data and return roc plot object
 
         :param mask: mask for data, which will be used
         :type mask: None or numbers.Number or array-like or str or function(pandas.DataFrame)
-        :param int grid_columns: count of columns for multi-rocs
-        :param bool physical_notion: if set to True, will show signal efficiency vs background rejection,
+        :param bool physics_notion: if set to True, will show signal efficiency vs background rejection,
             otherwise TPR vs FPR.
 
         :rtype: plotting.FunctionsPlot
@@ -211,8 +208,8 @@ class ClassificationReport(AbstractReport):
         for name, prediction in self.prediction.items():
             labels_active = numpy.array(self.target[mask] == signal_label, dtype=int)
             (tpr, tnr), _, _ = utils.calc_ROC(prediction[mask, signal_label], labels_active,
-                                                    sample_weight=self.weight[mask])
-            if physical_notion:
+                                              sample_weight=self.weight[mask])
+            if physics_notion:
                 roc_curves[name] = (tpr, tnr)
                 xlabel = 'Signal sensitivity'
                 ylabel = 'Bg rejection eff (specificity)'

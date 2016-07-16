@@ -1,5 +1,5 @@
 """
-This is wrapper for pandas.DataFrame, which allows you to define dataset for estimator in a simple way.
+This is a wrapper for `pandas.DataFrame`, which allows you to define dataset (data, labels/values, sample weights) for an estimator in a simple way.
 """
 from __future__ import division, print_function, absolute_import
 import numbers
@@ -17,23 +17,21 @@ RANDINT = 10000000
 
 
 class LabeledDataStorage(object):
-    """
-    This class implements interface of data for estimators training. It contains data, labels and weights -
-    all information to train model.
-
-    Parameters:
-    -----------
-    :param pandas.DataFrame ds: data
-    :param target: labels for classification and values for regression (set None for predict methods)
-    :type target: None or numbers.Number or array-like
-    :param sample_weight: weight (set None for predict methods)
-    :type sample_weight: None or numbers.Number or array-like
-    :param random_state: for pseudo random generator
-    :type random_state: None or int or RandomState
-    :param bool shuffle: shuffle or not data
-
-    """
     def __init__(self, data, target=None, sample_weight=None, random_state=None, shuffle=False):
+        """
+        This class implements an interface of data for estimators training. It contains data, labels/values and weights -
+        all information to train a model.
+
+        :param pandas.DataFrame data: features, array-like of shape [n_samples, n_features]
+        :param target: labels/values for classification/regression (set None for the predictive methods)
+        :type target: None or numbers.Number or array-like
+        :param sample_weight: weight (set None for predictive methods)
+        :type sample_weight: None or numbers.Number or array-like
+        :param random_state: state for a pseudo random generator
+        :type random_state: None or int or RandomState
+        :param bool shuffle: shuffle data or not
+
+        """
         self.data = data
         self.target = self._get_key(self.data, target)
         self.sample_weight = self._get_key(self.data, sample_weight, allow_nones=True)
@@ -46,13 +44,13 @@ class LabeledDataStorage(object):
 
     def _get_key(self, ds, key, allow_nones=False):
         """
-        Get data from ds by key
+        Get data from the storage by key.
 
         :param pandas.DataFrame ds: data
-        :param key: what data get from ds
+        :param key: key, which describe data in the storage
         :type key: None or numbers.Number or array-like
 
-        :return: key data
+        :return: data corresponding to the key
         """
         if isinstance(key, str) and ds is not None:
             # assert key in set(ds.columns), self._print_err('ERROR:', '%s is absent in data storage' % key)
@@ -68,14 +66,16 @@ class LabeledDataStorage(object):
 
     def __len__(self):
         """
-        :return: count of rows in storage
+        Return number of samples.
+
+        :return: count of rows in the storage
         :rtype: int
         """
         return len(self.data)
 
     def get_data(self, features=None):
         """
-        Get data for estimator
+        Return data.
 
         :param features: set of feature names (if None then use all features in data storage)
         :type features: None or list[str]
@@ -90,7 +90,7 @@ class LabeledDataStorage(object):
 
     def get_targets(self):
         """
-        Get sample targets for estimator
+        Return sample target, labels or values.
 
         :rtype: numpy.array
         """
@@ -100,7 +100,7 @@ class LabeledDataStorage(object):
 
     def get_weights(self, allow_nones=False):
         """
-        Get sample weights for estimator
+        Return sample weights.
 
         :rtype: numpy.array
         """
@@ -116,7 +116,7 @@ class LabeledDataStorage(object):
 
     def get_indices(self):
         """
-        Get data indices
+        Return data indices.
 
         :rtype: numpy.array
         """
@@ -127,7 +127,7 @@ class LabeledDataStorage(object):
 
     def col(self, index):
         """
-        Get necessary columns
+        Return column from the data.
 
         :param index: names
         :type index: None or str or list(str)
@@ -141,10 +141,10 @@ class LabeledDataStorage(object):
 
     def eval_column(self, expression):
         """
-        Evaluate some expression to get necessary data
+        Evaluate some expression to obtain necessary columns for the data
 
         :type expression: numbers.Number or array-like or str or function(pandas.DataFrame)
-        :rtype: numpy.array
+        :rtype: numpy.array or str or
         """
         if isinstance(expression, numbers.Number):
             return numpy.zeros(len(self), dtype=type(expression)) + expression

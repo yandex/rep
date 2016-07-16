@@ -3,22 +3,21 @@
 # script to start jupyter inside docker container
 # fine-tuned by set of environment variables (see the code),
 # e.g. runs under jupyterhub environment in case JPY_API_TOKEN is set
-#
-#
 
 set +xv
 
-echo "Umask: "
-umask
 [ -z "$ENV_BIN_DIR" ] && source /etc/profile.d/rep_profile.sh
 
-JUPYTER_CONFIG=$HOME/.jupyter/jupyter_notebook_config.py
+if [ "$INSTALL_PIP_MODULES" != "" ] ; then
+	pip install $INSTALL_PIP_MODULES
+fi
+
 if [ "$JPY_API_TOKEN" != "" ] ; then
 	echo "Starting under Jupyterhub"
-        jupyter kernelspec install-self
+	jupyter kernelspec install-self
 	source activate jupyterhub_py3
-        jupyter kernelspec install-self
-        source activate rep_py2 # default env
+	jupyter kernelspec install-self
+	source activate rep_py2 # default env
 
 	NOTEBOOK_DIR=/notebooks
 	git clone $JPY_GITHUBURL $NOTEBOOK_DIR
@@ -43,13 +42,14 @@ if [ "$GENERATE_SSL_HOSTNAME" != "" ] ; then
 fi
 
 if [ "$SSL_CERTFILE" != "" ] ; then
-	OPTIONS+=" --certfile=$SSL_CERTFILE"
+	JUPYTER_OPTIONS+=" --certfile=$SSL_CERTFILE"
 fi
 
 if [ "$SSL_KEYFILE" != "" ] ; then
-	OPTIONS+=" --keyfile=$SSL_KEYFILE"
+	JUPYTER_OPTIONS+=" --keyfile=$SSL_KEYFILE"
 fi
 
+JUPYTER_CONFIG=$HOME/.jupyter/jupyter_notebook_config.py
 
 if [ "$PASSWORD" != "" ] ; then
 	sha=`python -c "from notebook.auth import passwd; print passwd('$PASSWORD')"`
@@ -65,14 +65,12 @@ if [ "$SECRET_FILE" != "" ] ; then
 fi
 
 if [ "$JUPYTER_PORT" != "" ] ; then
-	OPTIONS+=" --port $JUPYTER_PORT"
+	JUPYTER_OPTIONS+=" --port $JUPYTER_PORT"
 fi
 
 [[ -d /REP_howto && ! -L /notebooks/rep_howto ]] && ln -s /REP_howto /notebooks/rep_howto
 
-$HOME/install_modules.sh
-
 cat .rep_version
 source .rep_version
 echo "Starting Jupyter"
-jupyter notebook $OPTIONS /notebooks 2>&1 | tee -a /notebooks/jupyter.log
+jupyter notebook $JUPYTER_OPTIONS /notebooks 2>&1 | tee -a /notebooks/jupyter.log

@@ -10,17 +10,14 @@ from six.moves import cPickle
 from rep.report import RegressionReport
 from rep.test.test_estimators import generate_classification_data
 
-
 __author__ = 'Tatiana Likhomanenko'
-
-# TODO testing of right-classification of estimators
 
 
 def test_factory():
     factory = RegressorsFactory()
     try:
         from rep.estimators.tmva import TMVARegressor
-        factory.add_regressor('tmva', TMVARegressor())
+        factory.add_regressor('tmva', TMVARegressor(factory_options="Silent=True:V=False:DrawProgressBar=False"))
     except ImportError:
         pass
     factory.add_regressor('rf', RandomForestRegressor(n_estimators=10))
@@ -41,7 +38,7 @@ def test_factory():
     for key, iterator in factory.staged_predict(X).items():
         assert key != 'tmva', 'tmva does not support staged pp'
         for p in iterator:
-            assert p.shape == (len(X), )
+            assert p.shape == (len(X),)
 
         # checking that last iteration coincides with previous
         assert numpy.all(p == values[key])

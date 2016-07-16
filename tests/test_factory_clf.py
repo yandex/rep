@@ -23,7 +23,7 @@ def test_factory():
     factory = ClassifiersFactory()
     try:
         from rep.estimators.tmva import TMVAClassifier
-        factory.add_classifier('tmva', TMVAClassifier())
+        factory.add_classifier('tmva', TMVAClassifier(factory_options="Silent=True:V=False:DrawProgressBar=False"))
     except ImportError:
         pass
     factory.add_classifier('rf', RandomForestClassifier(n_estimators=10))

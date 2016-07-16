@@ -12,13 +12,13 @@ def test_calc():
     iron = utils.Flattener(prediction)
     assert numpy.allclose(numpy.histogram(iron(prediction), normed=True, bins=30)[0], numpy.ones(30), rtol=1e-02)
 
-    x, y, yerr, xerr = utils.calc_hist_with_errors(iron(prediction), bins=30, x_range=(0, 1))
+    x, y, y_err, x_err = utils.calc_hist_with_errors(iron(prediction), bins=30, x_range=(0, 1))
     assert numpy.allclose(y, numpy.ones(len(y)), rtol=1e-02)
     width = 1. / 60
     means = numpy.linspace(width, 1 - width, 30)
     assert numpy.allclose(x, means)
-    assert numpy.allclose(xerr, numpy.zeros(len(xerr)) + width)
-    assert numpy.allclose(yerr, numpy.zeros(len(yerr)) + yerr[0], rtol=1e-2)
+    assert numpy.allclose(x_err, numpy.zeros(len(x_err)) + width)
+    assert numpy.allclose(y_err, numpy.zeros(len(y_err)) + y_err[0], rtol=1e-2)
 
     random_labels = numpy.random.choice(2, size=10000)
     (tpr, tnr), _, _ = utils.calc_ROC(prediction, random_labels)
@@ -59,8 +59,6 @@ def test_get_columns(n_samples=10000):
 
     result = utils.get_columns_in_df(df, ['a: a-b+b', 'b: b + 0 * c** 2.', 'c: c + 1 + c * (b - b)'])
     result['c'] -= 1
-    assert not numpy.allclose(result, df + 1e-3), 'test not working'
-
     assert numpy.allclose(result, df), 'result of evaluation is incorrect'
 
 

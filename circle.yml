@@ -1,0 +1,26 @@
+# configuration file for CircleCI testing (http://circleci.com)
+# the goal is to test that docker image builds successfully
+
+machine:
+  services:
+    - docker
+
+dependencies:
+  override:
+    # building docker
+    - make rep-image
+    - docker images
+
+test:
+  override:
+    # running docker in background
+    - mkdir -p /home/ubuntu/rep/notebooks
+    # - mkdir -p /home/ubuntu/rep/etc
+    - docker run -d -ti -v /home/ubuntu/rep/notebooks:/notebooks -p 8888:8888 --name rep yandex/rep:0.6.5; sleep 20
+    - ls -la /home/ubuntu/rep/notebooks
+    - docker logs rep
+    - curl --retry 10 --retry-delay 5 -v http://localhost:8888
+    - wget http://localhost:8888 -O output.html
+    - cat output.html
+    # TODO testing of installation in docker
+    # TODO check something in output
