@@ -20,17 +20,23 @@ matrix:
 before_install:
   - if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
       brew update > /dev/null;
+      # without xz ROOT gives:
+      # Incompatible library version: libCore.so requires version 8.0.0 or later, but liblzma.5.dylib provides version 6.0.0
+      # try to solve by https://github.com/Homebrew/legacy-homebrew/issues/42209 installing xz
       brew install xz;
-      brew install python;
+      #brew install python;
       brew install homebrew/science/root;
       echo 'python source';
       which python;
       source $(brew --prefix root)/libexec/thisroot.sh;
       python -c 'import ROOT';
       otool -L $(brew --prefix root)/lib/root/libPyROOT.so;
-      sudo install_name_tool -change /System/Library/Frameworks/Python.framework/Versions/2.7/Python /usr/local/Frameworks/Python.framework/Versions/2.7/Python $(brew --prefix root)/lib/root/libPyROOT.so;
-      otool -L $(brew --prefix root)/lib/root/libPyROOT.so;
-      python -c 'import ROOT';
+      # "brew install xz" gives:
+      # Fatal Python error: PyThreadState_Get: no current thread
+      # to fix this change source of python for PyROOT from system python to brew python
+      #sudo install_name_tool -change /System/Library/Frameworks/Python.framework/Versions/2.7/Python /usr/local/Frameworks/Python.framework/Versions/2.7/Python $(brew --prefix root)/lib/root/libPyROOT.so;
+      #otool -L $(brew --prefix root)/lib/root/libPyROOT.so;
+      #python -c 'import ROOT';
       virtualenv venv -p python$TRAVIS_PYTHON_VERSION;
       source venv/bin/activate;
       source $(brew --prefix root)/libexec/thisroot.sh;
