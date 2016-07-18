@@ -299,7 +299,7 @@ class TheanetsClassifier(TheanetsBase, Classifier):
             self.exp = tnt.Experiment(tnt.Classifier, layers=layers, weighted=True)
         params = self._prepare_network_params()
         params.update(**trainer)
-        if trainer.get('optimize', None) == 'pretrain':
+        if trainer.get('algo', None) == 'pretrain':
             self.exp.train([X.astype(numpy.float32)], **params)
         else:
             self.exp.train([X.astype(numpy.float32), y.astype(numpy.int32), sample_weight.astype(numpy.float32)],
