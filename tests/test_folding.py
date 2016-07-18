@@ -2,7 +2,7 @@ from __future__ import division, print_function, absolute_import
 
 import numpy
 from sklearn.ensemble import AdaBoostClassifier, GradientBoostingRegressor
-from sklearn.svm import SVC
+from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, roc_auc_score
 
 from rep.estimators import SklearnClassifier, SklearnRegressor
@@ -13,9 +13,11 @@ from rep.test.test_estimators import generate_classification_data, \
 __author__ = 'Tatiana Likhomanenko, Alex Rogozhnikov'
 
 
-def check_folding(classifier, check_instance=True, has_staged_pp=True, has_importances=True):
+def check_folding(classifier, check_instance=True, has_staged_pp=True, has_importances=True, use_weights=True):
     X, y, sample_weight = generate_classification_data(distance=0.6)
 
+    if not use_weights:
+        sample_weight = None
     assert classifier == classifier.fit(X, y, sample_weight=sample_weight)
     assert list(classifier.features) == list(X.columns)
 
@@ -92,9 +94,9 @@ def test_folding_classifier():
     folding_str = FoldingClassifier(base_ada, n_folds=2)
     check_folding(folding_str, True, True, True)
 
-    base_svm = SklearnClassifier(SVC())
-    folding_str = FoldingClassifier(base_svm, n_folds=4)
-    check_folding(folding_str, True, False, False)
+    base_log_reg = SklearnClassifier(LogisticRegression())
+    folding_str = FoldingClassifier(base_log_reg, n_folds=4)
+    check_folding(folding_str, True, False, False, False)
 
 
 def test_folding_regressor_with_check_model():

@@ -103,15 +103,12 @@ __author__ = 'Alex Rogozhnikov, Tatiana Likhomanenko'
 
 
 class AbstractParameterGenerator(object):
-
     def __init__(self, param_grid, n_evaluations=10, maximize=True, random_state=None):
         """
         Abstract class for grid search algorithm.
         The aim of this class is to generate new points, where the function (estimator) will be computed.
         You can define your own algorithm of step location of parameters grid.
 
-        Parameters:
-        ----------
         :param OrderedDict param_grid: the grid with parameters to optimize on
         :param int n_evaluations: the number of evaluations to do
         :param random_state: random generator
@@ -267,8 +264,6 @@ class RegressionParameterOptimizer(AbstractParameterGenerator):
         This general method relies on regression.
         Regressor will try to predict the best point based on already known result fir different parameters.
 
-        Parameters:
-        ----------
         :param OrderedDict param_grid: the grid with parameters to optimize on
         :param int n_evaluations: the number of evaluations to do
         :param random_state: random generator
@@ -320,12 +315,10 @@ class AnnealingParameterOptimizer(AbstractParameterGenerator):
         """
         Implementation if annealing algorithm
 
-        Parameters
-        ----------
         :param param_grid: the grid with parameters to optimize on
         :param int n_evaluations: the number od evaluations
         :param temperature: float, how tolerant we are to worse results.
-        If it is very small, will never step to point with worse predictions.
+            If temperature is very small, algorithm never steps to point with worse predictions.
 
         Doesn't support parallel execution, so cannot be used in optimization on cluster.
         """
@@ -382,13 +375,10 @@ class SubgridParameterOptimizer(AbstractParameterGenerator):
     Uses Metropolis-like optimization.
     If the parameter grid is large, first performs optimization on subgrid.
 
-    Parameters:
-    ----------
     :param OrderedDict param_grid: the grid with parameters to optimize on
     :param int n_evaluations: the number of evaluations to do
     :param random_state: random generator
     :type random_state: int or RandomState or None
-
     :param int start_evaluations: count of random point generation on start
     :param int subgrid_size: if the size of mesh too large, first we will optimize
         on subgrid with not more then subgrid_size possible values for each parameter.
@@ -510,15 +500,15 @@ def _translate_key_from_subgrid(subgrid_indices, key):
 
 
 class FoldingScorerBase(object):
-    """
-    Scorer, which implements logic of data folding and scoring. This is a function-like object
-
-    :param int folds: 'k' used in k-folding while validating
-    :param int fold_checks: not greater than folds, the number of checks we do by cross-validating
-    :param function score_function: quality. if fold_checks > 1, the average is computed over checks.
-    """
-
     def __init__(self, score_function, folds=3, fold_checks=1, shuffle=False, random_state=None):
+        """
+        Scorer, which implements logic of data folding and scoring. This is a function-like object
+
+        :param int folds: 'k' used in k-folding while validating
+        :param int fold_checks: not greater than folds, the number of checks we do by cross-validating
+        :param function score_function: quality. if fold_checks > 1, the average is computed over checks.
+
+        """
         self.folds = folds
         self.fold_checks = fold_checks
         self.score_function = score_function
@@ -577,6 +567,8 @@ class ClassificationFoldingScorer(FoldingScorerBase):
     """
     def __call__(self, base_estimator, params, X, y, sample_weight=None):
         """
+        Estimate quality of estimator with given parameters with kFolding.
+
         :return float: quality
         """
         k_folder = StratifiedKFold(y=y, n_folds=self.folds, shuffle=self.shuffle, random_state=self.random_state)
@@ -609,6 +601,8 @@ class RegressionFoldingScorer(FoldingScorerBase):
     """
     def __call__(self, base_estimator, params, X, y, sample_weight=None):
         """
+        Estimate quality of estimator with given parameters with kFolding.
+
         :return float: quality
         """
         k_folder = KFold(len(y), n_folds=self.folds, shuffle=self.shuffle, random_state=self.random_state)
@@ -654,10 +648,10 @@ class GridOptimalSearchCV(object):
     :param parallel_profile: name of profile
     :type parallel_profile: None or str
 
-    Attributes
-    ----------
+    **Attributes**:
+
     generator: return grid parameter generator
-    """
+    """\
 
     def __init__(self, estimator, params_generator, scorer, parallel_profile=None):
         self.base_estimator = estimator

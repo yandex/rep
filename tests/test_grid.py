@@ -4,7 +4,7 @@ from collections import OrderedDict
 from sklearn import clone
 from sklearn.ensemble import AdaBoostClassifier, AdaBoostRegressor
 from sklearn.metrics import roc_auc_score, log_loss
-from sklearn.qda import QDA
+from sklearn.discriminant_analysis import QuadraticDiscriminantAnalysis
 
 from rep.test.test_estimators import check_classification_model, check_regression_model
 
@@ -55,7 +55,8 @@ def test_gridsearch_on_tmva():
     try:
         from rep.estimators import TMVAClassifier
 
-        base_tmva = TMVAClassifier(features=['column0', 'column1'], method='kBDT')
+        base_tmva = TMVAClassifier(factory_options="Silent=True:V=False:DrawProgressBar=False",
+                                   features=['column0', 'column1'], method='kBDT')
         grid = GridOptimalSearchCV(base_tmva, generator, scorer)
         classifier = check_grid(grid, False, False, False)
         # checking parameters
@@ -191,7 +192,7 @@ def test_gridsearch_metrics():
 
     for metric in [RocAuc(), OptimalAMS(), OptimalSignificance(), log_loss]:
         scorer = FoldingScorer(metric)
-        clf = SklearnClassifier(QDA())
+        clf = SklearnClassifier(QuadraticDiscriminantAnalysis())
         grid = GridOptimalSearchCV(estimator=clf, params_generator=next(optimizers),
                                    scorer=scorer)
         grid.fit(X, y)
@@ -216,7 +217,7 @@ def test_gridsearch_metrics_threads(n_threads=3):
 
     for metric in [RocAuc(), OptimalAMS(), OptimalSignificance(), log_loss]:
         scorer = FoldingScorer(metric)
-        clf = SklearnClassifier(QDA())
+        clf = SklearnClassifier(QuadraticDiscriminantAnalysis())
         grid = GridOptimalSearchCV(estimator=clf, params_generator=next(optimizers),
                                    scorer=scorer, parallel_profile='threads-{}'.format(n_threads))
         grid.fit(X, y)
