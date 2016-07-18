@@ -1,5 +1,11 @@
 # Travis (https://travis-ci.org) configuration file
 
+# CI MACOS
+  # brew install xz
+    # without xz ROOT gives: 
+    # "Incompatible library version: libCore.so requires version 8.0.0 or later, but liblzma.5.dylib provides version 6.0.0 "
+    # try to solve by https://github.com/Homebrew/legacy-homebrew/issues/42209 installing xz
+
 sudo: required
 services:
   - docker
@@ -20,6 +26,7 @@ matrix:
 before_install:
   - if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
       brew update > /dev/null;
+      brew install xz;
       brew install homebrew/science/root;
       virtualenv venv -p python$TRAVIS_PYTHON_VERSION;
       source venv/bin/activate;
