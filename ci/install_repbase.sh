@@ -56,9 +56,9 @@ if ! which conda ; then
     # install miniconda
     # TODO use single starting miniconda
     if [ "$PYTHON_MAJOR_VERSION" == "3" ]; then
-        MINICONDA_FILE="Miniconda3-latest-Linux-x86_64.sh"
+        MINICONDA_FILE="Miniconda3-3.19.0-Linux-x86_64.sh"
     else
-        MINICONDA_FILE="Miniconda-latest-Linux-x86_64.sh"
+        MINICONDA_FILE="Miniconda2-3.19.0-Linux-x86_64.sh"
     fi
     wget http://repo.continuum.io/miniconda/$MINICONDA_FILE -O miniconda.sh
     chmod +x miniconda.sh
@@ -66,7 +66,7 @@ if ! which conda ; then
     rm ./miniconda.sh
     export PATH=$HOME/miniconda/bin:$PATH
     hash -r
-    conda update --yes conda
+    # conda update --yes conda
 fi
 
 HERE="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
@@ -79,7 +79,7 @@ source activate jupyterhub_py3 || halt "Error installing jupyterhub_py3 environm
 
 echo "Removing conda packages and caches"
 conda uninstall --force --yes -q gcc qt
-conda clean --yes -s -p -l -i -t
+conda clean --yes --all
 
 
 echo "Creating conda venv $REP_ENV_NAME"
@@ -88,18 +88,22 @@ source activate $REP_ENV_NAME || halt "Error installing $REP_ENV_NAME environmen
 
 echo "Removing conda packages and caches"
 conda uninstall --force --yes -q gcc qt
-conda clean --yes -s -p -l -i -t
+conda clean --yes --all
 
 
-# test installed packages
-source "${ENV_BIN_DIR}/thisroot.sh" || halt "Error installing ROOT"
+echo "Test installed packages"
+
+source $(which thisroot.sh) || halt "Error installing ROOT"
 python -c 'import ROOT, root_numpy' || halt "Error installing root_numpy"
 python -c 'import xgboost' || halt "Error installing XGBoost"
+
+echo "Python version:"
+which python
+python --version
 
 # printing message about environment
 cat << EOL_MESSAGE
     # add to your environment:
     export PATH=\$HOME/miniconda/bin:\$PATH
     source activate \$REP_ENV_NAME
-    source \$ENV_BIN_DIR/thisroot.sh
 EOL_MESSAGE
