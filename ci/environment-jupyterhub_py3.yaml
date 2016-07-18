@@ -3,6 +3,7 @@ name: jupyterhub_py3
 dependencies:
   - python=3.4
   - nomkl
+  # TODO do we need anything from below?
   - ipython-notebook=4.0.4
   - matplotlib=1.5.1
   - numpy=1.10.4
@@ -11,12 +12,4 @@ dependencies:
   - scipy=0.17.0
   - six=1.10.0
   - pip:
-    # - bokeh=0.11.1
-    # - neurolab==0.3.5
-    # - theano==0.7.0
-    # - theanets==0.6.2
-    # - pybrain==0.3
-    # - mpld3==0.2
-    # - xgboost==0.4a30
-    # - hep_ml==0.4
     - jupyterhub
