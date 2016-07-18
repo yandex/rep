@@ -22,7 +22,7 @@ before_install:
       brew update > /dev/null;
       brew install python;
       brew install homebrew/science/root;
-      brew install xz
+      brew install xz;
       source $(brew --prefix root)/libexec/thisroot.sh;
       python -c 'import ROOT';
       virtualenv venv -p python$TRAVIS_PYTHON_VERSION;
