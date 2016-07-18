@@ -25,16 +25,11 @@ before_install:
       virtualenv venv -p python$TRAVIS_PYTHON_VERSION;
       source venv/bin/activate;
       source $(brew --prefix root)/libexec/thisroot.sh;
-      which root;
-      cat 'TRY IMPORT ROOT';
-      python -c "import ROOT";
-      otool -L $(brew --prefix root)/lib/root/libPyROOT.so;
-      otool -L root/lib/libPyROOT.so;
       pip install pip -U;
       pip install -r requirements.txt;
       pip install rootpy root_numpy;
-#      mkdir -p $HOME/.matplotlib;
-#      echo 'backend:TkAgg' > $HOME/.matplotlib/matplotlibrc;
+      mkdir -p $HOME/.matplotlib;
+      echo 'backend:TkAgg' > $HOME/.matplotlib/matplotlibrc;
     else
       source ci/install_repbase.sh;
       conda list;
