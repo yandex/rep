@@ -27,13 +27,16 @@ before_install:
       which python;
       source $(brew --prefix root)/libexec/thisroot.sh;
       python -c 'import ROOT';
+      otool -L $(brew --prefix root)/lib/root/libPyROOT.so;
+      sudo install_name_tool -change /System/Library/Frameworks/Python.framework/Versions/2.7/Python /usr/local/Frameworks/Python.framework/Versions/2.7/Python $(brew --prefix root)/lib/root/libPyROOT.so;
+      otool -L $(brew --prefix root)/lib/root/libPyROOT.so;
+      python -c 'import ROOT';
       virtualenv venv -p python$TRAVIS_PYTHON_VERSION;
       source venv/bin/activate;
       source $(brew --prefix root)/libexec/thisroot.sh;
       which root;
       echo 'TRY IMPORT ROOT';
       python -c 'import ROOT';
-      otool -L $(brew --prefix root)/lib/root/libPyROOT.so;
       pip install pip -U;
       pip install -r requirements.txt;
       pip install rootpy root_numpy;
