@@ -10,16 +10,11 @@ function halt {
   exit 1
 }
 
-# TODO change to single parameter (together with travis testing)
-
 PYTHON_MAJOR_VERSION=2
 if [ -n "$1" ]; then
     PYTHON_MAJOR_VERSION=$1
 fi
-# when testing on travis, we use travis variable
-if [ -n "$TRAVIS_PYTHON_VERSION" ] ; then
-    PYTHON_MAJOR_VERSION=${TRAVIS_PYTHON_VERSION:0:1}
-fi
+
 REP_ENV_NAME="rep_py${PYTHON_MAJOR_VERSION}"
 
 # checking that system has apt-get
@@ -69,7 +64,7 @@ REP_ENV_FILE="$HERE/environment-rep${PYTHON_MAJOR_VERSION}.yaml"
 JUPYTERHUB_ENV_FILE="$HERE/environment-jupyterhub_py3.yaml"
 
 echo "Creating conda venv jupyterhub_py3"
-conda env create -q --name --file $JUPYTERHUB_ENV_FILE > /dev/null
+conda env create -q --file $JUPYTERHUB_ENV_FILE > /dev/null
 source activate jupyterhub_py3 || halt "Error installing jupyterhub_py3 environment"
 
 echo "Removing conda packages and caches"
