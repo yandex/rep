@@ -20,17 +20,10 @@ matrix:
 before_install:
   - if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
       brew update > /dev/null;
-      brew install xz;
       brew install homebrew/science/root;
-      echo 'python source';
-      which python;
-      source $(brew --prefix root)/libexec/thisroot.sh;
-      python -c 'import ROOT';
-      otool -L $(brew --prefix root)/lib/root/libPyROOT.so;
       virtualenv venv -p python$TRAVIS_PYTHON_VERSION;
       source venv/bin/activate;
       source $(brew --prefix root)/libexec/thisroot.sh;
-      which root;
       echo 'TRY IMPORT ROOT';
       python -c 'import ROOT';
       pip install pip -U;
