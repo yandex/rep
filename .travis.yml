@@ -1,4 +1,9 @@
 # Travis (https://travis-ci.org) configuration file
+# CI MACOS
+# -brew install xz
+# --without xz ROOT gives: 
+# ---Incompatible library version: libCore.so requires version 8.0.0 or later, but liblzma.5.dylib provides version 6.0.0 
+# ---try to solve by https://github.com/Homebrew/legacy-homebrew/issues/42209 installing xz
 
 sudo: required
 services:
@@ -20,11 +25,13 @@ matrix:
 before_install:
   - if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
       brew update > /dev/null;
-      brew install python;
+      brew install xz;
       brew install homebrew/science/root;
       virtualenv venv -p python$TRAVIS_PYTHON_VERSION;
       source venv/bin/activate;
       source $(brew --prefix root)/libexec/thisroot.sh;
+      echo 'TRY IMPORT ROOT';
+      python -c 'import ROOT';
       pip install pip -U;
       pip install -r requirements.txt;
       pip install rootpy root_numpy;
@@ -52,10 +59,8 @@ script:
       THEANO_FLAGS='gcc.cxxflags="-march=core2"' nosetests -v --detailed-errors --nocapture ./tests/test_*;
     fi
   # testing only notebooks
-  - if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
+  - if [[ $TRAVIS_OS_NAME != 'osx' ]]; then
       nosetests -v --detailed-errors --nocapture --stop ./tests/z_test_*;
-    else
-      THEANO_FLAGS='gcc.cxxflags="-march=core2"' nosetests -v --detailed-errors --nocapture --stop ./tests/z_test_*;
     fi
   # if on master and tests passed successfully, trigger rebuilding of docker image.
   - if [[ "$TRAVIS_BRANCH" = "master" && "${TRAVIS_PYTHON_VERSION:0:1}" = "2" ]] ; then make push-latest ; fi
