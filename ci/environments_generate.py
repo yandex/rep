@@ -11,7 +11,7 @@ __author__ = 'Alex Rogozhnikov'
 with open('environment-rep-template.yaml', 'r') as template_file:
     content = template_file.read()
 
-for python_version in ["2.7", "3.5"]:
+for python_version in ["2.7", "3.4"]:
     python_major_version = python_version[:1]
     new_content = content.replace('{PYTHON_MAJOR_VERSION}', python_major_version)\
                          .replace('{PYTHON_VERSION}', python_version)
