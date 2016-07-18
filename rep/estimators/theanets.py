@@ -67,7 +67,7 @@ class TheanetsBase(object):
     :type scaler: str or sklearn-like transformer or False
     :param trainers: parameters to specify training algorithm(s), for example::
 
-        trainers=[{'optimize': sgd, 'momentum': 0.2}, {'optimize': 'nag'}]
+        trainers=[{'algo': sgd, 'momentum': 0.2}, {'algo': 'nag'}]
 
     :type trainers: list[dict] or None
     :param random_state: state for a pseudo random generator
@@ -123,8 +123,8 @@ class TheanetsBase(object):
         Set the parameters of the estimator. Deep parameters of trainers and scaler can be accessed,
         for instance::
 
-                trainers__0 = {'optimize': 'sgd', 'learning_rate': 0.3}
-                trainers__0_optimize = 'sgd'
+                trainers__0 = {'algo': 'sgd', 'learning_rate': 0.3}
+                trainers__0_algo = 'sgd'
                 layers__1 = 14
                 scaler__use_std = True
 
@@ -147,10 +147,10 @@ class TheanetsBase(object):
                         raise ValueError('{} is an invalid parameter for a Theanets estimator: index '
                                          'too big'.format(key))
                     if param == '':
-                        # e.g. trainers__0 = {'optimize': 'sgd', 'learning_rate': 0.3}
+                        # e.g. trainers__0 = {'algo': 'sgd', 'learning_rate': 0.3}
                         self.trainers[index] = value
                     else:
-                        # e.g. trainers__0_optimize = 'sgd'
+                        # e.g. trainers__0_algo = 'sgd'
                         self.trainers[index][param] = value
                 elif param == 'layers':
                     index = int(param_of_param)
@@ -204,8 +204,8 @@ class TheanetsBase(object):
             self.trainers = [{}]
 
         for trainer in self.trainers:
-            if 'optimize' in trainer and trainer['optimize'] in UNSUPPORTED_OPTIMIZERS:
-                raise NotImplementedError(trainer['optimize'] + ' is not supported')
+            if 'algo' in trainer and trainer['algo'] in UNSUPPORTED_OPTIMIZERS:
+                raise NotImplementedError(trainer['algo'] + ' is not supported')
             self.partial_fit(X, y, sample_weight=sample_weight, keep_trainer=False, **trainer)
         return self
 
@@ -341,7 +341,7 @@ class TheanetsRegressor(TheanetsBase, Regressor):
         if len(numpy.shape(sample_weight)) == 1:
             sample_weight = numpy.repeat(sample_weight, y.shape[1])
             sample_weight = sample_weight.reshape(y.shape)
-        if trainer.get('optimize') == 'pretrain':
+        if trainer.get('algo') == 'pretrain':
             self.exp.train([X.astype(numpy.float32)], **params)
         else:
             self.exp.train([X.astype(numpy.float32), y, sample_weight.astype(numpy.float32)], **params)
