@@ -27,7 +27,7 @@ before_install:
       source $(brew --prefix root)/libexec/thisroot.sh;
       which root;
       cat 'TRY IMPORT ROOT';
-      python -c "import ROOT";
+      python -c 'import ROOT';
       otool -L $(brew --prefix root)/lib/root/libPyROOT.so;
       otool -L root/lib/libPyROOT.so;
       pip install pip -U;
