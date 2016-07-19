@@ -5,6 +5,7 @@ Different helpful functions, objects, methods are collected here.
 from __future__ import division, print_function, absolute_import
 from collections import OrderedDict
 
+import time
 import numpy
 import pandas
 from sklearn.utils.validation import column_or_1d
@@ -450,3 +451,37 @@ def fit_metric(metric, *args, **kargs):
     """
     if hasattr(metric, 'fit'):
         metric.fit(*args, **kargs)
+
+
+class Stopwatch(object):
+    """
+    Simple tool to measure time.
+    If your internet connection is reliable, use %time magic.
+
+    >>> with Stopwatch() as timer:
+    >>>     # do something here
+    >>>     classifier.fit(X, y)
+    >>> # print how much time was spent
+    >>> print(timer)
+    """
+
+    def __enter__(self):
+        self.start = time.time()
+        return self
+
+    def __exit__(self, err_type, err_value, err_traceback):
+        self.stop = time.time()
+        self.err_type = err_type
+        self.err_value = err_value
+        self.err_traceback = err_traceback
+
+    @property
+    def elapsed(self):
+        return self.stop - self.start
+
+    def __repr__(self):
+        result = "interval: {:.2f} sec".format(self.elapsed)
+        if self.err_type is not None:
+            message = "\nError {error} of type {error_type} was raised"
+            result += message.format(error=repr(self.err_value), error_type=self.err_type)
+        return result
