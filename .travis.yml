@@ -21,7 +21,7 @@ matrix:
           sudo: required
 
         - os: osx
-          env: REP_PYTHON_VERSION=2
+          env: REP_PYTHON_VERSION=2 PYTHON_VERSION=2.7
           language: generic
 
 before_install:
@@ -29,15 +29,15 @@ before_install:
       brew update > /dev/null;
       brew install xz;
       brew install homebrew/science/root;
-      virtualenv venv -p python$REP_PYTHON_VERSION;
+      virtualenv venv -p python${PYTHON_VERSION};
       source venv/bin/activate;
       source $(brew --prefix root)/libexec/thisroot.sh;
       echo 'TRY IMPORT ROOT';
       python -c 'import ROOT';
-      python -c 'import root_numpy';
       pip install pip -U;
       pip install -r requirements.txt;
       pip install rootpy root_numpy;
+      python -c 'import root_numpy';
       mkdir -p $HOME/.matplotlib;
       echo 'backend:TkAgg' > $HOME/.matplotlib/matplotlibrc;
     else
@@ -62,7 +62,7 @@ script:
       nosetests -v --detailed-errors --nocapture --stop ./tests/z_test_*;
     fi
   # if on master and tests passed successfully, trigger rebuilding of docker image.
-  - if [[ "$TRAVIS_BRANCH" = "master" && "$REP_PYTHON_VERSION" = "2" ]] ; then make push-latest ; fi
+  - if [[ "$TRAVIS_BRANCH" = "master" && "$REP_PYTHON_VERSION" = "2" && $TRAVIS_OS_NAME != 'osx']] ; then make push-latest ; fi
   # reseting flag
   - set +e
 notifications:
