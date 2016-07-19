@@ -49,8 +49,9 @@ def test_theanets_params():
 
 @retry_if_fails
 def test_pretrain():
-    clf = TheanetsClassifier(layers=[5, 5], trainers=[{'algo': 'pretrain', 'learning_rate': 0.1},
-                                                      {'algo': 'nag', 'learning_rate': 0.1}])
+    trainers = [{'algo': 'pretrain', 'learning_rate': 0.2, 'patience': 1, 'validate_every': 1},
+                {'algo': 'nag', 'learning_rate': 0.1}]
+    clf = TheanetsClassifier(layers=[5, 5], trainers=trainers)
     check_classifier(clf, **classifier_params)
 
 
