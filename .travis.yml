@@ -12,12 +12,12 @@ matrix:
     include:
         - os: linux
           language: generic
-          env: REP_PYTHON_VERSION=2
+          env: REP_PYTHON_VERSION=2 THEANO_FLAGS='gcc.cxxflags="-march=core2"'
           sudo: required
 
         - os: linux
           language: generic
-          env: REP_PYTHON_VERSION=3
+          env: REP_PYTHON_VERSION=3 THEANO_FLAGS='gcc.cxxflags="-march=corei7"'
           sudo: required
 
         - os: osx

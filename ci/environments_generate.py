@@ -5,15 +5,18 @@ SImply substitutes fields in the template
 
 """
 from __future__ import division, print_function, absolute_import
+import os
 
 __author__ = 'Alex Rogozhnikov'
 
-with open('environment-rep-template.yaml', 'r') as template_file:
+here = os.path.dirname(os.path.realpath(__file__))
+
+with open(os.path.join(here, 'environment-rep-template.yaml'), 'r') as template_file:
     content = template_file.read()
 
 for python_version in ["2.7", "3.4"]:
     python_major_version = python_version[:1]
     new_content = content.replace('{PYTHON_MAJOR_VERSION}', python_major_version)\
                          .replace('{PYTHON_VERSION}', python_version)
-    with open('environment-rep' + python_major_version + '.yaml', 'w') as new_file:
+    with open(os.path.join(here, 'environment-rep' + python_major_version + '.yaml'), 'w') as new_file:
         new_file.write(new_content)
