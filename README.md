@@ -39,7 +39,9 @@ Examples code is written in python 2, but library is python 2 and python 3 compa
 
 ### Installation with Docker
 
-We provide the [docker image](https://registry.hub.docker.com/u/yandex/rep/) with `REP` and all it's dependencies 
+We provide the [docker image](https://registry.hub.docker.com/u/yandex/rep/) with `REP` and all it's dependencies. 
+It is a recommended way, specially if you're not experienced in python.
+
 * [install with Docker on Linux](https://github.com/yandex/rep/wiki/Install-REP-with-Docker-(Linux))
 * [install with Docker on Mac and Windows](https://github.com/yandex/rep/wiki/Install-REP-with-Docker-(Mac-OS-X,-Windows))
 
