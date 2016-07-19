@@ -4,6 +4,7 @@
 # --without xz ROOT gives: 
 # ---Incompatible library version: libCore.so requires version 8.0.0 or later, but liblzma.5.dylib provides version 6.0.0 
 # ---try to solve by https://github.com/Homebrew/legacy-homebrew/issues/42209 installing xz
+# Theano flags were set accordingly to this issue: https://github.com/Theano/Theano/issues/3780
 
 sudo: required
 services:
@@ -12,7 +13,7 @@ matrix:
     include:
         - os: linux
           language: generic
-          env: REP_PYTHON_VERSION=2 THEANO_FLAGS='gcc.cxxflags="-march=core2"'
+          env: REP_PYTHON_VERSION=2 THEANO_FLAGS='gcc.cxxflags="-march=corei7"'
           sudo: required
 
         - os: linux
@@ -21,7 +22,7 @@ matrix:
           sudo: required
 
         - os: osx
-          env: REP_PYTHON_VERSION=2 PYTHON_VERSION=2.7
+          env: PYTHON_VERSION=2.7
           language: generic
 
 before_install:
@@ -62,7 +63,7 @@ script:
       nosetests -v --detailed-errors --nocapture --stop ./tests/z_test_*;
     fi
   # if on master and tests passed successfully, trigger rebuilding of docker image.
-  - if [[ "$TRAVIS_BRANCH" = "master" && "$REP_PYTHON_VERSION" = "2" && $TRAVIS_OS_NAME != 'osx']] ; then make push-latest ; fi
+  - if [[ "$TRAVIS_BRANCH" = "master" && "$TRAVIS_OS_NAME" != "osx" && "$REP_PYTHON_VERSION" = "2" ]] ; then make push-latest ; fi
   # reseting flag
   - set +e
 notifications:
