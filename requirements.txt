@@ -12,3 +12,4 @@ nose-parameterized == 0.5.0
 theanets == 0.7.3
 pybrain == 0.3
 xgboost == 0.4a30
+hep_ml == 0.4

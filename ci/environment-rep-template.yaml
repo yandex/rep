@@ -1,0 +1,25 @@
+name: rep_py{PYTHON_MAJOR_VERSION}
+channels:
+  - nlesc
+dependencies:
+  - python={PYTHON_VERSION}
+  - nomkl
+  - ipython-notebook=4.0.4
+  - matplotlib=1.5.1
+  - numpy=1.10.4
+  - pandas=0.17.1
+  - scikit-learn=0.17.1
+  - scipy=0.17.0
+  - six=1.10.0
+  - root_numpy
+  - rootpy
+  - root=5*
+  - pip:
+    - bokeh==0.11.1
+    - neurolab==0.3.5
+    - theano==0.8.2
+    - theanets==0.6.2
+    - pybrain==0.3
+    - mpld3==0.2
+    - hep_ml==0.4
+    - xgboost==0.4a30

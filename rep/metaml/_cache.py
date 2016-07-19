@@ -49,7 +49,7 @@ class CacheHelper(object):
             shutil.rmtree(self.folder)
 
     def _get_filename(self, key):
-        file_name_string = base64.urlsafe_b64encode(key) + '.pkl'
+        file_name_string = base64.urlsafe_b64encode(key.encode('ascii')).decode('ascii') + '.pkl'
         return os.path.join(self.folder, file_name_string)
 
     def store_in_cache(self, key, control_hash, value):

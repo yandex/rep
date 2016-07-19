@@ -1,7 +1,4 @@
 from __future__ import division, print_function, absolute_import
-
-__author__ = 'Alex Rogozhnikov'
-
 import time
 import os.path
 import datetime
@@ -9,6 +6,8 @@ from sklearn.linear_model import LogisticRegression, LinearRegression, SGDClassi
 from rep.metaml._cache import CacheHelper
 from rep.metaml.cache import CacheClassifier, CacheRegressor, cache_helper
 from rep.test.test_estimators import generate_classification_data, check_classifier, check_regression
+
+__author__ = 'Alex Rogozhnikov'
 
 
 def test_cache_helper():

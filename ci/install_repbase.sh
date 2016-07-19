@@ -10,16 +10,11 @@ function halt {
   exit 1
 }
 
-# TODO change to single parameter (together with travis testing)
-
 PYTHON_MAJOR_VERSION=2
 if [ -n "$1" ]; then
     PYTHON_MAJOR_VERSION=$1
 fi
-# when testing on travis, we use travis variable
-if [ -n "$TRAVIS_PYTHON_VERSION" ] ; then
-    PYTHON_MAJOR_VERSION=${TRAVIS_PYTHON_VERSION:0:1}
-fi
+
 REP_ENV_NAME="rep_py${PYTHON_MAJOR_VERSION}"
 
 # checking that system has apt-get
@@ -53,13 +48,8 @@ mkdir -p $HOME/.config/matplotlib && echo 'backend: agg' > $HOME/.config/matplot
 [ -n "$CONDA_ENV_PATH" ] && source deactivate
 
 if ! which conda ; then
-    # install miniconda
-    # TODO use single starting miniconda
-    if [ "$PYTHON_MAJOR_VERSION" == "3" ]; then
-        MINICONDA_FILE="Miniconda3-latest-Linux-x86_64.sh"
-    else
-        MINICONDA_FILE="Miniconda-latest-Linux-x86_64.sh"
-    fi
+    echo "installing miniconda"
+    MINICONDA_FILE="Miniconda2-3.19.0-Linux-x86_64.sh"
     wget http://repo.continuum.io/miniconda/$MINICONDA_FILE -O miniconda.sh
     chmod +x miniconda.sh
     ./miniconda.sh -b -p $HOME/miniconda || halt "Error installing miniconda"
@@ -70,36 +60,39 @@ if ! which conda ; then
 fi
 
 HERE="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-REP_ENV_FILE="$HERE/environment-rep.yaml"
-JUPYTERHUB_ENV_FILE="$HERE/environment-jupyterhub.yaml"
+REP_ENV_FILE="$HERE/environment-rep${PYTHON_MAJOR_VERSION}.yaml"
+JUPYTERHUB_ENV_FILE="$HERE/environment-jupyterhub_py3.yaml"
 
 echo "Creating conda venv jupyterhub_py3"
-conda env create -q --name jupyterhub_py3 --file $JUPYTERHUB_ENV_FILE > /dev/null
+conda env create -q --file $JUPYTERHUB_ENV_FILE > /dev/null
 source activate jupyterhub_py3 || halt "Error installing jupyterhub_py3 environment"
 
 echo "Removing conda packages and caches"
 conda uninstall --force --yes -q gcc qt
-conda clean --yes -s -p -l -i -t
+conda clean --yes --all
 
 
 echo "Creating conda venv $REP_ENV_NAME"
-conda env create -q --name $REP_ENV_NAME python=$PYTHON_MAJOR_VERSION --file $REP_ENV_FILE > /dev/null
+conda env create -q --file $REP_ENV_FILE > /dev/null
 source activate $REP_ENV_NAME || halt "Error installing $REP_ENV_NAME environment"
 
-echo "Removing conda packages and caches"
+echo "Removing conda packages and caches:"
 conda uninstall --force --yes -q gcc qt
-conda clean --yes -s -p -l -i -t
+conda clean --yes --all
 
 
-# test installed packages
-source "${ENV_BIN_DIR}/thisroot.sh" || halt "Error installing ROOT"
+echo "Test installed packages:"
+source $(which thisroot.sh) || halt "Error installing ROOT"
 python -c 'import ROOT, root_numpy' || halt "Error installing root_numpy"
 python -c 'import xgboost' || halt "Error installing XGBoost"
+
+echo "Python version:"
+which python
+python --version
 
 # printing message about environment
 cat << EOL_MESSAGE
     # add to your environment:
     export PATH=\$HOME/miniconda/bin:\$PATH
     source activate \$REP_ENV_NAME
-    source \$ENV_BIN_DIR/thisroot.sh
 EOL_MESSAGE

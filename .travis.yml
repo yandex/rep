@@ -4,6 +4,7 @@
 # --without xz ROOT gives: 
 # ---Incompatible library version: libCore.so requires version 8.0.0 or later, but liblzma.5.dylib provides version 6.0.0 
 # ---try to solve by https://github.com/Homebrew/legacy-homebrew/issues/42209 installing xz
+# Theano flags were set accordingly to this issue: https://github.com/Theano/Theano/issues/3780
 
 sudo: required
 services:
@@ -11,15 +12,17 @@ services:
 matrix:
     include:
         - os: linux
-          python: 2.7
+          language: generic
+          env: REP_PYTHON_VERSION=2 THEANO_FLAGS='gcc.cxxflags="-march=corei7"'
           sudo: required
 
         - os: linux
-          python: 3.4
+          language: generic
+          env: REP_PYTHON_VERSION=3 THEANO_FLAGS='gcc.cxxflags="-march=corei7"'
           sudo: required
 
         - os: osx
-          env: TRAVIS_PYTHON_VERSION=2.7
+          env: PYTHON_VERSION=2.7
           language: generic
 
 before_install:
@@ -27,7 +30,7 @@ before_install:
       brew update > /dev/null;
       brew install xz;
       brew install homebrew/science/root;
-      virtualenv venv -p python$TRAVIS_PYTHON_VERSION;
+      virtualenv venv -p python${PYTHON_VERSION};
       source venv/bin/activate;
       source $(brew --prefix root)/libexec/thisroot.sh;
       echo 'TRY IMPORT ROOT';
@@ -35,10 +38,11 @@ before_install:
       pip install pip -U;
       pip install -r requirements.txt;
       pip install rootpy root_numpy;
+      python -c 'import root_numpy';
       mkdir -p $HOME/.matplotlib;
       echo 'backend:TkAgg' > $HOME/.matplotlib/matplotlibrc;
     else
-      source ci/install_repbase.sh;
+      source ci/install_repbase.sh $REP_PYTHON_VERSION;
       conda list;
     fi
   # printing DEBUG information
@@ -53,17 +57,13 @@ script:
   - set -e
   - mkdir -p ./.cache/rep
   # testing all but notebooks
-  - if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
-      nosetests -v --detailed-errors --nocapture ./tests/test_*;
-    else
-      THEANO_FLAGS='gcc.cxxflags="-march=core2"' nosetests -v --detailed-errors --nocapture ./tests/test_*;
-    fi
+  - nosetests -v --detailed-errors --nocapture ./tests/test_*;
   # testing only notebooks
   - if [[ $TRAVIS_OS_NAME != 'osx' ]]; then
       nosetests -v --detailed-errors --nocapture --stop ./tests/z_test_*;
     fi
   # if on master and tests passed successfully, trigger rebuilding of docker image.
-  - if [[ "$TRAVIS_BRANCH" = "master" && "${TRAVIS_PYTHON_VERSION:0:1}" = "2" ]] ; then make push-latest ; fi
+  - if [[ "$TRAVIS_BRANCH" = "master" && "$TRAVIS_OS_NAME" != "osx" && "$REP_PYTHON_VERSION" = "2" ]] ; then make push-latest ; fi
   # reseting flag
   - set +e
 notifications:
