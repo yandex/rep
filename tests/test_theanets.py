@@ -49,7 +49,7 @@ def test_theanets_params():
 
 @retry_if_fails
 def test_pretrain():
-    clf = TheanetsClassifier(layers=[5, 5], trainers=[{'algo': 'pretrain', 'learning_rate': 0.1},
+    clf = TheanetsClassifier(layers=[2, 2], trainers=[{'algo': 'pretrain', 'learning_rate': 0.1},
                                                       {'algo': 'nag', 'learning_rate': 0.1}])
     check_classifier(clf, **classifier_params)
 
@@ -57,11 +57,11 @@ def test_pretrain():
 @retry_if_fails
 def test_theanets_configurations():
     check_classifier(
-        TheanetsClassifier(layers=[13], scaler=False,
+        TheanetsClassifier(layers=[3], scaler=False,
                            trainers=[{'algo': 'nag', 'learning_rate': 0.1}]),
         **classifier_params)
     check_classifier(
-        TheanetsClassifier(layers=[5, 5], scaler='minmax',
+        TheanetsClassifier(layers=[2, 2], scaler='minmax',
                            trainers=[{'algo': 'adadelta', 'learning_rate': 0.1}]),
         **classifier_params)
 
