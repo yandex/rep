@@ -16,7 +16,7 @@ COPY ./howto /notebooks/rep_howto
 # adding profiles to .bashrc,
 # pip-installing rep itself
 # deleting folder
-RUN $TEMP/build/ci/install_repbase.sh \
+RUN source $TEMP/build/ci/install_repbase.sh \
     && echo "source /etc/profile.d/rep_profile.sh" >> $HOME/.bashrc \
     && echo "umask 0002" >> $HOME/.bashrc \
     && pip install $TEMP/build \
