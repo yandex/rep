@@ -1,41 +1,34 @@
-FROM yandex/rep-base:0.6.1
-MAINTAINER Andrey Ustyuzhanin <anaderi@yandex-team.ru>
+FROM ubuntu:14.04.04
+MAINTAINER Alex Rogozhnikov <axelr@yandex-team.ru>
 
-ENV TEMP /tmp
-ENV SHELL /bin/bash
-ENV PORT_JUPYTER=8888
 ENV HOME /root
+ENV TEMP /tmp
+ENV PORT_JUPYTER=8888
 
 # copying everything
-RUN mkdir $TEMP/build && mkdir -p /notebooks/rep_howto
+RUN mkdir -p $TEMP/build && mkdir -p /notebooks/rep_howto
+
 COPY ./ $TEMP/build/
-# copying howto
+# copying HowTos separately
 COPY ./howto /notebooks/rep_howto
 
-# copy scripts separately
-COPY ./ci/*.sh $HOME/
-RUN chmod +x $HOME/*.sh
-
-# installing pip dependencies and cleaning folder
-RUN /bin/bash --login -c "pip install $TEMP/build && rm -rf $TEMP/build"
-
-# TODO MOVE
-# IPython setup
-RUN /bin/bash --login -c " \
-  jupyter notebook -y --generate-config &&\
-  /bin/echo -e \"\
-c.NotebookApp.ip = '*' \n\
-c.NotebookApp.open_browser = False \n\
-c.NotebookApp.port = $PORT_JUPYTER \n \" \
-  | tee -a $HOME/.jupyter/jupyter_notebook_config.py \
-  "
-
-# create folder for notebooks
-RUN mkdir /notebooks
+# installing environment,
+# adding profiles to .bashrc,
+# pip-installing rep itself
+# deleting folder
+RUN $TEMP/build/ci/install-repbase.sh \
+    && echo "source /etc/profile.d/rep_profile.sh" >> $HOME/.bashrc \
+    && echo "umask 0002" >> $HOME/.bashrc \
+    && pip install $TEMP/build \
+    && rm -rf $TEMP/build
 
 # registering mounting points
 VOLUME ["/notebooks"]
 # registering port
 EXPOSE $PORT_JUPYTER
-# starting IPython process
+
+# adding a file to run jupyter
+COPY ./ci/start_jupyter.sh $HOME/
+
+# starting IPython process when image is started
 CMD ["/bin/bash", "--login", "-c", "$HOME/start_jupyter.sh"]
