@@ -6,7 +6,7 @@
 
 set +xv
 
-[ -z "$ENV_BIN_DIR" ] && source /etc/profile.d/rep_profile.sh
+source /etc/profile.d/rep_profile.sh
 
 if [ "$INSTALL_PIP_MODULES" != "" ] ; then
 	pip install $INSTALL_PIP_MODULES
@@ -14,10 +14,6 @@ fi
 
 if [ "$JPY_API_TOKEN" != "" ] ; then
 	echo "Starting under Jupyterhub"
-	jupyter kernelspec install-self
-	source activate jupyterhub_py3
-	jupyter kernelspec install-self
-	source activate rep_py2 # default env
 
 	NOTEBOOK_DIR=/notebooks
 	git clone $JPY_GITHUBURL $NOTEBOOK_DIR
@@ -67,8 +63,6 @@ fi
 if [ "$JUPYTER_PORT" != "" ] ; then
 	JUPYTER_OPTIONS+=" --port $JUPYTER_PORT"
 fi
-
-[[ -d /REP_howto && ! -L /notebooks/rep_howto ]] && ln -s /REP_howto /notebooks/rep_howto
 
 cat .rep_version
 source .rep_version

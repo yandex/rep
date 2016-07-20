@@ -1,11 +1,11 @@
 #!/bin/bash
-# installing REP environment with miniconda
+# installing REP environment with miniconda (not REP itself!)
 # Usage: $0 [PYTHON_MAJOR_VERSION=2]
 # e.g. for python 3: $0 3
 
 
 # define a function to print error before exiting
-function halt {
+function throw_error {
   echo -e $*
   exit 1
 }
@@ -15,6 +15,7 @@ if [ -n "$1" ]; then
     PYTHON_MAJOR_VERSION=$1
 fi
 
+# setting name (rep_py2 or rep_py3)
 REP_ENV_NAME="rep_py${PYTHON_MAJOR_VERSION}"
 
 # checking that system has apt-get
@@ -52,7 +53,7 @@ if ! which conda ; then
     MINICONDA_FILE="Miniconda2-3.19.0-Linux-x86_64.sh"
     wget http://repo.continuum.io/miniconda/$MINICONDA_FILE -O miniconda.sh
     chmod +x miniconda.sh
-    ./miniconda.sh -b -p $HOME/miniconda || halt "Error installing miniconda"
+    ./miniconda.sh -b -p $HOME/miniconda || throw_error "Error installing miniconda"
     rm ./miniconda.sh
     export PATH=$HOME/miniconda/bin:$PATH
     hash -r
@@ -65,7 +66,7 @@ JUPYTERHUB_ENV_FILE="$HERE/environment-jupyterhub_py3.yaml"
 
 echo "Creating conda venv jupyterhub_py3"
 conda env create -q --file $JUPYTERHUB_ENV_FILE > /dev/null
-source activate jupyterhub_py3 || halt "Error installing jupyterhub_py3 environment"
+source activate jupyterhub_py3 || throw_error "Error installing jupyterhub_py3 environment"
 
 echo "Removing conda packages and caches"
 conda uninstall --force --yes -q gcc qt
@@ -74,7 +75,7 @@ conda clean --yes --all
 
 echo "Creating conda venv $REP_ENV_NAME"
 conda env create -q --file $REP_ENV_FILE > /dev/null
-source activate $REP_ENV_NAME || halt "Error installing $REP_ENV_NAME environment"
+source activate $REP_ENV_NAME || throw_error "Error installing $REP_ENV_NAME environment"
 
 echo "Removing conda packages and caches:"
 conda uninstall --force --yes -q gcc qt
@@ -82,9 +83,15 @@ conda clean --yes --all
 
 
 echo "Test installed packages:"
-source $(which thisroot.sh) || halt "Error installing ROOT"
-python -c 'import ROOT, root_numpy' || halt "Error installing root_numpy"
-python -c 'import xgboost' || halt "Error installing XGBoost"
+source $(which thisroot.sh) || throw_error "Error installing ROOT"
+python -c 'import ROOT, root_numpy' || throw_error "Error installing root_numpy"
+python -c 'import xgboost' || throw_error "Error installing XGBoost"
+
+echo "Registering this environment as kernel for jupyterhub and jupyter"
+python -m ipykernel.kernelspec
+
+echo "Generating config"
+jupyter notebook -y --generate-config
 
 echo "Python version:"
 which python
