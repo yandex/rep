@@ -4,6 +4,7 @@ MAINTAINER Alex Rogozhnikov <axelr@yandex-team.ru>
 ENV HOME /root
 ENV TEMP /tmp
 ENV PORT_JUPYTER=8888
+ENV SHELL /bin/bash
 
 # copying everything
 RUN mkdir -p $TEMP/build && mkdir -p /notebooks/rep_howto

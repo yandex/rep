@@ -58,6 +58,8 @@ if ! which conda ; then
     export PATH=$HOME/miniconda/bin:$PATH
     hash -r
     conda update --yes conda
+    # cleaning root environment
+    conda clean -all
 fi
 
 HERE="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
