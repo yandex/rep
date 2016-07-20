@@ -6,26 +6,18 @@ ENV SHELL /bin/bash
 ENV PORT_JUPYTER=8888
 ENV HOME /root
 
-# copying howto
-COPY ./howto /REP_howto
-
 # copying everything
-RUN mkdir $TEMP/build
+RUN mkdir $TEMP/build && mkdir -p /notebooks/rep_howto
 COPY ./ $TEMP/build/
-# copy scripts
+# copying howto
+COPY ./howto /notebooks/rep_howto
+
+# copy scripts separately
 COPY ./ci/*.sh $HOME/
 RUN chmod +x $HOME/*.sh
 
-# Debugging TODO delete
-RUN ls $HOME
-RUN ls /REP_howto
-RUN ls $TEMP/build
-
-RUN /bin/bash --login -c " \
-  cd $TEMP/build && \
-  pip install . && \
-  cd $HOME && \
-  rm -rf $TEMP/build"
+# installing pip dependencies and cleaning folder
+RUN /bin/bash --login -c "pip install $TEMP/build && rm -rf $TEMP/build"
 
 # TODO MOVE
 # IPython setup
