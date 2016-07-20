@@ -93,13 +93,25 @@ python -m ipykernel.kernelspec
 echo "Generating config"
 jupyter notebook -y --generate-config
 
+cat << EOL_CONFIG >> $HOME/.jupyter/jupyter_notebook_config.py
+c.NotebookApp.ip = '*'
+c.NotebookApp.open_browser = False
+EOL_CONFIG
+
 echo "Python version:"
 which python
 python --version
 
+# creating correct profile (will be sourced in .bashrc)
+mkdir -p /etc/profile.d/
+cat >/etc/profile.d/rep_profile.sh << EOL_PROFILESH
+    export PATH=$HOME/miniconda/bin:\$PATH
+    source activate \$REP_ENV_NAME
+    source $(which thisroot.sh) || echo "Could not source ROOT!"
+EOL_PROFILESH
+
 # printing message about environment
 cat << EOL_MESSAGE
-    # add to your environment:
-    export PATH=\$HOME/miniconda/bin:\$PATH
-    source activate \$REP_ENV_NAME
+    # add to your environment (e.g. to $HOME/.bashrc file):
+    source /etc/profile.d/rep_profile.sh
 EOL_MESSAGE

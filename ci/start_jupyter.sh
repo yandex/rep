@@ -3,6 +3,7 @@
 # script to start jupyter inside docker container
 # fine-tuned by set of environment variables (see the code),
 # e.g. runs under jupyterhub environment in case JPY_API_TOKEN is set
+# jupyterhub is needed to work on everware or other services
 
 set +xv
 
@@ -28,6 +29,8 @@ if [ "$JPY_API_TOKEN" != "" ] ; then
 	  --notebook-dir=$NOTEBOOK_DIR
 	exit $?
 fi
+
+# if not starting jupyterhub, working with simple docker image
 
 if [ "$GENERATE_SSL_HOSTNAME" != "" ] ; then
 	echo "Setting up SSL support for the Jupyter profile"
