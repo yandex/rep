@@ -12,6 +12,9 @@ COPY ./ $TEMP/build/
 # copying HowTos separately
 COPY ./howto /notebooks/rep_howto
 
+# changing default shell to bash. See http://stackoverflow.com/questions/20635472/
+RUN rm /bin/sh && ln -s /bin/bash /bin/sh
+
 # installing environment,
 # adding profiles to .bashrc,
 # pip-installing rep itself
