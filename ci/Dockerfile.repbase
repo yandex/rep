@@ -12,12 +12,14 @@ RUN /root/install-repbase.sh
 # TODO dockerfiles do not support heredocs so far, need to rewrite this
 RUN cat >/etc/profile.d/rep_profile.sh << EOL_PROFILESH
 export PATH=$HOME/miniconda/bin:\$PATH
-source activate rep_py2
-source \$ENV_BIN_DIR/thisroot.sh
+# activating one of environments
+source activate rep_py2 || source activate rep_py3
+source $(which thisroot.sh) || echo "Could not source ROOT!"
 umask 0002
 EOL_PROFILESH
 
-# adding to source
-# RUN echo "source /etc/profile.d/rep_profile.sh" >> $HOME/.bashrc
+# adding to .bashrc
+RUN echo "source /etc/profile.d/rep_profile.sh" >> $HOME/.bashrc
+
 # by default, container will be started with bash shell
 CMD ["/bin/bash", "--login", "-c"]
