@@ -1,4 +1,4 @@
-FROM ubuntu:14.04.04
+FROM ubuntu:14.04
 MAINTAINER Alex Rogozhnikov <axelr@yandex-team.ru>
 
 ENV HOME /root
