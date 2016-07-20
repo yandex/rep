@@ -71,7 +71,7 @@ source activate jupyterhub_py3 || throw_error "Error installing jupyterhub_py3 e
 echo "Removing conda packages and caches"
 conda uninstall --force --yes -q gcc qt
 conda clean --yes --all
-
+conda list
 
 echo "Creating conda venv $REP_ENV_NAME"
 conda env create -q --file $REP_ENV_FILE > /dev/null
@@ -80,6 +80,7 @@ source activate $REP_ENV_NAME || throw_error "Error installing $REP_ENV_NAME env
 echo "Removing conda packages and caches:"
 conda uninstall --force --yes -q gcc qt
 conda clean --yes --all
+conda list
 
 
 echo "Test installed packages:"
