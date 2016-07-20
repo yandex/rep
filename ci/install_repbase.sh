@@ -1,7 +1,8 @@
 #!/bin/bash
 # installing REP environment with miniconda (not REP itself!)
-# Usage: $0 [PYTHON_MAJOR_VERSION=2]
-# e.g. for python 3: $0 3
+# Usage:
+# source install_repbase.sh PYTHON_MAJOR_VERSION
+# where PYTHON_MAJOR_VERSION is 2 or 3.
 
 
 # define a function to print error before exiting
@@ -59,7 +60,7 @@ if ! which conda ; then
     hash -r
     conda update --yes conda
     # cleaning root environment
-    conda clean -all
+    conda clean --yes --all
 fi
 
 HERE="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
