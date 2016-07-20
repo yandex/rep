@@ -112,6 +112,8 @@ EOL_PROFILESH
 
 # printing message about environment
 cat << EOL_MESSAGE
+
     # add to your environment (e.g. to $HOME/.bashrc file):
     source /etc/profile.d/rep_profile.sh
+
 EOL_MESSAGE
