@@ -17,7 +17,7 @@ test:
     - mkdir -p /home/ubuntu/rep/notebooks
     # - mkdir -p /home/ubuntu/rep/etc
     - source ./.rep_version
-    - docker run -d -ti -v /home/ubuntu/rep/notebooks:/notebooks -p 8888:8888 --name rep yandex/rep:$REP_IMAGE; sleep 20
+    - docker run -d -ti -v /home/ubuntu/rep/notebooks:/notebooks -p 8888:8888 --name rep $REP_IMAGE; sleep 20
     - ls -la /home/ubuntu/rep/notebooks
     - docker logs rep
     - curl --retry 10 --retry-delay 5 -v http://localhost:8888
