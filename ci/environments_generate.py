@@ -1,8 +1,8 @@
 """
 Generates environment files separately for python 2 and python 3. (rep_py2, rep_py3)
-SImply substitutes fields in the template
+Simply substitutes fields in the template. Usage:
 
-
+python environments_generate.py
 """
 from __future__ import division, print_function, absolute_import
 import os

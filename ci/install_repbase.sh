@@ -78,6 +78,9 @@ conda list
 
 echo "Creating conda venv $REP_ENV_NAME"
 conda env create -q --file $REP_ENV_FILE > /dev/null
+# next line is hack. Unfortunately, sometimes conda does not set CONDA_ENV_PATH (anymore).
+# due to this, ROOT can not be sourced
+export CONDA_ENV_PATH=$HOME/miniconda/envs/$REP_ENV_NAME
 source activate $REP_ENV_NAME || throw_error "Error installing $REP_ENV_NAME environment"
 
 echo "Removing conda packages and caches:"
@@ -94,7 +97,7 @@ python -c 'import xgboost' || throw_error "Error installing XGBoost"
 echo "Registering this environment as kernel for jupyterhub and jupyter"
 python -m ipykernel.kernelspec
 
-echo "Generating config"
+echo "Generating jupyter config"
 jupyter notebook -y --generate-config
 
 cat << EOL_CONFIG >> $HOME/.jupyter/jupyter_notebook_config.py

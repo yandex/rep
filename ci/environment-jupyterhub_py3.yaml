@@ -3,6 +3,5 @@ name: jupyterhub_py3
 dependencies:
   - python=3.4
   - nomkl
-  - six=1.10.0
   - pip:
     - jupyterhub
