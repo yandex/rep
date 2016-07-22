@@ -113,7 +113,9 @@ python --version
 mkdir -p /etc/profile.d/
 cat >/etc/profile.d/rep_profile.sh << EOL_PROFILESH
     export PATH=$HOME/miniconda/bin:\$PATH
-    source activate \$REP_ENV_NAME
+    # next line is temporary hack to fix that conda may ignore this path
+    export CONDA_ENV_PATH=$HOME/miniconda/envs/$REP_ENV_NAME
+    source activate ${REP_ENV_NAME}
     source $(which thisroot.sh) || echo "Could not source ROOT!"
 EOL_PROFILESH
 

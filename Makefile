@@ -1,14 +1,14 @@
 # Makefile for building & starting REP containers
 # arguments can be supplied by -e definitions: 
 #
-#    NOTEBOOKS -- folder to be mounted to container
-#    PORT -- port to listen for incoming connection
+#	NOTEBOOKS -- folder to be mounted to container (default: ./notebooks)
+#	PORT -- port to listen for incoming connection (default: 8888)
 #
 
 CONTAINER_NAME := rep
 NOTEBOOKS ?= $(shell pwd)/notebooks
 PORT ?= 8888
-DOCKER_ARGS := -v $(NOTEBOOKS):/notebooks -p $(PORT):8888
+DOCKER_ARGS := --volume $(NOTEBOOKS):/notebooks -p $(PORT):8888
 
 include .rep_version  # read REP_IMAGE
 
@@ -32,7 +32,7 @@ rep-image2:	## build REP image with python 2
 rep-image3:	## build REP image with python 3
 	docker build --build-arg REP_PYTHON_VERSION=3 -t $(REP_IMAGE) -f ci/Dockerfile.rep .
 
-local-dirs:
+local-dirs: ## creates a local directory to be mounted to REP container
 	[ -d $(NOTEBOOKS) ] || mkdir -p $(NOTEBOOKS)
 
 run: local-dirs		## run REP interactively
@@ -40,6 +40,10 @@ run: local-dirs		## run REP interactively
 
 run-daemon: local-dirs	## run REP as a daemon
 	docker run --detach $(DOCKER_ARGS) --name $(CONTAINER_NAME) $(REP_IMAGE)
+
+run-tests:  ## run tests inside a container, both notebooks and scripts
+	docker run  --interactive --tty --rm --volume $(shell pwd)/tests:/notebooks $(REP_IMAGE) \
+	    /bin/bash -l -c "cd notebooks && nosetests -v --detailed-errors --nocapture . "
 
 restart:	## restart REP container
 	docker restart $(CONTAINER_NAME)
@@ -57,7 +61,7 @@ remove: stop	## remove REP container
 	docker rm $(CONTAINER_NAME)
 
 inspect:	## inspect REP image
-	docker inspect $(REP_IMAGE) 
+	docker inspect $(REP_IMAGE)
 
 push: rep-image2	## build REP image & push to docker hub
 	@docker login -e="$(DOCKER_EMAIL)" -u="$(DOCKER_USERNAME)" -p="$(DOCKER_PASSWORD)"

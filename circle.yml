@@ -18,17 +18,16 @@ test:
   override:
     # running docker in background
     - mkdir -p /home/ubuntu/rep/notebooks
-    # - mkdir -p /home/ubuntu/rep/etc
-    - source ./.rep_version
-    # checking that source is working
-    - echo $REP_IMAGE
-    # - docker run -d -ti -v /home/ubuntu/rep/notebooks:/notebooks -p 8888:8888 --name rep yandex/rep:0.6.5; sleep 20
-    - make run-daemon; sleep 20
+    - make -e NOTEBOOKS=/home/ubuntu/rep/notebooks run-daemon; sleep 20
+    # looking at the contents of folder
     - ls -la /home/ubuntu/rep/notebooks
     - docker logs rep
     - curl --retry 10 --retry-delay 5 -v http://localhost:8888
     - wget http://localhost:8888 -O output.html
     - cat output.html
-    # TODO testing of installation in docker
+    # check that word ipython or jupyter is met on the page
+    - grep -q "ipython\|jupyter" output.html
     # TODO check something in output
+    - make run-tests
+
 
