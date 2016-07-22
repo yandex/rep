@@ -76,14 +76,11 @@ def test_theanets_regression():
     check_regression(TheanetsRegressor(scaler=StandardScaler()), **regressor_params)
 
 
-@known_failure
 def test_theanets_partial_fit():
     clf_complete = TheanetsClassifier(layers=[2], trainers=[{'algo': 'rmsprop', 'learning_rate': 0.1},
                                                             {'algo': 'rprop', 'learning_rate': 0.1}])
     clf_partial = TheanetsClassifier(layers=[2], trainers=[{'algo': 'rmsprop', 'learning_rate': 0.1}])
     X, y, sample_weight = generate_classification_data()
-    import numpy
-    numpy.random.seed(43)
     clf_complete.fit(X, y)
     clf_partial.fit(X, y)
     clf_partial.partial_fit(X, y, algo='rprop', learning_rate=0.1)
@@ -97,12 +94,9 @@ def test_theanets_partial_fit():
     assert auc_complete == auc_partial, 'same networks return different results'
 
 
-@known_failure
 def test_theanets_reproducibility():
     clf = TheanetsClassifier(trainers=[{'algo': 'nag', 'min_improvement': 0.1}])
     X, y, _ = generate_classification_data()
-    import numpy
-    numpy.random.seed(43)
     check_classification_reproducibility(clf, X, y)
 
 
