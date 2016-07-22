@@ -9,8 +9,6 @@ set +xv
 
 # activate REP environment
 source /etc/profile.d/rep_profile.sh
-# printing REP version
-cat .rep_version
 
 # when mounting, a folder from host is used,
 # while contents inside the directory are ignored.

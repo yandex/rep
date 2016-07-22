@@ -1,19 +1,23 @@
 FROM ubuntu:14.04
 MAINTAINER Alex Rogozhnikov <axelr@yandex-team.ru>
 
+# This variable is set during building docker container
 ARG REP_PYTHON_VERSION=2
-ENV HOME /root
-ENV TEMP /tmp
-ENV PORT_JUPYTER=8888
-ENV SHELL /bin/bash
 
-# copying everything
+# Setting environment variables in the container
+ENV HOME=/root  \
+    TEMP=/tmp  \
+    PORT_JUPYTER=8888  \
+    SHELL=/bin/bash
+
+# Creating folders in container
 RUN mkdir -p $TEMP/build \
  && mkdir -p /notebooks \
  && mkdir -p /REP_howto
 
+# Copy REP to build folder
 COPY ./ $TEMP/build/
-# copying HowTos separately
+# Copy HowTos separately
 COPY ./howto /REP_howto
 
 # changing default shell to bash. See http://stackoverflow.com/questions/20635472/

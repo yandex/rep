@@ -17,7 +17,7 @@ help:
 	@echo "variables:"
 	@grep -h "#\s\+\w\+ -- " $(MAKEFILE_LIST) |sed "s/#\s//"
 	@echo
-	@echo targets and corresponding dependencies:
+	@echo targets:
 	@fgrep -h "##" $(MAKEFILE_LIST) | fgrep -v fgrep | sed -e 's/\\$$//' -e 's/^/   /' | sed -e 's/##//'
 
 .PHONY: run rep-image2 rep-image3 run-daemon restart logs  \
@@ -43,7 +43,7 @@ run-daemon: local-dirs	## run REP as a daemon
 
 run-tests:  ## run tests inside a container, both notebooks and scripts
 	docker run  --interactive --tty --rm --volume $(shell pwd)/tests:/notebooks $(REP_IMAGE) \
-	    /bin/bash -l -c "cd notebooks && nosetests -v --detailed-errors --nocapture . "
+	    /bin/bash -l -c "cd /notebooks/tests && nosetests -v --detailed-errors --nocapture . "
 
 restart:	## restart REP container
 	docker restart $(CONTAINER_NAME)
