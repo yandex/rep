@@ -10,6 +10,7 @@ NOTEBOOKS ?= $(shell pwd)/notebooks
 PORT ?= 8888
 DOCKER_ARGS := --volume $(NOTEBOOKS):/notebooks -p $(PORT):8888
 
+HERE := $(shell pwd)
 include .rep_version  # read REP_IMAGE
 
 help:
@@ -44,10 +45,10 @@ run-daemon: local-dirs	## run REP as a daemon
 run-tests:  ## run tests inside a container, both notebooks and scripts
 	find tests -name '*.pyc' -delete
 	# for some reason nosetests fails if directly mounted to tests folder
-	mkdir -p ./notebooks/
-	cp -r tests ./notebooks/
-	cp -r howto ./notebooks
-	docker run  --interactive --tty --rm --volume $(shell pwd)/notebooks:/notebooks $(REP_IMAGE) \
+	mkdir -p $(HERE)/_docker_tests/
+	cp -r $(HERE)/tests $(HERE)/_docker_tests/
+	cp -r $(HERE)/howto $(HERE)/_docker_tests/
+	docker run  --interactive --tty --rm --volume $(HERE)/_docker_tests:/notebooks $(REP_IMAGE) \
 		/bin/bash -l -c "cd /notebooks/tests && nosetests -v --detailed-errors --nocapture . "
 
 restart:	## restart REP container

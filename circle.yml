@@ -27,7 +27,6 @@ test:
     - cat output.html
     # check that word ipython or jupyter is met on the page
     - grep -q "ipython\|jupyter" output.html
-    # TODO check something in output
     - make run-tests
 
 
