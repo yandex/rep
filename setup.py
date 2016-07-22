@@ -47,7 +47,7 @@ setup(
     license='Apache-2.0 License',
 
     # Manually specifying all packages
-    packages=['rep', 'rep.estimators', 'rep.data', 'rep.metaml', 'rep.report', 'rep.test'],
+    packages=['rep', 'rep.data', 'rep.estimators', 'rep.metaml', 'rep.report', 'rep.test'],
     package_dir={'rep': 'rep'},
     classifiers=[
         'Development Status :: 5 - Production/Stable',
