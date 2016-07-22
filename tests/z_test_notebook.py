@@ -4,9 +4,8 @@ from rep.test.test_notebooks import check_single_notebook
 import six
 
 if six.PY3:
-    # Notebooks are written in python2.
+    # Notebooks are written in python2, so not testing it under python 3
     import nose
-
     raise nose.SkipTest
 
 

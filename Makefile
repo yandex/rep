@@ -44,10 +44,9 @@ run-daemon: local-dirs	## run REP as a daemon
 run-tests:  ## run tests inside a container, both notebooks and scripts
 	find tests -name '*.pyc' -delete
 	# for some reason nosetests fails if directly mounted to tests folder
-	mkdir -p ./notebooks/tests
-	cp -r tests ./notebooks/tests
-	mkdir -p ./notebooks/howto
-	cp -r howto ./notebooks/howto
+	mkdir -p ./notebooks/
+	cp -r tests ./notebooks/
+	cp -r howto ./notebooks
 	docker run  --interactive --tty --rm --volume $(shell pwd)/notebooks:/notebooks $(REP_IMAGE) \
 		/bin/bash -l -c "cd /notebooks/tests && nosetests -v --detailed-errors --nocapture . "
 
