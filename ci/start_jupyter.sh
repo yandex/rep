@@ -7,7 +7,16 @@
 
 set +xv
 
+# activate REP environment
 source /etc/profile.d/rep_profile.sh
+# printing REP version
+cat .rep_version
+
+# when mounting, a folder from host is used,
+# while contents inside the directory are ignored.
+# This solution also hes problem as user may expect his changes in this folder
+# to be preserved between runs
+[[ -d /REP_howto && ! -L /notebooks/rep_howto ]] && ln -s /REP_howto /notebooks/rep_howto
 
 if [ "$INSTALL_PIP_MODULES" != "" ] ; then
 	pip install $INSTALL_PIP_MODULES
@@ -67,7 +76,5 @@ if [ "$JUPYTER_PORT" != "" ] ; then
 	JUPYTER_OPTIONS+=" --port $JUPYTER_PORT"
 fi
 
-cat .rep_version
-source .rep_version
 echo "Starting Jupyter"
 jupyter notebook $JUPYTER_OPTIONS /notebooks 2>&1 | tee -a /notebooks/jupyter.log

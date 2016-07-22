@@ -1,5 +1,5 @@
 #!/bin/bash
-# installing REP environment with miniconda (not REP itself!)
+# installing environment for REP with miniconda (not REP itself!)
 # Usage:
 # source install_repbase.sh PYTHON_MAJOR_VERSION
 # where PYTHON_MAJOR_VERSION is 2 or 3.
@@ -122,5 +122,6 @@ cat << EOL_MESSAGE
 
     # add to your environment (e.g. to $HOME/.bashrc file):
     source /etc/profile.d/rep_profile.sh
+    # you also need to install rep with pip
 
 EOL_MESSAGE

@@ -8,7 +8,7 @@ machine:
 dependencies:
   override:
     # building docker
-    - make rep-image
+    - make rep-image2
     - docker images
 
 test:
@@ -19,7 +19,8 @@ test:
     - source ./.rep_version
     # checking that source is working
     - echo $REP_IMAGE
-    - docker run -d -ti -v /home/ubuntu/rep/notebooks:/notebooks -p 8888:8888 --name rep yandex/rep:0.6.5; sleep 20
+    # - docker run -d -ti -v /home/ubuntu/rep/notebooks:/notebooks -p 8888:8888 --name rep yandex/rep:0.6.5; sleep 20
+    - make run-daemon; sleep 20
     - ls -la /home/ubuntu/rep/notebooks
     - docker logs rep
     - curl --retry 10 --retry-delay 5 -v http://localhost:8888

@@ -1,17 +1,20 @@
 FROM ubuntu:14.04
 MAINTAINER Alex Rogozhnikov <axelr@yandex-team.ru>
 
+ARG REP_PYTHON_VERSION=2
 ENV HOME /root
 ENV TEMP /tmp
 ENV PORT_JUPYTER=8888
 ENV SHELL /bin/bash
 
 # copying everything
-RUN mkdir -p $TEMP/build && mkdir -p /notebooks/rep_howto
+RUN mkdir -p $TEMP/build \
+ && mkdir -p /notebooks \
+ && mkdir -p /REP_howto
 
 COPY ./ $TEMP/build/
 # copying HowTos separately
-COPY ./howto /notebooks/rep_howto
+COPY ./howto /REP_howto
 
 # changing default shell to bash. See http://stackoverflow.com/questions/20635472/
 RUN rm /bin/sh && ln -s /bin/bash /bin/sh
@@ -20,11 +23,11 @@ RUN rm /bin/sh && ln -s /bin/bash /bin/sh
 # adding profiles to .bashrc,
 # pip-installing rep itself
 # deleting folder
-RUN source $TEMP/build/ci/install_repbase.sh \
-    && echo "source /etc/profile.d/rep_profile.sh" >> $HOME/.bashrc \
-    && echo "umask 0002" >> $HOME/.bashrc \
-    && pip install $TEMP/build \
-    && rm -rf $TEMP/build
+RUN source $TEMP/build/ci/install_repbase.sh $REP_PYTHON_VERSION \
+ && echo "source /etc/profile.d/rep_profile.sh" >> $HOME/.bashrc \
+ && echo "umask 0002" >> $HOME/.bashrc \
+ && pip install $TEMP/build \
+ && rm -rf $TEMP/build
 
 # registering mounting points
 VOLUME ["/notebooks"]
