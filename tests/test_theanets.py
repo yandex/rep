@@ -63,17 +63,20 @@ def test_theanets_configurations():
                            trainers=[dict(algo='nag', learning_rate=0.1, **impatient)]),
         **classifier_params)
     check_classifier(
-        TheanetsClassifier(layers=[5, 1], scaler='minmax',
-                           trainers=[dict(algo='adam', learning_rate=0.1, **impatient)]),
+        TheanetsClassifier(layers=[5, 5],
+                           trainers=[dict(algo='adam', learning_rate=0.01, momentum=0.9)]
+                           ),
         **classifier_params)
 
 
 @retry_if_fails
 def test_theanets_regression():
     check_regression(TheanetsRegressor(layers=[3],
-                                       trainers=[dict(algo='rmsprop', rms_halflife=3, **impatient)]),
+                                       trainers=[dict(algo='rmsprop', **impatient)]),
                      **regressor_params)
-    check_regression(TheanetsRegressor(scaler=StandardScaler()), **regressor_params)
+    check_regression(TheanetsRegressor(scaler=StandardScaler(),
+                                       trainers=[dict(algo='rmsprop', **impatient)]),
+                     **regressor_params)
 
 
 def test_theanets_partial_fit():
@@ -95,7 +98,7 @@ def test_theanets_partial_fit():
 
 
 def test_theanets_reproducibility():
-    clf = TheanetsClassifier(trainers=[{'algo': 'nag', 'min_improvement': 0.1}])
+    clf = TheanetsClassifier(trainers=[{'algo': 'nag', 'min_improvement': 0.1, 'max_updates': 10}])
     X, y, _ = generate_classification_data()
     check_classification_reproducibility(clf, X, y)
 
