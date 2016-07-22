@@ -23,8 +23,7 @@ from rep.test.test_estimators import generate_classification_data
 from rep.estimators.sklearn import SklearnClassifier
 from rep.estimators.theanets import TheanetsClassifier, TheanetsRegressor
 
-from tests import known_failure, retry_if_fails
-
+from tests import retry_if_fails
 
 __author__ = 'Lisa Ignatyeva, Tatiana Likhomanenko, Alex Rogozhnikov'
 
@@ -40,6 +39,8 @@ regressor_params = {
     'supports_weight': True,
 }
 
+impatient = dict(patience=0, validate_every=5, min_improvement=0.1)
+
 
 @retry_if_fails
 def test_theanets_params():
@@ -52,26 +53,25 @@ def test_pretrain():
     trainers = [{'algo': 'pretrain', 'learning_rate': 0.5, 'patience': 1, 'validate_every': 1}]
     # only checking that fitting doesn't throw errors
     # this frequently gets stuck on CI
-    TheanetsClassifier(layers=[5, 5], trainers=trainers).fit(trainX, trainY)
-
+    TheanetsClassifier(layers=[5], trainers=trainers).fit(trainX, trainY)
 
 
 @retry_if_fails
 def test_theanets_configurations():
     check_classifier(
         TheanetsClassifier(layers=[13], scaler=False,
-                           trainers=[{'algo': 'nag', 'learning_rate': 0.1}]),
+                           trainers=[dict(algo='nag', learning_rate=0.1, **impatient)]),
         **classifier_params)
     check_classifier(
-        TheanetsClassifier(layers=[5, 5], scaler='minmax',
-                           trainers=[{'algo': 'adadelta', 'learning_rate': 0.1}]),
+        TheanetsClassifier(layers=[5, 1], scaler='minmax',
+                           trainers=[dict(algo='adam', learning_rate=0.1, **impatient)]),
         **classifier_params)
 
 
 @retry_if_fails
 def test_theanets_regression():
     check_regression(TheanetsRegressor(layers=[3],
-                                       trainers=[{'algo': 'rmsprop', 'learning_rate': 0.1}]),
+                                       trainers=[dict(algo='rmsprop', rms_halflife=3, **impatient)]),
                      **regressor_params)
     check_regression(TheanetsRegressor(scaler=StandardScaler()), **regressor_params)
 
