@@ -4,7 +4,7 @@ channels:
 dependencies:
   - python={PYTHON_VERSION}
   - nomkl
-  - ipython-notebook=4.0.4
+  - ipython-notebook=4.2.1
   - matplotlib=1.5.1
   - numpy=1.10.4
   - pandas=0.17.1
