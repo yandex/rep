@@ -37,12 +37,12 @@ __author__ = 'Vlad Sterzhanov, Alex Rogozhnikov, Tatiana Likhomanenko'
 __all__ = ['NeurolabClassifier', 'NeurolabRegressor']
 
 NET_TYPES = {'feed-forward': nl.net.newff,
-             'single-layer': nl.net.newp,
              'competing-layer': nl.net.newc,
              'learning-vector': nl.net.newlvq,
              'elman-recurrent': nl.net.newelm,
              'hemming-recurrent': nl.net.newhem,
-             'hopfield-recurrent': nl.net.newhop}
+             'hopfield-recurrent': nl.net.newhop
+             }
 
 NET_PARAMS = ('minmax', 'cn', 'layers', 'transf', 'target',
               'max_init', 'max_iter', 'delta', 'cn0', 'pc')
@@ -50,7 +50,8 @@ NET_PARAMS = ('minmax', 'cn', 'layers', 'transf', 'target',
 BASIC_PARAMS = ('layers', 'net_type', 'trainf', 'initf', 'scaler', 'random_state')
 
 # Instead of a single layer use feed-forward.
-CANT_CLASSIFY = ('hopfield-recurrent', 'competing-layer', 'hemming-recurrent', 'single-layer')
+CANT_CLASSIFY = ('hopfield-recurrent', 'competing-layer', 'hemming-recurrent')
+CANT_DO_REGRESSION = ('hopfield-recurrent', )
 
 
 class NeurolabBase(object):
@@ -62,11 +63,9 @@ class NeurolabBase(object):
     :param string net_type: type of the network; possible values are:
 
         * `feed-forward`
-        * `single-layer`
         * `competing-layer`
         * `learning-vector`
         * `elman-recurrent`
-        * `hopfield-recurrent`
         * `hemming-recurrent`
 
     :param initf: layer initializers
@@ -243,11 +242,12 @@ class NeurolabBase(object):
         net_params['size'] = list(net_params['size']) + [y_train.shape[1]]
 
         # Default parameters for the transfer functions in the networks
-        if 'transf' not in net_params:
-            net_params['transf'] = [nl.trans.TanSig()] * len(net_params['size'])
-        if not hasattr(net_params['transf'], '__iter__'):
-            net_params['transf'] = [net_params['transf']] * len(net_params['size'])
-        net_params['transf'] = list(net_params['transf'])
+        if self.net_type != 'learning-vector':
+            if 'transf' not in net_params:
+                net_params['transf'] = [nl.trans.TanSig()] * len(net_params['size'])
+            if not hasattr(net_params['transf'], '__iter__'):
+                net_params['transf'] = [net_params['transf']] * len(net_params['size'])
+            net_params['transf'] = list(net_params['transf'])
 
         return net_params
 
@@ -337,7 +337,8 @@ class NeurolabRegressor(NeurolabBase, Regressor):
         :param y: values for samples, array-like of shape [n_samples]
         :return: self
         """
-        assert self.net_type not in CANT_CLASSIFY, 'Network type does not support regression'
+        if self.net_type in CANT_DO_REGRESSION:
+            raise RuntimeError('Network type does not support regression')
         X, y, _ = check_inputs(X, y, None, allow_multiple_targets=True)
         y_train = y.reshape(len(y), 1 if len(y.shape) == 1 else y.shape[1])
         return self._partial_fit(X, y, y_train)

@@ -19,6 +19,7 @@ from rep.test.test_estimators import check_classifier, check_regression, generat
 from sklearn.ensemble import BaggingClassifier
 from rep.estimators.sklearn import SklearnClassifier
 from rep.estimators.neurolab import NeurolabClassifier, NeurolabRegressor
+import rep
 import neurolab as nl
 
 __author__ = 'Sterzhanov Vladislav'
@@ -85,3 +86,35 @@ def test_neurolab_stacking():
     base_nlab = NeurolabClassifier(layers=[], epochs=N_EPOCHS2 * 2, trainf=nl.train.train_rprop)
     base_bagging = BaggingClassifier(base_estimator=base_nlab, n_estimators=3)
     check_classifier(SklearnClassifier(clf=base_bagging), **classifier_params)
+
+
+def test_neurolab_classification_types():
+    import pandas as pd
+    for net_type in rep.estimators.neurolab.NET_TYPES.keys():
+        try:
+            clf = NeurolabClassifier(net_type=net_type, epochs=2)
+            ds = pd.DataFrame()
+            ds['feature1'] = [0, 1, 2, 3, 4, 5]
+            ds['feature2'] = [5, 7, 2, 4, 7, 9]
+            ds['y'] = [0, 0, 0, 1, 1, 1]
+            clf.fit(ds[['feature1', 'feature2']] / 10., ds['y'])
+            _ = clf.predict_proba(ds[['feature1', 'feature2']] / 10.)
+            print(net_type, 'is ok')
+        except Exception as e:
+            print(net_type, 'FAILED', e)
+
+
+def test_neurolab_regression_types():
+    import pandas as pd
+    for net_type in rep.estimators.neurolab.NET_TYPES.keys():
+        try:
+            clf = NeurolabRegressor(net_type=net_type, epochs=2)
+            ds = pd.DataFrame()
+            ds['feature1'] = [0, 1, 2, 3, 4, 5]
+            ds['feature2'] = [5, 7, 2, 4, 7, 9]
+            ds['y'] = [0, 0, 0, 1, 1, 1]
+            clf.fit(ds[['feature1', 'feature2']] / 10., ds['y'])
+            _ = clf.predict(ds[['feature1', 'feature2']] / 10.)
+            print(net_type, 'is ok')
+        except Exception as e:
+            print(net_type, 'FAILED', e)
