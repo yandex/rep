@@ -51,7 +51,7 @@ mkdir -p $HOME/.config/matplotlib && echo 'backend: agg' > $HOME/.config/matplot
 
 if ! which conda ; then
     echo "installing miniconda"
-    MINICONDA_FILE="Miniconda2-3.19.0-Linux-x86_64.sh"
+    MINICONDA_FILE="Miniconda3-3.19.0-Linux-x86_64.sh"
     wget http://repo.continuum.io/miniconda/$MINICONDA_FILE -O miniconda.sh
     chmod +x miniconda.sh
     ./miniconda.sh -b -p $HOME/miniconda || throw_error "Error installing miniconda"
@@ -59,22 +59,24 @@ if ! which conda ; then
     export PATH=$HOME/miniconda/bin:$PATH
     hash -r
     conda update --yes conda
+    pip install jupyterhub==0.6.1
     # cleaning root environment
     conda clean --yes --all
+
 fi
 
 HERE="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 REP_ENV_FILE="$HERE/environment-rep${PYTHON_MAJOR_VERSION}.yaml"
-JUPYTERHUB_ENV_FILE="$HERE/environment-jupyterhub_py3.yaml"
+# JUPYTERHUB_ENV_FILE="$HERE/environment-jupyterhub_py3.yaml"
 
-echo "Creating conda venv jupyterhub_py3"
-conda env create -q --file $JUPYTERHUB_ENV_FILE > /dev/null
-source activate jupyterhub_py3 || throw_error "Error installing jupyterhub_py3 environment"
+# echo "Creating conda venv jupyterhub_py3"
+# conda env create -q --file $JUPYTERHUB_ENV_FILE > /dev/null
+# source activate jupyterhub_py3 || throw_error "Error installing jupyterhub_py3 environment"
 
-echo "Removing conda packages and caches"
-conda uninstall --force --yes -q gcc qt
-conda clean --yes --all
-conda list
+# echo "Removing conda packages and caches"
+# conda uninstall --force --yes -q gcc qt
+# conda clean --yes --all
+# conda list
 
 echo "Creating conda venv $REP_ENV_NAME"
 conda env create -q --file $REP_ENV_FILE > /dev/null

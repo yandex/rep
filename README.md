@@ -4,7 +4,7 @@
 [![Build Status](https://travis-ci.org/yandex/rep.svg?branch=master)](https://travis-ci.org/yandex/rep)
 [![PyPI version](https://badge.fury.io/py/rep.svg)](https://badge.fury.io/py/rep)
 [![Documentation](https://img.shields.io/badge/documentation-link-blue.svg)](https://yandex.github.io/rep/)
-
+[![CircleCI](https://circleci.com/gh/arogozhnikov/rep.svg?style=svg)](https://circleci.com/gh/arogozhnikov/rep)
 
 __REP__ is ipython-based environment for conducting data-driven research in a consistent and reproducible way.
 
