@@ -1,7 +1,7 @@
 #!/bin/bash
 # installing environment for REP with miniconda (not REP itself!)
 # Usage:
-# source install_repbase.sh PYTHON_MAJOR_VERSION
+# source install_rep_environment.sh PYTHON_MAJOR_VERSION
 # where PYTHON_MAJOR_VERSION is 2 or 3.
 
 
@@ -63,20 +63,11 @@ if ! which conda ; then
     # cleaning root environment
     conda clean --yes --all
 
+    [ -f $HOME/miniconda/bin/jupyterhub-singleuser ] || throw_error "jupyterhub inaccessible using standard path"
 fi
 
 HERE="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 REP_ENV_FILE="$HERE/environment-rep${PYTHON_MAJOR_VERSION}.yaml"
-# JUPYTERHUB_ENV_FILE="$HERE/environment-jupyterhub_py3.yaml"
-
-# echo "Creating conda venv jupyterhub_py3"
-# conda env create -q --file $JUPYTERHUB_ENV_FILE > /dev/null
-# source activate jupyterhub_py3 || throw_error "Error installing jupyterhub_py3 environment"
-
-# echo "Removing conda packages and caches"
-# conda uninstall --force --yes -q gcc qt
-# conda clean --yes --all
-# conda list
 
 echo "Creating conda venv $REP_ENV_NAME"
 conda env create -q --file $REP_ENV_FILE > /dev/null

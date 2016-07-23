@@ -25,7 +25,6 @@ if [ "$JPY_API_TOKEN" != "" ] ; then
 
 	NOTEBOOK_DIR=/notebooks
 	git clone $JPY_GITHUBURL $NOTEBOOK_DIR
-	# TODO delete $HOME/miniconda/envs/jupyterhub_py3/bin/jupyterhub-singleuser \
 
 	$HOME/miniconda/bin/jupyterhub-singleuser \
 	  --port=8888 \

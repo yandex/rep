@@ -27,7 +27,7 @@ RUN rm /bin/sh && ln -s /bin/bash /bin/sh
 # adding profiles to .bashrc,
 # pip-installing rep itself
 # deleting folder
-RUN source $TEMP/build/ci/install_repbase.sh $REP_PYTHON_VERSION \
+RUN source $TEMP/build/ci/install_rep_environment.sh $REP_PYTHON_VERSION \
  && echo "source /etc/profile.d/rep_profile.sh" >> $HOME/.bashrc \
  && echo "umask 0002" >> $HOME/.bashrc \
  && pip install $TEMP/build \

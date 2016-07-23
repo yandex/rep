@@ -16,7 +16,7 @@ include .rep_version  # read REP_IMAGE
 help:
 	@echo Usage: make [-e VARIABLE=VALUE] targets
 	@echo "variables:"
-	@grep -h "#\s\+\w\+ -- " $(MAKEFILE_LIST) |sed "s/#\s//"
+	@grep -h "#\s\+\w\+ -- " $(MAKEFILE_LIST) | sed "s/#\s//"
 	@echo
 	@echo targets:
 	@fgrep -h "##" $(MAKEFILE_LIST) | fgrep -v fgrep | sed -e 's/\\$$//' -e 's/^/   /' | sed -e 's/##//'
