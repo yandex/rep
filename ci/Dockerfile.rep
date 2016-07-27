@@ -1,5 +1,5 @@
 FROM ubuntu:14.04
-MAINTAINER Alex Rogozhnikov <axelr@yandex-team.ru>
+MAINTAINER Andrey Ustyuzhanin <anaderi@yandex-team.ru>, Alex Rogozhnikov <axelr@yandex-team.ru>
 
 # This variable is set during building docker container
 ARG REP_PYTHON_VERSION=2
