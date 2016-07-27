@@ -110,6 +110,7 @@ cat >/etc/profile.d/rep_profile.sh << EOL_PROFILESH
     # next line is temporary hack to fix that conda may ignore this path
     export CONDA_ENV_PATH=$HOME/miniconda/envs/$REP_ENV_NAME
     source activate ${REP_ENV_NAME}
+    # actually, ROOT shall be alredy sourced by previous
     source $(which thisroot.sh) || echo "Could not source ROOT!"
 EOL_PROFILESH
 
