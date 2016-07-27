@@ -23,7 +23,10 @@ fi
 if [ "$JPY_API_TOKEN" != "" ] ; then
 	echo "Starting under Jupyterhub"
 
-	NOTEBOOK_DIR=/notebooks
+    # use dafault folder if not defined
+	NOTEBOOK_DIR=${JPY_WORKDIR:-'/notebooks'}
+	mkdir -p $NOTEBOOK_DIR
+
 	git clone $JPY_GITHUBURL $NOTEBOOK_DIR
 	$HOME/miniconda/envs/jupyterhub_py3/bin/jupyterhub-singleuser \
 	  --port=8888 \
