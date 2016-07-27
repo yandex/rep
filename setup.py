@@ -15,8 +15,7 @@ def find_version():
     version_match = re.search(r"^__version__ = ['\"]([^'\"]*)['\"]",
                               version_file, re.MULTILINE)
     candidate = str(version_match.group(1))
-    # TODO better check
-    assert str.startswith(candidate, '0.6')
+    assert str.startswith(candidate, '0.') and candidate[2] != '0'
     if version_match:
         return candidate
     raise RuntimeError("Unable to find version string.")
@@ -48,7 +47,7 @@ setup(
     license='Apache-2.0 License',
 
     # Manually specifying all packages
-    packages=['rep', 'rep.estimators', 'rep.data', 'rep.metaml', 'rep.report', 'rep.test'],
+    packages=['rep', 'rep.data', 'rep.estimators', 'rep.metaml', 'rep.report', 'rep.test'],
     package_dir={'rep': 'rep'},
     classifiers=[
         'Development Status :: 5 - Production/Stable',

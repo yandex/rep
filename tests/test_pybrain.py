@@ -16,17 +16,20 @@
 from __future__ import division, print_function, absolute_import
 
 import six
+
 if six.PY3:
     # PyBrain doesn't support python3
     import nose
+
     raise nose.SkipTest
 
-
+import numpy
 from rep.test.test_estimators import check_classifier, check_regression, check_params, \
     generate_classification_data, check_classification_reproducibility
 from rep.estimators.pybrain import PyBrainClassifier, PyBrainRegressor
 from sklearn.ensemble import BaggingClassifier
 from rep.estimators import SklearnClassifier
+from . import known_failure
 
 __author__ = 'Artem Zhirokhov'
 
@@ -55,18 +58,15 @@ def test_pybrain_classification():
     check_classifier(PyBrainClassifier(epochs=2, layers=[5, 2]), **classifier_params)
 
 
+@known_failure
 def test_pybrain_reproducibility():
-    try:
-        import numpy
-        X, y, _ = generate_classification_data()
-        clf1 = PyBrainClassifier(layers=[4], epochs=2).fit(X, y)
-        clf2 = PyBrainClassifier(layers=[4], epochs=2).fit(X, y)
-        print(clf1.predict_proba(X)-clf2.predict_proba(X))
-        assert numpy.allclose(clf1.predict_proba(X), clf2.predict_proba(X)), 'different predicitons'
-        check_classification_reproducibility(clf1, X, y)
-    except:
-        # This test fails. Because PyBrain can't reproduce training.
-        pass
+    # This test fails. Because PyBrain can't reproduce training.
+    X, y, _ = generate_classification_data()
+    clf1 = PyBrainClassifier(layers=[4], epochs=2).fit(X, y)
+    clf2 = PyBrainClassifier(layers=[4], epochs=2).fit(X, y)
+    print(clf1.predict_proba(X) - clf2.predict_proba(X))
+    assert numpy.allclose(clf1.predict_proba(X), clf2.predict_proba(X)), 'different predicitons'
+    check_classification_reproducibility(clf1, X, y)
 
 
 def test_pybrain_Linear_MDLSTM():
@@ -77,10 +77,12 @@ def test_pybrain_Linear_MDLSTM():
 
 
 def test_pybrain_SoftMax_Tanh():
-    check_classifier(PyBrainClassifier(epochs=2, layers=[10, 5, 2], hiddenclass=['SoftmaxLayer', 'SoftmaxLayer', 'TanhLayer'], use_rprop=True),
+    check_classifier(PyBrainClassifier(epochs=10, layers=[5, 2], hiddenclass=['TanhLayer', 'SoftmaxLayer'],
+                                       use_rprop=True),
                      **classifier_params)
-    check_regression(PyBrainRegressor(epochs=2, layers=[10, 5, 2], hiddenclass=['SoftmaxLayer', 'TanhLayer', 'TanhLayer']),
-                     **regressor_params)
+    check_regression(
+        PyBrainRegressor(epochs=2, layers=[10, 5, 2], hiddenclass=['TanhLayer', 'SoftmaxLayer', 'TanhLayer']),
+        **regressor_params)
 
 
 def pybrain_test_partial_fit():
@@ -106,5 +108,3 @@ def test_simple_stacking_pybrain():
     base_pybrain = PyBrainClassifier(epochs=2)
     base_bagging = BaggingClassifier(base_estimator=base_pybrain, n_estimators=3)
     check_classifier(SklearnClassifier(clf=base_bagging), **classifier_params)
-
-

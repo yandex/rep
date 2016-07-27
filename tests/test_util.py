@@ -72,3 +72,10 @@ def test_weighted_quantile(size=10000):
     passed_weight = numpy.sum((x < quantile_value) * weights)
     expected_weight = quantile_level * numpy.sum(weights)
     assert numpy.abs(passed_weight - expected_weight) < 1.1, 'wrong cut'
+
+
+def test_stopwatch():
+    import time
+    with utils.Stopwatch() as timer:
+        time.sleep(1.5)
+    assert 1 < timer.elapsed < 2, 'timer is not working'
