@@ -60,7 +60,7 @@ if ! which conda ; then
     export PATH=$HOME/miniconda/bin:$PATH
     hash -r
     conda update --yes conda
-    pip install jupyterhub==0.6.1
+    pip install jupyterhub==0.6.1 notebook==4.0
     # cleaning root environment
     conda clean --yes --all
 
