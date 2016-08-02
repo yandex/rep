@@ -27,7 +27,6 @@ if [ "$JPY_API_TOKEN" != "" ] ; then
 	NOTEBOOK_DIR=${JPY_WORKDIR:-'/notebooks'}
 	# cleaning folder if it is not empty
 	rm -rf ${NOTEBOOK_DIR}
-	mkdir -p ${NOTEBOOK_DIR}
 	git clone ${JPY_GITHUBURL} ${NOTEBOOK_DIR}
 
 	$HOME/miniconda/bin/jupyterhub-singleuser \
