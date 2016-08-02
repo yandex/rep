@@ -10,7 +10,7 @@ Single pipeline is used in
 
 Docker image with REP is built using `Dockerfile.rep` 
 
-In the main project folder run `make rep-image2` or `make rep-image3` 
+In the main project folder run `make -e PYTHON=2 rep-image` or `make -e PYTHON=3 rep-image` 
     
 ## Installation process for ubuntu machines:
 

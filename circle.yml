@@ -11,7 +11,7 @@ machine:
 dependencies:
   override:
     # building docker
-    - make rep-image2
+    - make rep-image
     - docker images
 
 test:
