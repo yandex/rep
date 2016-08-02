@@ -79,6 +79,7 @@ remove: stop    ## remove REP container
 	docker rm $(CONTAINER_NAME)
 
 push: rep-image	# build REP image & push to docker hub
+	# next line is @echoed in order not to show credentials during publishing
 	@docker login -e="$(DOCKER_EMAIL)" -u="$(DOCKER_USERNAME)" -p="$(DOCKER_PASSWORD)"
 	docker push $(REP_IMAGE_NAME)
 

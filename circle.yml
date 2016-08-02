@@ -21,7 +21,7 @@ test:
     - make -e NOTEBOOKS=/home/ubuntu/rep/notebooks run-daemon; sleep 20
     # looking at the contents of folder
     - ls -la /home/ubuntu/rep/notebooks
-    - docker logs rep
+    - make show-logs
     - curl --retry 10 --retry-delay 5 -v http://localhost:8888
     - wget http://localhost:8888 -O output.html
     - cat output.html
