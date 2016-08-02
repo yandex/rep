@@ -25,11 +25,10 @@ if [ "$JPY_API_TOKEN" != "" ] ; then
 
 	# use default folder if not defined
 	NOTEBOOK_DIR=${JPY_WORKDIR:-'/notebooks'}
-	mkdir -p $NOTEBOOK_DIR
-	# pushd / popd trick is needed, otherwise git won't clone the repo in non-empty folder.
-	pushd $NOTEBOOK_DIR
-	git clone $JPY_GITHUBURL
-	popd
+	# cleaning folder if it is not empty
+	rm -rf ${NOTEBOOK_DIR}
+	mkdir -p ${NOTEBOOK_DIR}
+	git clone ${JPY_GITHUBURL} ${NOTEBOOK_DIR}
 
 	$HOME/miniconda/bin/jupyterhub-singleuser \
 	  --port=8888 \
