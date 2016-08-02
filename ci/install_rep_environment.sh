@@ -1,7 +1,7 @@
 #!/bin/bash
 # installing environment for REP with miniconda (not REP itself!)
 # Usage:
-# source install_repbase.sh PYTHON_MAJOR_VERSION
+# source install_rep_environment.sh PYTHON_MAJOR_VERSION
 # where PYTHON_MAJOR_VERSION is 2 or 3.
 
 
@@ -46,12 +46,13 @@ fi
 mkdir -p $HOME/.config/matplotlib && echo 'backend: agg' > $HOME/.config/matplotlib/matplotlibrc
 
 # exit existing environments
+# TODO conda may not set CONDA_ENV_PATH
 [ -n "$VIRTUAL_ENV" ] && deactivate
 [ -n "$CONDA_ENV_PATH" ] && source deactivate
 
 if ! which conda ; then
-    echo "installing miniconda"
-    MINICONDA_FILE="Miniconda2-3.19.0-Linux-x86_64.sh"
+    echo "installing miniconda root environment with jupyterhub"
+    MINICONDA_FILE="Miniconda3-3.19.0-Linux-x86_64.sh"
     wget http://repo.continuum.io/miniconda/$MINICONDA_FILE -O miniconda.sh
     chmod +x miniconda.sh
     ./miniconda.sh -b -p $HOME/miniconda || throw_error "Error installing miniconda"
@@ -59,22 +60,15 @@ if ! which conda ; then
     export PATH=$HOME/miniconda/bin:$PATH
     hash -r
     conda update --yes conda
+    pip install jupyterhub==0.6.1 notebook==4.0
     # cleaning root environment
     conda clean --yes --all
+
+    [ -f $HOME/miniconda/bin/jupyterhub-singleuser ] || throw_error "jupyterhub inaccessible using standard path"
 fi
 
 HERE="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 REP_ENV_FILE="$HERE/environment-rep${PYTHON_MAJOR_VERSION}.yaml"
-JUPYTERHUB_ENV_FILE="$HERE/environment-jupyterhub_py3.yaml"
-
-echo "Creating conda venv jupyterhub_py3"
-conda env create -q --file $JUPYTERHUB_ENV_FILE > /dev/null
-source activate jupyterhub_py3 || throw_error "Error installing jupyterhub_py3 environment"
-
-echo "Removing conda packages and caches"
-conda uninstall --force --yes -q gcc qt
-conda clean --yes --all
-conda list
 
 echo "Creating conda venv $REP_ENV_NAME"
 conda env create -q --file $REP_ENV_FILE > /dev/null
@@ -116,6 +110,7 @@ cat >/etc/profile.d/rep_profile.sh << EOL_PROFILESH
     # next line is temporary hack to fix that conda may ignore this path
     export CONDA_ENV_PATH=$HOME/miniconda/envs/$REP_ENV_NAME
     source activate ${REP_ENV_NAME}
+    # actually, ROOT shall be alredy sourced by previous
     source $(which thisroot.sh) || echo "Could not source ROOT!"
 EOL_PROFILESH
 

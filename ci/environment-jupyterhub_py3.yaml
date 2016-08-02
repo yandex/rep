@@ -1,7 +1,0 @@
-name: jupyterhub_py3
-
-dependencies:
-  - python=3.4
-  - nomkl
-  - pip:
-    - jupyterhub

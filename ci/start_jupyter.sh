@@ -23,12 +23,13 @@ fi
 if [ "$JPY_API_TOKEN" != "" ] ; then
 	echo "Starting under Jupyterhub"
 
-    # use dafault folder if not defined
+	# use default folder if not defined
 	NOTEBOOK_DIR=${JPY_WORKDIR:-'/notebooks'}
-	mkdir -p $NOTEBOOK_DIR
+	# cleaning folder if it is not empty
+	rm -rf ${NOTEBOOK_DIR}
+	git clone ${JPY_GITHUBURL} ${NOTEBOOK_DIR}
 
-	git clone $JPY_GITHUBURL $NOTEBOOK_DIR
-	$HOME/miniconda/envs/jupyterhub_py3/bin/jupyterhub-singleuser \
+	$HOME/miniconda/bin/jupyterhub-singleuser \
 	  --port=8888 \
 	  --ip=0.0.0.0 \
 	  --user=$JPY_USER \
@@ -46,8 +47,8 @@ if [ "$GENERATE_SSL_HOSTNAME" != "" ] ; then
 	echo "Setting up SSL support for the Jupyter profile"
 	SSL_CERTFILE="/root/mycert.pem"
 	SSL_KEYFILE=""
-  	echo -e "\n\n\n\n${GENERATE_SSL_HOSTNAME}\n\n" |
-        openssl req -x509 -nodes -days 365 -newkey rsa:1024 -keyout $SSL_CERTFILE -out $SSL_CERTFILE
+	echo -e "\n\n\n\n${GENERATE_SSL_HOSTNAME}\n\n" |
+		openssl req -x509 -nodes -days 365 -newkey rsa:1024 -keyout $SSL_CERTFILE -out $SSL_CERTFILE
 fi
 
 if [ "$SSL_CERTFILE" != "" ] ; then

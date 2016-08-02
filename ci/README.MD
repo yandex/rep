@@ -8,15 +8,9 @@ Single pipeline is used in
 
 ## Docker images
 
-Docker image with REP is built in two steps: 
+Docker image with REP is built using `Dockerfile.rep` 
 
-1. `docker-base` is built with all dependencies (including ROOT).
-    - `Dockerfile.repbase` is used (see the code).
-    - it installs conda environments with all packages
- 
-2. `docker-rep` is built on the top of `docker-base`.
-    - `Dockerfile.rep` is used.
-    - Each minor release changes this container, not `repbase` container.
+In the main project folder run `make rep-image2` or `make rep-image3` 
     
 ## Installation process for ubuntu machines:
 
