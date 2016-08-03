@@ -12,8 +12,8 @@ PORT ?= 8888
 DOCKER_ARGS := --volume $(NOTEBOOKS):/notebooks -p $(PORT):8888
 
 HERE := $(shell pwd)
-REP_IMAGE_NAME_PY2 := "yandex/rep:0.6.6"
-REP_IMAGE_NAME_PY3 := "$(REP_IMAGE_NAME_PY2)_py3"
+REP_IMAGE_NAME_PY2 := yandex/rep:0.6.6
+REP_IMAGE_NAME_PY3 := $(REP_IMAGE_NAME_PY2)_py3
 
 ifeq ($(PYTHON), 2)
 	REP_IMAGE_NAME := $(REP_IMAGE_NAME_PY2)
@@ -35,8 +35,8 @@ help:
 	@echo targets:
 	@fgrep -h "##" $(MAKEFILE_LIST) | fgrep -v fgrep | sed -e 's/\\$$//' -e 's/^/   /' | sed -e 's/##//'
 
-.PHONY: run rep-image2 rep-image3 run-daemon restart logs  \
-	inspect exec help stop remove push push-base tag-latest push-latest
+.PHONY: run rep-image run-daemon restart logs  \
+	inspect exec help stop remove push push-base tag-latest2 push-latest2
 
 version:
 	@echo $(REP_IMAGE_NAME)
