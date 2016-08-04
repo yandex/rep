@@ -1,54 +1,45 @@
-FROM yandex/rep-base:0.6.1
-MAINTAINER Andrey Ustyuzhanin <anaderi@yandex-team.ru>
+FROM ubuntu:14.04
+MAINTAINER Andrey Ustyuzhanin <anaderi@yandex-team.ru>, Alex Rogozhnikov <axelr@yandex-team.ru>
 
-ENV TEMP /tmp
-ENV SHELL /bin/bash
-ENV PORT_JUPYTER=8888
-ENV HOME /root
+# This variable is set during building docker container
+ARG REP_PYTHON_VERSION=2
 
-RUN mkdir $TEMP/build
-COPY setup.py README.md AUTHORS requirements.txt $TEMP/build/
-COPY rep $TEMP/build/rep
-COPY tests $TEMP/build/tests
-COPY *.sh $HOME/
-COPY .rep_version $HOME/
-COPY howto /REP_howto
-RUN chmod +x $HOME/*.sh
+# Setting environment variables in the container
+ENV HOME=/root  \
+    TEMP=/tmp  \
+    PORT_JUPYTER=8888  \
+    SHELL=/bin/bash
 
-RUN ln -snf /bin/bash /bin/sh
+# Creating folders in container
+RUN mkdir -p $TEMP/build \
+ && mkdir -p /notebooks \
+ && mkdir -p /REP_howto
 
-RUN echo "umask 0002" >> /etc/profile.d/rep_profile.sh
-RUN echo -e "source /etc/profile.d/rep_profile.sh" >> $HOME/.bashrc
+# Copy REP to build folder
+COPY ./ $TEMP/build/
+# Copy HowTos separately
+COPY ./howto /REP_howto
 
-RUN /bin/bash --login -c " \
-  cd $TEMP/build && \
-  pip install . && \
-  cd $HOME && \
-  rm -rf $TEMP/build"
+# changing default shell to bash. See http://stackoverflow.com/questions/20635472/
+RUN rm /bin/sh && ln -s /bin/bash /bin/sh
 
-RUN apt-get update && \
-  apt-get -y install mc telnet curl
+# installing environment,
+# adding profiles to .bashrc,
+# pip-installing rep itself
+# deleting folder
+RUN source $TEMP/build/ci/install_rep_environment.sh $REP_PYTHON_VERSION \
+ && echo "source /etc/profile.d/rep_profile.sh" >> $HOME/.bashrc \
+ && echo "umask 0002" >> $HOME/.bashrc \
+ && pip install $TEMP/build \
+ && rm -rf $TEMP/build
 
-# IPython setup
-#
-RUN mkdir /notebooks && \
-    mkdir /etc_external
-
-RUN /bin/bash --login -c " \
-  jupyter notebook -y --generate-config &&\
-  /bin/echo -e \"\
-c.NotebookApp.ip = '*' \n\
-c.NotebookApp.open_browser = False \n\
-c.NotebookApp.port = $PORT_JUPYTER \n \" \
-  | tee -a $HOME/.jupyter/jupyter_notebook_config.py \
-  "
-
-RUN /bin/bash --login -c " \
-  git clone https://github.com/damianavila/RISE.git && \
-  cd RISE && \
-  python setup.py install \
-  "
-
-VOLUME ["/notebooks", "/etc_external"]
+# registering mounting points
+VOLUME ["/notebooks"]
+# registering port
 EXPOSE $PORT_JUPYTER
-CMD ["/bin/bash", "--login", "-c", "./start.sh"]
+
+# adding a file to run jupyter
+COPY ./ci/start_jupyter.sh $HOME/
+
+# starting IPython process when image is started
+CMD ["/bin/bash", "--login", "-c", "$HOME/start_jupyter.sh"]

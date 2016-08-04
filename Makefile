@@ -1,106 +1,80 @@
-# Makefile for building & starting rep-containers
+# Makefile for building & starting REP containers
 # arguments can be supplied by -e definitions: 
 #
-#    ENV -- filename with environment variables passed to docker container
-#    NOTEBOOKS -- folder with notebooks that will be mounted into docker container
-#    PORT -- port to listen for incoming connection
-#    ETC -- local folder that will be moundted to /etc_external into docker container
-#
+#	NOTEBOOKS -- folder to be mounted to container (default: ./notebooks)
+#	PORT -- port to listen for incoming connection (default: 8888)
 #
 
-
-define read_cmd_args
-	# use the rest as arguments for "run" or "exec"
-	CMD_ARGS := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
-endef
-
-ifeq (exec, $(firstword $(MAKECMDGOALS)))
-  $(eval $(call read_cmd_args))
-  ifeq ("", "$(CMD_ARGS)")
-    CMD_ARGS := bash
-  endif
-endif
-ifeq (run, $(firstword $(MAKECMDGOALS)))
-  $(eval $(call read_cmd_args))
-endif
-ifneq ("", "$(CMD_ARGS)")
-  # turn args into do-nothing targets  
-  $(eval $(CMD_ARGS):;@:)  
-endif
-
-CONTAINER_NAME := $(shell basename $(CURDIR) | tr - _ )
+CONTAINER_NAME := rep
 NOTEBOOKS ?= $(shell pwd)/notebooks
-ETC ?= $(shell pwd)/etc
-VOLUMES := -v $(ETC):/etc_external -v $(NOTEBOOKS):/notebooks
 PORT ?= 8888
-DOCKER_ARGS := $(VOLUMES) -p $(PORT):8888
-ifneq ("", "$(ENV)")
-  DOCKER_ARGS := $(DOCKER_ARGS) --env-file=$(ENV)
-endif
+DOCKER_ARGS := --volume $(NOTEBOOKS):/notebooks -p $(PORT):8888
 
-
-include .rep_version  # read REP_BASE_IMAGE, and REP_IMAGE
+HERE := $(shell pwd)
+include .rep_version  # read REP_IMAGE
 
 help:
 	@echo Usage: make [-e VARIABLE=VALUE] targets
 	@echo "variables:"
-	@grep -h "#\s\+\w\+ -- " $(MAKEFILE_LIST) |sed "s/#\s//"
+	@grep -h "#\s\+\w\+ -- " $(MAKEFILE_LIST) | sed "s/#\s//"
 	@echo
-	@echo targets and corresponding dependencies:
+	@echo targets:
 	@fgrep -h "##" $(MAKEFILE_LIST) | fgrep -v fgrep | sed -e 's/\\$$//' -e 's/^/   /' | sed -e 's/##//'
 
-.PHONY: run run-daemon restart logs rep-image rep-base-image \
+.PHONY: run rep-image2 rep-image3 run-daemon restart logs  \
 	inspect exec help stop remove push push-base tag-latest push-latest
 
 version:
-	@echo $(REP_IMAGE), $(REP_BASE_IMAGE)
+	@echo $(REP_IMAGE)
 
-rep-base-image:	## build REP base image
-	source .version && docker build -t $(REP_BASE_IMAGE) -f ci/Dockerfile.base ci
+rep-image2:	## build REP image with python 2
+	docker build --build-arg REP_PYTHON_VERSION=2 -t $(REP_IMAGE) -f ci/Dockerfile.rep .
 
-rep-base-image3:
-	TRAVIS_PYTHON_VERSION=3.4 docker build -t $(REP_BASE_IMAGE) -f ci/Dockerfile.base ci
+rep-image3:	## build REP image with python 3
+	docker build --build-arg REP_PYTHON_VERSION=3 -t $(REP_IMAGE) -f ci/Dockerfile.rep .
 
-rep-image:	## build REP image
-	docker build -t $(REP_IMAGE) -f ci/Dockerfile.rep .
-
-local-dirs:
+local-dirs: # creates a local directory to be mounted to REP container
 	[ -d $(NOTEBOOKS) ] || mkdir -p $(NOTEBOOKS)
-	[ -d $(ETC) ] || mkdir -p $(ETC)
 
 run: local-dirs		## run REP interactively
-	docker run -ti --rm $(DOCKER_ARGS) --name $(CONTAINER_NAME) $(REP_IMAGE) $(CMD_ARGS) 
+	docker run --interactive --tty --rm $(DOCKER_ARGS) --name $(CONTAINER_NAME) $(REP_IMAGE)
 
 run-daemon: local-dirs	## run REP as a daemon
-	docker run -d $(DOCKER_ARGS) --name $(CONTAINER_NAME) $(REP_IMAGE) $(CMD_ARGS) 
+	docker run --detach $(DOCKER_ARGS) --name $(CONTAINER_NAME) $(REP_IMAGE)
+
+run-tests:  ## run tests inside a container, both notebooks and scripts
+	find tests -name '*.pyc' -delete
+	# for some reason nosetests fails if directly mounted to tests folder
+	mkdir -p $(HERE)/_docker_tests/
+	cp -r $(HERE)/tests $(HERE)/_docker_tests/
+	cp -r $(HERE)/howto $(HERE)/_docker_tests/
+	docker run  --interactive --tty --rm --volume $(HERE)/_docker_tests:/notebooks $(REP_IMAGE) \
+		/bin/bash -l -c "cd /notebooks/tests && nosetests -v --detailed-errors --nocapture . "
 
 restart:	## restart REP container
 	docker restart $(CONTAINER_NAME)
 
-exec:		## run command within REP container
-	docker exec -ti $(CONTAINER_NAME) $(CMD_ARGS)
+exec:       ## run command within REP container
+	docker exec -ti $(CONTAINER_NAME)
 
-logs:		## show container logs
+show-logs:  ## show container logs
 	docker logs $(CONTAINER_NAME)
 
-stop:		## stop REP container
+stop:       ## stop REP container
 	docker stop $(CONTAINER_NAME)
 
-remove: stop	## remove REP container
+remove: stop    ## remove REP container
 	docker rm $(CONTAINER_NAME)
 
-inspect:	## inspect REP image
-	docker inspect $(REP_IMAGE) 
+inspect:	# inspect REP image
+	docker inspect $(REP_IMAGE)
 
-push: rep-image	## build REP image & push to docker hub
+push: rep-image2	# build REP image & push to docker hub
 	@docker login -e="$(DOCKER_EMAIL)" -u="$(DOCKER_USERNAME)" -p="$(DOCKER_PASSWORD)"
 	docker push $(REP_IMAGE)
 
-push-base:	## push base image to docker hub
-	docker push $(REP_BASE_IMAGE)
-
-tag-latest: rep-image	## tag current REP image as latest
+tag-latest: rep-image2	# tag current REP image as latest
 	docker tag -f $(REP_IMAGE) yandex/rep:latest
 
-push-latest: tag-latest push	## tag current REP image as latest and push it to docker hub
+push-latest: tag-latest push	# tag current REP image as latest and push it to docker hub
 	docker push yandex/rep:latest

@@ -18,6 +18,7 @@ __author__ = 'Tatiana Likhomanenko, Alex Rogozhnikov'
 Abstract code to test any classifier or regressor
 """
 
+
 # TODO test of features parameters
 
 def generate_classification_sample(n_samples, n_features, distance=1.5, n_classes=2):
@@ -118,7 +119,7 @@ def check_classification_model(classifier, X, y, check_instance=True, has_staged
 
     if has_importances:
         importances = classifier.feature_importances_
-        assert numpy.array(importances).shape == (len(classifier.features), )
+        assert numpy.array(importances).shape == (len(classifier.features),)
 
     loaded_classifier = check_picklability_and_predictions(classifier)
     assert numpy.all(classifier.predict_proba(X) == loaded_classifier.predict_proba(X)), 'something strange was loaded'
@@ -141,7 +142,7 @@ def check_regression_model(regressor, X, y, check_instance=True, has_stages=True
 
     if has_importances:
         importances = regressor.feature_importances_
-        assert numpy.array(importances).shape == (len(regressor.features), )
+        assert numpy.array(importances).shape == (len(regressor.features),)
 
     loaded_regressor = check_picklability_and_predictions(regressor)
     assert numpy.all(regressor.predict(X) == loaded_regressor.predict(X)), 'something strange was loaded'

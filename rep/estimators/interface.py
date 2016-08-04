@@ -1,39 +1,43 @@
 """
-There are interfaces for **classification** and **regression** wrappers.
+**REP** wrappers are derived from :class:`Classifier` and :class:`Regressor`
+depending on the problem of interest.
+
+Below you can see the standard methods available in the wrappers.
+
 """
 from __future__ import division, print_function, absolute_import
 from abc import ABCMeta, abstractmethod
-import logging
 
 import numpy
 import pandas
-
 from sklearn.base import BaseEstimator, ClassifierMixin, RegressorMixin
+
 from .utils import _get_features
 
 __author__ = 'Tatiana Likhomanenko, Alex Rogozhnikov'
 
-logger = logging.getLogger(__name__)
-
-
-class Classifier(BaseEstimator, ClassifierMixin):
+_docs = \
     """
-    Interface to train different **classification** model from different
-    machine learning libraries, like **Sklearn, TMVA, XGBoost**...
+    Interface to train different **{}** models from different machine learning libraries, like **sklearn, TMVA, XGBoost**, ...
 
-    :param features: features used to train model
+    :param features: features used to train a model
     :type features: list[str] or None
 
     .. note::
-        * Classes must be from 0 to n_classes-1!!!
+        * if `features` aren't set (**None**), then all features in the training dataset will be used
 
-        * if `features` aren't set (**None**), then all features in training dataset will be used
-
-        * Datasets should be `pandas.DataFrame`, `not numpy.array`.
+        * Datasets should be `pandas.DataFrame`, not `numpy.array`.
           Provided this, you'll be able to choose features used in training by setting e.g.
-          `features=['FlightTime', 'p']` in constructor.
+          `features=['mass', 'momentum']` in the constructor.
 
         * It works fine with `numpy.array` as well, but in this case all the features will be used.
+    """
+
+
+class Classifier(BaseEstimator, ClassifierMixin):
+    __doc__ = _docs.format('classification') + \
+              """
+        * Classes values must be from 0 to n_classes-1!
     """
     __metaclass__ = ABCMeta
 
@@ -42,9 +46,10 @@ class Classifier(BaseEstimator, ClassifierMixin):
 
     def _get_features(self, X, allow_nans=False):
         """
-        :param pandas.DataFrame X: train dataset
+        Return data with the necessary features.
 
-        :return: pandas.DataFrame with used features
+        :param pandas.DataFrame X: training data
+        :return: pandas.DataFrame with necessary features
         """
         X_prepared, self.features = _get_features(self.features, X, allow_nans=allow_nans)
         return X_prepared
@@ -60,22 +65,21 @@ class Classifier(BaseEstimator, ClassifierMixin):
     @abstractmethod
     def fit(self, X, y, sample_weight=None):
         """
-        Train the classifier model on dataset
+        Train a classification model on the data.
 
-        :param X: pandas.DataFrame of shape [n_samples, n_features]
-        :param y: labels of events - array-like of shape [n_samples]
-        :param sample_weight: weight of events,
+        :param pandas.DataFrame X: data of shape [n_samples, n_features]
+        :param y: labels of samples, array-like of shape [n_samples]
+        :param sample_weight: weight of samples,
                array-like of shape [n_samples] or None if all weights are equal
-
         :return: self
         """
         pass
 
     def predict(self, X):
         """
-        Predict labels for all events in dataset
+        Predict labels for all samples in the dataset.
 
-        :param X: pandas.DataFrame of shape [n_samples, n_features]
+        :param pandas.DataFrame X: data of shape [n_samples, n_features]
         :rtype: numpy.array of shape [n_samples] with integer labels
         """
         proba = self.predict_proba(X)
@@ -84,9 +88,9 @@ class Classifier(BaseEstimator, ClassifierMixin):
     @abstractmethod
     def predict_proba(self, X):
         """
-        Predict probabilities for each class label on dataset
+        Predict probabilities for each class label for samples.
 
-        :param X: pandas.DataFrame of shape [n_samples, n_features]
+        :param pandas.DataFrame X: data of shape [n_samples, n_features]
         :rtype: numpy.array of shape [n_samples, n_classes] with probabilities
         """
         pass
@@ -94,16 +98,16 @@ class Classifier(BaseEstimator, ClassifierMixin):
     @abstractmethod
     def staged_predict_proba(self, X):
         """
-        Predicts probabilities on each stage
+        Predict probabilities for data for each class label on each stage (i.e. for boosting algorithms).
 
-        :param X: pandas.DataFrame of shape [n_samples, n_features]
+        :param pandas.DataFrame X: data of shape [n_samples, n_features]
         :rtype: iterator
         """
         pass
 
     def get_feature_importances(self):
         """
-        Get features importance
+        Return features importance.
 
         :rtype: pandas.DataFrame with `index=self.features`
         """
@@ -114,10 +118,9 @@ class Classifier(BaseEstimator, ClassifierMixin):
 
     def fit_lds(self, lds):
         """
-        Train the classifier on specific type dataset
+        Train a classifier on the specific type of dataset.
 
         :param LabeledDataStorage lds: data
-
         :return: self
         """
         X, y, sample_weight = lds.get_data(self.features), lds.get_targets(), lds.get_weights(allow_nones=True)
@@ -125,7 +128,7 @@ class Classifier(BaseEstimator, ClassifierMixin):
 
     def test_on_lds(self, lds):
         """
-        Prepare classification report for a single classifier
+        Prepare a classification report for a single classifier.
 
         :param LabeledDataStorage lds: data
         :return: ClassificationReport
@@ -135,11 +138,12 @@ class Classifier(BaseEstimator, ClassifierMixin):
 
     def test_on(self, X, y, sample_weight=None):
         """
-        Prepare classification report for a single classifier
+        Prepare classification report for a single classifier.
 
-        :param X: data, pandas.DataFrame
-        :param y: target
-        :param sample_weight: weights, optional.
+        :param pandas.DataFrame X: data of shape [n_samples, n_features]
+        :param y: labels of samples --- array-like of shape [n_samples]
+        :param sample_weight: weight of samples,
+               array-like of shape [n_samples] or None if all weights are equal
         :return: ClassificationReport
         """
         from ..data import LabeledDataStorage
@@ -148,22 +152,7 @@ class Classifier(BaseEstimator, ClassifierMixin):
 
 
 class Regressor(BaseEstimator, RegressorMixin):
-    """
-    Interface to train different **regression** model from different
-     machine learning libraries, like **TMVA, Sklearn, XGBoost**...
-
-    :param features: features used to train model
-    :type features: list[str] or None
-
-    .. note::
-        * if `features` aren't set (**None**), then all features in training dataset will be used
-
-        * Datasets should be `pandas.DataFrame`, `not numpy.array`.
-          Provided this, you'll be able to choose features used in training by setting e.g.
-          `features=['FlightTime', 'p']` in constructor.
-
-        * It works fine with `numpy.array` as well, but in this case all the features will be used.
-    """
+    __doc__ = _docs.format('regression')
     __metaclass__ = ABCMeta
 
     def __init__(self, features=None):
@@ -171,9 +160,10 @@ class Regressor(BaseEstimator, RegressorMixin):
 
     def _get_features(self, X, allow_nans=False):
         """
-        :param pandas.DataFrame X: train dataset
+        Return data with the necessary features.
 
-        :return: pandas.DataFrame with used features
+        :param pandas.DataFrame X: training data
+        :return: pandas.DataFrame with necessary features
         """
         X_prepared, self.features = _get_features(self.features, X, allow_nans=allow_nans)
         return X_prepared
@@ -181,13 +171,12 @@ class Regressor(BaseEstimator, RegressorMixin):
     @abstractmethod
     def fit(self, X, y, sample_weight=None):
         """
-        Train the regressor model
+        Train a regression model on the data.
 
-        :param X: pandas.DataFrame of shape [n_samples, n_features]
-        :param y: values - array-like of shape [n_samples]
-        :param sample_weight: weight of events,
+        :param pandas.DataFrame X: data of shape [n_samples, n_features]
+        :param y: values for samples, array-like of shape [n_samples]
+        :param sample_weight: weight of samples,
                array-like of shape [n_samples] or None if all weights are equal
-
         :return: self
         """
         pass
@@ -195,9 +184,9 @@ class Regressor(BaseEstimator, RegressorMixin):
     @abstractmethod
     def predict(self, X):
         """
-        Predict values for all events in dataset.
+        Predict values for data.
 
-        :param X: pandas.DataFrame of shape [n_samples, n_features]
+        :param pandas.DataFrame X: data of shape [n_samples, n_features]
         :rtype: numpy.array of shape [n_samples] with predicted values
         """
         pass
@@ -205,19 +194,18 @@ class Regressor(BaseEstimator, RegressorMixin):
     @abstractmethod
     def staged_predict(self, X):
         """
-        Predicts values on each stage
+        Predicts values for data on each stage (i.e. for boosting algorithms).
 
-        :param X: pandas.DataFrame of shape [n_samples, n_features]
+        :param pandas.DataFrame X: data of shape [n_samples, n_features]
         :rtype: iterator
         """
         pass
 
     def fit_lds(self, lds):
         """
-        Train the regressor model on specific dataset
+        Train a regression model on the specific type of dataset.
 
         :param LabeledDataStorage lds: data
-
         :return: self
         """
         X, y, sample_weight = lds.get_data(self.features), lds.get_targets(), lds.get_weights()
@@ -228,7 +216,7 @@ class Regressor(BaseEstimator, RegressorMixin):
 
     def get_feature_importances(self):
         """
-        Get features importances
+        Get features importances.
 
         :rtype: pandas.DataFrame with `index=self.features`
         """
@@ -239,7 +227,7 @@ class Regressor(BaseEstimator, RegressorMixin):
 
     def test_on_lds(self, lds):
         """
-        Prepare regression report for a single classifier
+        Prepare a regression report for a single regressor.
 
         :param LabeledDataStorage lds: data
         :return: RegressionReport
@@ -249,14 +237,14 @@ class Regressor(BaseEstimator, RegressorMixin):
 
     def test_on(self, X, y, sample_weight=None):
         """
-        Prepare regression report for a single classifier
+        Prepare a regression report for a single regressor
 
-        :param X: data, pandas.DataFrame
-        :param y: target
-        :param sample_weight: weights, optional.
+        :param pandas.DataFrame X: data of shape [n_samples, n_features]
+        :param y: values of samples --- array-like of shape [n_samples]
+        :param sample_weight: weight of samples,
+               array-like of shape [n_samples] or None if all weights are equal
         :return: RegressionReport
         """
         from ..data import LabeledDataStorage
         lds = LabeledDataStorage(data=X, target=y, sample_weight=sample_weight)
         return self.test_on_lds(lds=lds)
-

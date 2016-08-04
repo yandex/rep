@@ -1,8 +1,14 @@
 """
-This file contains definitions for useful metrics in specific **REP** format.
+
+Metric-object API
+-----------------
+
+**REP** introduces several metric functions in specific format.
+Metric functions following this format can be used in grid search and reports.
+
 In general case, metrics follow standard sklearn convention for **estimators**, provides
 
-    * constructor (you should create instance of metric!):
+    * constructor (you should create an instance of metric!), all fine-tuning should be done at this step:
 
     >>> metric = RocAuc(positive_label=2)
 
@@ -11,21 +17,39 @@ In general case, metrics follow standard sklearn convention for **estimators**, 
 
     >>> metric.fit(X, y, sample_weight=None)
 
-    * computation of metrics by probabilities (important: samples passed to probabilities ):
+    * computation of metrics by probabilities (important: metric should be computed on exactly same dataset as was used on previous step):
 
+    >>> # in case of classification
     >>> proba = classifier.predict_proba(X)
     >>> metric(y, proba, sample_weight=None)
-
+    >>> # in case of regression
+    >>> prediction = regressor.predict(X)
+    >>> metric(y, prediction, sample_weight=None)
 
 This way metrics can be used in learning curves, for instance.
-Once fitted, then for every stage computation will be very fast.
+Once fitted (and heavy computations done in fitting), then for every stage computation is fast.
+
+
+Metric-function (convenience) API
+---------------------------------
+
+Many metric functions do not require complex settings and different precomputing,
+ so **REP** also works with functions having following API:
+
+    >>> # for classification
+    >>> metric(y, probabilities, sample_weight=None)
+    >>> # for regression
+    >>> metric(y, predictions, sample_weight=None)
+
+As an example, `mean_squared_error` and `mean_absolute_error` from sklearn can be used in **REP**.
+
 
 .. seealso::
     `API of metrics <https://github.com/yandex/rep/wiki/Contributing-new-metrics>`_ for details and explanations on API.
 
 
-Correspondence between physical terms and ML terms
---------------------------------------------------
+Correspondence between physics terms and ML terms
+-------------------------------------------------
 
 Some notation used below:
 
@@ -75,8 +99,11 @@ Available Metric functions
 .. autoclass:: FPRatTPR
     :show-inheritance:
 
+
 Supplementary functions
 -----------------------
+
+Building blocks that should be useful to create new metrics.
 
 .. autoclass:: MetricMixin
     :show-inheritance:
@@ -89,9 +116,8 @@ Supplementary functions
 
 .. autofunction:: significance
 
-
-
-
+.. autoclass:: OptimalMetricNdim
+    :show-inheritance:
 """
 
 from __future__ import division, print_function, absolute_import
@@ -216,11 +242,7 @@ class OptimalAccuracy(BaseEstimator, MetricMixin):
         Estimation of binary classification accuracy for
 
         :param sb_ratio: ratio of signal (class 1) and background (class 0).
-            If none, the parameter is taken from test data.
-
-        Example:
-        ~~~~~~~~
-
+            If none, the parameter is estimated from test data.
         """
         self.sb_ratio = sb_ratio
 
@@ -384,7 +406,7 @@ class OptimalAMS(OptimalMetric):
 
 class FPRatTPR(BaseEstimator, MetricMixin):
     def __init__(self, tpr):
-        """Fix TPR value on roc curve and return corresponding FPR value.
+        """Fix TPR value on ROC curve and return corresponding FPR value.
 
         :param float tpr: target value true positive rate, from range (0, 1)
         """
@@ -399,7 +421,7 @@ class FPRatTPR(BaseEstimator, MetricMixin):
 
 class TPRatFPR(BaseEstimator, MetricMixin):
     def __init__(self, fpr):
-        """Fix FPR value on roc curve and return corresponding TPR value.
+        """Fix FPR value on ROC curve and return corresponding TPR value.
 
         :param float fpr: target value false positive rate, from range (0, 1)
         """
@@ -414,14 +436,15 @@ class TPRatFPR(BaseEstimator, MetricMixin):
 
 class OptimalMetricNdim(BaseEstimator):
     """
-    Class to calculate optimal thresholds on prediction_1, prediction_2, .. prediction_n simultaneously using some binary metric.
-        This metric differs from :class:`OptimalMetric`
+    Class to calculate optimal thresholds on predictions of several classifier
+    (prediction_1, prediction_2, .. prediction_n) simultaneously to maximize some binary metric.
+
+    This metric differs from :class:`OptimalMetric`
 
     :param function metric: metrics(s, b) -> float, binary metric
     :param expected_s: float, total weight of signal
     :param expected_b: float, total weight of background
     :param int step: step in sorted array of predictions for each dimension to choose thresholds
-    (data are taken with values greater or equal to thresholds)
 
     >>> proba1 = classifier1.predict_proba(X)[:, 1]
     >>> proba2 = classifier2.predict_proba(X)[:, 1]

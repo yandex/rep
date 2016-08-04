@@ -2,7 +2,7 @@
 These classes are wrappers for physics machine learning library TMVA used .root format files (c++ library).
 Now you can simply use it in python. TMVA contains classification and regression algorithms, including neural networks.
 See `TMVA guide <http://mirror.yandex.ru/gentoo-distfiles/distfiles/TMVAUsersGuide-v4.03.pdf>`_
-for list of available algorithms and parameters.
+for the list of the available algorithms and parameters.
 """
 from __future__ import division, print_function, absolute_import
 from abc import ABCMeta
@@ -15,21 +15,21 @@ import shutil
 import sys
 
 from .interface import Classifier, Regressor
-from .utils import check_inputs, score_to_proba, proba_to_two_dimension
+from .utils import check_inputs, score_to_proba, proba_to_two_dimensions
 from six.moves import cPickle
 import signal
 
-__author__ = 'Tatiana Likhomanenko'
+__author__ = 'Tatiana Likhomanenko, Alex Rogozhnikov'
 
 logger = getLogger(__name__)
-# those parameters that shall not be passed to options of TMVA classifier
-_PASS_PARAMETERS = {'random_state'}
-__all__ = ['TMVABase', 'TMVAClassifier', 'TMVARegressor']
+# those parameters that shall not be passed to the options of the TMVA estimators
+_IGNORED_PARAMETERS = {'random_state'}
+__all__ = ['TMVAClassifier', 'TMVARegressor']
 
 
 class _AdditionalInformation:
     """
-    Additional information for tmva factory (used in training)
+    Additional information for the tmva factory (used in training)
     """
 
     def __init__(self, directory, model_type='classification'):
@@ -41,7 +41,7 @@ class _AdditionalInformation:
 
 class _AdditionalInformationPredict:
     """
-    Additional information for tmva factory (used in predictions)
+    Additional information for the tmva factory (used to predict new data)
     """
 
     def __init__(self, directory, xml_file, method_name, model_type=('classification', None)):
@@ -54,26 +54,22 @@ class _AdditionalInformationPredict:
 
 class TMVABase(object):
     """
-    TMVABase - base estimator for tmva wrappers.
+    TMVABase is a base class for the tmva classification and regression models.
 
-    Parameters:
-    -----------
     :param str method: algorithm method (default='kBDT')
     :param features: features used in training
     :type features: list[str] or None
-    :param str factory_options: system options
+    :param str factory_options: system options, including data transformation before training
     :param dict method_parameters: estimator options
 
-    .. note:: TMVA doesn't support staged predictions and features importances =((
+    .. note:: TMVA doesn't support staged predictions and features importances :(
     """
-
     __metaclass__ = ABCMeta
 
     def __init__(self,
                  factory_options="",
                  method='kBDT',
                  **method_parameters):
-
         self.method = method
         self._method_name = 'REP_Estimator'
         self.factory_options = factory_options
@@ -92,11 +88,11 @@ class TMVABase(object):
 
     def _fit(self, X, y, sample_weight=None, model_type='classification'):
         """
-        Train the classifier
+        Train the estimator.
 
         :param pandas.DataFrame X: data shape [n_samples, n_features]
-        :param list | numpy.array y: values - array-like of shape [n_samples]
-        :param list | numpy.array sample_weight: weight of events,
+        :param y: targets for samples --- array-like of shape [n_samples]
+        :param sample_weight: weights for samples,
                array-like of shape [n_samples] or None if all weights are equal
         :return: self
         """
@@ -112,23 +108,32 @@ class TMVABase(object):
 
     def _run_tmva_training(self, info, X, y, sample_weight):
         """
-        Run subprocess to train tmva factory
+        Run subprocess to train tmva factory.
 
         :param info: class with additional information
         """
         tmva_process = None
+        _platform = sys.platform
         try:
-            # Problem with Mac OS El Capitan which is not garanteed to set DYLD_LIBRARY_PATH.
-            # This DYLD_LIBRARY_PATH can be used in root_numpy for dynamic loading ROOT libraries
-            # https://github.com/rootpy/root_numpy/issues/227#issuecomment-165981891
-            tmva_process = subprocess.Popen(
-                'export DYLD_LIBRARY_PATH={dyld}; cd "{directory}";'
-                '{executable} -c "import os; from rep.estimators import _tmvaFactory; _tmvaFactory.main()"'.format(
-                    dyld=os.environ.get('DYLD_LIBRARY_PATH', ""),
-                    directory=info.directory,
-                    executable=sys.executable),
-                stdin=PIPE, stdout=PIPE, stderr=subprocess.STDOUT,
-                shell=True, preexec_fn=os.setsid)
+            if _platform == 'win32' or _platform == 'cygwin':
+                tmva_process = subprocess.Popen(
+                        '{executable} -c "import os; from rep.estimators import _tmvaFactory; _tmvaFactory.main()"'.format(
+                                executable=sys.executable),
+                        cwd=info.directory,
+                        stdin=PIPE, stdout=PIPE, stderr=subprocess.STDOUT)
+
+            else:
+                # Problem with Mac OS El Capitan which is not garanteed to set DYLD_LIBRARY_PATH.
+                # This DYLD_LIBRARY_PATH can be used in root_numpy for dynamic loading ROOT libraries
+                # https://github.com/rootpy/root_numpy/issues/227#issuecomment-165981891
+                tmva_process = subprocess.Popen(
+                        'export DYLD_LIBRARY_PATH={dyld}; cd "{directory}";'
+                        '{executable} -c "import os; from rep.estimators import _tmvaFactory; _tmvaFactory.main()"'.format(
+                                dyld=os.environ.get('DYLD_LIBRARY_PATH', ""),
+                                directory=info.directory,
+                                executable=sys.executable),
+                        stdin=PIPE, stdout=PIPE, stderr=subprocess.STDOUT,
+                        shell=True, preexec_fn=os.setsid)
 
             try:
                 cPickle.dump(self, tmva_process.stdin)
@@ -142,6 +147,8 @@ class TMVABase(object):
             stdout, stderr = tmva_process.communicate()
             assert tmva_process.returncode == 0, \
                 'ERROR: TMVA process is incorrect finished \n LOG: %s \n %s' % (stderr, stdout)
+            if stdout is not None:
+                print('%s' % (stdout))
 
             xml_filename = os.path.join(info.directory, 'weights',
                                         '{job}_{name}.weights.xml'.format(job=info.tmva_job, name=self._method_name))
@@ -150,7 +157,10 @@ class TMVABase(object):
         finally:
             if tmva_process is not None:
                 try:
-                    os.killpg(tmva_process.pid, signal.SIGTERM)
+                    if _platform == 'win32' or _platform == 'cygwin':
+                        subprocess.call(['taskkill', '/F', '/T', '/PID', str(tmva_process.pid)])
+                    else:
+                        os.killpg(tmva_process.pid, signal.SIGTERM)
                 except:
                     pass
 
@@ -162,7 +172,8 @@ class TMVABase(object):
         Predict data
 
         :param pandas.DataFrame X: data shape [n_samples, n_features]
-        :return: predicted values of shape n_samples
+        :param model_type: (classification/regression, type of output transformation)
+        :return: predicted values of shape [n_samples]
         """
         self._check_fitted()
 
@@ -182,23 +193,32 @@ class TMVABase(object):
     @staticmethod
     def _run_tmva_predict(info, data):
         """
-        Run subprocess to train tmva factory
+        Run subprocess to predict new data by tmva factory
 
         :param info: class with additional information
         """
         tmva_process = None
+        _platform = sys.platform
         try:
-            # Problem with Mac OS El Capitan which is not garanteed to set DYLD_LIBRARY_PATH.
-            # This DYLD_LIBRARY_PATH can be used in root_numpy for dynamic loading ROOT libraries
-            # https://github.com/rootpy/root_numpy/issues/227#issuecomment-165981891
-            tmva_process = subprocess.Popen(
-                'export DYLD_LIBRARY_PATH={dyld}; cd "{directory}";'
-                '{executable} -c "from rep.estimators import _tmvaReader; _tmvaReader.main()"'.format(
-                    dyld=os.environ.get('DYLD_LIBRARY_PATH', ""),
-                    directory=info.directory,
-                    executable=sys.executable),
-                stdin=PIPE, stdout=PIPE, stderr=subprocess.STDOUT,
-                shell=True)
+            if _platform == 'win32' or _platform == 'cygwin':
+                tmva_process = subprocess.Popen(
+                        '{executable} -c "from rep.estimators import _tmvaReader; _tmvaReader.main()"'.format(
+                                executable=sys.executable),
+                        cwd=info.directory,
+                        stdin=PIPE, stdout=PIPE, stderr=subprocess.STDOUT)
+
+            else:
+                # Problem with Mac OS El Capitan (10.11) which is not guaranteed to set DYLD_LIBRARY_PATH.
+                # This DYLD_LIBRARY_PATH can be used in root_numpy for dynamic loading ROOT libraries
+                # https://github.com/rootpy/root_numpy/issues/227#issuecomment-165981891
+                tmva_process = subprocess.Popen(
+                        'export DYLD_LIBRARY_PATH={dyld}; cd "{directory}";'
+                        '{executable} -c "from rep.estimators import _tmvaReader; _tmvaReader.main()"'.format(
+                                dyld=os.environ.get('DYLD_LIBRARY_PATH', ""),
+                                directory=info.directory,
+                                executable=sys.executable),
+                        stdin=PIPE, stdout=PIPE, stderr=subprocess.STDOUT,
+                        shell=True)
 
             try:
                 cPickle.dump(info, tmva_process.stdin)
@@ -215,55 +235,49 @@ class TMVABase(object):
         finally:
             if tmva_process is not None:
                 try:
-                    os.killpg(tmva_process.pid, signal.SIGTERM)
+                    if _platform == 'win32' or _platform == 'cygwin':
+                        subprocess.call(['taskkill', '/F', '/T', '/PID', str(tmva_process.pid)])
+                    else:
+                        os.killpg(tmva_process.pid, signal.SIGTERM)
                 except:
                     pass
 
 
 class TMVAClassifier(TMVABase, Classifier):
     """
-    TMVAClassifier wraps classifiers from TMVA (CERN library for machine learning)
+    Implements classification models from TMVA library: CERN library for machine learning.
 
-    Parameters:
-    -----------
     :param str method: algorithm method (default='kBDT')
     :param features: features used in training
     :type features: list[str] or None
-    :param str factory_options: options, for example::
+    :param str factory_options: system options, including data transformations before training, for example::
 
         "!V:!Silent:Color:Transformations=I;D;P;G,D"
 
     :param str sigmoid_function: function which is used to convert TMVA output to probabilities;
 
-        * *identity* (use for svm, mlp) --- the same output, use this for methods returning class probabilities
-
+        * *identity* (use for svm, mlp) --- do not transform the output, use this value for methods returning class probabilities
         * *sigmoid* --- sigmoid transformation, use it if output varies in range [-infinity, +infinity]
+        * *bdt* (for the BDT algorithms output varies in range [-1, 1])
+        * *sig_eff=0.4* --- for the rectangular cut optimization methods,
+          for instance, here 0.4 will be used as a signal efficiency to evaluate MVA,
+          (put any float number from [0, 1])
 
-        * *bdt* (for bdt algorithms output varies in range [-1, 1])
-
-        * *sig_eff=0.4* --- for rectangular cut optimization methods,
-        for instance, here 0.4 will be used as signal efficiency to evaluate MVA,
-        (put any float number from [0, 1])
-
-    :param dict method_parameters: estimator options, example: NTrees=100, BoostType='Grad'
+    :param dict method_parameters: classifier options, example: `NTrees=100`, `BoostType='Grad'`.
 
     .. warning::
-        TMVA doesn't support *staged_predict_proba()* and *feature_importances__*
+        TMVA doesn't support *staged_predict_proba()* and *feature_importances__*.
 
-    .. warning::
-        TMVA doesn't support multiclassification, only two-class classification
+        TMVA doesn't support multiclassification, only two-class classification.
 
-    `TMVA guide <http://mirror.yandex.ru/gentoo-distfiles/distfiles/TMVAUsersGuide-v4.03.pdf>`_
+    `TMVA guide <http://mirror.yandex.ru/gentoo-distfiles/distfiles/TMVAUsersGuide-v4.03.pdf>`_.
     """
-
     def __init__(self,
                  method='kBDT',
                  features=None,
                  factory_options="",
                  sigmoid_function='bdt',
                  **method_parameters):
-
-        # !V:!Silent:Color:Transformations=I;D;P;G,D
         TMVABase.__init__(self, factory_options=factory_options, method=method, **method_parameters)
         Classifier.__init__(self, features=features)
         self.sigmoid_function = sigmoid_function
@@ -276,13 +290,13 @@ class TMVAClassifier(TMVABase, Classifier):
         """
         Set the parameters of this estimator.
 
-        :param dict params: parameters to set in model
+        :param dict params: parameters to set in the model
         """
         for k, v in params.items():
             if hasattr(self, k):
                 setattr(self, k, v)
             else:
-                if k in _PASS_PARAMETERS:
+                if k in _IGNORED_PARAMETERS:
                     continue
                 self.method_parameters[k] = v
 
@@ -290,13 +304,7 @@ class TMVAClassifier(TMVABase, Classifier):
         """
         Get parameters for this estimator.
 
-        deep: boolean, optional
-
-            If True, will return the parameters for this estimator and contained subobjects that are estimators.
-
-        params : mapping of string to any
-
-            Parameter names mapped to their values.
+        :return: dict, parameter names mapped to their values.
         """
         parameters = self.method_parameters.copy()
         parameters['method'] = self.method
@@ -305,16 +313,6 @@ class TMVAClassifier(TMVABase, Classifier):
         return parameters
 
     def fit(self, X, y, sample_weight=None):
-        """
-        Train the classifier
-
-        :param pandas.DataFrame X: data shape [n_samples, n_features]
-        :param y: labels of events - array-like of shape [n_samples]
-        :param sample_weight: weight of events,
-               array-like of shape [n_samples] or None if all weights are equal
-
-        :return: self
-        """
         X, y, sample_weight = check_inputs(X, y, sample_weight=sample_weight, allow_none_weights=False)
         X = self._get_features(X).copy()
         self._set_classes_special(y)
@@ -325,69 +323,64 @@ class TMVAClassifier(TMVABase, Classifier):
 
         return self._fit(X, y, sample_weight=sample_weight)
 
-    def predict_proba(self, X):
-        """
-        Predict probabilities for new data.
+    fit.__doc__ = Classifier.fit.__doc__
 
-        :param pandas.DataFrame X: data shape [n_samples, n_features]
-        :rtype: numpy.array of shape [n_samples, n_classes] with probabilities
-        """
+    def predict_proba(self, X):
         X = self._get_features(X)
         prediction = self._predict(X, model_type=('classification', self.sigmoid_function))
         return self._convert_output(prediction)
 
+    predict_proba.__doc__ = Classifier.predict_proba.__doc__
+
     def _convert_output(self, prediction):
+        """
+        Convert the output to the probabilities for each class.
+
+        :param array prediction: predictions which will be converted
+        :return: probabilities
+        """
         variants = {'bdt', 'sigmoid', 'identity'}
         if 'sig_eff' in self.sigmoid_function:
-            return proba_to_two_dimension(prediction)
+            return proba_to_two_dimensions(prediction)
         assert self.sigmoid_function in variants, \
             'sigmoid_function parameter must be one of {}, instead of {}'.format(variants, self.sigmoid_function)
         if self.sigmoid_function == 'sigmoid':
             return score_to_proba(prediction)
         elif self.sigmoid_function == 'bdt':
-            return proba_to_two_dimension((prediction + 1.) / 2.)
+            return proba_to_two_dimensions((prediction + 1.) / 2.)
         else:
-            return proba_to_two_dimension(prediction)
+            return proba_to_two_dimensions(prediction)
 
     def staged_predict_proba(self, X):
         """
-        Predicts probabilities on each stage
-
-        :param pandas.DataFrame X: data shape [n_samples, n_features]
-        :return: iterator
-
-        .. warning:: Not supported for TMVA (**AttributeError** will be thrown)
+        .. warning:: This function is not supported for the TMVA library (**AttributeError** will be thrown)
         """
-        raise AttributeError("Not supported for TMVA")
+        raise AttributeError("'staged_predict_proba' is not supported by the TMVA library")
 
 
 class TMVARegressor(TMVABase, Regressor):
     """
-    TMVARegressor wraps regressors from TMVA (CERN library for machine learning)
+    Implements regression models from TMVA library: CERN library for machine learning.
 
-    Parameters:
-    -----------
     :param str method: algorithm method (default='kBDT')
     :param features: features used in training
     :type features: list[str] or None
-    :param str factory_options: options, for example::
+    :param str factory_options: system options, including data transformations before training, for example::
 
         "!V:!Silent:Color:Transformations=I;D;P;G,D"
 
-    :param dict method_parameters: estimator options, example: NTrees=100, BoostType=Grad
+    :param dict method_parameters: regressor options, for example: `NTrees=100`, `BoostType='Grad'`
 
-    .. note::
-        TMVA doesn't support *staged_predict()* and *feature_importances__*
+    .. warning::
+        TMVA doesn't support *staged_predict()* and *feature_importances__*.
 
     `TMVA guide <http://mirror.yandex.ru/gentoo-distfiles/distfiles/TMVAUsersGuide-v4.03.pdf>`_
     """
-
     def __init__(self,
                  method='kBDT',
                  features=None,
                  factory_options="",
                  **method_parameters):
-
         TMVABase.__init__(self, factory_options=factory_options, method=method, **method_parameters)
         Regressor.__init__(self, features=features)
 
@@ -395,13 +388,13 @@ class TMVARegressor(TMVABase, Regressor):
         """
         Set the parameters of this estimator.
 
-        :param dict params: parameters to set in model
+        :param dict params: parameters to set in the model
         """
         for k, v in params.items():
             if hasattr(self, k):
                 setattr(self, k, v)
             else:
-                if k in _PASS_PARAMETERS:
+                if k in _IGNORED_PARAMETERS:
                     continue
                 self.method_parameters[k] = v
 
@@ -409,13 +402,7 @@ class TMVARegressor(TMVABase, Regressor):
         """
         Get parameters for this estimator.
 
-        deep: boolean, optional
-
-            If True, will return the parameters for this estimator and contained subobjects that are estimators.
-
-        params : mapping of string to any
-
-            Parameter names mapped to their values.
+        :return: dict, parameter names mapped to their values.
         """
         parameters = self.method_parameters.copy()
         parameters['method'] = self.method
@@ -424,38 +411,22 @@ class TMVARegressor(TMVABase, Regressor):
         return parameters
 
     def fit(self, X, y, sample_weight=None):
-        """
-        Train the classifier
-
-        :param pandas.DataFrame X: data shape [n_samples, n_features]
-        :param y: values - array-like of shape [n_samples]
-        :param sample_weight: weight of events,
-               array-like of shape [n_samples] or None if all weights are equal
-        :return: self
-        """
         X, y, sample_weight = check_inputs(X, y, sample_weight=sample_weight, allow_none_weights=False)
         X = self._get_features(X).copy()
 
         self.factory_options = '{}:AnalysisType=Regression'.format(self.factory_options)
         return self._fit(X, y, sample_weight=sample_weight, model_type='regression')
 
-    def predict(self, X):
-        """
-        Predict data
+    fit.__doc__ = Regressor.fit.__doc__
 
-        :param pandas.DataFrame X: data shape [n_samples, n_features]
-        :return: numpy.array of shape n_samples with values
-        """
+    def predict(self, X):
         X = self._get_features(X)
         return self._predict(X, model_type=('regression', None))
 
+    predict.__doc__ = Regressor.predict.__doc__
+
     def staged_predict(self, X):
         """
-        Predicts values on each stage
-
-        :param pandas.DataFrame X: data shape [n_samples, n_features]
-        :return: iterator
-
-        .. warning:: Not supported for TMVA (**AttributeError** will be thrown)
+        .. warning:: This function is not supported for the TMVA library (**AttributeError** will be thrown)
         """
-        raise AttributeError("Not supported for TMVA")
+        raise AttributeError("'staged_predict' is not supported by the TMVA library")

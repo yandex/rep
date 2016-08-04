@@ -4,8 +4,8 @@ Different helpful functions, objects, methods are collected here.
 
 from __future__ import division, print_function, absolute_import
 from collections import OrderedDict
-import numexpr
 
+import time
 import numpy
 import pandas
 from sklearn.utils.validation import column_or_1d
@@ -24,7 +24,6 @@ def weighted_quantile(array, quantiles, sample_weight=None, array_sorted=False, 
     :return: array of shape [n_quantiles]
 
     Example:
-    ________
 
     >>> weighted_quantile([1, 2, 3, 4, 5], [0.5])
     Out: array([ 3.])
@@ -76,27 +75,24 @@ def check_sample_weight(y_true, sample_weight):
 
 
 class Flattener(object):
-    """
-    Prepares normalization function for some set of values
-    transforms it to uniform distribution from [0, 1]. Example of usage:
-
-    Parameters:
-    -----------
-    :param data: predictions
-    :type data: list or numpy.array
-    :param sample_weight: weights
-    :type sample_weight: None or list or numpy.array
-
-    Example:
-    --------
-    >>> normalizer = Flattener(signal)
-    >>> hist(normalizer(background))
-    >>> hist(normalizer(signal))
-
-    :return func: normalization function
-    """
-
     def __init__(self, data, sample_weight=None):
+        """
+        Prepares normalization function for some set of values
+        transforms it to uniform distribution from [0, 1].
+
+        :param data: predictions
+        :type data: list or numpy.array
+        :param sample_weight: weights
+        :type sample_weight: None or list or numpy.array
+        :return func: normalization function
+
+        Example of usage:
+
+        >>> normalizer = Flattener(signal)
+        >>> hist(normalizer(background))
+        >>> hist(normalizer(signal))
+
+        """
         sample_weight = check_sample_weight(data, sample_weight=sample_weight)
         data = column_or_1d(data)
         assert numpy.all(sample_weight >= 0.), 'sample weight must be non-negative'
@@ -107,7 +103,7 @@ class Flattener(object):
         return numpy.interp(data, self.data, self.predictions)
 
 
-class Binner:
+class Binner(object):
     def __init__(self, values, bins_number):
         """
         Binner is a class that helps to split the values into several bins.
@@ -170,9 +166,9 @@ def calc_ROC(prediction, signal, sample_weight=None, max_points=10000):
 
     assert set(signal) == {0, 1}, "the labels should be 0 and 1, labels are " + str(set(signal))
     fpr, tpr, thresholds = roc_curve(signal, prediction, sample_weight=sample_weight)
-    tpr = numpy.insert(tpr, 0, 0.)
-    fpr = numpy.insert(fpr, 0, 0.)
-    thresholds = numpy.insert(thresholds, 0, thresholds[0] + 1.)
+    tpr = numpy.insert(tpr, 0, [0.])
+    fpr = numpy.insert(fpr, 0, [0.])
+    thresholds = numpy.insert(thresholds, 0, [thresholds[0] + 1.])
     tnr = 1 - fpr
 
     weight_bck = sample_weight[signal == 0]
@@ -247,8 +243,6 @@ def get_efficiencies(prediction, spectator, sample_weight=None, bins_number=20,
     Different score functions available: Efficiency, Precision, Recall, F1Score,
     and other things from sklearn.metrics
 
-    Parameters:
-    -----------
     :param prediction: list of probabilities
     :param spectator: list of spectator's values
     :param bins_number: int, count of bins for plot
@@ -309,12 +303,15 @@ def get_efficiencies(prediction, spectator, sample_weight=None, bins_number=20,
 
 
 def train_test_split(*arrays, **kw_args):
-    """Does the same thing as train_test_split, but preserves columns in DataFrames.
-    Uses the same parameters: test_size, train_size, random_state, and has the same interface
+    """
+    Does the same thing as sklearn.cross_validation.train_test_split.
+    Additionally has 'allow_none' parameter.
 
-    :param arrays: arrays to split
+    :param arrays: arrays to split with same first dimension
     :type arrays: list[numpy.array] or list[pandas.DataFrame]
-    :param bool allow_none, default False (specially for sample_weight - both to None)
+    :param bool allow_none: default False, is set to True, allows
+        non-first arguments to be None (in this case, both resulting train and test parts are None).
+
     """
     from sklearn import cross_validation
     allow_none = kw_args.pop('allow_none', False)
@@ -340,19 +337,16 @@ def train_test_split(*arrays, **kw_args):
 
 
 def train_test_split_group(group_column, *arrays, **kw_args):
-    """Does the same thing as train_test_split, but preserves names of columns in DataFrames.
-    Uses the same parameters: test_size, train_size, random_state, and has almost the same interface
-
+    """
+    Modification of :class:`train_test_split` which alters splitting rule.
 
     :param group_column: array-like of shape [n_samples] with indices of groups,
-    events from one group will be kept together (all events in train or all events in test).
-    If `group_column` is used, train_size and test_size will refer to number of groups, not events
-
+        events from one group will be kept together (all events in train or all events in test).
+        If `group_column` is used, train_size and test_size will refer to number of groups, not events
     :param arrays: arrays to split
     :type arrays: list[numpy.array] or list[pandas.DataFrame]
-
     :param bool allow_none: default False
-    (specially for sample_weight - after splitting train and test of `None` are `None` too)
+        (useful for sample_weight - after splitting train and test of `None` are again `None`)
     """
     from sklearn import cross_validation
     allow_none = kw_args.pop('allow_none', None)
@@ -423,12 +417,14 @@ def get_columns_in_df(df, columns):
         else:
             # warning - this thing is known to fail in threads
             # numexpr.evaluate(column, local_dict=df)
+            # thus we are using python engine, which is slow :(
             df_new[column_new] = df.eval(column, engine='python')
     return pandas.DataFrame(df_new)
 
 
 def check_arrays(*arrays):
-    """Left for consistency version of sklearn.validation.check_arrays
+    """
+    Left for consistency, version of `sklearn.validation.check_arrays`
 
     :param list[iterable] arrays: arrays with same length of first dimension.
     """
@@ -447,6 +443,45 @@ def check_arrays(*arrays):
 
 
 def fit_metric(metric, *args, **kargs):
-    """Simple wrapper to fit metrics, which checks if metrics has `fit` method."""
+    """
+    Metric can implement one of two interfaces (function or object).
+    This function fits metrics, if it is required (by simply checking presence of fit method).
+
+    :param metric: metric function, following REP conventions
+    """
     if hasattr(metric, 'fit'):
         metric.fit(*args, **kargs)
+
+
+class Stopwatch(object):
+    """
+    Simple tool to measure time.
+    If your internet connection is reliable, use %time magic.
+
+    >>> with Stopwatch() as timer:
+    >>>     # do something here
+    >>>     classifier.fit(X, y)
+    >>> # print how much time was spent
+    >>> print(timer)
+    """
+
+    def __enter__(self):
+        self.start = time.time()
+        return self
+
+    def __exit__(self, err_type, err_value, err_traceback):
+        self.stop = time.time()
+        self.err_type = err_type
+        self.err_value = err_value
+        self.err_traceback = err_traceback
+
+    @property
+    def elapsed(self):
+        return self.stop - self.start
+
+    def __repr__(self):
+        result = "interval: {:.2f} sec".format(self.elapsed)
+        if self.err_type is not None:
+            message = "\nError {error} of type {error_type} was raised"
+            result += message.format(error=repr(self.err_value), error_type=self.err_type)
+        return result

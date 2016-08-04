@@ -1,43 +1,41 @@
 from setuptools import setup
-import codecs
+import io
 import os
 import re
 
 here = os.path.abspath(os.path.dirname(__file__))
 
 
-def find_version(*file_paths):
-    # Open in Latin-1 so that we avoid encoding errors.
-    # Use codecs.open for Python 2 compatibility
-    with codecs.open(os.path.join(here, *file_paths), 'r') as f:
+def find_version():
+    with io.open(os.path.join(here, 'rep', '__init__.py'), 'r') as f:
         version_file = f.read()
 
-    # The version line must have the form
-    # __version__ = 'ver'
+    # The version line must have the form like following:
+    # __version__ = '0.x.x'
     version_match = re.search(r"^__version__ = ['\"]([^'\"]*)['\"]",
-                              version_file, re.M)
-    # TODO better selection
-    assert str.startswith(version_match.group(1), '0.6')
+                              version_file, re.MULTILINE)
+    candidate = str(version_match.group(1))
+    assert str.startswith(candidate, '0.') and candidate[2] != '0'
     if version_match:
-        return version_match.group(1)
+        return candidate
     raise RuntimeError("Unable to find version string.")
 
 
-with open(os.path.join(here, 'README.md')) as f:
+with io.open(os.path.join(here, 'README.md')) as f:
     long_description = f.read()
 
-with open(os.path.join(here, 'AUTHORS')) as f:
+with io.open(os.path.join(here, 'AUTHORS')) as f:
     authors = f.read()
 
-with open(os.path.join(here, 'requirements.txt')) as f:
+with io.open(os.path.join(here, 'requirements.txt')) as f:
     requirements = f.read().split('\n')
 
 setup(
     name="rep",
-    version=find_version('rep', '__init__.py'),
-    description="infrastructure for computational experiments on shared big datasets",
+    version=find_version(),
+    description="infrastructure for computational experiments in machine learning",
     long_description="Reproducible Experiment Platform is a collaborative software infrastructure for computational " \
-                     "experiments on shared big datasets, which allows obtaining reproducible, repeatable results " \
+                     "experiments in machine learning, which allows obtaining reproducible, repeatable results " \
                      "and consistent comparisons of the obtained results.",
     url='https://github.com/yandex/rep',
 
@@ -48,10 +46,8 @@ setup(
     # Choose your license
     license='Apache-2.0 License',
 
-    # You can just specify the packages manually here if your project is
-    # simple. Or you can use find_packages.
-    # packages=find_packages(exclude=["cern_utils", "docs", "tests*"]),
-    packages=['rep', 'rep.estimators', 'rep.data', 'rep.metaml', 'rep.report', 'rep.test'],
+    # Manually specifying all packages
+    packages=['rep', 'rep.data', 'rep.estimators', 'rep.metaml', 'rep.report', 'rep.test'],
     package_dir={'rep': 'rep'},
     classifiers=[
         'Development Status :: 5 - Production/Stable',
@@ -69,8 +65,7 @@ setup(
     ],
 
     # What does your project relate to?
-    keywords='machine learning, ydf, high energy physics, particle physics, data analysis, reproducible experiment',
-
+    keywords='machine learning, high energy physics, particle physics, data analysis, reproducible experiment',
 
     # List run-time dependencies here. These will be installed by pip when your
     # project is installed.

@@ -26,17 +26,14 @@ __author__ = 'Alex Rogozhnikov, Tatiana Likhomanenko'
 
 
 class RegressionReport(AbstractReport):
-    """
-    Report simplifies comparison of regressors on the same dataset.
-
-    Parameters:
-    -----------
-    :param regressors: OrderedDict with regressors (RegressionFactory)
-    :type regressors: dict[str, Regressor]
-    :param LabeledDataStorage lds: data
-    """
-
     def __init__(self, regressors, lds):
+        """
+        Report simplifies comparison of regressors on the same dataset.
+
+        :param regressors: OrderedDict with regressors (RegressionFactory)
+        :type regressors: dict[str, Regressor]
+        :param LabeledDataStorage lds: data
+        """
         for name, regressor in regressors.items():
             assert isinstance(regressor, Regressor), "Object {} doesn't implement interface".format(name)
         AbstractReport.__init__(self, lds=lds, estimators=regressors)

@@ -1,5 +1,9 @@
 """
-This module contains stacking strategies (meta-algorithms of machine learning).
+:class:`FeatureSplitter`  defined in this module.
+
+This meta-algorithm is handy to train different models for subsets of the data
+without manually splitting the data into parts.
+
 """
 from __future__ import division, print_function, absolute_import
 
@@ -25,7 +29,7 @@ class FeatureSplitter(Classifier):
     :param base_estimator: the classifier, its' copies are trained on parts of dataset
     :param list[str] features: list of columns classifier uses
 
-    .. note:: `split_feature` must be in list of `features`
+    Pay attention: `split_feature` must be in list of `features` (if those are passed).
     """
     def __init__(self, split_feature, base_estimator, train_features=None):
         self.base_estimator = base_estimator
@@ -81,8 +85,8 @@ class FeatureSplitter(Classifier):
 
     def predict_proba(self, X):
         """
-        Predict probabilities. Each event will be predicted by the classifier
-         with trained on corresponding value of `split_feature`
+        Predict probabilities.
+        Each event is predicted by the classifier trained on corresponding value of `split_feature`
 
         :param X: pandas.DataFrame of shape [n_samples, n_features]
         :return: probabilities of shape [n_samples, n_classes]
@@ -97,8 +101,7 @@ class FeatureSplitter(Classifier):
     def staged_predict_proba(self, X):
         """
         Predict probabilities after each stage of base classifier.
-        Each event will be predicted by the classifier
-         with trained on corresponding value of `split_feature`
+        Each event is predicted by the classifier trained on corresponding value of `split_feature`
 
         :param X: pandas.DataFrame of shape [n_samples, n_features]
         :return: iterable sequence of numpy.arrays of shape [n_samples, n_classes]

@@ -3,6 +3,8 @@
 [![Join the chat at https://gitter.im/yandex/rep](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/yandex/rep?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![Build Status](https://travis-ci.org/yandex/rep.svg?branch=master)](https://travis-ci.org/yandex/rep)
 [![PyPI version](https://badge.fury.io/py/rep.svg)](https://badge.fury.io/py/rep)
+[![Documentation](https://img.shields.io/badge/documentation-link-blue.svg)](https://yandex.github.io/rep/)
+[![CircleCI](https://circleci.com/gh/arogozhnikov/rep.svg?style=svg)](https://circleci.com/gh/arogozhnikov/rep)
 
 __REP__ is ipython-based environment for conducting data-driven research in a consistent and reproducible way.
 
@@ -19,8 +21,8 @@ __REP__ is ipython-based environment for conducting data-driven research in a co
   * parallel training of classifiers on cluster 
   * classification/regression reports with plots
   * interactive plots supported
-  * smart grid-search algorithms with parallelized execution
-  * versioning of research using git
+  * smart grid-search algorithms with parallel execution
+  * research versioning using git
   * pluggable quality metrics for classification
   * meta-algorithm design (aka 'rep-lego')
 
@@ -33,9 +35,13 @@ To get started, look at the notebooks in [/howto/](https://github.com/yandex/rep
 Notebooks can be viewed (not executed) online at [nbviewer](http://nbviewer.ipython.org/github/yandex/rep/tree/master/howto/)  <br />
 There are basic introductory notebooks (about python, IPython) and more advanced ones (about the **REP** itself)
 
+Examples code is written in python 2, but library is python 2 and python 3 compatible.
+
 ### Installation with Docker
 
-We provide the [docker image](https://registry.hub.docker.com/u/yandex/rep/) with `REP` and all it's dependencies 
+We provide the [docker image](https://registry.hub.docker.com/u/yandex/rep/) with `REP` and all it's dependencies. 
+It is a recommended way, specially if you're not experienced in python.
+
 * [install with Docker on Linux](https://github.com/yandex/rep/wiki/Install-REP-with-Docker-(Linux))
 * [install with Docker on Mac and Windows](https://github.com/yandex/rep/wiki/Install-REP-with-Docker-(Mac-OS-X,-Windows))
 
@@ -55,6 +61,7 @@ However, if you want to install `REP` and all of its dependencies on your machin
 * [gitter chat, troubleshooting](https://gitter.im/yandex/rep)
 * [API, contributing new estimator](https://github.com/yandex/rep/wiki/Contributing-new-estimator)
 * [API, contributing new metric](https://github.com/yandex/rep/wiki/Contributing-new-metrics)
+* [Tutorial](https://github.com/yandexdataschool/REP_tutorial) based on [Flavour of physics challenge](https://www.kaggle.com/c/flavours-of-physics)
 * If you use REP in research, please consider [citing](http://arxiv.org/abs/1510.00624)
 
 ### License

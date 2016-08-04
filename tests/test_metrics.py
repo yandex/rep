@@ -32,17 +32,18 @@ def test_optimal_metrics_2dim(size=1000):
         return s / (b + 0.01)
 
     # setting 'the best event' to be signal
-    random_labels[numpy.argmax(prediction)] = 1
+    best_event = numpy.argmax(prediction)
+    random_labels[best_event] = 1
+    prediction[best_event] += 1
     optimal_ams = metrics.OptimalMetricNdim(ams_like, step=1)
     optimal_ams_1d = metrics.OptimalMetric(ams_like)
-    proba = numpy.ndarray((len(prediction), 2))
+    proba = numpy.zeros((len(prediction), 2))
     proba[:, 0] = 1 - prediction
     proba[:, 1] = prediction
     score, threshold = optimal_ams(random_labels, None, pid, prediction)
     score_1d = optimal_ams_1d(random_labels, proba)
     print(score, score_1d)
     assert numpy.allclose(score, score_1d)
-    assert score >= 1.
 
 
 def test_logloss(size=1000):

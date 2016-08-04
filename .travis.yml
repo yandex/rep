@@ -1,40 +1,71 @@
-language: python
+# Travis (https://travis-ci.org) configuration file
+# CI MACOS
+# -brew install xz
+# --without xz ROOT gives: 
+# ---Incompatible library version: libCore.so requires version 8.0.0 or later, but liblzma.5.dylib provides version 6.0.0 
+# ---try to solve by https://github.com/Homebrew/legacy-homebrew/issues/42209 installing xz
+# Theano flags were set accordingly to this issue: https://github.com/Theano/Theano/issues/3780
+
 sudo: required
 services:
   - docker
-addons:
-  apt:
-    packages:
-    - build-essential
-    - libatlas-dev
-    - libatlas-base-dev
-    - liblapack-dev
-    - libffi-dev
-    - wget
-    - gfortran
-    - libxft-dev
-    - libxpm-dev
-python:
-  - "2.7"
-  - "3.4"
+matrix:
+    include:
+        - os: linux
+          language: generic
+          env: REP_PYTHON_VERSION=2 THEANO_FLAGS='gcc.cxxflags="-march=corei7"'
+          sudo: required
+
+        - os: linux
+          language: generic
+          env: REP_PYTHON_VERSION=3 THEANO_FLAGS='gcc.cxxflags="-march=corei7"'
+          sudo: required
+
+        - os: osx
+          env: PYTHON_VERSION=2.7
+          language: generic
+
 before_install:
-  - set -x
-  - source ci/install-repbase-env.sh
-# DEBUG
+  - if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
+      brew update > /dev/null;
+      brew install xz;
+      brew install homebrew/science/root;
+      virtualenv venv -p python${PYTHON_VERSION};
+      source venv/bin/activate;
+      source $(brew --prefix root)/libexec/thisroot.sh;
+      echo 'TRY IMPORT ROOT';
+      python -c 'import ROOT';
+      pip install pip -U;
+      pip install -r requirements.txt;
+      pip install rootpy root_numpy;
+      python -c 'import root_numpy';
+      mkdir -p $HOME/.matplotlib;
+      echo 'backend:TkAgg' > $HOME/.matplotlib/matplotlibrc;
+    else
+      source ci/install_rep_environment.sh $REP_PYTHON_VERSION;
+      conda list;
+    fi
+  # printing DEBUG information
   - which python
-  - conda list
   - echo $LD_LIBRARY_PATH
 install:
   - pip install .
 script:
-  - tests/run_tests.sh
-  - if [[ "$TRAVIS_BRANCH" = "master" && "${TRAVIS_PYTHON_VERSION:0:1}" = "2" ]] ; then make push-latest ; fi
-cache:
-  apt: true
-  directories:
-    - $HOME/.theano
-    - $HOME/.cache/pip
-    - $HOME/miniconda/pkgs
+  # listing everything in howto folder recursively
+  - ls -alR ./howto/
+  # setting flag: don't proceed if one of commands fails.
+  - set -e
+  - mkdir -p ./.cache/rep
+  # testing all but notebooks
+  - nosetests -v --detailed-errors --nocapture ./tests/test_*;
+  # testing only notebooks
+  - if [[ $TRAVIS_OS_NAME != 'osx' ]]; then
+      nosetests -v --detailed-errors --nocapture --stop ./tests/z_test_*;
+    fi
+  # if on master and tests passed successfully, trigger rebuilding of docker image.
+  - if [[ "$TRAVIS_BRANCH" = "master" && "$TRAVIS_OS_NAME" != "osx" && "$REP_PYTHON_VERSION" = "2" ]] ; then make push-latest ; fi
+  # reseting flag
+  - set +e
 notifications:
   email: true
   webhooks:
@@ -42,4 +73,4 @@ notifications:
       - https://webhooks.gitter.im/e/4eb609958a03b4bc1df5
     on_success: always  # options: [always|never|change] default: always
     on_failure: always  # options: [always|never|change] default: always
-    on_start: always     # options: [always|never|change] default: always
+    on_start: always    # options: [always|never|change] default: always
