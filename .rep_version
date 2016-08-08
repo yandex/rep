@@ -1,4 +1,0 @@
-# version of images that are created from current commit. 
-# 
-#
-REP_IMAGE=yandex/rep:0.6.6
