@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>rep.metaml.gridsearch &mdash; REP (Reproducible Experiment Platform) 0.6.5 documentation</title>
+  <title>rep.metaml.gridsearch &mdash; REP (Reproducible Experiment Platform) 0.6.6 documentation</title>
   
 
   
@@ -30,7 +30,7 @@
   
 
   
-    <link rel="top" title="REP (Reproducible Experiment Platform) 0.6.5 documentation" href="../../../index.html"/>
+    <link rel="top" title="REP (Reproducible Experiment Platform) 0.6.6 documentation" href="../../../index.html"/>
         <link rel="up" title="Module code" href="../../index.html"/> 
 
   
@@ -59,7 +59,7 @@
             
             
               <div class="version">
-                0.6.5
+                0.6.6
               </div>
             
           
@@ -81,12 +81,15 @@
             
             
                 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../data.html">Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../estimators.html">Estimators (classification and regression)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../metaml.html">Meta Machine Learning</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../report.html">Report for models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../metrics.html">Metrics</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../plotting.html">Plotting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../parallel.html">Parallel computing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../data.html">Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../utils.html">Utilities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reproducibility.html">REProducibility</a></li>
 <li class="toctree-l1"><a class="reference external" href="http://nbviewer.ipython.org/github/yandex/rep/tree/master/howto/">Howto notebooks</a></li>
 </ul>
 
@@ -237,16 +240,13 @@
 <span class="n">__author__</span> <span class="o">=</span> <span class="s">&#39;Alex Rogozhnikov, Tatiana Likhomanenko&#39;</span>
 
 
-<div class="viewcode-block" id="AbstractParameterGenerator"><a class="viewcode-back" href="../../../metaml.html#rep.metaml.gridsearch.AbstractParameterGenerator">[docs]</a><span class="k">class</span> <span class="nc">AbstractParameterGenerator</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span></div>
-
+<div class="viewcode-block" id="AbstractParameterGenerator"><a class="viewcode-back" href="../../../metaml.html#rep.metaml.gridsearch.AbstractParameterGenerator">[docs]</a><span class="k">class</span> <span class="nc">AbstractParameterGenerator</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param_grid</span><span class="p">,</span> <span class="n">n_evaluations</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">maximize</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Abstract class for grid search algorithm.</span>
 <span class="sd">        The aim of this class is to generate new points, where the function (estimator) will be computed.</span>
 <span class="sd">        You can define your own algorithm of step location of parameters grid.</span>
 
-<span class="sd">        Parameters:</span>
-<span class="sd">        ----------</span>
 <span class="sd">        :param OrderedDict param_grid: the grid with parameters to optimize on</span>
 <span class="sd">        :param int n_evaluations: the number of evaluations to do</span>
 <span class="sd">        :param random_state: random generator</span>
@@ -292,13 +292,13 @@
                     <span class="bp">self</span><span class="o">.</span><span class="n">queued_tasks_</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
                 <span class="k">return</span> <span class="n">result</span>
 
-    <span class="k">def</span> <span class="nf">generate_next_point</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="AbstractParameterGenerator.generate_next_point"><a class="viewcode-back" href="../../../metaml.html#rep.metaml.gridsearch.AbstractParameterGenerator.generate_next_point">[docs]</a>    <span class="k">def</span> <span class="nf">generate_next_point</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Generating next random point in parameters space</span>
 <span class="sd">        :return: tuple (indices, parameters)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s">&#39;Should be overriden by descendant&#39;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s">&#39;Should be overriden by descendant&#39;</span><span class="p">)</span></div>
 
-    <span class="k">def</span> <span class="nf">generate_batch_points</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">size</span><span class="p">):</span>
+<div class="viewcode-block" id="AbstractParameterGenerator.generate_batch_points"><a class="viewcode-back" href="../../../metaml.html#rep.metaml.gridsearch.AbstractParameterGenerator.generate_batch_points">[docs]</a>    <span class="k">def</span> <span class="nf">generate_batch_points</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">size</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Generate several points in parameter space at once (needed when using parallel computations)</span>
 
@@ -312,16 +312,16 @@
                 <span class="n">state_indices</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">generate_next_point</span><span class="p">())</span>
             <span class="k">except</span> <span class="ne">StopIteration</span><span class="p">:</span>
                 <span class="k">pass</span>
-        <span class="k">return</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">state_indices</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">state_indices</span><span class="p">)</span></div>
 
-    <span class="k">def</span> <span class="nf">add_result</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state_indices</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+<div class="viewcode-block" id="AbstractParameterGenerator.add_result"><a class="viewcode-back" href="../../../metaml.html#rep.metaml.gridsearch.AbstractParameterGenerator.add_result">[docs]</a>    <span class="k">def</span> <span class="nf">add_result</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state_indices</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        After the model was trained and evaluated for specific set of parameters,</span>
 <span class="sd">        we use this function to store result</span>
 <span class="sd">        :param state_indices: tuple, which represents the space</span>
 <span class="sd">        :param value: quality at this point</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">grid_scores_</span><span class="p">[</span><span class="n">state_indices</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">grid_scores_</span><span class="p">[</span><span class="n">state_indices</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span></div>
 
     <span class="k">def</span> <span class="nf">_get_the_best_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">maximize</span><span class="p">:</span>
@@ -344,7 +344,7 @@
         <span class="n">function</span> <span class="o">=</span> <span class="nb">max</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">maximize</span> <span class="k">else</span> <span class="nb">min</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_indices_to_parameters</span><span class="p">(</span><span class="n">function</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">grid_scores_</span><span class="o">.</span><span class="n">items</span><span class="p">(),</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">])[</span><span class="mi">0</span><span class="p">])</span>
 
-    <span class="k">def</span> <span class="nf">print_results</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reorder</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+<div class="viewcode-block" id="AbstractParameterGenerator.print_results"><a class="viewcode-back" href="../../../metaml.html#rep.metaml.gridsearch.AbstractParameterGenerator.print_results">[docs]</a>    <span class="k">def</span> <span class="nf">print_results</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reorder</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Prints the results of training</span>
 
@@ -357,7 +357,7 @@
         <span class="k">for</span> <span class="n">state_indices</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">sequence</span><span class="p">:</span>
             <span class="n">state_string</span> <span class="o">=</span> <span class="s">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">name_value</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="s">&#39;=&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">name_value</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="k">for</span> <span class="n">name_value</span>
                                       <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_indices_to_parameters</span><span class="p">(</span><span class="n">state_indices</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">()])</span>
-            <span class="k">print</span><span class="p">(</span><span class="s">&quot;{0:.3f}:  {1}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">state_string</span><span class="p">))</span>
+            <span class="k">print</span><span class="p">(</span><span class="s">&quot;{0:.3f}:  {1}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">state_string</span><span class="p">))</span></div></div>
 
 
 <div class="viewcode-block" id="RandomParameterOptimizer"><a class="viewcode-back" href="../../../metaml.html#rep.metaml.gridsearch.RandomParameterOptimizer">[docs]</a><span class="k">class</span> <span class="nc">RandomParameterOptimizer</span><span class="p">(</span><span class="n">AbstractParameterGenerator</span><span class="p">):</span>
@@ -402,8 +402,6 @@
 <span class="sd">        This general method relies on regression.</span>
 <span class="sd">        Regressor will try to predict the best point based on already known result fir different parameters.</span>
 
-<span class="sd">        Parameters:</span>
-<span class="sd">        ----------</span>
 <span class="sd">        :param OrderedDict param_grid: the grid with parameters to optimize on</span>
 <span class="sd">        :param int n_evaluations: the number of evaluations to do</span>
 <span class="sd">        :param random_state: random generator</span>
@@ -455,12 +453,10 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Implementation if annealing algorithm</span>
 
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
 <span class="sd">        :param param_grid: the grid with parameters to optimize on</span>
 <span class="sd">        :param int n_evaluations: the number od evaluations</span>
 <span class="sd">        :param temperature: float, how tolerant we are to worse results.</span>
-<span class="sd">        If it is very small, will never step to point with worse predictions.</span>
+<span class="sd">            If temperature is very small, algorithm never steps to point with worse predictions.</span>
 
 <span class="sd">        Doesn&#39;t support parallel execution, so cannot be used in optimization on cluster.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -517,13 +513,10 @@
 <span class="sd">    Uses Metropolis-like optimization.</span>
 <span class="sd">    If the parameter grid is large, first performs optimization on subgrid.</span>
 
-<span class="sd">    Parameters:</span>
-<span class="sd">    ----------</span>
 <span class="sd">    :param OrderedDict param_grid: the grid with parameters to optimize on</span>
 <span class="sd">    :param int n_evaluations: the number of evaluations to do</span>
 <span class="sd">    :param random_state: random generator</span>
 <span class="sd">    :type random_state: int or RandomState or None</span>
-
 <span class="sd">    :param int start_evaluations: count of random point generation on start</span>
 <span class="sd">    :param int subgrid_size: if the size of mesh too large, first we will optimize</span>
 <span class="sd">        on subgrid with not more then subgrid_size possible values for each parameter.</span>
@@ -645,15 +638,15 @@
 
 
 <span class="k">class</span> <span class="nc">FoldingScorerBase</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Scorer, which implements logic of data folding and scoring. This is a function-like object</span>
-
-<span class="sd">    :param int folds: &#39;k&#39; used in k-folding while validating</span>
-<span class="sd">    :param int fold_checks: not greater than folds, the number of checks we do by cross-validating</span>
-<span class="sd">    :param function score_function: quality. if fold_checks &gt; 1, the average is computed over checks.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">score_function</span><span class="p">,</span> <span class="n">folds</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">fold_checks</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Scorer, which implements logic of data folding and scoring. This is a function-like object</span>
+
+<span class="sd">        :param int folds: &#39;k&#39; used in k-folding while validating</span>
+<span class="sd">        :param int fold_checks: not greater than folds, the number of checks we do by cross-validating</span>
+<span class="sd">        :param function score_function: quality. if fold_checks &gt; 1, the average is computed over checks.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">folds</span> <span class="o">=</span> <span class="n">folds</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">fold_checks</span> <span class="o">=</span> <span class="n">fold_checks</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">score_function</span> <span class="o">=</span> <span class="n">score_function</span>
@@ -712,6 +705,8 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">base_estimator</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Estimate quality of estimator with given parameters with kFolding.</span>
+
 <span class="sd">        :return float: quality</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">k_folder</span> <span class="o">=</span> <span class="n">StratifiedKFold</span><span class="p">(</span><span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="p">,</span> <span class="n">n_folds</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">folds</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">shuffle</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">random_state</span><span class="p">)</span>
@@ -744,6 +739,8 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">base_estimator</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Estimate quality of estimator with given parameters with kFolding.</span>
+
 <span class="sd">        :return float: quality</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">k_folder</span> <span class="o">=</span> <span class="n">KFold</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">y</span><span class="p">),</span> <span class="n">n_folds</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">folds</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">shuffle</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">random_state</span><span class="p">)</span>
@@ -789,10 +786,10 @@
 <span class="sd">    :param parallel_profile: name of profile</span>
 <span class="sd">    :type parallel_profile: None or str</span>
 
-<span class="sd">    Attributes</span>
-<span class="sd">    ----------</span>
+<span class="sd">    **Attributes**:</span>
+
 <span class="sd">    generator: return grid parameter generator</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    &quot;&quot;&quot;</span>\
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">estimator</span><span class="p">,</span> <span class="n">params_generator</span><span class="p">,</span> <span class="n">scorer</span><span class="p">,</span> <span class="n">parallel_profile</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">base_estimator</span> <span class="o">=</span> <span class="n">estimator</span>
@@ -912,7 +909,7 @@
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'../../../',
-            VERSION:'0.6.5',
+            VERSION:'0.6.6',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true

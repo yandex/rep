@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>rep.metaml.factory &mdash; REP (Reproducible Experiment Platform) 0.6.5 documentation</title>
+  <title>rep.metaml.factory &mdash; REP (Reproducible Experiment Platform) 0.6.6 documentation</title>
   
 
   
@@ -30,7 +30,7 @@
   
 
   
-    <link rel="top" title="REP (Reproducible Experiment Platform) 0.6.5 documentation" href="../../../index.html"/>
+    <link rel="top" title="REP (Reproducible Experiment Platform) 0.6.6 documentation" href="../../../index.html"/>
         <link rel="up" title="Module code" href="../../index.html"/> 
 
   
@@ -59,7 +59,7 @@
             
             
               <div class="version">
-                0.6.5
+                0.6.6
               </div>
             
           
@@ -81,12 +81,15 @@
             
             
                 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../data.html">Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../estimators.html">Estimators (classification and regression)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../metaml.html">Meta Machine Learning</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../report.html">Report for models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../metrics.html">Metrics</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../plotting.html">Plotting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../parallel.html">Parallel computing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../data.html">Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../utils.html">Utilities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reproducibility.html">REProducibility</a></li>
 <li class="toctree-l1"><a class="reference external" href="http://nbviewer.ipython.org/github/yandex/rep/tree/master/howto/">Howto notebooks</a></li>
 </ul>
 
@@ -138,7 +141,8 @@
 <span class="sd">These classifiers can be trained one-by-one in a single thread, or simultaneously</span>
 <span class="sd">with IPython cluster or in several threads.</span>
 
-<span class="sd">Also `Factory` allows comparison of several classifiers (predictions of which can be used in parallel).</span>
+<span class="sd">Also :class:`Factory` allows comparison of several classifiers (predictions of which can be computed again in parallel).</span>
+
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">division</span><span class="p">,</span> <span class="n">print_function</span><span class="p">,</span> <span class="n">absolute_import</span>
 <span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABCMeta</span><span class="p">,</span> <span class="n">abstractmethod</span>
@@ -153,18 +157,18 @@
 
 <span class="n">__author__</span> <span class="o">=</span> <span class="s">&#39;Tatiana Likhomanenko&#39;</span>
 
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;ClassifiersFactory&#39;</span><span class="p">,</span> <span class="s">&#39;RegressorsFactory&#39;</span><span class="p">]</span>
 
-<div class="viewcode-block" id="AbstractFactory"><a class="viewcode-back" href="../../../metaml.html#rep.metaml.factory.AbstractFactory">[docs]</a><span class="k">class</span> <span class="nc">AbstractFactory</span><span class="p">(</span><span class="n">OrderedDict</span><span class="p">):</span>
+
+<span class="k">class</span> <span class="nc">AbstractFactory</span><span class="p">(</span><span class="n">OrderedDict</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Factory provides interface to train simultaneously several estimators (classifiers or regressors).</span>
 <span class="sd">    Later their quality can be compared.</span>
-
-<span class="sd">        .. Note: don&#39;t use this class, but it&#39;s ancestors.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">__metaclass__</span> <span class="o">=</span> <span class="n">ABCMeta</span>
 
-<div class="viewcode-block" id="AbstractFactory.fit"><a class="viewcode-back" href="../../../metaml.html#rep.metaml.factory.AbstractFactory.fit">[docs]</a>    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">parallel_profile</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">parallel_profile</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Train all estimators on the same data.</span>
 
@@ -198,9 +202,9 @@
                 <span class="k">print</span><span class="p">(</span><span class="s">&#39;Problem while training on the node, report:</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
 
         <span class="k">print</span><span class="p">(</span><span class="s">&quot;Totally spent {:.2f} seconds on training&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start_time</span><span class="p">))</span>
-        <span class="k">return</span> <span class="bp">self</span></div>
+        <span class="k">return</span> <span class="bp">self</span>
 
-<div class="viewcode-block" id="AbstractFactory.fit_lds"><a class="viewcode-back" href="../../../metaml.html#rep.metaml.factory.AbstractFactory.fit_lds">[docs]</a>    <span class="k">def</span> <span class="nf">fit_lds</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lds</span><span class="p">,</span> <span class="n">parallel_profile</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">fit_lds</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lds</span><span class="p">,</span> <span class="n">parallel_profile</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Fit all estimators on the same dataset.</span>
 
@@ -213,10 +217,10 @@
 <span class="sd">        :return: self</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span> <span class="o">=</span> <span class="n">lds</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="n">features</span><span class="p">),</span> <span class="n">lds</span><span class="o">.</span><span class="n">get_targets</span><span class="p">(),</span> <span class="n">lds</span><span class="o">.</span><span class="n">get_weights</span><span class="p">()</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="n">sample_weight</span><span class="p">,</span> <span class="n">parallel_profile</span><span class="o">=</span><span class="n">parallel_profile</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="n">sample_weight</span><span class="p">,</span> <span class="n">parallel_profile</span><span class="o">=</span><span class="n">parallel_profile</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">)</span>
 
     <span class="nd">@abstractmethod</span>
-<div class="viewcode-block" id="AbstractFactory.predict"><a class="viewcode-back" href="../../../metaml.html#rep.metaml.factory.AbstractFactory.predict">[docs]</a>    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">parallel_profile</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">parallel_profile</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Predict labels (or values for regressors) for all events in dataset.</span>
 
@@ -226,19 +230,19 @@
 
 <span class="sd">        :rtype: OrderedDict[numpy.array of shape [n_samples] with integer labels (or values)]</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">pass</span></div>
+        <span class="k">pass</span>
 
     <span class="nd">@abstractmethod</span>
-<div class="viewcode-block" id="AbstractFactory.test_on_lds"><a class="viewcode-back" href="../../../metaml.html#rep.metaml.factory.AbstractFactory.test_on_lds">[docs]</a>    <span class="k">def</span> <span class="nf">test_on_lds</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lds</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">test_on_lds</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lds</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Prepare report for factory (comparison of all models).</span>
 
 <span class="sd">        :param LabeledDataStorage lds: data</span>
 <span class="sd">        :rtype: rep.report.classification.ClassificationReport or rep.report.regression.RegressionReport</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">pass</span></div>
+        <span class="k">pass</span>
 
-<div class="viewcode-block" id="AbstractFactory.test_on"><a class="viewcode-back" href="../../../metaml.html#rep.metaml.factory.AbstractFactory.test_on">[docs]</a>    <span class="k">def</span> <span class="nf">test_on</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">test_on</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Prepare report for factory (comparison of all models).</span>
 
@@ -250,7 +254,7 @@
 <span class="sd">        :rtype: rep.report.classification.ClassificationReport or rep.report.regression.RegressionReport</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="kn">from</span> <span class="nn">..data</span> <span class="kn">import</span> <span class="n">LabeledDataStorage</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">test_on_lds</span><span class="p">(</span><span class="n">LabeledDataStorage</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="n">sample_weight</span><span class="p">))</span></div></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">test_on_lds</span><span class="p">(</span><span class="n">LabeledDataStorage</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="n">sample_weight</span><span class="p">))</span>
 
 
 <div class="viewcode-block" id="ClassifiersFactory"><a class="viewcode-back" href="../../../metaml.html#rep.metaml.factory.ClassifiersFactory">[docs]</a><span class="k">class</span> <span class="nc">ClassifiersFactory</span><span class="p">(</span><span class="n">AbstractFactory</span><span class="p">):</span>
@@ -269,10 +273,9 @@
 <span class="sd">        :param  classifier: classifier object</span>
 
 <span class="sd">            .. note:: if type == sklearn.base.BaseEstimator, then features=None is used,</span>
-<span class="sd">            to specify features used by classifier, wrap it with `SklearnClassifier`</span>
+<span class="sd">                to specify features used by classifier, wrap it with :class:`SklearnClassifier`</span>
+
 <span class="sd">        :type classifier: sklearn.base.BaseEstimator or estimators.interface.Classifier</span>
-
-
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">classifier</span><span class="p">,</span> <span class="n">Classifier</span><span class="p">):</span>
             <span class="bp">self</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">classifier</span>
@@ -373,7 +376,8 @@
 <span class="sd">            If name coincides with one already used, the old regressor will be replaced by one passed.</span>
 <span class="sd">        :param regressor: regressor object</span>
 
-<span class="sd">            .. note:: if type == sklearn.base.BaseEstimator, then features=None is used</span>
+<span class="sd">            .. note:: if type == sklearn.base.BaseEstimator, then features=None is used,</span>
+<span class="sd">                to specify features used by regressor, wrap it first with :class:`SklearnRegressor`</span>
 <span class="sd">        :type regressor: sklearn.base.BaseEstimator or estimators.interface.Regressor</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -437,7 +441,7 @@
         <span class="k">return</span> <span class="n">regression</span><span class="o">.</span><span class="n">RegressionReport</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lds</span><span class="p">)</span></div></div>
 
 
-<div class="viewcode-block" id="train_estimator"><a class="viewcode-back" href="../../../metaml.html#rep.metaml.factory.train_estimator">[docs]</a><span class="k">def</span> <span class="nf">train_estimator</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">estimator</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">train_estimator</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">estimator</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Supplementary function.</span>
 <span class="sd">    Trains estimator on a separate node (or in a separate thread)</span>
@@ -466,10 +470,10 @@
 
         <span class="n">pid</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getpid</span><span class="p">()</span>
         <span class="n">hostname</span> <span class="o">=</span> <span class="n">socket</span><span class="o">.</span><span class="n">gethostname</span><span class="p">()</span>
-        <span class="k">return</span> <span class="s">&#39;fail&#39;</span><span class="p">,</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">pid</span><span class="p">,</span> <span class="n">hostname</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="s">&#39;fail&#39;</span><span class="p">,</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">pid</span><span class="p">,</span> <span class="n">hostname</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="predict_estimator"><a class="viewcode-back" href="../../../metaml.html#rep.metaml.factory.predict_estimator">[docs]</a><span class="k">def</span> <span class="nf">predict_estimator</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">estimator</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">prediction_type</span><span class="o">=</span><span class="s">&#39;classification&#39;</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">predict_estimator</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">estimator</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">prediction_type</span><span class="o">=</span><span class="s">&#39;classification&#39;</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Supplementary function.</span>
 <span class="sd">    Builds predictions for one estimator on a separate node (or in a separate thread)</span>
@@ -500,7 +504,7 @@
         <span class="kn">import</span> <span class="nn">os</span>
         <span class="n">pid</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getpid</span><span class="p">()</span>
         <span class="n">hostname</span> <span class="o">=</span> <span class="n">socket</span><span class="o">.</span><span class="n">gethostname</span><span class="p">()</span>
-        <span class="k">return</span> <span class="s">&#39;fail&#39;</span><span class="p">,</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">pid</span><span class="p">,</span> <span class="n">hostname</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="s">&#39;fail&#39;</span><span class="p">,</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">pid</span><span class="p">,</span> <span class="n">hostname</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
 </pre></div>
 
            </div>
@@ -534,7 +538,7 @@
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'../../../',
-            VERSION:'0.6.5',
+            VERSION:'0.6.6',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true

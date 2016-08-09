@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Search &mdash; REP (Reproducible Experiment Platform) 0.6.6 documentation</title>
+  <title>Parallel computing &mdash; REP (Reproducible Experiment Platform) 0.6.6 documentation</title>
   
 
   
@@ -30,7 +30,9 @@
   
 
   
-    <link rel="top" title="REP (Reproducible Experiment Platform) 0.6.6 documentation" href="index.html"/> 
+    <link rel="top" title="REP (Reproducible Experiment Platform) 0.6.6 documentation" href="index.html"/>
+        <link rel="next" title="Data" href="data.html"/>
+        <link rel="prev" title="Plotting" href="plotting.html"/> 
 
   
   <script src="_static/js/modernizr.min.js"></script>
@@ -65,7 +67,7 @@
 
           
 <div role="search">
-  <form id="rtd-search-form" class="wy-form" action="#" method="get">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
@@ -79,13 +81,13 @@
           
             
             
-                <ul>
+                <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="estimators.html">Estimators (classification and regression)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="metaml.html">Meta Machine Learning</a></li>
 <li class="toctree-l1"><a class="reference internal" href="report.html">Report for models</a></li>
 <li class="toctree-l1"><a class="reference internal" href="metrics.html">Metrics</a></li>
 <li class="toctree-l1"><a class="reference internal" href="plotting.html">Plotting</a></li>
-<li class="toctree-l1"><a class="reference internal" href="parallel.html">Parallel computing</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="">Parallel computing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="data.html">Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="utils.html">Utilities</a></li>
 <li class="toctree-l1"><a class="reference internal" href="reproducibility.html">REProducibility</a></li>
@@ -120,8 +122,12 @@
   <ul class="wy-breadcrumbs">
     <li><a href="index.html">Docs</a> &raquo;</li>
       
-    <li></li>
+    <li>Parallel computing</li>
       <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/parallel.txt" rel="nofollow"> View page source</a>
+          
         
       </li>
   </ul>
@@ -130,23 +136,47 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <noscript>
-  <div id="fallback" class="admonition warning">
-    <p class="last">
-      Please activate JavaScript to enable the search
-      functionality.
-    </p>
-  </div>
-  </noscript>
+  <div class="section" id="parallel-computing">
+<span id="parallel"></span><h1>Parallel computing<a class="headerlink" href="#parallel-computing" title="Permalink to this headline">¶</a></h1>
+<p>Many problems in machine learning require training several or many estimators.
+At the same time in applications single model training can take from minutes to hours.</p>
+<p>In order to get things done faster we can use parallel computing.</p>
+<p>Such meta-algorithms as:</p>
+<blockquote>
+<div><ul class="simple">
+<li><a class="reference internal" href="metaml.html#rep.metaml.folding.FoldingClassifier" title="rep.metaml.folding.FoldingClassifier"><code class="xref py py-class docutils literal"><span class="pre">rep.metaml.folding.FoldingClassifier</span></code></a> and <a class="reference internal" href="metaml.html#rep.metaml.folding.FoldingRegressor" title="rep.metaml.folding.FoldingRegressor"><code class="xref py py-class docutils literal"><span class="pre">rep.metaml.folding.FoldingRegressor</span></code></a></li>
+<li><a class="reference internal" href="metaml.html#rep.metaml.factory.ClassifiersFactory" title="rep.metaml.factory.ClassifiersFactory"><code class="xref py py-class docutils literal"><span class="pre">rep.metaml.factory.ClassifiersFactory</span></code></a> and <a class="reference internal" href="metaml.html#rep.metaml.factory.RegressorsFactory" title="rep.metaml.factory.RegressorsFactory"><code class="xref py py-class docutils literal"><span class="pre">rep.metaml.factory.RegressorsFactory</span></code></a></li>
+<li><a class="reference internal" href="metaml.html#rep.metaml.gridsearch.GridOptimalSearchCV" title="rep.metaml.gridsearch.GridOptimalSearchCV"><code class="xref py py-class docutils literal"><span class="pre">rep.metaml.gridsearch.GridOptimalSearchCV</span></code></a></li>
+</ul>
+</div></blockquote>
+<p>support <cite>parallel_profile</cite> option. The following options exist:</p>
+<blockquote>
+<div><ul class="simple">
+<li><code class="code docutils literal"><span class="pre">parallel_profile=None</span></code> to use single thread (default)</li>
+<li><code class="code docutils literal"><span class="pre">parallel_profile='threads-3'</span></code> to run in 3 threads on a single machine (you can use any, not necessarily 3)</li>
+<li><code class="code docutils literal"><span class="pre">parallel_profile='my_ipython_cluster_name'</span></code> to use IPython cluster.</li>
+</ul>
+</div></blockquote>
+<p>More details about IPython cluster (<cite>ipyparallel</cite>) is available <a class="reference external" href="http://ipyparallel.readthedocs.org/en/latest/">here</a>.</p>
+<p>Important remark: since algorithms inside <strong>REP</strong> interplays with each other, you can combine parallel computations.
+You can run <cite>GridOptimalSearchCV</cite> (using IPython cluster) to optimize <cite>FoldingClassifier</cite> (using threads)
+which runs over <cite>RandomForest</cite> (using again threads).</p>
+<p>This way you can use available resources more effectively.</p>
+</div>
 
-  
-  <div id="search-results">
-  
-  </div>
 
            </div>
           </div>
           <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="data.html" class="btn btn-neutral float-right" title="Data" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="plotting.html" class="btn btn-neutral" title="Plotting" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
   
 
   <hr/>
@@ -185,7 +215,6 @@
       <script type="text/javascript" src="_static/underscore.js"></script>
       <script type="text/javascript" src="_static/doctools.js"></script>
       <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-      <script type="text/javascript" src="_static/searchtools.js"></script>
 
   
 
@@ -201,14 +230,7 @@
           SphinxRtdTheme.StickyNav.enable();
       });
   </script>
-  
-  <script type="text/javascript">
-    jQuery(function() { Search.loadIndex("searchindex.js"); });
-  </script>
-  
-  <script type="text/javascript" id="searchindexloader"></script>
    
-
 
 </body>
 </html>

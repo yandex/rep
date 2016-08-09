@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>rep.data.storage &mdash; REP (Reproducible Experiment Platform) 0.6.5 documentation</title>
+  <title>rep.data.storage &mdash; REP (Reproducible Experiment Platform) 0.6.6 documentation</title>
   
 
   
@@ -30,7 +30,7 @@
   
 
   
-    <link rel="top" title="REP (Reproducible Experiment Platform) 0.6.5 documentation" href="../../../index.html"/>
+    <link rel="top" title="REP (Reproducible Experiment Platform) 0.6.6 documentation" href="../../../index.html"/>
         <link rel="up" title="Module code" href="../../index.html"/> 
 
   
@@ -59,7 +59,7 @@
             
             
               <div class="version">
-                0.6.5
+                0.6.6
               </div>
             
           
@@ -81,12 +81,15 @@
             
             
                 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../data.html">Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../estimators.html">Estimators (classification and regression)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../metaml.html">Meta Machine Learning</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../report.html">Report for models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../metrics.html">Metrics</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../plotting.html">Plotting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../parallel.html">Parallel computing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../data.html">Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../utils.html">Utilities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reproducibility.html">REProducibility</a></li>
 <li class="toctree-l1"><a class="reference external" href="http://nbviewer.ipython.org/github/yandex/rep/tree/master/howto/">Howto notebooks</a></li>
 </ul>
 
@@ -134,7 +137,7 @@
             
   <h1>Source code for rep.data.storage</h1><div class="highlight"><pre>
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">This is wrapper for pandas.DataFrame, which allows you to define dataset for estimator in a simple way.</span>
+<span class="sd">This is a wrapper for `pandas.DataFrame`, which allows you to define dataset (data, labels/values, sample weights) for an estimator in a simple way.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">division</span><span class="p">,</span> <span class="n">print_function</span><span class="p">,</span> <span class="n">absolute_import</span>
 <span class="kn">import</span> <span class="nn">numbers</span>
@@ -152,23 +155,21 @@
 
 
 <div class="viewcode-block" id="LabeledDataStorage"><a class="viewcode-back" href="../../../data.html#rep.data.storage.LabeledDataStorage">[docs]</a><span class="k">class</span> <span class="nc">LabeledDataStorage</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    This class implements interface of data for estimators training. It contains data, labels and weights -</span>
-<span class="sd">    all information to train model.</span>
-
-<span class="sd">    Parameters:</span>
-<span class="sd">    -----------</span>
-<span class="sd">    :param pandas.DataFrame ds: data</span>
-<span class="sd">    :param target: labels for classification and values for regression (set None for predict methods)</span>
-<span class="sd">    :type target: None or numbers.Number or array-like</span>
-<span class="sd">    :param sample_weight: weight (set None for predict methods)</span>
-<span class="sd">    :type sample_weight: None or numbers.Number or array-like</span>
-<span class="sd">    :param random_state: for pseudo random generator</span>
-<span class="sd">    :type random_state: None or int or RandomState</span>
-<span class="sd">    :param bool shuffle: shuffle or not data</span>
-
-<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This class implements an interface of data for estimators training. It contains data, labels/values and weights -</span>
+<span class="sd">        all information to train a model.</span>
+
+<span class="sd">        :param pandas.DataFrame data: features, array-like of shape [n_samples, n_features]</span>
+<span class="sd">        :param target: labels/values for classification/regression (set None for the predictive methods)</span>
+<span class="sd">        :type target: None or numbers.Number or array-like</span>
+<span class="sd">        :param sample_weight: weight (set None for predictive methods)</span>
+<span class="sd">        :type sample_weight: None or numbers.Number or array-like</span>
+<span class="sd">        :param random_state: state for a pseudo random generator</span>
+<span class="sd">        :type random_state: None or int or RandomState</span>
+<span class="sd">        :param bool shuffle: shuffle data or not</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">data</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">target</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_key</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">target</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sample_weight</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_key</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">sample_weight</span><span class="p">,</span> <span class="n">allow_nones</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
@@ -181,13 +182,13 @@
 
     <span class="k">def</span> <span class="nf">_get_key</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ds</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">allow_nones</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Get data from ds by key</span>
+<span class="sd">        Get data from the storage by key.</span>
 
 <span class="sd">        :param pandas.DataFrame ds: data</span>
-<span class="sd">        :param key: what data get from ds</span>
+<span class="sd">        :param key: key, which describe data in the storage</span>
 <span class="sd">        :type key: None or numbers.Number or array-like</span>
 
-<span class="sd">        :return: key data</span>
+<span class="sd">        :return: data corresponding to the key</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">ds</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
             <span class="c"># assert key in set(ds.columns), self._print_err(&#39;ERROR:&#39;, &#39;%s is absent in data storage&#39; % key)</span>
@@ -203,14 +204,16 @@
 
     <span class="k">def</span> <span class="nf">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        :return: count of rows in storage</span>
+<span class="sd">        Return number of samples.</span>
+
+<span class="sd">        :return: count of rows in the storage</span>
 <span class="sd">        :rtype: int</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
 
 <div class="viewcode-block" id="LabeledDataStorage.get_data"><a class="viewcode-back" href="../../../data.html#rep.data.storage.LabeledDataStorage.get_data">[docs]</a>    <span class="k">def</span> <span class="nf">get_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Get data for estimator</span>
+<span class="sd">        Return data.</span>
 
 <span class="sd">        :param features: set of feature names (if None then use all features in data storage)</span>
 <span class="sd">        :type features: None or list[str]</span>
@@ -225,7 +228,7 @@
 
 <div class="viewcode-block" id="LabeledDataStorage.get_targets"><a class="viewcode-back" href="../../../data.html#rep.data.storage.LabeledDataStorage.get_targets">[docs]</a>    <span class="k">def</span> <span class="nf">get_targets</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Get sample targets for estimator</span>
+<span class="sd">        Return sample target, labels or values.</span>
 
 <span class="sd">        :rtype: numpy.array</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -235,7 +238,7 @@
 
 <div class="viewcode-block" id="LabeledDataStorage.get_weights"><a class="viewcode-back" href="../../../data.html#rep.data.storage.LabeledDataStorage.get_weights">[docs]</a>    <span class="k">def</span> <span class="nf">get_weights</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">allow_nones</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Get sample weights for estimator</span>
+<span class="sd">        Return sample weights.</span>
 
 <span class="sd">        :rtype: numpy.array</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -251,7 +254,7 @@
 
 <div class="viewcode-block" id="LabeledDataStorage.get_indices"><a class="viewcode-back" href="../../../data.html#rep.data.storage.LabeledDataStorage.get_indices">[docs]</a>    <span class="k">def</span> <span class="nf">get_indices</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Get data indices</span>
+<span class="sd">        Return data indices.</span>
 
 <span class="sd">        :rtype: numpy.array</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -262,7 +265,7 @@
 
 <div class="viewcode-block" id="LabeledDataStorage.col"><a class="viewcode-back" href="../../../data.html#rep.data.storage.LabeledDataStorage.col">[docs]</a>    <span class="k">def</span> <span class="nf">col</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Get necessary columns</span>
+<span class="sd">        Return column from the data.</span>
 
 <span class="sd">        :param index: names</span>
 <span class="sd">        :type index: None or str or list(str)</span>
@@ -276,10 +279,10 @@
 
 <div class="viewcode-block" id="LabeledDataStorage.eval_column"><a class="viewcode-back" href="../../../data.html#rep.data.storage.LabeledDataStorage.eval_column">[docs]</a>    <span class="k">def</span> <span class="nf">eval_column</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">expression</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Evaluate some expression to get necessary data</span>
+<span class="sd">        Evaluate some expression to obtain necessary columns for the data</span>
 
 <span class="sd">        :type expression: numbers.Number or array-like or str or function(pandas.DataFrame)</span>
-<span class="sd">        :rtype: numpy.array</span>
+<span class="sd">        :rtype: numpy.array or str or</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">expression</span><span class="p">,</span> <span class="n">numbers</span><span class="o">.</span><span class="n">Number</span><span class="p">):</span>
             <span class="k">return</span> <span class="n">numpy</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">type</span><span class="p">(</span><span class="n">expression</span><span class="p">))</span> <span class="o">+</span> <span class="n">expression</span>
@@ -323,7 +326,7 @@
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'../../../',
-            VERSION:'0.6.5',
+            VERSION:'0.6.6',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true

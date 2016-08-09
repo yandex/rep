@@ -1,0 +1,271 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>REProducibility &mdash; REP (Reproducible Experiment Platform) 0.6.6 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="REP (Reproducible Experiment Platform) 0.6.6 documentation" href="index.html"/>
+        <link rel="prev" title="Utilities" href="utils.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> REP (Reproducible Experiment Platform)
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.6.6
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="estimators.html">Estimators (classification and regression)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metaml.html">Meta Machine Learning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="report.html">Report for models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metrics.html">Metrics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plotting.html">Plotting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="parallel.html">Parallel computing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="data.html">Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utils.html">Utilities</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="">REProducibility</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#problem-of-reproducing-results">Problem of reproducing results</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#docker-image">Docker image</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#using-rep-kitematic">Using REP + kitematic</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference external" href="http://nbviewer.ipython.org/github/yandex/rep/tree/master/howto/">Howto notebooks</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">REP (Reproducible Experiment Platform)</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+    <li>REProducibility</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/reproducibility.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="reproducibility">
+<span id="id1"></span><h1>REProducibility<a class="headerlink" href="#reproducibility" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="problem-of-reproducing-results">
+<h2>Problem of reproducing results<a class="headerlink" href="#problem-of-reproducing-results" title="Permalink to this headline">¶</a></h2>
+<p>One of the hardest problems in research connected with data is to make the research pipeline reproducible.</p>
+<ul>
+<li><p class="first">Scientific libraries (specially libraries of machine learning) usually either deprecated,
+or evolve and have to break backward compatibility.
+Nobody wants to use old libraries but nobody wants to face problems of evolving libraries.</p>
+</li>
+<li><p class="first">Apart from the main libraries you use directly, there are numerous dependencies and dependencies of dependencies.
+Just to give an idea: minimalistic python for data (numpy + scipy + matplotlib) distribution already takes ~1GB.</p>
+<p>The same situation with ROOT / MATLAB / R / any other scientific environment.</p>
+</li>
+<li><p class="first">It&#8217;s not a good idea to hope on setting versions of <cite>pip</cite> dependencies.</p>
+<p>There are numerous dependencies (compilers/linkers/headers/utilities/BLAS/lapack/FFTW/whatever) that
+have effect and that are constantly evolving.</p>
+<p>Creating solid system.</p>
+</li>
+</ul>
+<p>Solution we are using: docker containerization.</p>
+</div>
+<div class="section" id="docker-image">
+<h2>Docker image<a class="headerlink" href="#docker-image" title="Permalink to this headline">¶</a></h2>
+<p>Docker is a modern-way virtual machine.
+It is widely used today to deploy applications due to its flexibility and relative simplicity.</p>
+<ul class="simple">
+<li><a class="reference external" href="https://www.docker.com/what-docker">what is docker</a> at official site</li>
+</ul>
+<p><strong>REP</strong> is packed into docker container, which is stored in docker hub cloud (image name: yandex/rep).</p>
+<ul class="simple">
+<li><a class="reference external" href="https://hub.docker.com/r/yandex/rep/">yandex/REP docker image</a></li>
+</ul>
+<p>To have fixed environment now it suffices to know version of REP you&#8217;re using (i.e. 0.6.5).</p>
+</div>
+<div class="section" id="using-rep-kitematic">
+<h2>Using REP + kitematic<a class="headerlink" href="#using-rep-kitematic" title="Permalink to this headline">¶</a></h2>
+<p>Docker team ships kitematic - an user-friendly way to execute docker containers on Windows / Mac OS / Linux.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>Docker initially is based on linux containers,
+so underneath kitematic uses additional virtual machine on non-linux systems.</p>
+<p class="last">Linux is supported by docker natively, but kitematic is not yet ready for linux
+(so, you&#8217;ll need to run from terminal)</p>
+</div>
+<ul class="simple">
+<li><a class="reference external" href="https://kitematic.com/">Kitematic official site:</a></li>
+</ul>
+<p>Shortly, all you need to get running container with REP is:</p>
+<ol class="arabic simple">
+<li>install kitematic</li>
+<li>search <cite>yandex/rep</cite> image and optionally select needed version
+* downloading an image can take a while!
+* after image is downloaded, it is automatically started</li>
+<li>click on preview link. This opens a browser with Jupyter.</li>
+</ol>
+<p>Process is demonstrated below (docker image was already downloaded, so waiting step is skipped):</p>
+<img alt="_images/kitematic.gif" src="_images/kitematic.gif" />
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="utils.html" class="btn btn-neutral" title="Utilities" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2014-2015, Yandex.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'0.6.6',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

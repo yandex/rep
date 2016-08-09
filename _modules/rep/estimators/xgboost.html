@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>rep.estimators.xgboost &mdash; REP (Reproducible Experiment Platform) 0.6.5 documentation</title>
+  <title>rep.estimators.xgboost &mdash; REP (Reproducible Experiment Platform) 0.6.6 documentation</title>
   
 
   
@@ -30,7 +30,7 @@
   
 
   
-    <link rel="top" title="REP (Reproducible Experiment Platform) 0.6.5 documentation" href="../../../index.html"/>
+    <link rel="top" title="REP (Reproducible Experiment Platform) 0.6.6 documentation" href="../../../index.html"/>
         <link rel="up" title="Module code" href="../../index.html"/> 
 
   
@@ -59,7 +59,7 @@
             
             
               <div class="version">
-                0.6.5
+                0.6.6
               </div>
             
           
@@ -81,12 +81,15 @@
             
             
                 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../data.html">Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../estimators.html">Estimators (classification and regression)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../metaml.html">Meta Machine Learning</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../report.html">Report for models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../metrics.html">Metrics</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../plotting.html">Plotting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../parallel.html">Parallel computing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../data.html">Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../utils.html">Utilities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reproducibility.html">REProducibility</a></li>
 <li class="toctree-l1"><a class="reference external" href="http://nbviewer.ipython.org/github/yandex/rep/tree/master/howto/">Howto notebooks</a></li>
 </ul>
 
@@ -134,23 +137,21 @@
             
   <h1>Source code for rep.estimators.xgboost</h1><div class="highlight"><pre>
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">Wrapper for `XGBoost &lt;https://github.com/dmlc/xgboost&gt;`_ library.</span>
+<span class="sd">These classes are wrappers for `XGBoost library &lt;https://github.com/dmlc/xgboost&gt;`_.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">division</span><span class="p">,</span> <span class="n">print_function</span><span class="p">,</span> <span class="n">absolute_import</span>
 
-<span class="kn">from</span> <span class="nn">logging</span> <span class="kn">import</span> <span class="n">getLogger</span>
 <span class="kn">import</span> <span class="nn">tempfile</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABCMeta</span>
 
 <span class="kn">import</span> <span class="nn">pandas</span>
 <span class="kn">import</span> <span class="nn">numpy</span>
+<span class="kn">from</span> <span class="nn">sklearn.utils</span> <span class="kn">import</span> <span class="n">check_random_state</span>
 
 <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">normalize_weights</span><span class="p">,</span> <span class="n">remove_first_line</span>
 <span class="kn">from</span> <span class="nn">.interface</span> <span class="kn">import</span> <span class="n">Classifier</span><span class="p">,</span> <span class="n">Regressor</span>
 <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">check_inputs</span>
-
-<span class="n">logger</span> <span class="o">=</span> <span class="n">getLogger</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span>
 
 <span class="n">__author__</span> <span class="o">=</span> <span class="s">&#39;Mikhail Hushchyn, Alex Rogozhnikov&#39;</span>
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;XGBoostBase&#39;</span><span class="p">,</span> <span class="s">&#39;XGBoostClassifier&#39;</span><span class="p">,</span> <span class="s">&#39;XGBoostRegressor&#39;</span><span class="p">]</span>
@@ -163,24 +164,22 @@
 
 <div class="viewcode-block" id="XGBoostBase"><a class="viewcode-back" href="../../../estimators.html#rep.estimators.xgboost.XGBoostBase">[docs]</a><span class="k">class</span> <span class="nc">XGBoostBase</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Base class for XGBoostClassifier and XGBoostRegressor. XGBoost tree booster is used.</span>
+<span class="sd">    A base class for the XGBoostClassifier and XGBoostRegressor. XGBoost tree booster is used.</span>
 
-<span class="sd">    Parameters:</span>
-<span class="sd">    -----------</span>
-<span class="sd">    :param int n_estimators: the number of trees built.</span>
-<span class="sd">    :param int nthreads: number of parallel threads used to run xgboost.</span>
+<span class="sd">    :param int n_estimators: number of trees built.</span>
+<span class="sd">    :param int nthreads: number of parallel threads used to run XGBoost.</span>
 <span class="sd">    :param num_feature: feature dimension used in boosting, set to maximum dimension of the feature</span>
-<span class="sd">        (set automatically by xgboost, no need to be set by user).</span>
+<span class="sd">        (set automatically by XGBoost, no need to be set by user).</span>
 <span class="sd">    :type num_feature: None or int</span>
 <span class="sd">    :param float gamma: minimum loss reduction required to make a further partition on a leaf node of the tree.</span>
 <span class="sd">        The larger, the more conservative the algorithm will be.</span>
 <span class="sd">    :type gamma: None or float</span>
-<span class="sd">    :param float eta: step size shrinkage used in update to prevent overfitting.</span>
+<span class="sd">    :param float eta: (or learning rate) step size shrinkage used in update to prevent overfitting.</span>
 <span class="sd">        After each boosting step, we can directly get the weights of new features</span>
-<span class="sd">        and eta actually shrinkage the feature weights to make the boosting process more conservative.</span>
+<span class="sd">        and eta actually shrinkages the feature weights to make the boosting process more conservative.</span>
 <span class="sd">    :param int max_depth: maximum depth of a tree.</span>
 <span class="sd">    :param float scale_pos_weight: ration of weights of the class 1 to the weights of the class 0.</span>
-<span class="sd">    :param float min_child_weight: minimum sum of instance weight(hessian) needed in a child.</span>
+<span class="sd">    :param float min_child_weight: minimum sum of instance weight (hessian) needed in a child.</span>
 <span class="sd">        If the tree partition step results in a leaf node with the sum of instance weight less than min_child_weight,</span>
 <span class="sd">        then the building process will give up further partitioning.</span>
 
@@ -190,9 +189,10 @@
 <span class="sd">        and this will prevent overfitting.</span>
 <span class="sd">    :param float colsample: subsample ratio of columns when constructing each tree.</span>
 <span class="sd">    :param float base_score: the initial prediction score of all instances, global bias.</span>
-<span class="sd">    :param int random_state: random number seed.</span>
+<span class="sd">    :param random_state: state for a pseudo random generator</span>
+<span class="sd">    :type random_state: None or int or RandomState</span>
 <span class="sd">    :param boot verbose: if 1, will print messages during training</span>
-<span class="sd">    :param float missing: the number considered by xgboost as missing value.</span>
+<span class="sd">    :param float missing: the number considered by XGBoost as missing value.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">__metaclass__</span> <span class="o">=</span> <span class="n">ABCMeta</span>
@@ -229,31 +229,41 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="o">=</span> <span class="n">verbose</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">random_state</span> <span class="o">=</span> <span class="n">random_state</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_num_class</span> <span class="o">=</span> <span class="bp">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">xgboost_classifier</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">xgboost_estimator</span> <span class="o">=</span> <span class="bp">None</span>
 
     <span class="k">def</span> <span class="nf">_make_dmatrix</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create XGBoost data from initial data.</span>
+
+<span class="sd">        :return: XGBoost DMatrix</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">feature_names</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])]</span>
         <span class="n">matrix</span> <span class="o">=</span> <span class="n">xgb</span><span class="o">.</span><span class="n">DMatrix</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">X</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">y</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="n">sample_weight</span><span class="p">,</span>
                              <span class="n">missing</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">missing</span><span class="p">,</span> <span class="n">feature_names</span><span class="o">=</span><span class="n">feature_names</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">matrix</span>
 
     <span class="k">def</span> <span class="nf">_check_fitted</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">xgboost_classifier</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">,</span> <span class="s">&quot;Classifier wasn&#39;t fitted, please call `fit` first&quot;</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">xgboost_estimator</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">,</span> <span class="s">&quot;Classifier wasn&#39;t fitted, please call `fit` first&quot;</span>
 
     <span class="k">def</span> <span class="nf">_fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">estimator_type</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Train the classifier</span>
+<span class="sd">        Train a classification/regression model on the data.</span>
 
-<span class="sd">        :param pandas.DataFrame X: data shape [n_samples, n_features]</span>
-<span class="sd">        :param y: labels of events - array-like of shape [n_samples]</span>
-<span class="sd">        :param sample_weight: weight of events,</span>
+<span class="sd">        :param pandas.DataFrame X: data of shape [n_samples, n_features]</span>
+<span class="sd">        :param y: labels of samples, array-like of shape [n_samples]</span>
+<span class="sd">        :param sample_weight: weight of samples,</span>
 <span class="sd">               array-like of shape [n_samples] or None if all weights are equal</span>
-<span class="sd">        :param str estimator_type: type of estimator (binary, reg or mult)</span>
+<span class="sd">        :param str estimator_type: type of the estimator (binary, reg or mult)</span>
 <span class="sd">        :param dict kwargs: additional parameters</span>
 <span class="sd">        :return: self</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c"># TODO check with RandomState (not none and not int)</span>
-        <span class="n">seed</span> <span class="o">=</span> <span class="mi">0</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">random_state</span> <span class="ow">is</span> <span class="bp">None</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">random_state</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">random_state</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">seed</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">random_state</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="n">seed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">random_state</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">seed</span> <span class="o">=</span> <span class="n">check_random_state</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">random_state</span><span class="p">)</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">10000</span><span class="p">)</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">objective</span> <span class="o">=</span> <span class="n">estimator_type</span>
         <span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="s">&quot;nthread&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">nthreads</span><span class="p">,</span>
                   <span class="s">&quot;eta&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">eta</span><span class="p">,</span>
@@ -276,19 +286,15 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">gamma</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
             <span class="n">params</span><span class="p">[</span><span class="s">&quot;gamma&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gamma</span>
 
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">xgmat</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_make_dmatrix</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">xgboost_classifier</span> <span class="o">=</span> <span class="n">xgb</span><span class="o">.</span><span class="n">train</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">xgmat</span><span class="p">,</span> <span class="n">num_boost_round</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n_estimators</span><span class="p">)</span>
-        <span class="k">except</span> <span class="ne">TypeError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s">&#39;There is error in the parameters or in input data format.&#39;</span><span class="p">)</span>
-            <span class="k">raise</span> <span class="n">e</span>
+        <span class="n">xgboost_matrix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_make_dmatrix</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">xgboost_estimator</span> <span class="o">=</span> <span class="n">xgb</span><span class="o">.</span><span class="n">train</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">xgboost_matrix</span><span class="p">,</span> <span class="n">num_boost_round</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n_estimators</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="bp">self</span>
 
     <span class="k">def</span> <span class="nf">__getstate__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__dict__</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-        <span class="k">del</span> <span class="n">result</span><span class="p">[</span><span class="s">&#39;xgboost_classifier&#39;</span><span class="p">]</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">xgboost_classifier</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">del</span> <span class="n">result</span><span class="p">[</span><span class="s">&#39;xgboost_estimator&#39;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">xgboost_estimator</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
             <span class="n">result</span><span class="p">[</span><span class="s">&#39;dumped_xgboost&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">None</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">NamedTemporaryFile</span><span class="p">()</span> <span class="k">as</span> <span class="n">dump</span><span class="p">:</span>
@@ -300,7 +306,7 @@
     <span class="k">def</span> <span class="nf">__setstate__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__dict__</span> <span class="o">=</span> <span class="nb">dict</span>
         <span class="k">if</span> <span class="nb">dict</span><span class="p">[</span><span class="s">&#39;dumped_xgboost&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">xgboost_classifier</span> <span class="o">=</span> <span class="bp">None</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">xgboost_estimator</span> <span class="o">=</span> <span class="bp">None</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">NamedTemporaryFile</span><span class="p">()</span> <span class="k">as</span> <span class="n">dump</span><span class="p">:</span>
                 <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">dump</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">dumpfile</span><span class="p">:</span>
@@ -308,28 +314,28 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">_load_model</span><span class="p">(</span><span class="n">dump</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
             <span class="c"># HACK error in xgboost reloading</span>
             <span class="k">if</span> <span class="s">&#39;_num_class&#39;</span> <span class="ow">in</span> <span class="nb">dict</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">xgboost_classifier</span><span class="o">.</span><span class="n">set_param</span><span class="p">({</span><span class="s">&#39;num_class&#39;</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="s">&#39;_num_class&#39;</span><span class="p">]})</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">xgboost_estimator</span><span class="o">.</span><span class="n">set_param</span><span class="p">({</span><span class="s">&#39;num_class&#39;</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="s">&#39;_num_class&#39;</span><span class="p">]})</span>
         <span class="k">del</span> <span class="nb">dict</span><span class="p">[</span><span class="s">&#39;dumped_xgboost&#39;</span><span class="p">]</span>
 
     <span class="k">def</span> <span class="nf">_save_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path_to_dump</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Save xgboost model&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot; Save XGBoost model&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_check_fitted</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">xgboost_classifier</span><span class="o">.</span><span class="n">save_model</span><span class="p">(</span><span class="n">path_to_dump</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">xgboost_estimator</span><span class="o">.</span><span class="n">save_model</span><span class="p">(</span><span class="n">path_to_dump</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_load_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path_to_dumped_model</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Load xgboost model to classifier &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot; Load XGBoost model to estimator &quot;&quot;&quot;</span>
         <span class="k">assert</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path_to_dumped_model</span><span class="p">),</span> <span class="s">&#39;there is no such file: {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">path_to_dumped_model</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">xgboost_classifier</span> <span class="o">=</span> <span class="n">xgb</span><span class="o">.</span><span class="n">Booster</span><span class="p">({</span><span class="s">&#39;nthread&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">nthreads</span><span class="p">},</span> <span class="n">model_file</span><span class="o">=</span><span class="n">path_to_dumped_model</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">xgboost_estimator</span> <span class="o">=</span> <span class="n">xgb</span><span class="o">.</span><span class="n">Booster</span><span class="p">({</span><span class="s">&#39;nthread&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">nthreads</span><span class="p">},</span> <span class="n">model_file</span><span class="o">=</span><span class="n">path_to_dumped_model</span><span class="p">)</span>
 
 <div class="viewcode-block" id="XGBoostBase.get_feature_importances"><a class="viewcode-back" href="../../../estimators.html#rep.estimators.xgboost.XGBoostBase.get_feature_importances">[docs]</a>    <span class="k">def</span> <span class="nf">get_feature_importances</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Get features importance</span>
+<span class="sd">        Get features importances.</span>
 
-<span class="sd">        :return: pandas.DataFrame with column effect and `index=features`</span>
+<span class="sd">        :rtype: pandas.DataFrame with `index=self.features`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_check_fitted</span><span class="p">()</span>
-        <span class="n">feature_score</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">xgboost_classifier</span><span class="o">.</span><span class="n">get_fscore</span><span class="p">()</span>
-        <span class="n">reordered_scores</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">feature_score</span><span class="p">))</span>
+        <span class="n">feature_score</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">xgboost_estimator</span><span class="o">.</span><span class="n">get_fscore</span><span class="p">()</span>
+        <span class="n">reordered_scores</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">features</span><span class="p">))</span>
         <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">score</span> <span class="ow">in</span> <span class="n">feature_score</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="n">reordered_scores</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">name</span><span class="p">)]</span> <span class="o">=</span> <span class="n">score</span>
         <span class="k">return</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s">&#39;effect&#39;</span><span class="p">:</span> <span class="n">reordered_scores</span><span class="p">},</span> <span class="n">index</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">features</span><span class="p">)</span></div>
@@ -343,7 +349,7 @@
 
 
 <div class="viewcode-block" id="XGBoostClassifier"><a class="viewcode-back" href="../../../estimators.html#rep.estimators.xgboost.XGBoostClassifier">[docs]</a><span class="k">class</span> <span class="nc">XGBoostClassifier</span><span class="p">(</span><span class="n">XGBoostBase</span><span class="p">,</span> <span class="n">Classifier</span><span class="p">):</span>
-    <span class="n">__doc__</span> <span class="o">=</span> <span class="s">&#39;Implements classification (and multiclassification) from XGBoost library. </span><span class="se">\n</span><span class="s">&#39;</span>\
+    <span class="n">__doc__</span> <span class="o">=</span> <span class="s">&#39;Implements classification model from XGBoost library. </span><span class="se">\n</span><span class="s">&#39;</span>\
               <span class="o">+</span> <span class="n">remove_first_line</span><span class="p">(</span><span class="n">XGBoostBase</span><span class="o">.</span><span class="n">__doc__</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
@@ -381,15 +387,6 @@
         <span class="n">Classifier</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">)</span>
 
 <div class="viewcode-block" id="XGBoostClassifier.fit"><a class="viewcode-back" href="../../../estimators.html#rep.estimators.xgboost.XGBoostClassifier.fit">[docs]</a>    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Train the classifier</span>
-
-<span class="sd">        :param pandas.DataFrame X: data shape [n_samples, n_features]</span>
-<span class="sd">        :param y: labels of events - array-like of shape [n_samples]</span>
-<span class="sd">        :param sample_weight: weight of events,</span>
-<span class="sd">               array-like of shape [n_samples] or None if all weights are equal</span>
-<span class="sd">        :return: self</span>
-<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span> <span class="o">=</span> <span class="n">check_inputs</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="n">sample_weight</span><span class="p">,</span> <span class="n">allow_none_weights</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
         <span class="n">sample_weight</span> <span class="o">=</span> <span class="n">normalize_weights</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="n">sample_weight</span><span class="p">,</span> <span class="n">per_class</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
         <span class="n">X</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_features</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
@@ -397,38 +394,43 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_classes_</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="s">&#39;multi:softprob&#39;</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="n">sample_weight</span><span class="p">,</span> <span class="n">num_class</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n_classes_</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="XGBoostClassifier.predict_proba"><a class="viewcode-back" href="../../../estimators.html#rep.estimators.xgboost.XGBoostClassifier.predict_proba">[docs]</a>    <span class="k">def</span> <span class="nf">predict_proba</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Predict probabilities for data X.</span>
+    <span class="n">fit</span><span class="o">.</span><span class="n">__doc__</span> <span class="o">=</span> <span class="n">Classifier</span><span class="o">.</span><span class="n">fit</span><span class="o">.</span><span class="n">__doc__</span>
 
-<span class="sd">        :param pandas.DataFrame X: data shape [n_samples, n_features]</span>
-<span class="sd">        :rtype: numpy.array of shape [n_samples, n_classes] with probabilities</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="XGBoostClassifier.predict_proba"><a class="viewcode-back" href="../../../estimators.html#rep.estimators.xgboost.XGBoostClassifier.predict_proba">[docs]</a>    <span class="k">def</span> <span class="nf">predict_proba</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_check_fitted</span><span class="p">()</span>
         <span class="n">X_dmat</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_make_dmatrix</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_features</span><span class="p">(</span><span class="n">X</span><span class="p">))</span>
-        <span class="n">prediction</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">xgboost_classifier</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X_dmat</span><span class="p">,</span> <span class="n">ntree_limit</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">prediction</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">xgboost_estimator</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X_dmat</span><span class="p">,</span> <span class="n">ntree_limit</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_classes_</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">prediction</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_classes_</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="XGBoostClassifier.staged_predict_proba"><a class="viewcode-back" href="../../../estimators.html#rep.estimators.xgboost.XGBoostClassifier.staged_predict_proba">[docs]</a>    <span class="k">def</span> <span class="nf">staged_predict_proba</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
+    <span class="n">predict_proba</span><span class="o">.</span><span class="n">__doc__</span> <span class="o">=</span> <span class="n">Classifier</span><span class="o">.</span><span class="n">predict_proba</span><span class="o">.</span><span class="n">__doc__</span>
+
+<div class="viewcode-block" id="XGBoostClassifier.staged_predict_proba"><a class="viewcode-back" href="../../../estimators.html#rep.estimators.xgboost.XGBoostClassifier.staged_predict_proba">[docs]</a>    <span class="k">def</span> <span class="nf">staged_predict_proba</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Predicts probabilities on each stage for data X.</span>
-<span class="sd">        :param pandas.DataFrame X: data shape [n_samples, n_features]</span>
-<span class="sd">        :param int step: step for returned iterations</span>
+<span class="sd">        Predict probabilities for data for each class label on each stage..</span>
+
+<span class="sd">        :param pandas.DataFrame X: data of shape [n_samples, n_features]</span>
+<span class="sd">        :param int step: step for returned iterations (None by default).</span>
+<span class="sd">            XGBoost does not implement this functionality and we need to</span>
+<span class="sd">            predict from the beginning each time.</span>
+<span class="sd">            With `None` passed step is chosen to have 10 points in the learning curve.</span>
 <span class="sd">        :return: iterator</span>
+
 <span class="sd">        .. warning: this method may be very slow, it takes iterations^2 / step time.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_check_fitted</span><span class="p">()</span>
         <span class="n">X_dmat</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_make_dmatrix</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_features</span><span class="p">(</span><span class="n">X</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">step</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">step</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_estimators</span> <span class="o">//</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
 
         <span class="c"># TODO use applying tree-by-tree</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_estimators</span> <span class="o">//</span> <span class="n">step</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
-            <span class="n">prediction</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">xgboost_classifier</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X_dmat</span><span class="p">,</span> <span class="n">ntree_limit</span><span class="o">=</span><span class="n">i</span> <span class="o">*</span> <span class="n">step</span><span class="p">)</span>
+            <span class="n">prediction</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">xgboost_estimator</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X_dmat</span><span class="p">,</span> <span class="n">ntree_limit</span><span class="o">=</span><span class="n">i</span> <span class="o">*</span> <span class="n">step</span><span class="p">)</span>
             <span class="k">yield</span> <span class="n">prediction</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_classes_</span><span class="p">)</span></div></div>
 
 
 <div class="viewcode-block" id="XGBoostRegressor"><a class="viewcode-back" href="../../../estimators.html#rep.estimators.xgboost.XGBoostRegressor">[docs]</a><span class="k">class</span> <span class="nc">XGBoostRegressor</span><span class="p">(</span><span class="n">XGBoostBase</span><span class="p">,</span> <span class="n">Regressor</span><span class="p">):</span>
-    <span class="n">__doc__</span> <span class="o">=</span> <span class="s">&#39;Implements regression from XGBoost library. </span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">+</span> <span class="n">remove_first_line</span><span class="p">(</span><span class="n">XGBoostBase</span><span class="o">.</span><span class="n">__doc__</span><span class="p">)</span>
+    <span class="n">__doc__</span> <span class="o">=</span> <span class="s">&#39;Implements regression model from XGBoost library. </span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">+</span> <span class="n">remove_first_line</span><span class="p">(</span><span class="n">XGBoostBase</span><span class="o">.</span><span class="n">__doc__</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
                  <span class="n">n_estimators</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
@@ -464,47 +466,42 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">objective_type</span> <span class="o">=</span> <span class="n">objective_type</span>
 
 <div class="viewcode-block" id="XGBoostRegressor.fit"><a class="viewcode-back" href="../../../estimators.html#rep.estimators.xgboost.XGBoostRegressor.fit">[docs]</a>    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Train the classifier on training dataset</span>
-
-<span class="sd">        :param pandas.DataFrame X: data shape [n_samples, n_features]</span>
-<span class="sd">        :param y: regression targets of events - array-like of shape [n_samples]</span>
-<span class="sd">        :param sample_weight: weight of events,</span>
-<span class="sd">               array-like of shape [n_samples] or None if all weights are equal</span>
-<span class="sd">        :return: self</span>
-<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span> <span class="o">=</span> <span class="n">check_inputs</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="n">sample_weight</span><span class="p">,</span> <span class="n">allow_none_weights</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
         <span class="n">sample_weight</span> <span class="o">=</span> <span class="n">normalize_weights</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="n">sample_weight</span><span class="p">,</span> <span class="n">per_class</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
         <span class="n">X</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_features</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
         <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">objective_type</span> <span class="ow">in</span> <span class="p">{</span><span class="s">&#39;linear&#39;</span><span class="p">,</span> <span class="s">&#39;logistic&#39;</span><span class="p">},</span> <span class="s">&#39;Objective parameter is not valid&#39;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="s">&quot;reg:{}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">objective_type</span><span class="p">),</span> <span class="n">sample_weight</span><span class="o">=</span><span class="n">sample_weight</span><span class="p">)</span></div>
 
+    <span class="n">fit</span><span class="o">.</span><span class="n">__doc__</span> <span class="o">=</span> <span class="n">Regressor</span><span class="o">.</span><span class="n">fit</span><span class="o">.</span><span class="n">__doc__</span>
+
 <div class="viewcode-block" id="XGBoostRegressor.predict"><a class="viewcode-back" href="../../../estimators.html#rep.estimators.xgboost.XGBoostRegressor.predict">[docs]</a>    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Predicts regression target for X.</span>
-
-<span class="sd">        :param pandas.DataFrame X: data shape [n_samples, n_features]</span>
-<span class="sd">        :rtype: numpy.array of shape [n_samples, n_classes] with probabilities</span>
-<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_check_fitted</span><span class="p">()</span>
         <span class="n">X_dmat</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_make_dmatrix</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_features</span><span class="p">(</span><span class="n">X</span><span class="p">))</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">xgboost_classifier</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X_dmat</span><span class="p">,</span> <span class="n">ntree_limit</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">xgboost_estimator</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X_dmat</span><span class="p">,</span> <span class="n">ntree_limit</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="XGBoostRegressor.staged_predict"><a class="viewcode-back" href="../../../estimators.html#rep.estimators.xgboost.XGBoostRegressor.staged_predict">[docs]</a>    <span class="k">def</span> <span class="nf">staged_predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
+    <span class="n">predict</span><span class="o">.</span><span class="n">__doc__</span> <span class="o">=</span> <span class="n">Regressor</span><span class="o">.</span><span class="n">predict</span><span class="o">.</span><span class="n">__doc__</span>
+
+<div class="viewcode-block" id="XGBoostRegressor.staged_predict"><a class="viewcode-back" href="../../../estimators.html#rep.estimators.xgboost.XGBoostRegressor.staged_predict">[docs]</a>    <span class="k">def</span> <span class="nf">staged_predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Predicts regression target at each stage for X.</span>
+<span class="sd">        Predicts values for data on each stage.</span>
 
-<span class="sd">        :param pandas.DataFrame X: data shape [n_samples, n_features]</span>
-<span class="sd">        :param int step: step for returned iterations</span>
+<span class="sd">        :param X: pandas.DataFrame of shape [n_samples, n_features]</span>
+<span class="sd">        :param int step: step for returned iterations (None by default).</span>
+<span class="sd">            XGBoost does not implement this functionality and we need to</span>
+<span class="sd">            predict from the beginning each time.</span>
+<span class="sd">            With `None` passed step is chosen to have 10 points in the learning curve.</span>
 <span class="sd">        :return: iterator</span>
-<span class="sd">        .. warning: this method may be very slow, it takes iterations^2 / step time</span>
+
+<span class="sd">        .. warning: this method may be very slow, it takes iterations^2 / step time.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_check_fitted</span><span class="p">()</span>
         <span class="n">X_dmat</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_make_dmatrix</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_features</span><span class="p">(</span><span class="n">X</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">step</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">step</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_estimators</span> <span class="o">//</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
 
         <span class="c"># TODO use applying tree-by-tree</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_estimators</span> <span class="o">//</span> <span class="n">step</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
-            <span class="k">yield</span> <span class="bp">self</span><span class="o">.</span><span class="n">xgboost_classifier</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X_dmat</span><span class="p">,</span> <span class="n">ntree_limit</span><span class="o">=</span><span class="n">i</span> <span class="o">*</span> <span class="n">step</span><span class="p">)</span></div></div>
+            <span class="k">yield</span> <span class="bp">self</span><span class="o">.</span><span class="n">xgboost_estimator</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X_dmat</span><span class="p">,</span> <span class="n">ntree_limit</span><span class="o">=</span><span class="n">i</span> <span class="o">*</span> <span class="n">step</span><span class="p">)</span></div></div>
 </pre></div>
 
            </div>
@@ -538,7 +535,7 @@
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'../../../',
-            VERSION:'0.6.5',
+            VERSION:'0.6.6',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true

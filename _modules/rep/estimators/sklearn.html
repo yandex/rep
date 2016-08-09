@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>rep.estimators.sklearn &mdash; REP (Reproducible Experiment Platform) 0.6.5 documentation</title>
+  <title>rep.estimators.sklearn &mdash; REP (Reproducible Experiment Platform) 0.6.6 documentation</title>
   
 
   
@@ -30,7 +30,7 @@
   
 
   
-    <link rel="top" title="REP (Reproducible Experiment Platform) 0.6.5 documentation" href="../../../index.html"/>
+    <link rel="top" title="REP (Reproducible Experiment Platform) 0.6.6 documentation" href="../../../index.html"/>
         <link rel="up" title="Module code" href="../../index.html"/> 
 
   
@@ -59,7 +59,7 @@
             
             
               <div class="version">
-                0.6.5
+                0.6.6
               </div>
             
           
@@ -81,12 +81,15 @@
             
             
                 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../data.html">Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../estimators.html">Estimators (classification and regression)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../metaml.html">Meta Machine Learning</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../report.html">Report for models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../metrics.html">Metrics</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../plotting.html">Plotting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../parallel.html">Parallel computing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../data.html">Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../utils.html">Utilities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reproducibility.html">REProducibility</a></li>
 <li class="toctree-l1"><a class="reference external" href="http://nbviewer.ipython.org/github/yandex/rep/tree/master/howto/">Howto notebooks</a></li>
 </ul>
 
@@ -134,10 +137,16 @@
             
   <h1>Source code for rep.estimators.sklearn</h1><div class="highlight"><pre>
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">Sklearn wrapper for users is the same as sklearn model,</span>
-<span class="sd">has only one additional parameter *features* to choose necessary columns for training.</span>
+<span class="sd">:class:`SklearnClassifier` and :class:`SklearnRegressor` are wrappers for algorithms from scikit-learn.</span>
+
+<span class="sd">From user perspective, wrapped sklearn model behaves in the same way as non-wrapped,</span>
+<span class="sd">but has one additional parameter *features* to choose necessary columns to use in training.</span>
+
+<span class="sd">Typically, models from **REP** are used with `pandas.DataFrames`,</span>
+<span class="sd">which makes it possible to name needed variables or give some variables specific role in the training.</span>
+
 <span class="sd">If data has :class:`numpy.array` type then behaviour will be the same as in sklearn.</span>
-<span class="sd">For complete list of available algorithms, see `sklearn API &lt;http://scikit-learn.org/stable/modules/classes.html&gt;`_.</span>
+<span class="sd">For complete list of the available algorithms, see `sklearn API &lt;http://scikit-learn.org/stable/modules/classes.html&gt;`_.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">division</span><span class="p">,</span> <span class="n">print_function</span><span class="p">,</span> <span class="n">absolute_import</span>
 <span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABCMeta</span>
@@ -145,39 +154,39 @@
 <span class="kn">from</span> <span class="nn">.interface</span> <span class="kn">import</span> <span class="n">Classifier</span><span class="p">,</span> <span class="n">Regressor</span>
 <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">check_inputs</span>
 
-
 <span class="n">__author__</span> <span class="o">=</span> <span class="s">&#39;Alex Rogozhnikov&#39;</span>
 
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;SklearnClassifier&#39;</span><span class="p">,</span> <span class="s">&#39;SklearnRegressor&#39;</span><span class="p">]</span>
 
-<div class="viewcode-block" id="SklearnBase"><a class="viewcode-back" href="../../../estimators.html#rep.estimators.sklearn.SklearnBase">[docs]</a><span class="k">class</span> <span class="nc">SklearnBase</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+<span class="k">class</span> <span class="nc">SklearnBase</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    SklearnBase is base for sklearn-like models.</span>
-<span class="sd">    All attributes will be returned for base estimator</span>
-
-<span class="sd">    Parameters:</span>
-<span class="sd">    -----------</span>
-<span class="sd">    :param sklearn.BaseEstimator clf: your estimator, which will be used for training</span>
-
+<span class="sd">    SklearnBase is a base for wrappers over sklearn-like models.</span>
+<span class="sd">    All attributes will be returned for base estimator.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">__metaclass__</span> <span class="o">=</span> <span class="n">ABCMeta</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">clf</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param clf: estimator to be used in training.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">clf</span> <span class="o">=</span> <span class="n">clf</span>
 
     <span class="k">def</span> <span class="nf">_fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Train the classifier</span>
+<span class="sd">        Train the {estimator}.</span>
 
 <span class="sd">        :param pandas.DataFrame X: data shape [n_samples, n_features]</span>
-<span class="sd">        :param y: labels of events - array-like of shape [n_samples]</span>
-<span class="sd">        :param sample_weight: weight of events,</span>
+<span class="sd">        :param y: target of training, array-like of shape [n_samples]</span>
+<span class="sd">        :param sample_weight: weight of samples,</span>
 <span class="sd">               array-like of shape [n_samples] or None if all weights are equal</span>
 
 <span class="sd">        :return: self</span>
 
-<span class="sd">        .. note:: if sklearn classifier doesn&#39;t support *sample_weight* then put *sample_weight=None*,</span>
-<span class="sd">        else exception will be thrown.</span>
+<span class="sd">        .. note:: if sklearn {estimator} doesn&#39;t support `sample_weight`, then put `sample_weight=None`,</span>
+<span class="sd">            otherwise exception will be thrown.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">sample_weight</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">clf</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_features</span><span class="p">(</span><span class="n">X</span><span class="p">),</span> <span class="n">y</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
@@ -185,150 +194,95 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">clf</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_features</span><span class="p">(</span><span class="n">X</span><span class="p">),</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="n">sample_weight</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span>
 
-<div class="viewcode-block" id="SklearnBase.predict"><a class="viewcode-back" href="../../../estimators.html#rep.estimators.sklearn.SklearnBase.predict">[docs]</a>    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Predict labels for estimators and values for regressors for all events in dataset.</span>
-
-<span class="sd">        :param X: pandas.DataFrame of shape [n_samples, n_features]</span>
-<span class="sd">        :rtype: numpy.array of shape [n_samples] with labels/values</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">clf</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_features</span><span class="p">(</span><span class="n">X</span><span class="p">))</span></div>
-
     <span class="k">def</span> <span class="nf">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="c"># In order not to break pickling/unpickling.</span>
         <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="p">[</span><span class="s">&#39;__getstate__&#39;</span><span class="p">,</span> <span class="s">&#39;__setstate__&#39;</span><span class="p">]:</span>
             <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">()</span>
-        <span class="c"># Those methods not defined here will be used directly from classifier</span>
+        <span class="c"># Those methods not defined here will be used directly from the estimator</span>
         <span class="n">base</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">clf</span>
-        <span class="k">return</span> <span class="n">base</span><span class="o">.</span><span class="n">__getattribute__</span><span class="p">(</span><span class="n">name</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">base</span><span class="o">.</span><span class="n">__getattribute__</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">set_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the parameters of this estimator.</span>
+<span class="sd">        Parameters of the base estimator can be accessed (for example param `depth`) by both *depth* and *clf__depth*.</span>
+
+<span class="sd">        :param dict params: parameters to set in the model</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">params_for_clf</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">params</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="s">&#39;features&#39;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">features</span> <span class="o">=</span> <span class="n">value</span>
+            <span class="k">elif</span> <span class="n">name</span> <span class="o">==</span> <span class="s">&#39;clf&#39;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">clf</span> <span class="o">=</span> <span class="n">value</span>
+            <span class="k">elif</span> <span class="n">name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;clf__&#39;</span><span class="p">):</span>
+                <span class="n">params_for_clf</span><span class="p">[</span><span class="n">name</span><span class="p">[</span><span class="mi">5</span><span class="p">:]]</span> <span class="o">=</span> <span class="n">value</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">params_for_clf</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">clf</span><span class="o">.</span><span class="n">set_params</span><span class="p">(</span><span class="o">**</span><span class="n">params_for_clf</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="SklearnClassifier"><a class="viewcode-back" href="../../../estimators.html#rep.estimators.sklearn.SklearnClassifier">[docs]</a><span class="k">class</span> <span class="nc">SklearnClassifier</span><span class="p">(</span><span class="n">SklearnBase</span><span class="p">,</span> <span class="n">Classifier</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    SklearnClassifier is wrapper on sklearn-like **estimators**</span>
-
-<span class="sd">    Parameters:</span>
-<span class="sd">    -----------</span>
-<span class="sd">    :param sklearn.BaseEstimator clf: your classifier, which will be used for training</span>
-<span class="sd">    :param features: features used in training</span>
-<span class="sd">    :type features: list[str] or None</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">clf</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        SklearnClassifier is a wrapper over sklearn-like **classifiers**.</span>
+
+<span class="sd">        :param sklearn.BaseEstimator clf: classifier to train. Should be sklearn-compatible.</span>
+<span class="sd">        :param features: features used in training</span>
+<span class="sd">        :type features: list[str] or None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">clf</span><span class="p">,</span> <span class="n">Classifier</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&#39;Base class should be simply sklearn classifier, not descendant of Classifier&#39;</span><span class="p">)</span>
         <span class="n">SklearnBase</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">clf</span><span class="o">=</span><span class="n">clf</span><span class="p">)</span>
         <span class="n">Classifier</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">)</span>
 
-<div class="viewcode-block" id="SklearnClassifier.set_params"><a class="viewcode-back" href="../../../estimators.html#rep.estimators.sklearn.SklearnClassifier.set_params">[docs]</a>    <span class="k">def</span> <span class="nf">set_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Set the parameters of this estimator.</span>
-
-<span class="sd">        :param dict params: parameters to set in model</span>
-
-<span class="sd">        .. note:: parameters of base estimator can be accessed (for example param `depth`)</span>
-<span class="sd">            by both *depth* and *clf__depth*.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">params_for_clf</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">params</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="s">&#39;features&#39;</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">features</span> <span class="o">=</span> <span class="n">value</span>
-            <span class="k">elif</span> <span class="n">name</span> <span class="o">==</span> <span class="s">&#39;clf&#39;</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">clf</span> <span class="o">=</span> <span class="n">value</span>
-            <span class="k">elif</span> <span class="n">name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;clf__&#39;</span><span class="p">):</span>
-                <span class="n">params_for_clf</span><span class="p">[</span><span class="n">name</span><span class="p">[</span><span class="mi">5</span><span class="p">:]]</span> <span class="o">=</span> <span class="n">value</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">params_for_clf</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">clf</span><span class="o">.</span><span class="n">set_params</span><span class="p">(</span><span class="o">**</span><span class="n">params_for_clf</span><span class="p">)</span></div>
-
 <div class="viewcode-block" id="SklearnClassifier.fit"><a class="viewcode-back" href="../../../estimators.html#rep.estimators.sklearn.SklearnClassifier.fit">[docs]</a>    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Train the classifier</span>
-
-<span class="sd">        :param pandas.DataFrame X: data shape [n_samples, n_features]</span>
-<span class="sd">        :param y: labels of events - array-like of shape [n_samples]</span>
-<span class="sd">        :param sample_weight: weight of events,</span>
-<span class="sd">               array-like of shape [n_samples] or None if all weights are equal</span>
-
-<span class="sd">        :return: self</span>
-
-<span class="sd">        .. note:: if sklearn classifier doesn&#39;t support *sample_weight*, put *sample_weight=None*,</span>
-<span class="sd">            otherwise exception will be thrown.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span> <span class="o">=</span> <span class="n">check_inputs</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="n">sample_weight</span><span class="p">,</span> <span class="n">allow_none_weights</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_set_classes</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="n">sample_weight</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="SklearnClassifier.predict_proba"><a class="viewcode-back" href="../../../estimators.html#rep.estimators.sklearn.SklearnClassifier.predict_proba">[docs]</a>    <span class="k">def</span> <span class="nf">predict_proba</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Predict probabilities for each class label on dataset</span>
+    <span class="n">fit</span><span class="o">.</span><span class="n">__doc__</span> <span class="o">=</span> <span class="n">SklearnBase</span><span class="o">.</span><span class="n">_fit</span><span class="o">.</span><span class="n">__doc__</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">estimator</span><span class="o">=</span><span class="s">&#39;classifier&#39;</span><span class="p">)</span>
 
-<span class="sd">        :param X: pandas.DataFrame of shape [n_samples, n_features]</span>
-<span class="sd">        :rtype: numpy.array of shape [n_samples, n_classes] with probabilities</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="SklearnClassifier.predict"><a class="viewcode-back" href="../../../estimators.html#rep.estimators.sklearn.SklearnClassifier.predict">[docs]</a>    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">clf</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_features</span><span class="p">(</span><span class="n">X</span><span class="p">))</span></div>
+
+    <span class="n">predict</span><span class="o">.</span><span class="n">__doc__</span> <span class="o">=</span> <span class="n">Classifier</span><span class="o">.</span><span class="n">predict</span><span class="o">.</span><span class="n">__doc__</span>
+
+<div class="viewcode-block" id="SklearnClassifier.predict_proba"><a class="viewcode-back" href="../../../estimators.html#rep.estimators.sklearn.SklearnClassifier.predict_proba">[docs]</a>    <span class="k">def</span> <span class="nf">predict_proba</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">clf</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_features</span><span class="p">(</span><span class="n">X</span><span class="p">))</span></div>
 
-<div class="viewcode-block" id="SklearnClassifier.staged_predict_proba"><a class="viewcode-back" href="../../../estimators.html#rep.estimators.sklearn.SklearnClassifier.staged_predict_proba">[docs]</a>    <span class="k">def</span> <span class="nf">staged_predict_proba</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Predicts probabilities on each stage</span>
+    <span class="n">predict_proba</span><span class="o">.</span><span class="n">__doc__</span> <span class="o">=</span> <span class="n">Classifier</span><span class="o">.</span><span class="n">predict_proba</span><span class="o">.</span><span class="n">__doc__</span>
 
-<span class="sd">        :return: iterator</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">clf</span><span class="o">.</span><span class="n">staged_predict_proba</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_features</span><span class="p">(</span><span class="n">X</span><span class="p">))</span></div></div>
+<div class="viewcode-block" id="SklearnClassifier.staged_predict_proba"><a class="viewcode-back" href="../../../estimators.html#rep.estimators.sklearn.SklearnClassifier.staged_predict_proba">[docs]</a>    <span class="k">def</span> <span class="nf">staged_predict_proba</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">clf</span><span class="o">.</span><span class="n">staged_predict_proba</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_features</span><span class="p">(</span><span class="n">X</span><span class="p">))</span></div>
+
+    <span class="n">staged_predict_proba</span><span class="o">.</span><span class="n">__doc__</span> <span class="o">=</span> <span class="n">Classifier</span><span class="o">.</span><span class="n">staged_predict_proba</span><span class="o">.</span><span class="n">__doc__</span></div>
 
 
 <div class="viewcode-block" id="SklearnRegressor"><a class="viewcode-back" href="../../../estimators.html#rep.estimators.sklearn.SklearnRegressor">[docs]</a><span class="k">class</span> <span class="nc">SklearnRegressor</span><span class="p">(</span><span class="n">SklearnBase</span><span class="p">,</span> <span class="n">Regressor</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    SklearnClassifier is wrapper on sklearn-like regressors</span>
-
-<span class="sd">    Parameters:</span>
-<span class="sd">    -----------</span>
-<span class="sd">    :param sklearn.BaseEstimator clf: your classifier, which will be used for training</span>
-<span class="sd">    :param features: features used in training</span>
-<span class="sd">    :type features: list[str] or None</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">clf</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        SklearnRegressor is a wrapper over sklearn-like **regressors**</span>
+
+<span class="sd">        :param sklearn.BaseEstimator clf: classifier to train. Should be sklearn-compatible.</span>
+<span class="sd">        :param features: features used in training</span>
+<span class="sd">        :type features: list[str] or None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">clf</span><span class="p">,</span> <span class="n">Regressor</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&#39;Base class should be simply sklearn classifier, not descendant of Regressor&#39;</span><span class="p">)</span>
         <span class="n">SklearnBase</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">clf</span><span class="o">=</span><span class="n">clf</span><span class="p">)</span>
         <span class="n">Regressor</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">)</span>
 
-<div class="viewcode-block" id="SklearnRegressor.set_params"><a class="viewcode-back" href="../../../estimators.html#rep.estimators.sklearn.SklearnRegressor.set_params">[docs]</a>    <span class="k">def</span> <span class="nf">set_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Set the parameters of this estimator.</span>
-
-<span class="sd">        :param dict params: parameters to set in model</span>
-
-<span class="sd">        .. note:: Access to all parameters of base estimator can be done by (for example param `depth`) *model.clf__depth*.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">params_for_clf</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">params</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="s">&#39;features&#39;</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">features</span> <span class="o">=</span> <span class="n">value</span>
-            <span class="k">elif</span> <span class="n">name</span> <span class="o">==</span> <span class="s">&#39;clf&#39;</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">clf</span> <span class="o">=</span> <span class="n">value</span>
-            <span class="k">elif</span> <span class="n">name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;clf__&#39;</span><span class="p">):</span>
-                <span class="n">params_for_clf</span><span class="p">[</span><span class="n">name</span><span class="p">[</span><span class="mi">5</span><span class="p">:]]</span> <span class="o">=</span> <span class="n">value</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">params_for_clf</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">clf</span><span class="o">.</span><span class="n">set_params</span><span class="p">(</span><span class="o">**</span><span class="n">params_for_clf</span><span class="p">)</span></div>
-
 <div class="viewcode-block" id="SklearnRegressor.fit"><a class="viewcode-back" href="../../../estimators.html#rep.estimators.sklearn.SklearnRegressor.fit">[docs]</a>    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Train the classifier</span>
-
-<span class="sd">        :param pandas.DataFrame X: data shape [n_samples, n_features]</span>
-<span class="sd">        :param y: labels of events - array-like of shape [n_samples]</span>
-<span class="sd">        :param sample_weight: weight of events,</span>
-<span class="sd">               array-like of shape [n_samples] or None if all weights are equal</span>
-
-<span class="sd">        :return: self</span>
-
-<span class="sd">        .. note:: if sklearn classifier doesn&#39;t support *sample_weight* then put *sample_weight=None*,</span>
-<span class="sd">        else exception will be thrown.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span> <span class="o">=</span> <span class="n">check_inputs</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="n">sample_weight</span><span class="p">,</span> <span class="n">allow_none_weights</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="n">sample_weight</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+    <span class="n">fit</span><span class="o">.</span><span class="n">__doc__</span> <span class="o">=</span> <span class="n">SklearnBase</span><span class="o">.</span><span class="n">_fit</span><span class="o">.</span><span class="n">__doc__</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">estimator</span><span class="o">=</span><span class="s">&#39;classifier&#39;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="SklearnRegressor.predict"><a class="viewcode-back" href="../../../estimators.html#rep.estimators.sklearn.SklearnRegressor.predict">[docs]</a>    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">clf</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_features</span><span class="p">(</span><span class="n">X</span><span class="p">))</span></div>
+
+    <span class="n">predict</span><span class="o">.</span><span class="n">__doc__</span> <span class="o">=</span> <span class="n">Regressor</span><span class="o">.</span><span class="n">predict</span><span class="o">.</span><span class="n">__doc__</span>
 
 <div class="viewcode-block" id="SklearnRegressor.staged_predict"><a class="viewcode-back" href="../../../estimators.html#rep.estimators.sklearn.SklearnRegressor.staged_predict">[docs]</a>    <span class="k">def</span> <span class="nf">staged_predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -337,7 +291,9 @@
 
 <span class="sd">        :return: iterator</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">clf</span><span class="o">.</span><span class="n">staged_predict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_features</span><span class="p">(</span><span class="n">X</span><span class="p">))</span></div></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">clf</span><span class="o">.</span><span class="n">staged_predict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_features</span><span class="p">(</span><span class="n">X</span><span class="p">))</span></div>
+
+    <span class="n">staged_predict</span><span class="o">.</span><span class="n">__doc__</span> <span class="o">=</span> <span class="n">Regressor</span><span class="o">.</span><span class="n">staged_predict</span><span class="o">.</span><span class="n">__doc__</span></div>
 </pre></div>
 
            </div>
@@ -371,7 +327,7 @@
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'../../../',
-            VERSION:'0.6.5',
+            VERSION:'0.6.6',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true

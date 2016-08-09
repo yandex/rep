@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>rep.metaml.stacking &mdash; REP (Reproducible Experiment Platform) 0.6.5 documentation</title>
+  <title>rep.metaml.stacking &mdash; REP (Reproducible Experiment Platform) 0.6.6 documentation</title>
   
 
   
@@ -30,7 +30,7 @@
   
 
   
-    <link rel="top" title="REP (Reproducible Experiment Platform) 0.6.5 documentation" href="../../../index.html"/>
+    <link rel="top" title="REP (Reproducible Experiment Platform) 0.6.6 documentation" href="../../../index.html"/>
         <link rel="up" title="Module code" href="../../index.html"/> 
 
   
@@ -59,7 +59,7 @@
             
             
               <div class="version">
-                0.6.5
+                0.6.6
               </div>
             
           
@@ -81,12 +81,15 @@
             
             
                 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../data.html">Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../estimators.html">Estimators (classification and regression)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../metaml.html">Meta Machine Learning</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../report.html">Report for models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../metrics.html">Metrics</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../plotting.html">Plotting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../parallel.html">Parallel computing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../data.html">Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../utils.html">Utilities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reproducibility.html">REProducibility</a></li>
 <li class="toctree-l1"><a class="reference external" href="http://nbviewer.ipython.org/github/yandex/rep/tree/master/howto/">Howto notebooks</a></li>
 </ul>
 
@@ -134,7 +137,11 @@
             
   <h1>Source code for rep.metaml.stacking</h1><div class="highlight"><pre>
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">This module contains stacking strategies (meta-algorithms of machine learning).</span>
+<span class="sd">:class:`FeatureSplitter`  defined in this module.</span>
+
+<span class="sd">This meta-algorithm is handy to train different models for subsets of the data</span>
+<span class="sd">without manually splitting the data into parts.</span>
+
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">division</span><span class="p">,</span> <span class="n">print_function</span><span class="p">,</span> <span class="n">absolute_import</span>
 
@@ -160,7 +167,7 @@
 <span class="sd">    :param base_estimator: the classifier, its&#39; copies are trained on parts of dataset</span>
 <span class="sd">    :param list[str] features: list of columns classifier uses</span>
 
-<span class="sd">    .. note:: `split_feature` must be in list of `features`</span>
+<span class="sd">    Pay attention: `split_feature` must be in list of `features` (if those are passed).</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">split_feature</span><span class="p">,</span> <span class="n">base_estimator</span><span class="p">,</span> <span class="n">train_features</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">base_estimator</span> <span class="o">=</span> <span class="n">base_estimator</span>
@@ -216,8 +223,8 @@
 
 <div class="viewcode-block" id="FeatureSplitter.predict_proba"><a class="viewcode-back" href="../../../metaml.html#rep.metaml.stacking.FeatureSplitter.predict_proba">[docs]</a>    <span class="k">def</span> <span class="nf">predict_proba</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Predict probabilities. Each event will be predicted by the classifier</span>
-<span class="sd">         with trained on corresponding value of `split_feature`</span>
+<span class="sd">        Predict probabilities.</span>
+<span class="sd">        Each event is predicted by the classifier trained on corresponding value of `split_feature`</span>
 
 <span class="sd">        :param X: pandas.DataFrame of shape [n_samples, n_features]</span>
 <span class="sd">        :return: probabilities of shape [n_samples, n_classes]</span>
@@ -232,8 +239,7 @@
 <div class="viewcode-block" id="FeatureSplitter.staged_predict_proba"><a class="viewcode-back" href="../../../metaml.html#rep.metaml.stacking.FeatureSplitter.staged_predict_proba">[docs]</a>    <span class="k">def</span> <span class="nf">staged_predict_proba</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Predict probabilities after each stage of base classifier.</span>
-<span class="sd">        Each event will be predicted by the classifier</span>
-<span class="sd">         with trained on corresponding value of `split_feature`</span>
+<span class="sd">        Each event is predicted by the classifier trained on corresponding value of `split_feature`</span>
 
 <span class="sd">        :param X: pandas.DataFrame of shape [n_samples, n_features]</span>
 <span class="sd">        :return: iterable sequence of numpy.arrays of shape [n_samples, n_classes]</span>
@@ -285,7 +291,7 @@
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'../../../',
-            VERSION:'0.6.5',
+            VERSION:'0.6.6',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true

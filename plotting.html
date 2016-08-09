@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Plotting &mdash; REP (Reproducible Experiment Platform) 0.6.5 documentation</title>
+  <title>Plotting &mdash; REP (Reproducible Experiment Platform) 0.6.6 documentation</title>
   
 
   
@@ -30,9 +30,9 @@
   
 
   
-    <link rel="top" title="REP (Reproducible Experiment Platform) 0.6.5 documentation" href="index.html"/>
-        <link rel="next" title="Utilities" href="utils.html"/>
-        <link rel="prev" title="Report for models" href="report.html"/> 
+    <link rel="top" title="REP (Reproducible Experiment Platform) 0.6.6 documentation" href="index.html"/>
+        <link rel="next" title="Parallel computing" href="parallel.html"/>
+        <link rel="prev" title="Metrics" href="metrics.html"/> 
 
   
   <script src="_static/js/modernizr.min.js"></script>
@@ -60,7 +60,7 @@
             
             
               <div class="version">
-                0.6.5
+                0.6.6
               </div>
             
           
@@ -82,12 +82,15 @@
             
             
                 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="data.html">Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="estimators.html">Estimators (classification and regression)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="metaml.html">Meta Machine Learning</a></li>
 <li class="toctree-l1"><a class="reference internal" href="report.html">Report for models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metrics.html">Metrics</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="">Plotting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="parallel.html">Parallel computing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="data.html">Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="utils.html">Utilities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reproducibility.html">REProducibility</a></li>
 <li class="toctree-l1"><a class="reference external" href="http://nbviewer.ipython.org/github/yandex/rep/tree/master/howto/">Howto notebooks</a></li>
 </ul>
 
@@ -138,8 +141,7 @@
 <span class="target" id="module-rep.plotting"></span><p>There are different plotting backends supported:</p>
 <blockquote>
 <div><ul class="simple">
-<li><em>matplotlib</em> (default, de-facto standard plotting library),</li>
-<li><em>plotly</em> (proprietary package with interactive plots, information is kept on the server),</li>
+<li><em>matplotlib</em> (default, de-facto standard plotting library in python),</li>
 <li><em>ROOT</em> (the library used by CERN people),</li>
 <li><em>bokeh</em> (open-source package with interactive plots)</li>
 </ul>
@@ -153,7 +155,7 @@
 <dt id="rep.plotting.AbstractPlot.plot">
 <code class="descname">plot</code><span class="sig-paren">(</span><em>new_plot=False</em>, <em>xlim=None</em>, <em>ylim=None</em>, <em>title=None</em>, <em>figsize=None</em>, <em>xlabel=None</em>, <em>ylabel=None</em>, <em>fontsize=None</em>, <em>show_legend=True</em>, <em>grid=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/plotting.html#AbstractPlot.plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.plotting.AbstractPlot.plot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot data using matplotlib library. Use show() method for matplotlib to see result or</p>
-<div class="highlight-python"><div class="highlight"><pre>%pylab inline
+<div class="highlight-python"><div class="highlight"><pre>%matplotlib inline
 </pre></div>
 </div>
 <p>in IPython to see plot as cell output.</p>
@@ -188,7 +190,6 @@
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>new_plot</strong> (<em>bool</em>) &#8211; create or not new figure</li>
 <li><strong>xlim</strong> (<em>None or tuple(x_min, x_max)</em>) &#8211; x-axis range</li>
 <li><strong>ylim</strong> (<em>None or tuple(y_min, y_max)</em>) &#8211; y-axis range</li>
 <li><strong>title</strong> (<em>None or str</em>) &#8211; title</li>
@@ -197,33 +198,6 @@
 <li><strong>ylabel</strong> (<em>None or str</em>) &#8211; y-axis name</li>
 <li><strong>fontsize</strong> (<em>None or int</em>) &#8211; font size</li>
 <li><strong>show_legend</strong> (<em>bool</em>) &#8211; show or not labels for plots</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="rep.plotting.AbstractPlot.plot_plotly">
-<code class="descname">plot_plotly</code><span class="sig-paren">(</span><em>plotly_filename=None</em>, <em>mpl_type=False</em>, <em>xlim=None</em>, <em>ylim=None</em>, <em>title=None</em>, <em>figsize=None</em>, <em>xlabel=None</em>, <em>ylabel=None</em>, <em>fontsize=None</em>, <em>show_legend=True</em>, <em>grid=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/plotting.html#AbstractPlot.plot_plotly"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.plotting.AbstractPlot.plot_plotly" title="Permalink to this definition">¶</a></dt>
-<dd><p>Plot data using plotly library in IPython</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>plotly_filename</strong> (<em>None or str</em>) &#8211; name for resulting plot file on server (use unique name, else the same plot will be showen)</li>
-<li><strong>mpl_type</strong> (<em>bool</em>) &#8211; use or not plotly converter from matplotlib (experimental parameter)</li>
-<li><strong>xlim</strong> (<em>None or tuple(x_min, x_max)</em>) &#8211; x-axis range</li>
-<li><strong>ylim</strong> (<em>None or tuple(y_min, y_max)</em>) &#8211; y-axis range</li>
-<li><strong>title</strong> (<em>None or str</em>) &#8211; title</li>
-<li><strong>figsize</strong> (<em>None or tuple(weight, height)</em>) &#8211; figure size</li>
-<li><strong>xlabel</strong> (<em>None or str</em>) &#8211; x-axis name</li>
-<li><strong>ylabel</strong> (<em>None or str</em>) &#8211; y-axis name</li>
-<li><strong>fontsize</strong> (<em>None or int</em>) &#8211; font size</li>
-<li><strong>show_legend</strong> (<em>bool</em>) &#8211; show or not labels for plots</li>
-<li><strong>grid</strong> (<em>bool</em>) &#8211; show grid or not</li>
 </ul>
 </td>
 </tr>
@@ -320,28 +294,6 @@
 </tr>
 </tbody>
 </table>
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p>for plotly use</p>
-<ul class="simple">
-<li>&#8216;Greys&#8217;, black to light-grey</li>
-<li>&#8216;YIGnBu&#8217;, white to green to blue to dark-blue</li>
-<li>&#8216;Greens&#8217;, dark-green to light-green</li>
-<li>&#8216;YIOrRd&#8217;, red to orange to gold to tan to white</li>
-<li>&#8216;Bluered&#8217;, bright-blue to purple to bright-red</li>
-<li>&#8216;RdBu&#8217;, blue to red (dim, the default color scale)</li>
-<li>&#8216;Picnic&#8217;, blue to light-blue to white to pink to red</li>
-</ul>
-<p>currently only available from the GUI, a slight alternative to &#8216;Jet&#8217;</p>
-<ul class="last simple">
-<li>&#8216;Portland&#8217;, blue to green to yellow to orange to red (dim)</li>
-<li>&#8216;Jet&#8217;, blue to light-blue to green to yellow to orange to red (bright)</li>
-<li>&#8216;Hot&#8217;, tan to yellow to red to black</li>
-<li>&#8216;Blackbody&#8217;, black to red to yellow to white to light-blue</li>
-<li>&#8216;Earth&#8217;, blue to green to yellow to brown to tan to white</li>
-<li>&#8216;Electric&#8217;, black to purple to orange to yellow to tan to white</li>
-</ul>
-</div>
 </dd></dl>
 
 <dl class="class">
@@ -394,12 +346,12 @@
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>errors</strong> (<em>dict[str, tuple(array, array, array, array)]</em>) &#8211; name - x points, y points, y errors, x errors</li>
 <li><strong>size</strong> (<em>int</em>) &#8211; size of scatters</li>
+<li><strong>log</strong> (<em>bool</em>) &#8211; logarithm scaling</li>
 </ul>
 </td>
 </tr>
 </tbody>
 </table>
-<p>param bool log: logarithm scaling</p>
 </dd></dl>
 
 <dl class="class">
@@ -425,28 +377,6 @@
 </tr>
 </tbody>
 </table>
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p>for plotly use</p>
-<ul class="simple">
-<li>&#8216;Greys&#8217;, black to light-grey</li>
-<li>&#8216;YIGnBu&#8217;, white to green to blue to dark-blue</li>
-<li>&#8216;Greens&#8217;, dark-green to light-green</li>
-<li>&#8216;YIOrRd&#8217;, red to orange to gold to tan to white</li>
-<li>&#8216;Bluered&#8217;, bright-blue to purple to bright-red</li>
-<li>&#8216;RdBu&#8217;, blue to red (dim, the default color scale)</li>
-<li>&#8216;Picnic&#8217;, blue to light-blue to white to pink to red</li>
-</ul>
-<p>currently only available from the GUI, a slight alternative to &#8216;Jet&#8217;</p>
-<ul class="last simple">
-<li>&#8216;Portland&#8217;, blue to green to yellow to orange to red (dim)</li>
-<li>&#8216;Jet&#8217;, blue to light-blue to green to yellow to orange to red (bright)</li>
-<li>&#8216;Hot&#8217;, tan to yellow to red to black</li>
-<li>&#8216;Blackbody&#8217;, black to red to yellow to white to light-blue</li>
-<li>&#8216;Earth&#8217;, blue to green to yellow to brown to tan to white</li>
-<li>&#8216;Electric&#8217;, black to purple to orange to yellow to tan to white</li>
-</ul>
-</div>
 </dd></dl>
 
 <dl class="class">
@@ -468,7 +398,7 @@
 <dt id="rep.plotting.GridPlot">
 <em class="property">class </em><code class="descclassname">rep.plotting.</code><code class="descname">GridPlot</code><span class="sig-paren">(</span><em>columns=3</em>, <em>*plots</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/plotting.html#GridPlot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.plotting.GridPlot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#rep.plotting.AbstractPlot" title="rep.plotting.AbstractPlot"><code class="xref py py-class docutils literal"><span class="pre">rep.plotting.AbstractPlot</span></code></a></p>
-<p>Implements grid plots</p>
+<p>Implements grid of plots (set of plots organized in a grid).</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -487,7 +417,7 @@
 <dt id="rep.plotting.HStackPlot">
 <em class="property">class </em><code class="descclassname">rep.plotting.</code><code class="descname">HStackPlot</code><span class="sig-paren">(</span><em>*plots</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/plotting.html#HStackPlot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.plotting.HStackPlot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#rep.plotting.AbstractPlot" title="rep.plotting.AbstractPlot"><code class="xref py py-class docutils literal"><span class="pre">rep.plotting.AbstractPlot</span></code></a></p>
-<p>Implements horizontal stack plots</p>
+<p>Horizontal stack of plots.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -561,14 +491,9 @@ considered outliers and not tallied in the histogram.</li>
 
 <dl class="function">
 <dt id="rep.plotting.canvas">
-<code class="descclassname">rep.plotting.</code><code class="descname">canvas</code><span class="sig-paren">(</span><em>name='icanvas'</em>, <em>size=(800</em>, <em>600)</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/plotting.html#canvas"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.plotting.canvas" title="Permalink to this definition">¶</a></dt>
-<dd><p>Helper method for creating canvas</p>
-</dd></dl>
-
-<dl class="function">
-<dt id="rep.plotting.default_canvas">
-<code class="descclassname">rep.plotting.</code><code class="descname">default_canvas</code><span class="sig-paren">(</span><em>name='icanvas'</em>, <em>size=(800</em>, <em>600)</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/plotting.html#default_canvas"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.plotting.default_canvas" title="Permalink to this definition">¶</a></dt>
-<dd><p>deprecated</p>
+<code class="descclassname">rep.plotting.</code><code class="descname">canvas</code><span class="sig-paren">(</span><em>name='canvas1'</em>, <em>size=(800</em>, <em>600)</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/plotting.html#canvas"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.plotting.canvas" title="Permalink to this definition">¶</a></dt>
+<dd><p>Helper method for creating canvas
+If canvas with this name already exists, it will be returned</p>
 </dd></dl>
 
 </div>
@@ -580,10 +505,10 @@ considered outliers and not tallied in the histogram.</li>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="utils.html" class="btn btn-neutral float-right" title="Utilities" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="parallel.html" class="btn btn-neutral float-right" title="Parallel computing" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="report.html" class="btn btn-neutral" title="Report for models" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="metrics.html" class="btn btn-neutral" title="Metrics" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -614,7 +539,7 @@ considered outliers and not tallied in the histogram.</li>
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'./',
-            VERSION:'0.6.5',
+            VERSION:'0.6.6',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true

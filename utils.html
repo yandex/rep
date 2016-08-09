@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Utilities &mdash; REP (Reproducible Experiment Platform) 0.6.5 documentation</title>
+  <title>Utilities &mdash; REP (Reproducible Experiment Platform) 0.6.6 documentation</title>
   
 
   
@@ -30,8 +30,9 @@
   
 
   
-    <link rel="top" title="REP (Reproducible Experiment Platform) 0.6.5 documentation" href="index.html"/>
-        <link rel="prev" title="Plotting" href="plotting.html"/> 
+    <link rel="top" title="REP (Reproducible Experiment Platform) 0.6.6 documentation" href="index.html"/>
+        <link rel="next" title="REProducibility" href="reproducibility.html"/>
+        <link rel="prev" title="Data" href="data.html"/> 
 
   
   <script src="_static/js/modernizr.min.js"></script>
@@ -59,7 +60,7 @@
             
             
               <div class="version">
-                0.6.5
+                0.6.6
               </div>
             
           
@@ -81,12 +82,15 @@
             
             
                 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="data.html">Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="estimators.html">Estimators (classification and regression)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="metaml.html">Meta Machine Learning</a></li>
 <li class="toctree-l1"><a class="reference internal" href="report.html">Report for models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metrics.html">Metrics</a></li>
 <li class="toctree-l1"><a class="reference internal" href="plotting.html">Plotting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="parallel.html">Parallel computing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="data.html">Data</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="">Utilities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reproducibility.html">REProducibility</a></li>
 <li class="toctree-l1"><a class="reference external" href="http://nbviewer.ipython.org/github/yandex/rep/tree/master/howto/">Howto notebooks</a></li>
 </ul>
 
@@ -197,32 +201,47 @@ and thus we are computing limits (boundaries of bins).</p>
 <dt id="rep.utils.Flattener">
 <em class="property">class </em><code class="descclassname">rep.utils.</code><code class="descname">Flattener</code><span class="sig-paren">(</span><em>data</em>, <em>sample_weight=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/utils.html#Flattener"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.utils.Flattener" title="Permalink to this definition">¶</a></dt>
 <dd><p>Prepares normalization function for some set of values
-transforms it to uniform distribution from [0, 1]. Example of usage:</p>
+transforms it to uniform distribution from [0, 1].</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>data</strong> (<em>list or numpy.array</em>) &#8211; predictions</li>
 <li><strong>sample_weight</strong> (<em>None or list or numpy.array</em>) &#8211; weights</li>
 </ul>
 </td>
 </tr>
+<tr class="field-even field"><th class="field-name">Return func:</th><td class="field-body"><p class="first last">normalization function</p>
+</td>
+</tr>
 </tbody>
 </table>
+<p>Example of usage:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">normalizer</span> <span class="o">=</span> <span class="n">Flattener</span><span class="p">(</span><span class="n">signal</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">hist</span><span class="p">(</span><span class="n">normalizer</span><span class="p">(</span><span class="n">background</span><span class="p">))</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">hist</span><span class="p">(</span><span class="n">normalizer</span><span class="p">(</span><span class="n">signal</span><span class="p">))</span>
 </pre></div>
 </div>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Return func:</th><td class="field-body">normalization function</td>
-</tr>
-</tbody>
-</table>
+</dd></dl>
+
+<dl class="class">
+<dt id="rep.utils.Stopwatch">
+<em class="property">class </em><code class="descclassname">rep.utils.</code><code class="descname">Stopwatch</code><a class="reference internal" href="_modules/rep/utils.html#Stopwatch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.utils.Stopwatch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Simple tool to measure time.
+If your internet connection is reliable, use %time magic.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">with</span> <span class="n">Stopwatch</span><span class="p">()</span> <span class="k">as</span> <span class="n">timer</span><span class="p">:</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="c"># do something here</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">classifier</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c"># print how much time was spent</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">timer</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="attribute">
+<dt id="rep.utils.Stopwatch.elapsed">
+<code class="descname">elapsed</code><a class="headerlink" href="#rep.utils.Stopwatch.elapsed" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 <dl class="function">
@@ -297,7 +316,7 @@ This is needed for interactive plots, which suffer</p>
 <dl class="function">
 <dt id="rep.utils.check_arrays">
 <code class="descclassname">rep.utils.</code><code class="descname">check_arrays</code><span class="sig-paren">(</span><em>*arrays</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/utils.html#check_arrays"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.utils.check_arrays" title="Permalink to this definition">¶</a></dt>
-<dd><p>Left for consistency version of sklearn.validation.check_arrays</p>
+<dd><p>Left for consistency, version of <cite>sklearn.validation.check_arrays</cite></p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -332,7 +351,16 @@ This is needed for interactive plots, which suffer</p>
 <dl class="function">
 <dt id="rep.utils.fit_metric">
 <code class="descclassname">rep.utils.</code><code class="descname">fit_metric</code><span class="sig-paren">(</span><em>metric</em>, <em>*args</em>, <em>**kargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/utils.html#fit_metric"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.utils.fit_metric" title="Permalink to this definition">¶</a></dt>
-<dd><p>Simple wrapper to fit metrics, which checks if metrics has <cite>fit</cite> method.</p>
+<dd><p>Metric can implement one of two interfaces (function or object).
+This function fits metrics, if it is required (by simply checking presence of fit method).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>metric</strong> &#8211; metric function, following REP conventions</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="function">
@@ -416,47 +444,43 @@ permutation sorts the first passed array</p>
 <dl class="function">
 <dt id="rep.utils.train_test_split">
 <code class="descclassname">rep.utils.</code><code class="descname">train_test_split</code><span class="sig-paren">(</span><em>*arrays</em>, <em>**kw_args</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/utils.html#train_test_split"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.utils.train_test_split" title="Permalink to this definition">¶</a></dt>
-<dd><p>Does the same thing as train_test_split, but preserves columns in DataFrames.
-Uses the same parameters: test_size, train_size, random_state, and has the same interface</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>arrays</strong> (<em>list[numpy.array] or list[pandas.DataFrame]</em>) &#8211; arrays to split</td>
-</tr>
-</tbody>
-</table>
-<p>:param bool allow_none, default False (specially for sample_weight - both to None)</p>
-</dd></dl>
-
-<dl class="function">
-<dt id="rep.utils.train_test_split_group">
-<code class="descclassname">rep.utils.</code><code class="descname">train_test_split_group</code><span class="sig-paren">(</span><em>group_column</em>, <em>*arrays</em>, <em>**kw_args</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/utils.html#train_test_split_group"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.utils.train_test_split_group" title="Permalink to this definition">¶</a></dt>
-<dd><p>Does the same thing as train_test_split, but preserves names of columns in DataFrames.
-Uses the same parameters: test_size, train_size, random_state, and has almost the same interface</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>group_column</strong> &#8211; array-like of shape [n_samples] with indices of groups,</td>
-</tr>
-</tbody>
-</table>
-<p>events from one group will be kept together (all events in train or all events in test).
-If <cite>group_column</cite> is used, train_size and test_size will refer to number of groups, not events</p>
+<dd><p>Does the same thing as sklearn.cross_validation.train_test_split.
+Additionally has &#8216;allow_none&#8217; parameter.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>arrays</strong> (<em>list[numpy.array] or list[pandas.DataFrame]</em>) &#8211; arrays to split</li>
-<li><strong>allow_none</strong> (<em>bool</em>) &#8211; default False</li>
+<li><strong>arrays</strong> (<em>list[numpy.array] or list[pandas.DataFrame]</em>) &#8211; arrays to split with same first dimension</li>
+<li><strong>allow_none</strong> (<em>bool</em>) &#8211; default False, is set to True, allows
+non-first arguments to be None (in this case, both resulting train and test parts are None).</li>
 </ul>
 </td>
 </tr>
 </tbody>
 </table>
-<p>(specially for sample_weight - after splitting train and test of <cite>None</cite> are <cite>None</cite> too)</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="rep.utils.train_test_split_group">
+<code class="descclassname">rep.utils.</code><code class="descname">train_test_split_group</code><span class="sig-paren">(</span><em>group_column</em>, <em>*arrays</em>, <em>**kw_args</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/utils.html#train_test_split_group"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.utils.train_test_split_group" title="Permalink to this definition">¶</a></dt>
+<dd><p>Modification of <a class="reference internal" href="#rep.utils.train_test_split" title="rep.utils.train_test_split"><code class="xref py py-class docutils literal"><span class="pre">train_test_split</span></code></a> which alters splitting rule.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>group_column</strong> &#8211; array-like of shape [n_samples] with indices of groups,
+events from one group will be kept together (all events in train or all events in test).
+If <cite>group_column</cite> is used, train_size and test_size will refer to number of groups, not events</li>
+<li><strong>arrays</strong> (<em>list[numpy.array] or list[pandas.DataFrame]</em>) &#8211; arrays to split</li>
+<li><strong>allow_none</strong> (<em>bool</em>) &#8211; default False
+(useful for sample_weight - after splitting train and test of <cite>None</cite> are again <cite>None</cite>)</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="function">
@@ -482,6 +506,7 @@ but it is inefficient and performs complete sorting.</p>
 </tr>
 </tbody>
 </table>
+<p>Example:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">weighted_quantile</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.5</span><span class="p">])</span>
 <span class="go">Out: array([ 3.])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">weighted_quantile</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.5</span><span class="p">],</span> <span class="n">sample_weight</span><span class="o">=</span><span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
@@ -499,8 +524,10 @@ but it is inefficient and performs complete sorting.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
+        <a href="reproducibility.html" class="btn btn-neutral float-right" title="REProducibility" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
       
-        <a href="plotting.html" class="btn btn-neutral" title="Plotting" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+        <a href="data.html" class="btn btn-neutral" title="Data" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -531,7 +558,7 @@ but it is inefficient and performs complete sorting.</p>
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'./',
-            VERSION:'0.6.5',
+            VERSION:'0.6.6',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true

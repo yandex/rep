@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Meta Machine Learning &mdash; REP (Reproducible Experiment Platform) 0.6.5 documentation</title>
+  <title>Meta Machine Learning &mdash; REP (Reproducible Experiment Platform) 0.6.6 documentation</title>
   
 
   
@@ -30,7 +30,7 @@
   
 
   
-    <link rel="top" title="REP (Reproducible Experiment Platform) 0.6.5 documentation" href="index.html"/>
+    <link rel="top" title="REP (Reproducible Experiment Platform) 0.6.6 documentation" href="index.html"/>
         <link rel="next" title="Report for models" href="report.html"/>
         <link rel="prev" title="Estimators (classification and regression)" href="estimators.html"/> 
 
@@ -60,7 +60,7 @@
             
             
               <div class="version">
-                0.6.5
+                0.6.6
               </div>
             
           
@@ -82,7 +82,6 @@
             
             
                 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="data.html">Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="estimators.html">Estimators (classification and regression)</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="">Meta Machine Learning</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#module-rep.metaml.factory">Factory</a></li>
@@ -95,12 +94,20 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#module-rep.metaml.folding">Folding</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-rep.metaml.cache">Cache</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#example-of-usage">Example of usage</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="#module-rep.metaml.stacking">Stacking</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="report.html">Report for models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metrics.html">Metrics</a></li>
 <li class="toctree-l1"><a class="reference internal" href="plotting.html">Plotting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="parallel.html">Parallel computing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="data.html">Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="utils.html">Utilities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reproducibility.html">REProducibility</a></li>
 <li class="toctree-l1"><a class="reference external" href="http://nbviewer.ipython.org/github/yandex/rep/tree/master/howto/">Howto notebooks</a></li>
 </ul>
 
@@ -148,140 +155,18 @@
             
   <div class="section" id="meta-machine-learning">
 <span id="metaml"></span><h1>Meta Machine Learning<a class="headerlink" href="#meta-machine-learning" title="Permalink to this headline">¶</a></h1>
-<p>Meta machine learning is specific algorithms, like complicated hierarchical algorithm, hyperparameters optimization parameters.
-Also there is Factory which allows you to train set of models and compare them very simply.</p>
+<p>Meta machine learning contains specific ML-algorithms, that are taking some classification/regression model as an input.</p>
+<p>Also there is a Factory which allows set of models training and comparing them very simply.</p>
 <div class="section" id="module-rep.metaml.factory">
 <span id="factory"></span><h2>Factory<a class="headerlink" href="#module-rep.metaml.factory" title="Permalink to this headline">¶</a></h2>
 <p><strong>Factory</strong> provides convenient way to train several classifiers on the same dataset.
 These classifiers can be trained one-by-one in a single thread, or simultaneously
 with IPython cluster or in several threads.</p>
-<p>Also <cite>Factory</cite> allows comparison of several classifiers (predictions of which can be used in parallel).</p>
-<dl class="class">
-<dt id="rep.metaml.factory.AbstractFactory">
-<em class="property">class </em><code class="descclassname">rep.metaml.factory.</code><code class="descname">AbstractFactory</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwds</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/metaml/factory.html#AbstractFactory"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.metaml.factory.AbstractFactory" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">collections.OrderedDict</span></code></p>
-<p>Factory provides interface to train simultaneously several estimators (classifiers or regressors).
-Later their quality can be compared.</p>
-<blockquote>
-<div></div></blockquote>
-<p>Initialize an ordered dictionary.  The signature is the same as
-regular dictionaries, but keyword arguments are not recommended because
-their insertion order is arbitrary.</p>
-<dl class="method">
-<dt id="rep.metaml.factory.AbstractFactory.fit">
-<code class="descname">fit</code><span class="sig-paren">(</span><em>X</em>, <em>y</em>, <em>sample_weight=None</em>, <em>parallel_profile=None</em>, <em>features=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/metaml/factory.html#AbstractFactory.fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.metaml.factory.AbstractFactory.fit" title="Permalink to this definition">¶</a></dt>
-<dd><p>Train all estimators on the same data.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>X</strong> &#8211; pandas.DataFrame of shape [n_samples, n_features] with features</li>
-<li><strong>y</strong> &#8211; array-like of shape [n_samples] with labels of samples</li>
-<li><strong>sample_weight</strong> &#8211; weights of events,
-array-like of shape [n_samples] or None if all weights are equal</li>
-<li><strong>features</strong> (<em>None or list[str]</em>) &#8211; features to train estimators
-If None, estimators will be trained on <cite>estimator.features</cite></li>
-<li><strong>parallel_profile</strong> (<em>None or str</em>) &#8211; profile of parallel execution system or None</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">self</p>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="rep.metaml.factory.AbstractFactory.fit_lds">
-<code class="descname">fit_lds</code><span class="sig-paren">(</span><em>lds</em>, <em>parallel_profile=None</em>, <em>features=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/metaml/factory.html#AbstractFactory.fit_lds"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.metaml.factory.AbstractFactory.fit_lds" title="Permalink to this definition">¶</a></dt>
-<dd><p>Fit all estimators on the same dataset.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>lds</strong> (<a class="reference internal" href="data.html#rep.data.storage.LabeledDataStorage" title="rep.data.storage.LabeledDataStorage"><em>LabeledDataStorage</em></a>) &#8211; dataset</li>
-<li><strong>features</strong> &#8211; features to train estimators
-If None, estimators will be trained on <cite>estimator.features</cite></li>
-<li><strong>parallel_profile</strong> (<em>None or str</em>) &#8211; profile of parallel execution system or None</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">self</p>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="rep.metaml.factory.AbstractFactory.predict">
-<code class="descname">predict</code><span class="sig-paren">(</span><em>X</em>, <em>parallel_profile=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/metaml/factory.html#AbstractFactory.predict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.metaml.factory.AbstractFactory.predict" title="Permalink to this definition">¶</a></dt>
-<dd><p>Predict labels (or values for regressors) for all events in dataset.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>X</strong> &#8211; pandas.DataFrame of shape [n_samples, n_features]</li>
-<li><strong>parallel_profile</strong> (<em>None or str</em>) &#8211; profile of parallel execution system or None</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">OrderedDict[numpy.array of shape [n_samples] with integer labels (or values)]</p>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="rep.metaml.factory.AbstractFactory.test_on">
-<code class="descname">test_on</code><span class="sig-paren">(</span><em>X</em>, <em>y</em>, <em>sample_weight=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/metaml/factory.html#AbstractFactory.test_on"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.metaml.factory.AbstractFactory.test_on" title="Permalink to this definition">¶</a></dt>
-<dd><p>Prepare report for factory (comparison of all models).</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>X</strong> &#8211; pandas.DataFrame of shape [n_samples, n_features] with features</li>
-<li><strong>y</strong> &#8211; numpy.array of shape [n_samples] with targets</li>
-<li><strong>sample_weight</strong> &#8211; weight of events,
-array-like of shape [n_samples] or None if all weights are equal</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">rep.report.classification.ClassificationReport or rep.report.regression.RegressionReport</p>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="rep.metaml.factory.AbstractFactory.test_on_lds">
-<code class="descname">test_on_lds</code><span class="sig-paren">(</span><em>lds</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/metaml/factory.html#AbstractFactory.test_on_lds"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.metaml.factory.AbstractFactory.test_on_lds" title="Permalink to this definition">¶</a></dt>
-<dd><p>Prepare report for factory (comparison of all models).</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>lds</strong> (<a class="reference internal" href="data.html#rep.data.storage.LabeledDataStorage" title="rep.data.storage.LabeledDataStorage"><em>LabeledDataStorage</em></a>) &#8211; data</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">rep.report.classification.ClassificationReport or rep.report.regression.RegressionReport</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-</dd></dl>
-
+<p>Also <code class="xref py py-class docutils literal"><span class="pre">Factory</span></code> allows comparison of several classifiers (predictions of which can be computed again in parallel).</p>
 <dl class="class">
 <dt id="rep.metaml.factory.ClassifiersFactory">
 <em class="property">class </em><code class="descclassname">rep.metaml.factory.</code><code class="descname">ClassifiersFactory</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwds</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/metaml/factory.html#ClassifiersFactory"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.metaml.factory.ClassifiersFactory" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#rep.metaml.factory.AbstractFactory" title="rep.metaml.factory.AbstractFactory"><code class="xref py py-class docutils literal"><span class="pre">rep.metaml.factory.AbstractFactory</span></code></a></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">rep.metaml.factory.AbstractFactory</span></code></p>
 <p>Factory provides training of several classifiers in parallel.
 Quality of trained classifiers can be compared.</p>
 <p>Initialize an ordered dictionary.  The signature is the same as
@@ -302,9 +187,9 @@ If name coincides with one already used, the old classifier will be replaced by 
 <li><strong>classifier</strong> (<em>sklearn.base.BaseEstimator or estimators.interface.Classifier</em>) &#8211; <p>classifier object</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">if type == sklearn.base.BaseEstimator, then features=None is used,</p>
+<p class="last">if type == sklearn.base.BaseEstimator, then features=None is used,
+to specify features used by classifier, wrap it with <code class="xref py py-class docutils literal"><span class="pre">SklearnClassifier</span></code></p>
 </div>
-<p>to specify features used by classifier, wrap it with <cite>SklearnClassifier</cite></p>
 </li>
 </ul>
 </td>
@@ -392,7 +277,7 @@ If name coincides with one already used, the old classifier will be replaced by 
 <dl class="class">
 <dt id="rep.metaml.factory.RegressorsFactory">
 <em class="property">class </em><code class="descclassname">rep.metaml.factory.</code><code class="descname">RegressorsFactory</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwds</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/metaml/factory.html#RegressorsFactory"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.metaml.factory.RegressorsFactory" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#rep.metaml.factory.AbstractFactory" title="rep.metaml.factory.AbstractFactory"><code class="xref py py-class docutils literal"><span class="pre">rep.metaml.factory.AbstractFactory</span></code></a></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">rep.metaml.factory.AbstractFactory</span></code></p>
 <p>Factory provides training of several classifiers in parallel.
 Quality of trained regressors can be compared.</p>
 <p>Initialize an ordered dictionary.  The signature is the same as
@@ -412,7 +297,8 @@ If name coincides with one already used, the old regressor will be replaced by o
 <li><strong>regressor</strong> (<em>sklearn.base.BaseEstimator or estimators.interface.Regressor</em>) &#8211; <p>regressor object</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">if type == sklearn.base.BaseEstimator, then features=None is used</p>
+<p class="last">if type == sklearn.base.BaseEstimator, then features=None is used,
+to specify features used by regressor, wrap it first with <code class="xref py py-class docutils literal"><span class="pre">SklearnRegressor</span></code></p>
 </div>
 </li>
 </ul>
@@ -475,58 +361,6 @@ If name coincides with one already used, the old regressor will be replaced by o
 </table>
 </dd></dl>
 
-</dd></dl>
-
-<dl class="function">
-<dt id="rep.metaml.factory.predict_estimator">
-<code class="descclassname">rep.metaml.factory.</code><code class="descname">predict_estimator</code><span class="sig-paren">(</span><em>name</em>, <em>estimator</em>, <em>X</em>, <em>prediction_type='classification'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/metaml/factory.html#predict_estimator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.metaml.factory.predict_estimator" title="Permalink to this definition">¶</a></dt>
-<dd><p>Supplementary function.
-Builds predictions for one estimator on a separate node (or in a separate thread)</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>name</strong> (<em>str</em>) &#8211; classifier name</li>
-<li><strong>estimator</strong> (<em>Classifier or Regressor</em>) &#8211; estimator</li>
-<li><strong>X</strong> &#8211; pandas.DataFrame of shape [n_samples, n_features]</li>
-<li><strong>prediction_type</strong> (<em>str</em>) &#8211; &#8216;classification&#8217; or &#8216;regression&#8217; or &#8216;classification-proba&#8217;</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">(&#8216;success&#8217;, (name (str), probabilities (numpy.array), time (int) )) or
-(&#8216;fail&#8217;, (name (str), pid (int), socket (int), error (Exception) ))</p>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="function">
-<dt id="rep.metaml.factory.train_estimator">
-<code class="descclassname">rep.metaml.factory.</code><code class="descname">train_estimator</code><span class="sig-paren">(</span><em>name</em>, <em>estimator</em>, <em>X</em>, <em>y</em>, <em>sample_weight=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/metaml/factory.html#train_estimator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.metaml.factory.train_estimator" title="Permalink to this definition">¶</a></dt>
-<dd><p>Supplementary function.
-Trains estimator on a separate node (or in a separate thread)</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>name</strong> (<em>str</em>) &#8211; classifier name</li>
-<li><strong>estimator</strong> (<em>Classifier or Regressor</em>) &#8211; estimator</li>
-<li><strong>X</strong> &#8211; pandas.DataFrame of shape [n_samples, n_features]</li>
-<li><strong>y</strong> &#8211; labels of events - array-like of shape [n_samples]</li>
-<li><strong>sample_weight</strong> &#8211; weight of events,
-array-like of shape [n_samples] or None if all weights are equal</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">(&#8216;success&#8217;, (name (str), estimator (Classifier or Regressor), time (int) )) or
-(&#8216;fail&#8217;, (name (str), pid (int), socket (int), error (Exception) ))</p>
-</td>
-</tr>
-</tbody>
-</table>
 </dd></dl>
 
 </div>
@@ -595,7 +429,7 @@ array-like of shape [n_samples] or None if all weights are equal</li>
 Components of optimization:</p>
 <ul class="simple">
 <li>estimator (for which optimal parameters are searched, any REP classifier will work, see <code class="xref py py-mod docutils literal"><span class="pre">rep.estimators</span></code>)</li>
-<li>target metric function (which is maximized, anything meeting REP metric interface, see <a class="reference internal" href="report.html#module-rep.report.metrics" title="rep.report.metrics"><code class="xref py py-mod docutils literal"><span class="pre">rep.report.metrics</span></code></a>)</li>
+<li>target metric function (which is maximized, anything meeting REP metric interface, see <a class="reference internal" href="metrics.html#module-rep.report.metrics" title="rep.report.metrics"><code class="xref py py-mod docutils literal"><span class="pre">rep.report.metrics</span></code></a>)</li>
 <li>optimization algorithm (introduced in this module)</li>
 <li>cross-validation technique (kFolding, introduced in this module)</li>
 </ul>
@@ -632,6 +466,7 @@ A new object of that type is cloned for each point.</li>
 </tr>
 </tbody>
 </table>
+<p><strong>Attributes</strong>:</p>
 <p>generator: return grid parameter generator</p>
 <dl class="method">
 <dt id="rep.metaml.gridsearch.GridOptimalSearchCV.fit">
@@ -720,6 +555,20 @@ array-like of shape [n_samples] or None if all weights are equal</li>
 <span class="go">0.5</span>
 </pre></div>
 </div>
+<p>Scorer, which implements logic of data folding and scoring. This is a function-like object</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>folds</strong> (<em>int</em>) &#8211; &#8216;k&#8217; used in k-folding while validating</li>
+<li><strong>fold_checks</strong> (<em>int</em>) &#8211; not greater than folds, the number of checks we do by cross-validating</li>
+<li><strong>score_function</strong> (<em>function</em>) &#8211; quality. if fold_checks &gt; 1, the average is computed over checks.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="class">
@@ -754,6 +603,20 @@ array-like of shape [n_samples] or None if all weights are equal</li>
 <span class="go">0.5</span>
 </pre></div>
 </div>
+<p>Scorer, which implements logic of data folding and scoring. This is a function-like object</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>folds</strong> (<em>int</em>) &#8211; &#8216;k&#8217; used in k-folding while validating</li>
+<li><strong>fold_checks</strong> (<em>int</em>) &#8211; not greater than folds, the number of checks we do by cross-validating</li>
+<li><strong>score_function</strong> (<em>function</em>) &#8211; quality. if fold_checks &gt; 1, the average is computed over checks.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 </div>
@@ -797,13 +660,13 @@ name -&gt; distribution (should implement &#8216;.rvs()&#8217; as scipy distribu
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>param_grid</strong> &#8211; the grid with parameters to optimize on</li>
 <li><strong>n_evaluations</strong> (<em>int</em>) &#8211; the number od evaluations</li>
-<li><strong>temperature</strong> &#8211; float, how tolerant we are to worse results.</li>
+<li><strong>temperature</strong> &#8211; float, how tolerant we are to worse results.
+If temperature is very small, algorithm never steps to point with worse predictions.</li>
 </ul>
 </td>
 </tr>
 </tbody>
 </table>
-<p>If it is very small, will never step to point with worse predictions.</p>
 <p>Doesn&#8217;t support parallel execution, so cannot be used in optimization on cluster.</p>
 <dl class="method">
 <dt id="rep.metaml.gridsearch.AnnealingParameterOptimizer.generate_batch_points">
@@ -912,7 +775,7 @@ You can define your own algorithm of step location of parameters grid.</p>
 </table>
 <dl class="method">
 <dt id="rep.metaml.gridsearch.AbstractParameterGenerator.add_result">
-<code class="descname">add_result</code><span class="sig-paren">(</span><em>state_indices</em>, <em>value</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.metaml.gridsearch.AbstractParameterGenerator.add_result" title="Permalink to this definition">¶</a></dt>
+<code class="descname">add_result</code><span class="sig-paren">(</span><em>state_indices</em>, <em>value</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/metaml/gridsearch.html#AbstractParameterGenerator.add_result"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.metaml.gridsearch.AbstractParameterGenerator.add_result" title="Permalink to this definition">¶</a></dt>
 <dd><p>After the model was trained and evaluated for specific set of parameters,
 we use this function to store result
 :param state_indices: tuple, which represents the space
@@ -933,7 +796,7 @@ we use this function to store result
 
 <dl class="method">
 <dt id="rep.metaml.gridsearch.AbstractParameterGenerator.generate_batch_points">
-<code class="descname">generate_batch_points</code><span class="sig-paren">(</span><em>size</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.metaml.gridsearch.AbstractParameterGenerator.generate_batch_points" title="Permalink to this definition">¶</a></dt>
+<code class="descname">generate_batch_points</code><span class="sig-paren">(</span><em>size</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/metaml/gridsearch.html#AbstractParameterGenerator.generate_batch_points"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.metaml.gridsearch.AbstractParameterGenerator.generate_batch_points" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate several points in parameter space at once (needed when using parallel computations)</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -949,14 +812,14 @@ we use this function to store result
 
 <dl class="method">
 <dt id="rep.metaml.gridsearch.AbstractParameterGenerator.generate_next_point">
-<code class="descname">generate_next_point</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#rep.metaml.gridsearch.AbstractParameterGenerator.generate_next_point" title="Permalink to this definition">¶</a></dt>
+<code class="descname">generate_next_point</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/metaml/gridsearch.html#AbstractParameterGenerator.generate_next_point"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.metaml.gridsearch.AbstractParameterGenerator.generate_next_point" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generating next random point in parameters space
 :return: tuple (indices, parameters)</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="rep.metaml.gridsearch.AbstractParameterGenerator.print_results">
-<code class="descname">print_results</code><span class="sig-paren">(</span><em>reorder=True</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.metaml.gridsearch.AbstractParameterGenerator.print_results" title="Permalink to this definition">¶</a></dt>
+<code class="descname">print_results</code><span class="sig-paren">(</span><em>reorder=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/metaml/gridsearch.html#AbstractParameterGenerator.print_results"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.metaml.gridsearch.AbstractParameterGenerator.print_results" title="Permalink to this definition">¶</a></dt>
 <dd><p>Prints the results of training</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -975,23 +838,26 @@ otherwise the results are printed in the order of computation</td>
 </div>
 <div class="section" id="module-rep.metaml.folding">
 <span id="folding"></span><h2>Folding<a class="headerlink" href="#module-rep.metaml.folding" title="Permalink to this headline">¶</a></h2>
-<p>This is specific meta-algorithm based on the idea of cross-validation.</p>
+<p><a class="reference internal" href="#rep.metaml.folding.FoldingClassifier" title="rep.metaml.folding.FoldingClassifier"><code class="xref py py-class docutils literal"><span class="pre">FoldingClassifier</span></code></a> and <a class="reference internal" href="#rep.metaml.folding.FoldingRegressor" title="rep.metaml.folding.FoldingRegressor"><code class="xref py py-class docutils literal"><span class="pre">FoldingRegressor</span></code></a> provide an easy way
+to run k-Folding cross-validation. Also it is a nice way to combine predictions of trained classifiers.</p>
 <dl class="class">
 <dt id="rep.metaml.folding.FoldingClassifier">
 <em class="property">class </em><code class="descclassname">rep.metaml.folding.</code><code class="descname">FoldingClassifier</code><span class="sig-paren">(</span><em>base_estimator</em>, <em>n_folds=2</em>, <em>random_state=None</em>, <em>features=None</em>, <em>parallel_profile=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/metaml/folding.html#FoldingClassifier"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.metaml.folding.FoldingClassifier" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">rep.metaml.folding.FoldingBase</span></code>, <a class="reference internal" href="estimators.html#rep.estimators.interface.Classifier" title="rep.estimators.interface.Classifier"><code class="xref py py-class docutils literal"><span class="pre">rep.estimators.interface.Classifier</span></code></a></p>
 <p>This meta-classifier implements folding algorithm:</p>
 <ul class="simple">
-<li>training data is splitted into n equal parts;</li>
-<li>we train n classifiers, each one is trained using n-1 folds</li>
+<li>split training data into n equal parts;</li>
+<li>train n classifiers, each one is trained using n-1 folds</li>
 </ul>
-<p>To build unbiased predictions for data, pass the <strong>same</strong> dataset (with same order of events)
-as in training to <cite>predict</cite>, <cite>predict_proba</cite> or <cite>staged_predict_proba</cite>, in which case
-classifier will use to predict each event that base classifier which didn&#8217;t use that event during training.</p>
+<p>To get unbiased predictions for data, pass the <strong>same</strong> dataset (with same order of events)
+as in training to prediction methods,
+in which case each event is predicted with base classifier which didn&#8217;t use that event during training.</p>
 <p>To use information from not one, but several estimators during predictions,
-provide appropriate voting function. Examples of voting function:
-&gt;&gt;&gt; voting = lambda x: numpy.mean(x, axis=0)
-&gt;&gt;&gt; voting = lambda x: numpy.median(x, axis=0)</p>
+provide appropriate voting function. Examples of voting function:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">voting</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">voting</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+</pre></div>
+</div>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -1015,8 +881,29 @@ This returned as numpy.array, assuming that initially passed train_features=None
 </dd></dl>
 
 <dl class="method">
+<dt id="rep.metaml.folding.FoldingClassifier.fit">
+<code class="descname">fit</code><span class="sig-paren">(</span><em>X</em>, <em>y</em>, <em>sample_weight=None</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.metaml.folding.FoldingClassifier.fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Train the model, will train several base classifiers on overlapping
+subsets of training dataset.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>X</strong> &#8211; pandas.DataFrame of shape [n_samples, n_features]</li>
+<li><strong>y</strong> &#8211; labels of events - array-like of shape [n_samples]</li>
+<li><strong>sample_weight</strong> &#8211; weight of events,
+array-like of shape [n_samples] or None if all weights are equal</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
 <dt id="rep.metaml.folding.FoldingClassifier.get_feature_importances">
-<code class="descname">get_feature_importances</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/metaml/folding.html#FoldingClassifier.get_feature_importances"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.metaml.folding.FoldingClassifier.get_feature_importances" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_feature_importances</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#rep.metaml.folding.FoldingClassifier.get_feature_importances" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get features importance</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -1030,7 +917,7 @@ This returned as numpy.array, assuming that initially passed train_features=None
 
 <dl class="method">
 <dt id="rep.metaml.folding.FoldingClassifier.predict">
-<code class="descname">predict</code><span class="sig-paren">(</span><em>X</em>, <em>vote_function=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/metaml/folding.html#FoldingClassifier.predict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.metaml.folding.FoldingClassifier.predict" title="Permalink to this definition">¶</a></dt>
+<code class="descname">predict</code><span class="sig-paren">(</span><em>X</em>, <em>vote_function=None</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.metaml.folding.FoldingClassifier.predict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Predict labels. To get unbiased predictions on training dataset, pass training data
 (with same order of events) and vote_function=None.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -1053,7 +940,7 @@ If None then folding scheme is used.</li>
 
 <dl class="method">
 <dt id="rep.metaml.folding.FoldingClassifier.predict_proba">
-<code class="descname">predict_proba</code><span class="sig-paren">(</span><em>X</em>, <em>vote_function=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/metaml/folding.html#FoldingClassifier.predict_proba"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.metaml.folding.FoldingClassifier.predict_proba" title="Permalink to this definition">¶</a></dt>
+<code class="descname">predict_proba</code><span class="sig-paren">(</span><em>X</em>, <em>vote_function=None</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.metaml.folding.FoldingClassifier.predict_proba" title="Permalink to this definition">¶</a></dt>
 <dd><p>Predict probabilities. To get unbiased predictions on training dataset, pass training data
 (with same order of events) and vote_function=None.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -1076,7 +963,7 @@ If None then folding scheme is used.</li>
 
 <dl class="method">
 <dt id="rep.metaml.folding.FoldingClassifier.staged_predict_proba">
-<code class="descname">staged_predict_proba</code><span class="sig-paren">(</span><em>X</em>, <em>vote_function=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/metaml/folding.html#FoldingClassifier.staged_predict_proba"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.metaml.folding.FoldingClassifier.staged_predict_proba" title="Permalink to this definition">¶</a></dt>
+<code class="descname">staged_predict_proba</code><span class="sig-paren">(</span><em>X</em>, <em>vote_function=None</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.metaml.folding.FoldingClassifier.staged_predict_proba" title="Permalink to this definition">¶</a></dt>
 <dd><p>Predict probabilities after each stage of base_estimator.
 To get unbiased predictions on training dataset, pass training data
 (with same order of events) and vote_function=None.</p>
@@ -1106,16 +993,18 @@ If None then folding scheme is used.</li>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">rep.metaml.folding.FoldingBase</span></code>, <a class="reference internal" href="estimators.html#rep.estimators.interface.Regressor" title="rep.estimators.interface.Regressor"><code class="xref py py-class docutils literal"><span class="pre">rep.estimators.interface.Regressor</span></code></a></p>
 <p>This meta-regressor implements folding algorithm:</p>
 <ul class="simple">
-<li>training data is splitted into n equal parts;</li>
-<li>we train n regressors, each one is trained using n-1 folds</li>
+<li>split training data into n equal parts;</li>
+<li>train n regressors, each one is trained using n-1 folds</li>
 </ul>
-<p>To build unbiased predictions for data, pass the <strong>same</strong> dataset (with same order of events)
-as in training to <cite>predict</cite> or <cite>staged_predict</cite>, in which case
-classifier will use to predict each event that base classifier which didn&#8217;t use that event during training.</p>
+<p>To get unbiased predictions for data, pass the <strong>same</strong> dataset (with same order of events)
+as in training to prediction methods,
+in which case each event is predicted with base regressor which didn&#8217;t use that event during training.</p>
 <p>To use information from not one, but several estimators during predictions,
-provide appropriate voting function. Examples of voting function:
-&gt;&gt;&gt; voting = lambda x: numpy.mean(x, axis=0)
-&gt;&gt;&gt; voting = lambda x: numpy.median(x, axis=0)</p>
+provide appropriate voting function. Examples of voting function:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">voting</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">voting</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+</pre></div>
+</div>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -1139,8 +1028,29 @@ This returned as numpy.array, assuming that initially passed train_features=None
 </dd></dl>
 
 <dl class="method">
+<dt id="rep.metaml.folding.FoldingRegressor.fit">
+<code class="descname">fit</code><span class="sig-paren">(</span><em>X</em>, <em>y</em>, <em>sample_weight=None</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.metaml.folding.FoldingRegressor.fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Train the model, will train several base regressors on overlapping
+subsets of training dataset.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>X</strong> &#8211; pandas.DataFrame of shape [n_samples, n_features]</li>
+<li><strong>y</strong> &#8211; labels of events - array-like of shape [n_samples]</li>
+<li><strong>sample_weight</strong> &#8211; weight of events,
+array-like of shape [n_samples] or None if all weights are equal</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
 <dt id="rep.metaml.folding.FoldingRegressor.get_feature_importances">
-<code class="descname">get_feature_importances</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/metaml/folding.html#FoldingRegressor.get_feature_importances"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.metaml.folding.FoldingRegressor.get_feature_importances" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_feature_importances</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#rep.metaml.folding.FoldingRegressor.get_feature_importances" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get features importance</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -1154,7 +1064,7 @@ This returned as numpy.array, assuming that initially passed train_features=None
 
 <dl class="method">
 <dt id="rep.metaml.folding.FoldingRegressor.predict">
-<code class="descname">predict</code><span class="sig-paren">(</span><em>X</em>, <em>vote_function=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/metaml/folding.html#FoldingRegressor.predict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.metaml.folding.FoldingRegressor.predict" title="Permalink to this definition">¶</a></dt>
+<code class="descname">predict</code><span class="sig-paren">(</span><em>X</em>, <em>vote_function=None</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.metaml.folding.FoldingRegressor.predict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get predictions. To get unbiased predictions on training dataset, pass training data
 (with same order of events) and vote_function=None.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -1177,7 +1087,7 @@ If None then folding scheme is used. Parameters: numpy.ndarray [n_classifiers, n
 
 <dl class="method">
 <dt id="rep.metaml.folding.FoldingRegressor.staged_predict">
-<code class="descname">staged_predict</code><span class="sig-paren">(</span><em>X</em>, <em>vote_function=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/metaml/folding.html#FoldingRegressor.staged_predict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.metaml.folding.FoldingRegressor.staged_predict" title="Permalink to this definition">¶</a></dt>
+<code class="descname">staged_predict</code><span class="sig-paren">(</span><em>X</em>, <em>vote_function=None</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.metaml.folding.FoldingRegressor.staged_predict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get predictions after each iteration of base estimator.
 To get unbiased predictions on training dataset, pass training data
 (with same order of events) and vote_function=None.</p>
@@ -1202,9 +1112,102 @@ If None then folding scheme is used. Parameters: numpy.ndarray [n_classifiers, n
 </dd></dl>
 
 </div>
+<div class="section" id="module-rep.metaml.cache">
+<span id="cache"></span><h2>Cache<a class="headerlink" href="#module-rep.metaml.cache" title="Permalink to this headline">¶</a></h2>
+<p>In many cases training a classification/regression takes hours.
+To avoid retraining at each step, one can store trained classifier in a file,
+and later load trained model.</p>
+<p>However, in this case user should care about situations when something changed in the pipeline
+(for instance, train/test splitting) manually.</p>
+<p>Cache estimators are lazy way to store trained model.
+After training, classifier/regressor is stored in the file under specific name (which was passed in constructor).</p>
+<p>On the next runs following conditions are checked:</p>
+<ul class="simple">
+<li>model has the same name</li>
+<li>model trained has exactly same parameters</li>
+<li>model is trained using exactly the same data</li>
+<li>stored copy in not too old (10 days by default)</li>
+</ul>
+<p>If all the conditions satisfied, stored copy is loaded, otherwise classifier/regressor is fitted.</p>
+<div class="section" id="example-of-usage">
+<h3>Example of usage<a class="headerlink" href="#example-of-usage" title="Permalink to this headline">¶</a></h3>
+<p><a class="reference internal" href="#rep.metaml.cache.CacheClassifier" title="rep.metaml.cache.CacheClassifier"><code class="xref py py-class docutils literal"><span class="pre">CacheClassifier</span></code></a> and <a class="reference internal" href="#rep.metaml.cache.CacheRegressor" title="rep.metaml.cache.CacheRegressor"><code class="xref py py-class docutils literal"><span class="pre">CacheRegressor</span></code></a> work as meta-estimators</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">rep.estimators</span> <span class="kn">import</span> <span class="n">XGBoostClassifier</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">rep.metaml</span> <span class="kn">import</span> <span class="n">FoldingClassifier</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">rep.metaml.cache</span> <span class="kn">import</span> <span class="n">CacheClassifier</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">clf</span> <span class="o">=</span> <span class="n">CacheClassifier</span><span class="p">(</span><span class="s">&#39;xgboost folding&#39;</span><span class="p">,</span> <span class="n">FoldingClassifier</span><span class="p">(</span><span class="n">XGBoostClassifier</span><span class="p">(),</span> <span class="n">n_folds</span><span class="o">=</span><span class="mi">3</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c"># this works normally</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">clf</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">clf</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">testX</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>However in the following situation:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">clf</span> <span class="o">=</span> <span class="n">FoldingClassifier</span><span class="p">(</span><span class="n">CacheClassifier</span><span class="p">(</span><span class="s">&#39;xgboost&#39;</span><span class="p">,</span> <span class="n">XGBoostClassifier</span><span class="p">()))</span>
+</pre></div>
+</div>
+<p>cache is not going to work, because for each fold a copy of classifier is created.
+Each time after looking at cache, a version with same parameters, but different data will be found.</p>
+<p>So, every time stored copy will be erased and a new one saved.</p>
+<p>By default, cache is stored in &#8216;.cache/rep&#8217; subfolder of project directory (where the ipython notebook is placed).
+To change parameters of caching use:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">rep.metaml.cache</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">rep.metaml._cache</span> <span class="kn">import</span> <span class="n">CacheHelper</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rep</span><span class="o">.</span><span class="n">metaml</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">cache_helper</span> <span class="o">=</span> <span class="n">CacheHelper</span><span class="p">(</span><span class="n">folder</span><span class="p">,</span> <span class="n">expiration_in_seconds</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c"># to delete all cached items, use:</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rep</span><span class="o">.</span><span class="n">metaml</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">cache_helper</span><span class="o">.</span><span class="n">clear_cache</span><span class="p">()</span>
+</pre></div>
+</div>
+<dl class="class">
+<dt id="rep.metaml.cache.CacheClassifier">
+<em class="property">class </em><code class="descclassname">rep.metaml.cache.</code><code class="descname">CacheClassifier</code><span class="sig-paren">(</span><em>name</em>, <em>clf</em>, <em>features=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/metaml/cache.html#CacheClassifier"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.metaml.cache.CacheClassifier" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">rep.metaml.cache.CacheBase</span></code>, <a class="reference internal" href="estimators.html#rep.estimators.sklearn.SklearnClassifier" title="rep.estimators.sklearn.SklearnClassifier"><code class="xref py py-class docutils literal"><span class="pre">rep.estimators.sklearn.SklearnClassifier</span></code></a></p>
+<p>Cache classifier allows to save trained models in lazy way.
+Useful when training classifier takes much time.</p>
+<p>On the next run, stored model in cache will be used instead of fitting again.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>name</strong> &#8211; unique name of classifier (to be used in storing)</li>
+<li><strong>clf</strong> (<em>sklearn.BaseEstimator</em>) &#8211; your estimator, which will be used for training</li>
+<li><strong>features</strong> &#8211; features to use in training.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="class">
+<dt id="rep.metaml.cache.CacheRegressor">
+<em class="property">class </em><code class="descclassname">rep.metaml.cache.</code><code class="descname">CacheRegressor</code><span class="sig-paren">(</span><em>name</em>, <em>clf</em>, <em>features=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/metaml/cache.html#CacheRegressor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.metaml.cache.CacheRegressor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">rep.metaml.cache.CacheBase</span></code>, <a class="reference internal" href="estimators.html#rep.estimators.sklearn.SklearnRegressor" title="rep.estimators.sklearn.SklearnRegressor"><code class="xref py py-class docutils literal"><span class="pre">rep.estimators.sklearn.SklearnRegressor</span></code></a></p>
+<p>Cache regressor allows to save trained models in lazy way.
+Useful when training regressor takes much time.</p>
+<p>On the next run, stored model in cache will be used instead of fitting again.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>name</strong> &#8211; unique name of classifier (to be used in storing)</li>
+<li><strong>clf</strong> (<em>sklearn.BaseEstimator</em>) &#8211; your estimator, which will be used for training</li>
+<li><strong>features</strong> &#8211; features to use in training.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+</div>
 <div class="section" id="module-rep.metaml.stacking">
 <span id="stacking"></span><h2>Stacking<a class="headerlink" href="#module-rep.metaml.stacking" title="Permalink to this headline">¶</a></h2>
-<p>This module contains stacking strategies (meta-algorithms of machine learning).</p>
+<p><a class="reference internal" href="#rep.metaml.stacking.FeatureSplitter" title="rep.metaml.stacking.FeatureSplitter"><code class="xref py py-class docutils literal"><span class="pre">FeatureSplitter</span></code></a>  defined in this module.</p>
+<p>This meta-algorithm is handy to train different models for subsets of the data
+without manually splitting the data into parts.</p>
 <dl class="class">
 <dt id="rep.metaml.stacking.FeatureSplitter">
 <em class="property">class </em><code class="descclassname">rep.metaml.stacking.</code><code class="descname">FeatureSplitter</code><span class="sig-paren">(</span><em>split_feature</em>, <em>base_estimator</em>, <em>train_features=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/metaml/stacking.html#FeatureSplitter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.metaml.stacking.FeatureSplitter" title="Permalink to this definition">¶</a></dt>
@@ -1226,10 +1229,7 @@ the same value of <cite>split_feature</cite> it was trained on.</p>
 </tr>
 </tbody>
 </table>
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last"><cite>split_feature</cite> must be in list of <cite>features</cite></p>
-</div>
+<p>Pay attention: <cite>split_feature</cite> must be in list of <cite>features</cite> (if those are passed).</p>
 <dl class="method">
 <dt id="rep.metaml.stacking.FeatureSplitter.fit">
 <code class="descname">fit</code><span class="sig-paren">(</span><em>X</em>, <em>y</em>, <em>sample_weight=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/metaml/stacking.html#FeatureSplitter.fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.metaml.stacking.FeatureSplitter.fit" title="Permalink to this definition">¶</a></dt>
@@ -1255,10 +1255,8 @@ the same value of <cite>split_feature</cite> it was trained on.</p>
 <dl class="method">
 <dt id="rep.metaml.stacking.FeatureSplitter.predict_proba">
 <code class="descname">predict_proba</code><span class="sig-paren">(</span><em>X</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/metaml/stacking.html#FeatureSplitter.predict_proba"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.metaml.stacking.FeatureSplitter.predict_proba" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="docutils">
-<dt>Predict probabilities. Each event will be predicted by the classifier</dt>
-<dd>with trained on corresponding value of <cite>split_feature</cite></dd>
-</dl>
+<dd><p>Predict probabilities.
+Each event is predicted by the classifier trained on corresponding value of <cite>split_feature</cite></p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -1275,9 +1273,7 @@ the same value of <cite>split_feature</cite> it was trained on.</p>
 <dt id="rep.metaml.stacking.FeatureSplitter.staged_predict_proba">
 <code class="descname">staged_predict_proba</code><span class="sig-paren">(</span><em>X</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/metaml/stacking.html#FeatureSplitter.staged_predict_proba"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.metaml.stacking.FeatureSplitter.staged_predict_proba" title="Permalink to this definition">¶</a></dt>
 <dd><p>Predict probabilities after each stage of base classifier.
-Each event will be predicted by the classifier</p>
-<blockquote>
-<div>with trained on corresponding value of <cite>split_feature</cite></div></blockquote>
+Each event is predicted by the classifier trained on corresponding value of <cite>split_feature</cite></p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -1336,7 +1332,7 @@ Each event will be predicted by the classifier</p>
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'./',
-            VERSION:'0.6.5',
+            VERSION:'0.6.6',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true

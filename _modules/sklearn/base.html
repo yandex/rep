@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>sklearn.base &mdash; REP (Reproducible Experiment Platform) 0.6.5 documentation</title>
+  <title>sklearn.base &mdash; REP (Reproducible Experiment Platform) 0.6.6 documentation</title>
   
 
   
@@ -30,7 +30,7 @@
   
 
   
-    <link rel="top" title="REP (Reproducible Experiment Platform) 0.6.5 documentation" href="../../index.html"/>
+    <link rel="top" title="REP (Reproducible Experiment Platform) 0.6.6 documentation" href="../../index.html"/>
         <link rel="up" title="Module code" href="../index.html"/> 
 
   
@@ -59,7 +59,7 @@
             
             
               <div class="version">
-                0.6.5
+                0.6.6
               </div>
             
           
@@ -81,12 +81,15 @@
             
             
                 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../data.html">Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../estimators.html">Estimators (classification and regression)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../metaml.html">Meta Machine Learning</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../report.html">Report for models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../metrics.html">Metrics</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../plotting.html">Plotting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../parallel.html">Parallel computing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../data.html">Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../utils.html">Utilities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../reproducibility.html">REProducibility</a></li>
 <li class="toctree-l1"><a class="reference external" href="http://nbviewer.ipython.org/github/yandex/rep/tree/master/howto/">Howto notebooks</a></li>
 </ul>
 
@@ -138,15 +141,19 @@
 <span class="c"># License: BSD 3 clause</span>
 
 <span class="kn">import</span> <span class="nn">copy</span>
-<span class="kn">import</span> <span class="nn">inspect</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">sparse</span>
 <span class="kn">from</span> <span class="nn">.externals</span> <span class="kn">import</span> <span class="n">six</span>
+<span class="kn">from</span> <span class="nn">.utils.fixes</span> <span class="kn">import</span> <span class="n">signature</span>
 
 
-<span class="c">###############################################################################</span>
+<span class="k">class</span> <span class="nc">ChangedBehaviorWarning</span><span class="p">(</span><span class="ne">UserWarning</span><span class="p">):</span>
+    <span class="k">pass</span>
+
+
+<span class="c">##############################################################################</span>
 <span class="k">def</span> <span class="nf">clone</span><span class="p">(</span><span class="n">estimator</span><span class="p">,</span> <span class="n">safe</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Constructs a new estimator with the same parameters.</span>
 
@@ -174,7 +181,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s">&quot;Cannot clone object &#39;</span><span class="si">%s</span><span class="s">&#39; (type </span><span class="si">%s</span><span class="s">): &quot;</span>
                             <span class="s">&quot;it does not seem to be a scikit-learn estimator &quot;</span>
-                            <span class="s">&quot;it does not implement a &#39;get_params&#39; methods.&quot;</span>
+                            <span class="s">&quot;as it does not implement a &#39;get_params&#39; methods.&quot;</span>
                             <span class="o">%</span> <span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="n">estimator</span><span class="p">),</span> <span class="nb">type</span><span class="p">(</span><span class="n">estimator</span><span class="p">)))</span>
     <span class="n">klass</span> <span class="o">=</span> <span class="n">estimator</span><span class="o">.</span><span class="n">__class__</span>
     <span class="n">new_object_params</span> <span class="o">=</span> <span class="n">estimator</span><span class="o">.</span><span class="n">get_params</span><span class="p">(</span><span class="n">deep</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
@@ -224,7 +231,12 @@
                     <span class="ow">and</span> <span class="n">param1</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="n">param2</span><span class="o">.</span><span class="n">shape</span>
                 <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">equality_test</span> <span class="o">=</span> <span class="n">new_object_params</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">==</span> <span class="n">params_set</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+            <span class="n">new_obj_val</span> <span class="o">=</span> <span class="n">new_object_params</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+            <span class="n">params_set_val</span> <span class="o">=</span> <span class="n">params_set</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+            <span class="c"># The following construct is required to check equality on special</span>
+            <span class="c"># singletons such as np.nan that are not equal to them-selves:</span>
+            <span class="n">equality_test</span> <span class="o">=</span> <span class="p">(</span><span class="n">new_obj_val</span> <span class="o">==</span> <span class="n">params_set_val</span> <span class="ow">or</span>
+                             <span class="n">new_obj_val</span> <span class="ow">is</span> <span class="n">params_set_val</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">equality_test</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s">&#39;Cannot clone object </span><span class="si">%s</span><span class="s">, as the constructor &#39;</span>
                                <span class="s">&#39;does not seem to set parameter </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span>
@@ -307,19 +319,20 @@
 
         <span class="c"># introspect the constructor arguments to find the model parameters</span>
         <span class="c"># to represent</span>
-        <span class="n">args</span><span class="p">,</span> <span class="n">varargs</span><span class="p">,</span> <span class="n">kw</span><span class="p">,</span> <span class="n">default</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">getargspec</span><span class="p">(</span><span class="n">init</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">varargs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s">&quot;scikit-learn estimators should always &quot;</span>
-                               <span class="s">&quot;specify their parameters in the signature&quot;</span>
-                               <span class="s">&quot; of their __init__ (no varargs).&quot;</span>
-                               <span class="s">&quot; </span><span class="si">%s</span><span class="s"> doesn&#39;t follow this convention.&quot;</span>
-                               <span class="o">%</span> <span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="p">))</span>
-        <span class="c"># Remove &#39;self&#39;</span>
-        <span class="c"># XXX: This is going to fail if the init is a staticmethod, but</span>
-        <span class="c"># who would do this?</span>
-        <span class="n">args</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-        <span class="n">args</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
-        <span class="k">return</span> <span class="n">args</span>
+        <span class="n">init_signature</span> <span class="o">=</span> <span class="n">signature</span><span class="p">(</span><span class="n">init</span><span class="p">)</span>
+        <span class="c"># Consider the constructor parameters excluding &#39;self&#39;</span>
+        <span class="n">parameters</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">init_signature</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
+                      <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">name</span> <span class="o">!=</span> <span class="s">&#39;self&#39;</span> <span class="ow">and</span> <span class="n">p</span><span class="o">.</span><span class="n">kind</span> <span class="o">!=</span> <span class="n">p</span><span class="o">.</span><span class="n">VAR_KEYWORD</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">parameters</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">kind</span> <span class="o">==</span> <span class="n">p</span><span class="o">.</span><span class="n">VAR_POSITIONAL</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s">&quot;scikit-learn estimators should always &quot;</span>
+                                   <span class="s">&quot;specify their parameters in the signature&quot;</span>
+                                   <span class="s">&quot; of their __init__ (no varargs).&quot;</span>
+                                   <span class="s">&quot; </span><span class="si">%s</span><span class="s"> with constructor </span><span class="si">%s</span><span class="s"> doesn&#39;t &quot;</span>
+                                   <span class="s">&quot; follow this convention.&quot;</span>
+                                   <span class="o">%</span> <span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">init_signature</span><span class="p">))</span>
+        <span class="c"># Extract and sort argument names excluding &#39;self&#39;</span>
+        <span class="k">return</span> <span class="nb">sorted</span><span class="p">([</span><span class="n">p</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">parameters</span><span class="p">])</span>
 
     <span class="k">def</span> <span class="nf">get_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">deep</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Get parameters for this estimator.</span>
@@ -379,16 +392,20 @@
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">split</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
                 <span class="c"># nested objects case</span>
                 <span class="n">name</span><span class="p">,</span> <span class="n">sub_name</span> <span class="o">=</span> <span class="n">split</span>
-                <span class="k">if</span> <span class="ow">not</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">valid_params</span><span class="p">:</span>
-                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&#39;Invalid parameter </span><span class="si">%s</span><span class="s"> for estimator </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span>
+                <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">valid_params</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&#39;Invalid parameter </span><span class="si">%s</span><span class="s"> for estimator </span><span class="si">%s</span><span class="s">. &#39;</span>
+                                     <span class="s">&#39;Check the list of available parameters &#39;</span>
+                                     <span class="s">&#39;with `estimator.get_params().keys()`.&#39;</span> <span class="o">%</span>
                                      <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="p">))</span>
                 <span class="n">sub_object</span> <span class="o">=</span> <span class="n">valid_params</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
                 <span class="n">sub_object</span><span class="o">.</span><span class="n">set_params</span><span class="p">(</span><span class="o">**</span><span class="p">{</span><span class="n">sub_name</span><span class="p">:</span> <span class="n">value</span><span class="p">})</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="c"># simple objects case</span>
-                <span class="k">if</span> <span class="ow">not</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">valid_params</span><span class="p">:</span>
-                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&#39;Invalid parameter </span><span class="si">%s</span><span class="s"> &#39;</span> <span class="s">&#39;for estimator </span><span class="si">%s</span><span class="s">&#39;</span>
-                                     <span class="o">%</span> <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span><span class="p">))</span>
+                <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">valid_params</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&#39;Invalid parameter </span><span class="si">%s</span><span class="s"> for estimator </span><span class="si">%s</span><span class="s">. &#39;</span>
+                                     <span class="s">&#39;Check the list of available parameters &#39;</span>
+                                     <span class="s">&#39;with `estimator.get_params().keys()`.&#39;</span> <span class="o">%</span>
+                                     <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span><span class="p">))</span>
                 <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span>
 
@@ -401,6 +418,7 @@
 <span class="c">###############################################################################</span>
 <span class="k">class</span> <span class="nc">ClassifierMixin</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Mixin class for all classifiers in scikit-learn.&quot;&quot;&quot;</span>
+    <span class="n">_estimator_type</span> <span class="o">=</span> <span class="s">&quot;classifier&quot;</span>
 
     <span class="k">def</span> <span class="nf">score</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Returns the mean accuracy on the given test data and labels.</span>
@@ -433,6 +451,7 @@
 <span class="c">###############################################################################</span>
 <span class="k">class</span> <span class="nc">RegressorMixin</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Mixin class for all regression estimators in scikit-learn.&quot;&quot;&quot;</span>
+    <span class="n">_estimator_type</span> <span class="o">=</span> <span class="s">&quot;regressor&quot;</span>
 
     <span class="k">def</span> <span class="nf">score</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Returns the coefficient of determination R^2 of the prediction.</span>
@@ -440,7 +459,10 @@
 <span class="sd">        The coefficient R^2 is defined as (1 - u/v), where u is the regression</span>
 <span class="sd">        sum of squares ((y_true - y_pred) ** 2).sum() and v is the residual</span>
 <span class="sd">        sum of squares ((y_true - y_true.mean()) ** 2).sum().</span>
-<span class="sd">        Best possible score is 1.0, lower values are worse.</span>
+<span class="sd">        Best possible score is 1.0 and it can be negative (because the</span>
+<span class="sd">        model can be arbitrarily worse). A constant model that always</span>
+<span class="sd">        predicts the expected value of y, disregarding the input features,</span>
+<span class="sd">        would get a R^2 score of 0.0.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -460,12 +482,15 @@
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="kn">from</span> <span class="nn">.metrics</span> <span class="kn">import</span> <span class="n">r2_score</span>
-        <span class="k">return</span> <span class="n">r2_score</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X</span><span class="p">),</span> <span class="n">sample_weight</span><span class="o">=</span><span class="n">sample_weight</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">r2_score</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X</span><span class="p">),</span> <span class="n">sample_weight</span><span class="o">=</span><span class="n">sample_weight</span><span class="p">,</span>
+                        <span class="n">multioutput</span><span class="o">=</span><span class="s">&#39;variance_weighted&#39;</span><span class="p">)</span>
 
 
 <span class="c">###############################################################################</span>
 <span class="k">class</span> <span class="nc">ClusterMixin</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Mixin class for all cluster estimators in scikit-learn.&quot;&quot;&quot;</span>
+    <span class="n">_estimator_type</span> <span class="o">=</span> <span class="s">&quot;clusterer&quot;</span>
+
     <span class="k">def</span> <span class="nf">fit_predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Performs clustering on X and returns cluster labels.</span>
 
@@ -578,23 +603,15 @@
 
 
 <span class="c">###############################################################################</span>
-<span class="c"># XXX: Temporary solution to figure out if an estimator is a classifier</span>
-
-<span class="k">def</span> <span class="nf">_get_sub_estimator</span><span class="p">(</span><span class="n">estimator</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Returns the final estimator if there is any.&quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">estimator</span><span class="p">,</span> <span class="s">&#39;estimator&#39;</span><span class="p">):</span>
-        <span class="c"># GridSearchCV and other CV-tuned estimators</span>
-        <span class="k">return</span> <span class="n">_get_sub_estimator</span><span class="p">(</span><span class="n">estimator</span><span class="o">.</span><span class="n">estimator</span><span class="p">)</span>
-    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">estimator</span><span class="p">,</span> <span class="s">&#39;steps&#39;</span><span class="p">):</span>
-        <span class="c"># Pipeline</span>
-        <span class="k">return</span> <span class="n">_get_sub_estimator</span><span class="p">(</span><span class="n">estimator</span><span class="o">.</span><span class="n">steps</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span>
-    <span class="k">return</span> <span class="n">estimator</span>
-
 
 <span class="k">def</span> <span class="nf">is_classifier</span><span class="p">(</span><span class="n">estimator</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Returns True if the given estimator is (probably) a classifier.&quot;&quot;&quot;</span>
-    <span class="n">estimator</span> <span class="o">=</span> <span class="n">_get_sub_estimator</span><span class="p">(</span><span class="n">estimator</span><span class="p">)</span>
-    <span class="k">return</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">estimator</span><span class="p">,</span> <span class="n">ClassifierMixin</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">estimator</span><span class="p">,</span> <span class="s">&quot;_estimator_type&quot;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span> <span class="o">==</span> <span class="s">&quot;classifier&quot;</span>
+
+
+<span class="k">def</span> <span class="nf">is_regressor</span><span class="p">(</span><span class="n">estimator</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Returns True if the given estimator is (probably) a regressor.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">estimator</span><span class="p">,</span> <span class="s">&quot;_estimator_type&quot;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span> <span class="o">==</span> <span class="s">&quot;regressor&quot;</span>
 </pre></div>
 
            </div>
@@ -628,7 +645,7 @@
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'../../',
-            VERSION:'0.6.5',
+            VERSION:'0.6.6',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true

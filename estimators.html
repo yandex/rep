@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Estimators (classification and regression) &mdash; REP (Reproducible Experiment Platform) 0.6.5 documentation</title>
+  <title>Estimators (classification and regression) &mdash; REP (Reproducible Experiment Platform) 0.6.6 documentation</title>
   
 
   
@@ -30,9 +30,9 @@
   
 
   
-    <link rel="top" title="REP (Reproducible Experiment Platform) 0.6.5 documentation" href="index.html"/>
+    <link rel="top" title="REP (Reproducible Experiment Platform) 0.6.6 documentation" href="index.html"/>
         <link rel="next" title="Meta Machine Learning" href="metaml.html"/>
-        <link rel="prev" title="Data" href="data.html"/> 
+        <link rel="prev" title="Welcome to REP’s documentation!" href="index.html"/> 
 
   
   <script src="_static/js/modernizr.min.js"></script>
@@ -60,7 +60,7 @@
             
             
               <div class="version">
-                0.6.5
+                0.6.6
               </div>
             
           
@@ -82,7 +82,6 @@
             
             
                 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="data.html">Data</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="">Estimators (classification and regression)</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#module-rep.estimators.interface">Estimators interfaces (for classification and regression)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-rep.estimators.sklearn">Sklearn classifier and regressor</a></li>
@@ -96,12 +95,17 @@
 <li class="toctree-l3"><a class="reference internal" href="#regression">Regression</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="#compatible-libraries">Compatible libraries</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="metaml.html">Meta Machine Learning</a></li>
 <li class="toctree-l1"><a class="reference internal" href="report.html">Report for models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metrics.html">Metrics</a></li>
 <li class="toctree-l1"><a class="reference internal" href="plotting.html">Plotting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="parallel.html">Parallel computing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="data.html">Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="utils.html">Utilities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reproducibility.html">REProducibility</a></li>
 <li class="toctree-l1"><a class="reference external" href="http://nbviewer.ipython.org/github/yandex/rep/tree/master/howto/">Howto notebooks</a></li>
 </ul>
 
@@ -150,58 +154,59 @@
   <div class="section" id="estimators-classification-and-regression">
 <span id="estimators"></span><h1>Estimators (classification and regression)<a class="headerlink" href="#estimators-classification-and-regression" title="Permalink to this headline">¶</a></h1>
 <p>This module contains wrappers with <code class="xref py py-class docutils literal"><span class="pre">sklearn</span></code> interface for different machine learning libraries:</p>
-<ul class="simple">
+<blockquote>
+<div><ul class="simple">
+<li>scikit-learn</li>
 <li>TMVA</li>
-<li>sklearn</li>
 <li>XGBoost</li>
 <li>pybrain</li>
 <li>neurolab</li>
 <li>theanets.</li>
 </ul>
-<p>We defined some interface for classifiers&#8217; and regressors&#8217; wrappers, so new wrappers can be added for another libraries
+</div></blockquote>
+<p><strong>REP</strong> defines interface for classifiers&#8217; and regressors&#8217; wrappers, thus new wrappers can be added for another libraries
 following the same interface. Notably the interface has backward compatibility with scikit-learn library.</p>
-<p>Sklearn wrapper is the same sklearn model, but it operates with <code class="xref py py-class docutils literal"><span class="pre">pandas.DataFrame</span></code> data (though supports <code class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></code> as well)
-and can use only those features user pointed in constructor (<code class="xref py py-class docutils literal"><span class="pre">pandas.DataFrame</span></code> provides named columns).</p>
 <div class="section" id="module-rep.estimators.interface">
 <span id="estimators-interfaces-for-classification-and-regression"></span><h2>Estimators interfaces (for classification and regression)<a class="headerlink" href="#module-rep.estimators.interface" title="Permalink to this headline">¶</a></h2>
-<p>There are interfaces for <strong>classification</strong> and <strong>regression</strong> wrappers.</p>
+<p><strong>REP</strong> wrappers are derived from <a class="reference internal" href="#rep.estimators.interface.Classifier" title="rep.estimators.interface.Classifier"><code class="xref py py-class docutils literal"><span class="pre">Classifier</span></code></a> and <a class="reference internal" href="#rep.estimators.interface.Regressor" title="rep.estimators.interface.Regressor"><code class="xref py py-class docutils literal"><span class="pre">Regressor</span></code></a>
+depending on the problem of interest.</p>
+<p>Below you can see the standard methods available in the wrappers.</p>
 <dl class="class">
 <dt id="rep.estimators.interface.Classifier">
 <em class="property">class </em><code class="descclassname">rep.estimators.interface.</code><code class="descname">Classifier</code><span class="sig-paren">(</span><em>features=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/estimators/interface.html#Classifier"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.estimators.interface.Classifier" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">sklearn.base.BaseEstimator</span></code>, <code class="xref py py-class docutils literal"><span class="pre">sklearn.base.ClassifierMixin</span></code></p>
-<p>Interface to train different <strong>classification</strong> model from different
-machine learning libraries, like <strong>Sklearn, TMVA, XGBoost</strong>...</p>
+<p>Interface to train different <strong>classification</strong> models from different machine learning libraries, like <strong>sklearn, TMVA, XGBoost</strong>, ...</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>features</strong> (<em>list[str] or None</em>) &#8211; features used to train model</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>features</strong> (<em>list[str] or None</em>) &#8211; features used to train a model</td>
 </tr>
 </tbody>
 </table>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <ul class="last simple">
-<li>Classes must be from 0 to n_classes-1!!!</li>
-<li>if <cite>features</cite> aren&#8217;t set (<strong>None</strong>), then all features in training dataset will be used</li>
-<li>Datasets should be <cite>pandas.DataFrame</cite>, <cite>not numpy.array</cite>.
+<li>if <cite>features</cite> aren&#8217;t set (<strong>None</strong>), then all features in the training dataset will be used</li>
+<li>Datasets should be <cite>pandas.DataFrame</cite>, not <cite>numpy.array</cite>.
 Provided this, you&#8217;ll be able to choose features used in training by setting e.g.
-<cite>features=[&#8216;FlightTime&#8217;, &#8216;p&#8217;]</cite> in constructor.</li>
+<cite>features=[&#8216;mass&#8217;, &#8216;momentum&#8217;]</cite> in the constructor.</li>
 <li>It works fine with <cite>numpy.array</cite> as well, but in this case all the features will be used.</li>
+<li>Classes values must be from 0 to n_classes-1!</li>
 </ul>
 </div>
 <dl class="method">
 <dt id="rep.estimators.interface.Classifier.fit">
 <code class="descname">fit</code><span class="sig-paren">(</span><em>X</em>, <em>y</em>, <em>sample_weight=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/estimators/interface.html#Classifier.fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.estimators.interface.Classifier.fit" title="Permalink to this definition">¶</a></dt>
-<dd><p>Train the classifier model on dataset</p>
+<dd><p>Train a classification model on the data.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>X</strong> &#8211; pandas.DataFrame of shape [n_samples, n_features]</li>
-<li><strong>y</strong> &#8211; labels of events - array-like of shape [n_samples]</li>
-<li><strong>sample_weight</strong> &#8211; weight of events,
+<li><strong>X</strong> (<em>pandas.DataFrame</em>) &#8211; data of shape [n_samples, n_features]</li>
+<li><strong>y</strong> &#8211; labels of samples, array-like of shape [n_samples]</li>
+<li><strong>sample_weight</strong> &#8211; weight of samples,
 array-like of shape [n_samples] or None if all weights are equal</li>
 </ul>
 </td>
@@ -216,7 +221,7 @@ array-like of shape [n_samples] or None if all weights are equal</li>
 <dl class="method">
 <dt id="rep.estimators.interface.Classifier.fit_lds">
 <code class="descname">fit_lds</code><span class="sig-paren">(</span><em>lds</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/estimators/interface.html#Classifier.fit_lds"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.estimators.interface.Classifier.fit_lds" title="Permalink to this definition">¶</a></dt>
-<dd><p>Train the classifier on specific type dataset</p>
+<dd><p>Train a classifier on the specific type of dataset.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -232,7 +237,7 @@ array-like of shape [n_samples] or None if all weights are equal</li>
 <dl class="method">
 <dt id="rep.estimators.interface.Classifier.get_feature_importances">
 <code class="descname">get_feature_importances</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/estimators/interface.html#Classifier.get_feature_importances"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.estimators.interface.Classifier.get_feature_importances" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get features importance</p>
+<dd><p>Return features importance.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -261,12 +266,12 @@ contained subobjects that are estimators.</dd>
 <dl class="method">
 <dt id="rep.estimators.interface.Classifier.predict">
 <code class="descname">predict</code><span class="sig-paren">(</span><em>X</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/estimators/interface.html#Classifier.predict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.estimators.interface.Classifier.predict" title="Permalink to this definition">¶</a></dt>
-<dd><p>Predict labels for all events in dataset</p>
+<dd><p>Predict labels for all samples in the dataset.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>X</strong> &#8211; pandas.DataFrame of shape [n_samples, n_features]</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>X</strong> (<em>pandas.DataFrame</em>) &#8211; data of shape [n_samples, n_features]</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">numpy.array of shape [n_samples] with integer labels</td>
 </tr>
@@ -277,12 +282,12 @@ contained subobjects that are estimators.</dd>
 <dl class="method">
 <dt id="rep.estimators.interface.Classifier.predict_proba">
 <code class="descname">predict_proba</code><span class="sig-paren">(</span><em>X</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/estimators/interface.html#Classifier.predict_proba"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.estimators.interface.Classifier.predict_proba" title="Permalink to this definition">¶</a></dt>
-<dd><p>Predict probabilities for each class label on dataset</p>
+<dd><p>Predict probabilities for each class label for samples.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>X</strong> &#8211; pandas.DataFrame of shape [n_samples, n_features]</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>X</strong> (<em>pandas.DataFrame</em>) &#8211; data of shape [n_samples, n_features]</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">numpy.array of shape [n_samples, n_classes] with probabilities</td>
 </tr>
@@ -325,12 +330,12 @@ component of a nested object.</p>
 <dl class="method">
 <dt id="rep.estimators.interface.Classifier.staged_predict_proba">
 <code class="descname">staged_predict_proba</code><span class="sig-paren">(</span><em>X</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/estimators/interface.html#Classifier.staged_predict_proba"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.estimators.interface.Classifier.staged_predict_proba" title="Permalink to this definition">¶</a></dt>
-<dd><p>Predicts probabilities on each stage</p>
+<dd><p>Predict probabilities for data for each class label on each stage (i.e. for boosting algorithms).</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>X</strong> &#8211; pandas.DataFrame of shape [n_samples, n_features]</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>X</strong> (<em>pandas.DataFrame</em>) &#8211; data of shape [n_samples, n_features]</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">iterator</td>
 </tr>
@@ -341,15 +346,16 @@ component of a nested object.</p>
 <dl class="method">
 <dt id="rep.estimators.interface.Classifier.test_on">
 <code class="descname">test_on</code><span class="sig-paren">(</span><em>X</em>, <em>y</em>, <em>sample_weight=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/estimators/interface.html#Classifier.test_on"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.estimators.interface.Classifier.test_on" title="Permalink to this definition">¶</a></dt>
-<dd><p>Prepare classification report for a single classifier</p>
+<dd><p>Prepare classification report for a single classifier.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>X</strong> &#8211; data, pandas.DataFrame</li>
-<li><strong>y</strong> &#8211; target</li>
-<li><strong>sample_weight</strong> &#8211; weights, optional.</li>
+<li><strong>X</strong> (<em>pandas.DataFrame</em>) &#8211; data of shape [n_samples, n_features]</li>
+<li><strong>y</strong> &#8211; labels of samples &#8212; array-like of shape [n_samples]</li>
+<li><strong>sample_weight</strong> &#8211; weight of samples,
+array-like of shape [n_samples] or None if all weights are equal</li>
 </ul>
 </td>
 </tr>
@@ -363,7 +369,7 @@ component of a nested object.</p>
 <dl class="method">
 <dt id="rep.estimators.interface.Classifier.test_on_lds">
 <code class="descname">test_on_lds</code><span class="sig-paren">(</span><em>lds</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/estimators/interface.html#Classifier.test_on_lds"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.estimators.interface.Classifier.test_on_lds" title="Permalink to this definition">¶</a></dt>
-<dd><p>Prepare classification report for a single classifier</p>
+<dd><p>Prepare a classification report for a single classifier.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -382,40 +388,37 @@ component of a nested object.</p>
 <dt id="rep.estimators.interface.Regressor">
 <em class="property">class </em><code class="descclassname">rep.estimators.interface.</code><code class="descname">Regressor</code><span class="sig-paren">(</span><em>features=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/estimators/interface.html#Regressor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.estimators.interface.Regressor" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">sklearn.base.BaseEstimator</span></code>, <code class="xref py py-class docutils literal"><span class="pre">sklearn.base.RegressorMixin</span></code></p>
-<dl class="docutils">
-<dt>Interface to train different <strong>regression</strong> model from different</dt>
-<dd>machine learning libraries, like <strong>TMVA, Sklearn, XGBoost</strong>...</dd>
-</dl>
+<p>Interface to train different <strong>regression</strong> models from different machine learning libraries, like <strong>sklearn, TMVA, XGBoost</strong>, ...</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>features</strong> (<em>list[str] or None</em>) &#8211; features used to train model</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>features</strong> (<em>list[str] or None</em>) &#8211; features used to train a model</td>
 </tr>
 </tbody>
 </table>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <ul class="last simple">
-<li>if <cite>features</cite> aren&#8217;t set (<strong>None</strong>), then all features in training dataset will be used</li>
-<li>Datasets should be <cite>pandas.DataFrame</cite>, <cite>not numpy.array</cite>.
+<li>if <cite>features</cite> aren&#8217;t set (<strong>None</strong>), then all features in the training dataset will be used</li>
+<li>Datasets should be <cite>pandas.DataFrame</cite>, not <cite>numpy.array</cite>.
 Provided this, you&#8217;ll be able to choose features used in training by setting e.g.
-<cite>features=[&#8216;FlightTime&#8217;, &#8216;p&#8217;]</cite> in constructor.</li>
+<cite>features=[&#8216;mass&#8217;, &#8216;momentum&#8217;]</cite> in the constructor.</li>
 <li>It works fine with <cite>numpy.array</cite> as well, but in this case all the features will be used.</li>
 </ul>
 </div>
 <dl class="method">
 <dt id="rep.estimators.interface.Regressor.fit">
 <code class="descname">fit</code><span class="sig-paren">(</span><em>X</em>, <em>y</em>, <em>sample_weight=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/estimators/interface.html#Regressor.fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.estimators.interface.Regressor.fit" title="Permalink to this definition">¶</a></dt>
-<dd><p>Train the regressor model</p>
+<dd><p>Train a regression model on the data.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>X</strong> &#8211; pandas.DataFrame of shape [n_samples, n_features]</li>
-<li><strong>y</strong> &#8211; values - array-like of shape [n_samples]</li>
-<li><strong>sample_weight</strong> &#8211; weight of events,
+<li><strong>X</strong> (<em>pandas.DataFrame</em>) &#8211; data of shape [n_samples, n_features]</li>
+<li><strong>y</strong> &#8211; values for samples, array-like of shape [n_samples]</li>
+<li><strong>sample_weight</strong> &#8211; weight of samples,
 array-like of shape [n_samples] or None if all weights are equal</li>
 </ul>
 </td>
@@ -430,7 +433,7 @@ array-like of shape [n_samples] or None if all weights are equal</li>
 <dl class="method">
 <dt id="rep.estimators.interface.Regressor.fit_lds">
 <code class="descname">fit_lds</code><span class="sig-paren">(</span><em>lds</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/estimators/interface.html#Regressor.fit_lds"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.estimators.interface.Regressor.fit_lds" title="Permalink to this definition">¶</a></dt>
-<dd><p>Train the regressor model on specific dataset</p>
+<dd><p>Train a regression model on the specific type of dataset.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -446,7 +449,7 @@ array-like of shape [n_samples] or None if all weights are equal</li>
 <dl class="method">
 <dt id="rep.estimators.interface.Regressor.get_feature_importances">
 <code class="descname">get_feature_importances</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/estimators/interface.html#Regressor.get_feature_importances"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.estimators.interface.Regressor.get_feature_importances" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get features importances</p>
+<dd><p>Get features importances.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -475,12 +478,12 @@ contained subobjects that are estimators.</dd>
 <dl class="method">
 <dt id="rep.estimators.interface.Regressor.predict">
 <code class="descname">predict</code><span class="sig-paren">(</span><em>X</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/estimators/interface.html#Regressor.predict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.estimators.interface.Regressor.predict" title="Permalink to this definition">¶</a></dt>
-<dd><p>Predict values for all events in dataset.</p>
+<dd><p>Predict values for data.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>X</strong> &#8211; pandas.DataFrame of shape [n_samples, n_features]</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>X</strong> (<em>pandas.DataFrame</em>) &#8211; data of shape [n_samples, n_features]</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">numpy.array of shape [n_samples] with predicted values</td>
 </tr>
@@ -495,7 +498,10 @@ contained subobjects that are estimators.</dd>
 <p>The coefficient R^2 is defined as (1 - u/v), where u is the regression
 sum of squares ((y_true - y_pred) ** 2).sum() and v is the residual
 sum of squares ((y_true - y_true.mean()) ** 2).sum().
-Best possible score is 1.0, lower values are worse.</p>
+Best possible score is 1.0 and it can be negative (because the
+model can be arbitrarily worse). A constant model that always
+predicts the expected value of y, disregarding the input features,
+would get a R^2 score of 0.0.</p>
 <dl class="docutils">
 <dt>X <span class="classifier-delimiter">:</span> <span class="classifier">array-like, shape = (n_samples, n_features)</span></dt>
 <dd>Test samples.</dd>
@@ -524,12 +530,12 @@ component of a nested object.</p>
 <dl class="method">
 <dt id="rep.estimators.interface.Regressor.staged_predict">
 <code class="descname">staged_predict</code><span class="sig-paren">(</span><em>X</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/estimators/interface.html#Regressor.staged_predict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.estimators.interface.Regressor.staged_predict" title="Permalink to this definition">¶</a></dt>
-<dd><p>Predicts values on each stage</p>
+<dd><p>Predicts values for data on each stage (i.e. for boosting algorithms).</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>X</strong> &#8211; pandas.DataFrame of shape [n_samples, n_features]</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>X</strong> (<em>pandas.DataFrame</em>) &#8211; data of shape [n_samples, n_features]</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">iterator</td>
 </tr>
@@ -540,15 +546,16 @@ component of a nested object.</p>
 <dl class="method">
 <dt id="rep.estimators.interface.Regressor.test_on">
 <code class="descname">test_on</code><span class="sig-paren">(</span><em>X</em>, <em>y</em>, <em>sample_weight=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/estimators/interface.html#Regressor.test_on"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.estimators.interface.Regressor.test_on" title="Permalink to this definition">¶</a></dt>
-<dd><p>Prepare regression report for a single classifier</p>
+<dd><p>Prepare a regression report for a single regressor</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>X</strong> &#8211; data, pandas.DataFrame</li>
-<li><strong>y</strong> &#8211; target</li>
-<li><strong>sample_weight</strong> &#8211; weights, optional.</li>
+<li><strong>X</strong> (<em>pandas.DataFrame</em>) &#8211; data of shape [n_samples, n_features]</li>
+<li><strong>y</strong> &#8211; values of samples &#8212; array-like of shape [n_samples]</li>
+<li><strong>sample_weight</strong> &#8211; weight of samples,
+array-like of shape [n_samples] or None if all weights are equal</li>
 </ul>
 </td>
 </tr>
@@ -562,7 +569,7 @@ component of a nested object.</p>
 <dl class="method">
 <dt id="rep.estimators.interface.Regressor.test_on_lds">
 <code class="descname">test_on_lds</code><span class="sig-paren">(</span><em>lds</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/estimators/interface.html#Regressor.test_on_lds"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.estimators.interface.Regressor.test_on_lds" title="Permalink to this definition">¶</a></dt>
-<dd><p>Prepare regression report for a single classifier</p>
+<dd><p>Prepare a regression report for a single regressor.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -580,53 +587,24 @@ component of a nested object.</p>
 </div>
 <div class="section" id="module-rep.estimators.sklearn">
 <span id="sklearn-classifier-and-regressor"></span><h2>Sklearn classifier and regressor<a class="headerlink" href="#module-rep.estimators.sklearn" title="Permalink to this headline">¶</a></h2>
-<p>Sklearn wrapper for users is the same as sklearn model,
-has only one additional parameter <em>features</em> to choose necessary columns for training.
-If data has <code class="xref py py-class docutils literal"><span class="pre">numpy.array</span></code> type then behaviour will be the same as in sklearn.
-For complete list of available algorithms, see <a class="reference external" href="http://scikit-learn.org/stable/modules/classes.html">sklearn API</a>.</p>
-<dl class="class">
-<dt id="rep.estimators.sklearn.SklearnBase">
-<em class="property">class </em><code class="descclassname">rep.estimators.sklearn.</code><code class="descname">SklearnBase</code><span class="sig-paren">(</span><em>clf</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/estimators/sklearn.html#SklearnBase"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.estimators.sklearn.SklearnBase" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
-<p>SklearnBase is base for sklearn-like models.
-All attributes will be returned for base estimator</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>clf</strong> (<em>sklearn.BaseEstimator</em>) &#8211; your estimator, which will be used for training</td>
-</tr>
-</tbody>
-</table>
-<dl class="method">
-<dt id="rep.estimators.sklearn.SklearnBase.predict">
-<code class="descname">predict</code><span class="sig-paren">(</span><em>X</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/estimators/sklearn.html#SklearnBase.predict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.estimators.sklearn.SklearnBase.predict" title="Permalink to this definition">¶</a></dt>
-<dd><p>Predict labels for estimators and values for regressors for all events in dataset.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>X</strong> &#8211; pandas.DataFrame of shape [n_samples, n_features]</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">numpy.array of shape [n_samples] with labels/values</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-</dd></dl>
-
+<p><a class="reference internal" href="#rep.estimators.sklearn.SklearnClassifier" title="rep.estimators.sklearn.SklearnClassifier"><code class="xref py py-class docutils literal"><span class="pre">SklearnClassifier</span></code></a> and <a class="reference internal" href="#rep.estimators.sklearn.SklearnRegressor" title="rep.estimators.sklearn.SklearnRegressor"><code class="xref py py-class docutils literal"><span class="pre">SklearnRegressor</span></code></a> are wrappers for algorithms from scikit-learn.</p>
+<p>From user perspective, wrapped sklearn model behaves in the same way as non-wrapped,
+but has one additional parameter <em>features</em> to choose necessary columns to use in training.</p>
+<p>Typically, models from <strong>REP</strong> are used with <cite>pandas.DataFrames</cite>,
+which makes it possible to name needed variables or give some variables specific role in the training.</p>
+<p>If data has <code class="xref py py-class docutils literal"><span class="pre">numpy.array</span></code> type then behaviour will be the same as in sklearn.
+For complete list of the available algorithms, see <a class="reference external" href="http://scikit-learn.org/stable/modules/classes.html">sklearn API</a>.</p>
 <dl class="class">
 <dt id="rep.estimators.sklearn.SklearnClassifier">
 <em class="property">class </em><code class="descclassname">rep.estimators.sklearn.</code><code class="descname">SklearnClassifier</code><span class="sig-paren">(</span><em>clf</em>, <em>features=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/estimators/sklearn.html#SklearnClassifier"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.estimators.sklearn.SklearnClassifier" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#rep.estimators.sklearn.SklearnBase" title="rep.estimators.sklearn.SklearnBase"><code class="xref py py-class docutils literal"><span class="pre">rep.estimators.sklearn.SklearnBase</span></code></a>, <a class="reference internal" href="#rep.estimators.interface.Classifier" title="rep.estimators.interface.Classifier"><code class="xref py py-class docutils literal"><span class="pre">rep.estimators.interface.Classifier</span></code></a></p>
-<p>SklearnClassifier is wrapper on sklearn-like <strong>estimators</strong></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">rep.estimators.sklearn.SklearnBase</span></code>, <a class="reference internal" href="#rep.estimators.interface.Classifier" title="rep.estimators.interface.Classifier"><code class="xref py py-class docutils literal"><span class="pre">rep.estimators.interface.Classifier</span></code></a></p>
+<p>SklearnClassifier is a wrapper over sklearn-like <strong>classifiers</strong>.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>clf</strong> (<em>sklearn.BaseEstimator</em>) &#8211; your classifier, which will be used for training</li>
+<li><strong>clf</strong> (<em>sklearn.BaseEstimator</em>) &#8211; classifier to train. Should be sklearn-compatible.</li>
 <li><strong>features</strong> (<em>list[str] or None</em>) &#8211; features used in training</li>
 </ul>
 </td>
@@ -636,15 +614,15 @@ All attributes will be returned for base estimator</p>
 <dl class="method">
 <dt id="rep.estimators.sklearn.SklearnClassifier.fit">
 <code class="descname">fit</code><span class="sig-paren">(</span><em>X</em>, <em>y</em>, <em>sample_weight=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/estimators/sklearn.html#SklearnClassifier.fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.estimators.sklearn.SklearnClassifier.fit" title="Permalink to this definition">¶</a></dt>
-<dd><p>Train the classifier</p>
+<dd><p>Train the classifier.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>X</strong> (<em>pandas.DataFrame</em>) &#8211; data shape [n_samples, n_features]</li>
-<li><strong>y</strong> &#8211; labels of events - array-like of shape [n_samples]</li>
-<li><strong>sample_weight</strong> &#8211; weight of events,
+<li><strong>y</strong> &#8211; target of training, array-like of shape [n_samples]</li>
+<li><strong>sample_weight</strong> &#8211; weight of samples,
 array-like of shape [n_samples] or None if all weights are equal</li>
 </ul>
 </td>
@@ -656,20 +634,36 @@ array-like of shape [n_samples] or None if all weights are equal</li>
 </table>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">if sklearn classifier doesn&#8217;t support <em>sample_weight</em>, put <em>sample_weight=None</em>,
+<p class="last">if sklearn classifier doesn&#8217;t support <cite>sample_weight</cite>, then put <cite>sample_weight=None</cite>,
 otherwise exception will be thrown.</p>
 </div>
 </dd></dl>
 
 <dl class="method">
-<dt id="rep.estimators.sklearn.SklearnClassifier.predict_proba">
-<code class="descname">predict_proba</code><span class="sig-paren">(</span><em>X</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/estimators/sklearn.html#SklearnClassifier.predict_proba"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.estimators.sklearn.SklearnClassifier.predict_proba" title="Permalink to this definition">¶</a></dt>
-<dd><p>Predict probabilities for each class label on dataset</p>
+<dt id="rep.estimators.sklearn.SklearnClassifier.predict">
+<code class="descname">predict</code><span class="sig-paren">(</span><em>X</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/estimators/sklearn.html#SklearnClassifier.predict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.estimators.sklearn.SklearnClassifier.predict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Predict labels for all samples in the dataset.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>X</strong> &#8211; pandas.DataFrame of shape [n_samples, n_features]</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>X</strong> (<em>pandas.DataFrame</em>) &#8211; data of shape [n_samples, n_features]</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">numpy.array of shape [n_samples] with integer labels</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rep.estimators.sklearn.SklearnClassifier.predict_proba">
+<code class="descname">predict_proba</code><span class="sig-paren">(</span><em>X</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/estimators/sklearn.html#SklearnClassifier.predict_proba"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.estimators.sklearn.SklearnClassifier.predict_proba" title="Permalink to this definition">¶</a></dt>
+<dd><p>Predict probabilities for each class label for samples.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>X</strong> (<em>pandas.DataFrame</em>) &#8211; data of shape [n_samples, n_features]</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">numpy.array of shape [n_samples, n_classes] with probabilities</td>
 </tr>
@@ -678,33 +672,16 @@ otherwise exception will be thrown.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="rep.estimators.sklearn.SklearnClassifier.set_params">
-<code class="descname">set_params</code><span class="sig-paren">(</span><em>**params</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/estimators/sklearn.html#SklearnClassifier.set_params"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.estimators.sklearn.SklearnClassifier.set_params" title="Permalink to this definition">¶</a></dt>
-<dd><p>Set the parameters of this estimator.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>params</strong> (<em>dict</em>) &#8211; parameters to set in model</td>
-</tr>
-</tbody>
-</table>
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">parameters of base estimator can be accessed (for example param <cite>depth</cite>)
-by both <em>depth</em> and <em>clf__depth</em>.</p>
-</div>
-</dd></dl>
-
-<dl class="method">
 <dt id="rep.estimators.sklearn.SklearnClassifier.staged_predict_proba">
 <code class="descname">staged_predict_proba</code><span class="sig-paren">(</span><em>X</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/estimators/sklearn.html#SklearnClassifier.staged_predict_proba"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.estimators.sklearn.SklearnClassifier.staged_predict_proba" title="Permalink to this definition">¶</a></dt>
-<dd><p>Predicts probabilities on each stage</p>
+<dd><p>Predict probabilities for data for each class label on each stage (i.e. for boosting algorithms).</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">iterator</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>X</strong> (<em>pandas.DataFrame</em>) &#8211; data of shape [n_samples, n_features]</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">iterator</td>
 </tr>
 </tbody>
 </table>
@@ -715,14 +692,14 @@ by both <em>depth</em> and <em>clf__depth</em>.</p>
 <dl class="class">
 <dt id="rep.estimators.sklearn.SklearnRegressor">
 <em class="property">class </em><code class="descclassname">rep.estimators.sklearn.</code><code class="descname">SklearnRegressor</code><span class="sig-paren">(</span><em>clf</em>, <em>features=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/estimators/sklearn.html#SklearnRegressor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.estimators.sklearn.SklearnRegressor" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#rep.estimators.sklearn.SklearnBase" title="rep.estimators.sklearn.SklearnBase"><code class="xref py py-class docutils literal"><span class="pre">rep.estimators.sklearn.SklearnBase</span></code></a>, <a class="reference internal" href="#rep.estimators.interface.Regressor" title="rep.estimators.interface.Regressor"><code class="xref py py-class docutils literal"><span class="pre">rep.estimators.interface.Regressor</span></code></a></p>
-<p>SklearnClassifier is wrapper on sklearn-like regressors</p>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">rep.estimators.sklearn.SklearnBase</span></code>, <a class="reference internal" href="#rep.estimators.interface.Regressor" title="rep.estimators.interface.Regressor"><code class="xref py py-class docutils literal"><span class="pre">rep.estimators.interface.Regressor</span></code></a></p>
+<p>SklearnRegressor is a wrapper over sklearn-like <strong>regressors</strong></p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>clf</strong> (<em>sklearn.BaseEstimator</em>) &#8211; your classifier, which will be used for training</li>
+<li><strong>clf</strong> (<em>sklearn.BaseEstimator</em>) &#8211; classifier to train. Should be sklearn-compatible.</li>
 <li><strong>features</strong> (<em>list[str] or None</em>) &#8211; features used in training</li>
 </ul>
 </td>
@@ -732,15 +709,15 @@ by both <em>depth</em> and <em>clf__depth</em>.</p>
 <dl class="method">
 <dt id="rep.estimators.sklearn.SklearnRegressor.fit">
 <code class="descname">fit</code><span class="sig-paren">(</span><em>X</em>, <em>y</em>, <em>sample_weight=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/estimators/sklearn.html#SklearnRegressor.fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.estimators.sklearn.SklearnRegressor.fit" title="Permalink to this definition">¶</a></dt>
-<dd><p>Train the classifier</p>
+<dd><p>Train the classifier.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>X</strong> (<em>pandas.DataFrame</em>) &#8211; data shape [n_samples, n_features]</li>
-<li><strong>y</strong> &#8211; labels of events - array-like of shape [n_samples]</li>
-<li><strong>sample_weight</strong> &#8211; weight of events,
+<li><strong>y</strong> &#8211; target of training, array-like of shape [n_samples]</li>
+<li><strong>sample_weight</strong> &#8211; weight of samples,
 array-like of shape [n_samples] or None if all weights are equal</li>
 </ul>
 </td>
@@ -752,39 +729,38 @@ array-like of shape [n_samples] or None if all weights are equal</li>
 </table>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">if sklearn classifier doesn&#8217;t support <em>sample_weight</em> then put <em>sample_weight=None</em>,</p>
+<p class="last">if sklearn classifier doesn&#8217;t support <cite>sample_weight</cite>, then put <cite>sample_weight=None</cite>,
+otherwise exception will be thrown.</p>
 </div>
-<p>else exception will be thrown.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="rep.estimators.sklearn.SklearnRegressor.set_params">
-<code class="descname">set_params</code><span class="sig-paren">(</span><em>**params</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/estimators/sklearn.html#SklearnRegressor.set_params"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.estimators.sklearn.SklearnRegressor.set_params" title="Permalink to this definition">¶</a></dt>
-<dd><p>Set the parameters of this estimator.</p>
+<dt id="rep.estimators.sklearn.SklearnRegressor.predict">
+<code class="descname">predict</code><span class="sig-paren">(</span><em>X</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/estimators/sklearn.html#SklearnRegressor.predict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.estimators.sklearn.SklearnRegressor.predict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Predict values for data.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>params</strong> (<em>dict</em>) &#8211; parameters to set in model</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>X</strong> (<em>pandas.DataFrame</em>) &#8211; data of shape [n_samples, n_features]</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">numpy.array of shape [n_samples] with predicted values</td>
 </tr>
 </tbody>
 </table>
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">Access to all parameters of base estimator can be done by (for example param <cite>depth</cite>) <em>model.clf__depth</em>.</p>
-</div>
 </dd></dl>
 
 <dl class="method">
 <dt id="rep.estimators.sklearn.SklearnRegressor.staged_predict">
 <code class="descname">staged_predict</code><span class="sig-paren">(</span><em>X</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/estimators/sklearn.html#SklearnRegressor.staged_predict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.estimators.sklearn.SklearnRegressor.staged_predict" title="Permalink to this definition">¶</a></dt>
-<dd><p>Predicts regression target at each stage for X.
-This method allows monitoring of error after each stage.</p>
+<dd><p>Predicts values for data on each stage (i.e. for boosting algorithms).</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">iterator</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>X</strong> (<em>pandas.DataFrame</em>) &#8211; data of shape [n_samples, n_features]</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">iterator</td>
 </tr>
 </tbody>
 </table>
@@ -798,37 +774,12 @@ This method allows monitoring of error after each stage.</p>
 <p>These classes are wrappers for physics machine learning library TMVA used .root format files (c++ library).
 Now you can simply use it in python. TMVA contains classification and regression algorithms, including neural networks.
 See <a class="reference external" href="http://mirror.yandex.ru/gentoo-distfiles/distfiles/TMVAUsersGuide-v4.03.pdf">TMVA guide</a>
-for list of available algorithms and parameters.</p>
-<dl class="class">
-<dt id="rep.estimators.tmva.TMVABase">
-<em class="property">class </em><code class="descclassname">rep.estimators.tmva.</code><code class="descname">TMVABase</code><span class="sig-paren">(</span><em>factory_options=''</em>, <em>method='kBDT'</em>, <em>**method_parameters</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/estimators/tmva.html#TMVABase"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.estimators.tmva.TMVABase" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
-<p>TMVABase - base estimator for tmva wrappers.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>method</strong> (<em>str</em>) &#8211; algorithm method (default=&#8217;kBDT&#8217;)</li>
-<li><strong>features</strong> (<em>list[str] or None</em>) &#8211; features used in training</li>
-<li><strong>factory_options</strong> (<em>str</em>) &#8211; system options</li>
-<li><strong>method_parameters</strong> (<em>dict</em>) &#8211; estimator options</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">TMVA doesn&#8217;t support staged predictions and features importances =((</p>
-</div>
-</dd></dl>
-
+for the list of the available algorithms and parameters.</p>
 <dl class="class">
 <dt id="rep.estimators.tmva.TMVAClassifier">
 <em class="property">class </em><code class="descclassname">rep.estimators.tmva.</code><code class="descname">TMVAClassifier</code><span class="sig-paren">(</span><em>method='kBDT'</em>, <em>features=None</em>, <em>factory_options=''</em>, <em>sigmoid_function='bdt'</em>, <em>**method_parameters</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/estimators/tmva.html#TMVAClassifier"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.estimators.tmva.TMVAClassifier" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#rep.estimators.tmva.TMVABase" title="rep.estimators.tmva.TMVABase"><code class="xref py py-class docutils literal"><span class="pre">rep.estimators.tmva.TMVABase</span></code></a>, <a class="reference internal" href="#rep.estimators.interface.Classifier" title="rep.estimators.interface.Classifier"><code class="xref py py-class docutils literal"><span class="pre">rep.estimators.interface.Classifier</span></code></a></p>
-<p>TMVAClassifier wraps classifiers from TMVA (CERN library for machine learning)</p>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">rep.estimators.tmva.TMVABase</span></code>, <a class="reference internal" href="#rep.estimators.interface.Classifier" title="rep.estimators.interface.Classifier"><code class="xref py py-class docutils literal"><span class="pre">rep.estimators.interface.Classifier</span></code></a></p>
+<p>Implements classification models from TMVA library: CERN library for machine learning.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -836,22 +787,22 @@ for list of available algorithms and parameters.</p>
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>method</strong> (<em>str</em>) &#8211; algorithm method (default=&#8217;kBDT&#8217;)</li>
 <li><strong>features</strong> (<em>list[str] or None</em>) &#8211; features used in training</li>
-<li><strong>factory_options</strong> (<em>str</em>) &#8211; <p>options, for example:</p>
+<li><strong>factory_options</strong> (<em>str</em>) &#8211; <p>system options, including data transformations before training, for example:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="s">&quot;!V:!Silent:Color:Transformations=I;D;P;G,D&quot;</span>
 </pre></div>
 </div>
 </li>
 <li><strong>sigmoid_function</strong> (<em>str</em>) &#8211; <p>function which is used to convert TMVA output to probabilities;</p>
 <ul>
-<li><em>identity</em> (use for svm, mlp) &#8212; the same output, use this for methods returning class probabilities</li>
+<li><em>identity</em> (use for svm, mlp) &#8212; do not transform the output, use this value for methods returning class probabilities</li>
 <li><em>sigmoid</em> &#8212; sigmoid transformation, use it if output varies in range [-infinity, +infinity]</li>
-<li><em>bdt</em> (for bdt algorithms output varies in range [-1, 1])</li>
-<li><em>sig_eff=0.4</em> &#8212; for rectangular cut optimization methods,</li>
+<li><em>bdt</em> (for the BDT algorithms output varies in range [-1, 1])</li>
+<li><em>sig_eff=0.4</em> &#8212; for the rectangular cut optimization methods,
+for instance, here 0.4 will be used as a signal efficiency to evaluate MVA,
+(put any float number from [0, 1])</li>
 </ul>
-<p>for instance, here 0.4 will be used as signal efficiency to evaluate MVA,
-(put any float number from [0, 1])</p>
 </li>
-<li><strong>method_parameters</strong> (<em>dict</em>) &#8211; estimator options, example: NTrees=100, BoostType=&#8217;Grad&#8217;</li>
+<li><strong>method_parameters</strong> (<em>dict</em>) &#8211; classifier options, example: <cite>NTrees=100</cite>, <cite>BoostType=&#8217;Grad&#8217;</cite>.</li>
 </ul>
 </td>
 </tr>
@@ -859,25 +810,22 @@ for list of available algorithms and parameters.</p>
 </table>
 <div class="admonition warning">
 <p class="first admonition-title">Warning</p>
-<p class="last">TMVA doesn&#8217;t support <em>staged_predict_proba()</em> and <em>feature_importances__</em></p>
+<p>TMVA doesn&#8217;t support <em>staged_predict_proba()</em> and <em>feature_importances__</em>.</p>
+<p class="last">TMVA doesn&#8217;t support multiclassification, only two-class classification.</p>
 </div>
-<div class="admonition warning">
-<p class="first admonition-title">Warning</p>
-<p class="last">TMVA doesn&#8217;t support multiclassification, only two-class classification</p>
-</div>
-<p><a class="reference external" href="http://mirror.yandex.ru/gentoo-distfiles/distfiles/TMVAUsersGuide-v4.03.pdf">TMVA guide</a></p>
+<p><a class="reference external" href="http://mirror.yandex.ru/gentoo-distfiles/distfiles/TMVAUsersGuide-v4.03.pdf">TMVA guide</a>.</p>
 <dl class="method">
 <dt id="rep.estimators.tmva.TMVAClassifier.fit">
 <code class="descname">fit</code><span class="sig-paren">(</span><em>X</em>, <em>y</em>, <em>sample_weight=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/estimators/tmva.html#TMVAClassifier.fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.estimators.tmva.TMVAClassifier.fit" title="Permalink to this definition">¶</a></dt>
-<dd><p>Train the classifier</p>
+<dd><p>Train a classification model on the data.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>X</strong> (<em>pandas.DataFrame</em>) &#8211; data shape [n_samples, n_features]</li>
-<li><strong>y</strong> &#8211; labels of events - array-like of shape [n_samples]</li>
-<li><strong>sample_weight</strong> &#8211; weight of events,
+<li><strong>X</strong> (<em>pandas.DataFrame</em>) &#8211; data of shape [n_samples, n_features]</li>
+<li><strong>y</strong> &#8211; labels of samples, array-like of shape [n_samples]</li>
+<li><strong>sample_weight</strong> &#8211; weight of samples,
 array-like of shape [n_samples] or None if all weights are equal</li>
 </ul>
 </td>
@@ -893,23 +841,25 @@ array-like of shape [n_samples] or None if all weights are equal</li>
 <dt id="rep.estimators.tmva.TMVAClassifier.get_params">
 <code class="descname">get_params</code><span class="sig-paren">(</span><em>deep=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/estimators/tmva.html#TMVAClassifier.get_params"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.estimators.tmva.TMVAClassifier.get_params" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get parameters for this estimator.</p>
-<p>deep: boolean, optional</p>
-<blockquote>
-<div>If True, will return the parameters for this estimator and contained subobjects that are estimators.</div></blockquote>
-<p>params : mapping of string to any</p>
-<blockquote>
-<div>Parameter names mapped to their values.</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">dict, parameter names mapped to their values.</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="rep.estimators.tmva.TMVAClassifier.predict_proba">
 <code class="descname">predict_proba</code><span class="sig-paren">(</span><em>X</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/estimators/tmva.html#TMVAClassifier.predict_proba"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.estimators.tmva.TMVAClassifier.predict_proba" title="Permalink to this definition">¶</a></dt>
-<dd><p>Predict probabilities for new data.</p>
+<dd><p>Predict probabilities for each class label for samples.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>X</strong> (<em>pandas.DataFrame</em>) &#8211; data shape [n_samples, n_features]</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>X</strong> (<em>pandas.DataFrame</em>) &#8211; data of shape [n_samples, n_features]</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">numpy.array of shape [n_samples, n_classes] with probabilities</td>
 </tr>
@@ -925,7 +875,7 @@ array-like of shape [n_samples] or None if all weights are equal</li>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>params</strong> (<em>dict</em>) &#8211; parameters to set in model</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>params</strong> (<em>dict</em>) &#8211; parameters to set in the model</td>
 </tr>
 </tbody>
 </table>
@@ -934,20 +884,9 @@ array-like of shape [n_samples] or None if all weights are equal</li>
 <dl class="method">
 <dt id="rep.estimators.tmva.TMVAClassifier.staged_predict_proba">
 <code class="descname">staged_predict_proba</code><span class="sig-paren">(</span><em>X</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/estimators/tmva.html#TMVAClassifier.staged_predict_proba"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.estimators.tmva.TMVAClassifier.staged_predict_proba" title="Permalink to this definition">¶</a></dt>
-<dd><p>Predicts probabilities on each stage</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>X</strong> (<em>pandas.DataFrame</em>) &#8211; data shape [n_samples, n_features]</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">iterator</td>
-</tr>
-</tbody>
-</table>
-<div class="admonition warning">
+<dd><div class="admonition warning">
 <p class="first admonition-title">Warning</p>
-<p class="last">Not supported for TMVA (<strong>AttributeError</strong> will be thrown)</p>
+<p class="last">This function is not supported for the TMVA library (<strong>AttributeError</strong> will be thrown)</p>
 </div>
 </dd></dl>
 
@@ -956,8 +895,8 @@ array-like of shape [n_samples] or None if all weights are equal</li>
 <dl class="class">
 <dt id="rep.estimators.tmva.TMVARegressor">
 <em class="property">class </em><code class="descclassname">rep.estimators.tmva.</code><code class="descname">TMVARegressor</code><span class="sig-paren">(</span><em>method='kBDT'</em>, <em>features=None</em>, <em>factory_options=''</em>, <em>**method_parameters</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/estimators/tmva.html#TMVARegressor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.estimators.tmva.TMVARegressor" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#rep.estimators.tmva.TMVABase" title="rep.estimators.tmva.TMVABase"><code class="xref py py-class docutils literal"><span class="pre">rep.estimators.tmva.TMVABase</span></code></a>, <a class="reference internal" href="#rep.estimators.interface.Regressor" title="rep.estimators.interface.Regressor"><code class="xref py py-class docutils literal"><span class="pre">rep.estimators.interface.Regressor</span></code></a></p>
-<p>TMVARegressor wraps regressors from TMVA (CERN library for machine learning)</p>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">rep.estimators.tmva.TMVABase</span></code>, <a class="reference internal" href="#rep.estimators.interface.Regressor" title="rep.estimators.interface.Regressor"><code class="xref py py-class docutils literal"><span class="pre">rep.estimators.interface.Regressor</span></code></a></p>
+<p>Implements regression models from TMVA library: CERN library for machine learning.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -965,34 +904,34 @@ array-like of shape [n_samples] or None if all weights are equal</li>
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>method</strong> (<em>str</em>) &#8211; algorithm method (default=&#8217;kBDT&#8217;)</li>
 <li><strong>features</strong> (<em>list[str] or None</em>) &#8211; features used in training</li>
-<li><strong>factory_options</strong> (<em>str</em>) &#8211; <p>options, for example:</p>
+<li><strong>factory_options</strong> (<em>str</em>) &#8211; <p>system options, including data transformations before training, for example:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="s">&quot;!V:!Silent:Color:Transformations=I;D;P;G,D&quot;</span>
 </pre></div>
 </div>
 </li>
-<li><strong>method_parameters</strong> (<em>dict</em>) &#8211; estimator options, example: NTrees=100, BoostType=Grad</li>
+<li><strong>method_parameters</strong> (<em>dict</em>) &#8211; regressor options, for example: <cite>NTrees=100</cite>, <cite>BoostType=&#8217;Grad&#8217;</cite></li>
 </ul>
 </td>
 </tr>
 </tbody>
 </table>
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">TMVA doesn&#8217;t support <em>staged_predict()</em> and <em>feature_importances__</em></p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">TMVA doesn&#8217;t support <em>staged_predict()</em> and <em>feature_importances__</em>.</p>
 </div>
 <p><a class="reference external" href="http://mirror.yandex.ru/gentoo-distfiles/distfiles/TMVAUsersGuide-v4.03.pdf">TMVA guide</a></p>
 <dl class="method">
 <dt id="rep.estimators.tmva.TMVARegressor.fit">
 <code class="descname">fit</code><span class="sig-paren">(</span><em>X</em>, <em>y</em>, <em>sample_weight=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/estimators/tmva.html#TMVARegressor.fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.estimators.tmva.TMVARegressor.fit" title="Permalink to this definition">¶</a></dt>
-<dd><p>Train the classifier</p>
+<dd><p>Train a regression model on the data.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>X</strong> (<em>pandas.DataFrame</em>) &#8211; data shape [n_samples, n_features]</li>
-<li><strong>y</strong> &#8211; values - array-like of shape [n_samples]</li>
-<li><strong>sample_weight</strong> &#8211; weight of events,
+<li><strong>X</strong> (<em>pandas.DataFrame</em>) &#8211; data of shape [n_samples, n_features]</li>
+<li><strong>y</strong> &#8211; values for samples, array-like of shape [n_samples]</li>
+<li><strong>sample_weight</strong> &#8211; weight of samples,
 array-like of shape [n_samples] or None if all weights are equal</li>
 </ul>
 </td>
@@ -1008,25 +947,27 @@ array-like of shape [n_samples] or None if all weights are equal</li>
 <dt id="rep.estimators.tmva.TMVARegressor.get_params">
 <code class="descname">get_params</code><span class="sig-paren">(</span><em>deep=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/estimators/tmva.html#TMVARegressor.get_params"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.estimators.tmva.TMVARegressor.get_params" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get parameters for this estimator.</p>
-<p>deep: boolean, optional</p>
-<blockquote>
-<div>If True, will return the parameters for this estimator and contained subobjects that are estimators.</div></blockquote>
-<p>params : mapping of string to any</p>
-<blockquote>
-<div>Parameter names mapped to their values.</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">dict, parameter names mapped to their values.</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="rep.estimators.tmva.TMVARegressor.predict">
 <code class="descname">predict</code><span class="sig-paren">(</span><em>X</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/estimators/tmva.html#TMVARegressor.predict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.estimators.tmva.TMVARegressor.predict" title="Permalink to this definition">¶</a></dt>
-<dd><p>Predict data</p>
+<dd><p>Predict values for data.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>X</strong> (<em>pandas.DataFrame</em>) &#8211; data shape [n_samples, n_features]</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>X</strong> (<em>pandas.DataFrame</em>) &#8211; data of shape [n_samples, n_features]</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">numpy.array of shape n_samples with values</td>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">numpy.array of shape [n_samples] with predicted values</td>
 </tr>
 </tbody>
 </table>
@@ -1040,7 +981,7 @@ array-like of shape [n_samples] or None if all weights are equal</li>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>params</strong> (<em>dict</em>) &#8211; parameters to set in model</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>params</strong> (<em>dict</em>) &#8211; parameters to set in the model</td>
 </tr>
 </tbody>
 </table>
@@ -1049,20 +990,9 @@ array-like of shape [n_samples] or None if all weights are equal</li>
 <dl class="method">
 <dt id="rep.estimators.tmva.TMVARegressor.staged_predict">
 <code class="descname">staged_predict</code><span class="sig-paren">(</span><em>X</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/estimators/tmva.html#TMVARegressor.staged_predict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.estimators.tmva.TMVARegressor.staged_predict" title="Permalink to this definition">¶</a></dt>
-<dd><p>Predicts values on each stage</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>X</strong> (<em>pandas.DataFrame</em>) &#8211; data shape [n_samples, n_features]</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">iterator</td>
-</tr>
-</tbody>
-</table>
-<div class="admonition warning">
+<dd><div class="admonition warning">
 <p class="first admonition-title">Warning</p>
-<p class="last">Not supported for TMVA (<strong>AttributeError</strong> will be thrown)</p>
+<p class="last">This function is not supported for the TMVA library (<strong>AttributeError</strong> will be thrown)</p>
 </div>
 </dd></dl>
 
@@ -1071,29 +1001,29 @@ array-like of shape [n_samples] or None if all weights are equal</li>
 </div>
 <div class="section" id="module-rep.estimators.xgboost">
 <span id="xgboost-classifier-and-regressor"></span><h2>XGBoost classifier and regressor<a class="headerlink" href="#module-rep.estimators.xgboost" title="Permalink to this headline">¶</a></h2>
-<p>Wrapper for <a class="reference external" href="https://github.com/dmlc/xgboost">XGBoost</a> library.</p>
+<p>These classes are wrappers for <a class="reference external" href="https://github.com/dmlc/xgboost">XGBoost library</a>.</p>
 <dl class="class">
 <dt id="rep.estimators.xgboost.XGBoostBase">
 <em class="property">class </em><code class="descclassname">rep.estimators.xgboost.</code><code class="descname">XGBoostBase</code><span class="sig-paren">(</span><em>n_estimators=100</em>, <em>nthreads=16</em>, <em>num_feature=None</em>, <em>gamma=None</em>, <em>eta=0.3</em>, <em>max_depth=6</em>, <em>scale_pos_weight=1.0</em>, <em>min_child_weight=1.0</em>, <em>subsample=1.0</em>, <em>colsample=1.0</em>, <em>base_score=0.5</em>, <em>verbose=0</em>, <em>missing=-999.0</em>, <em>random_state=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/estimators/xgboost.html#XGBoostBase"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.estimators.xgboost.XGBoostBase" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
-<p>Base class for XGBoostClassifier and XGBoostRegressor. XGBoost tree booster is used.</p>
+<p>A base class for the XGBoostClassifier and XGBoostRegressor. XGBoost tree booster is used.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>n_estimators</strong> (<em>int</em>) &#8211; the number of trees built.</li>
-<li><strong>nthreads</strong> (<em>int</em>) &#8211; number of parallel threads used to run xgboost.</li>
+<li><strong>n_estimators</strong> (<em>int</em>) &#8211; number of trees built.</li>
+<li><strong>nthreads</strong> (<em>int</em>) &#8211; number of parallel threads used to run XGBoost.</li>
 <li><strong>num_feature</strong> (<em>None or int</em>) &#8211; feature dimension used in boosting, set to maximum dimension of the feature
-(set automatically by xgboost, no need to be set by user).</li>
+(set automatically by XGBoost, no need to be set by user).</li>
 <li><strong>gamma</strong> (<em>None or float</em>) &#8211; minimum loss reduction required to make a further partition on a leaf node of the tree.
 The larger, the more conservative the algorithm will be.</li>
-<li><strong>eta</strong> (<em>float</em>) &#8211; step size shrinkage used in update to prevent overfitting.
+<li><strong>eta</strong> (<em>float</em>) &#8211; (or learning rate) step size shrinkage used in update to prevent overfitting.
 After each boosting step, we can directly get the weights of new features
-and eta actually shrinkage the feature weights to make the boosting process more conservative.</li>
+and eta actually shrinkages the feature weights to make the boosting process more conservative.</li>
 <li><strong>max_depth</strong> (<em>int</em>) &#8211; maximum depth of a tree.</li>
 <li><strong>scale_pos_weight</strong> (<em>float</em>) &#8211; ration of weights of the class 1 to the weights of the class 0.</li>
-<li><strong>min_child_weight</strong> (<em>float</em>) &#8211; <p>minimum sum of instance weight(hessian) needed in a child.
+<li><strong>min_child_weight</strong> (<em>float</em>) &#8211; <p>minimum sum of instance weight (hessian) needed in a child.
 If the tree partition step results in a leaf node with the sum of instance weight less than min_child_weight,
 then the building process will give up further partitioning.</p>
 <div class="admonition note">
@@ -1106,9 +1036,9 @@ Setting it to 0.5 means that XGBoost randomly collected half of the data instanc
 and this will prevent overfitting.</li>
 <li><strong>colsample</strong> (<em>float</em>) &#8211; subsample ratio of columns when constructing each tree.</li>
 <li><strong>base_score</strong> (<em>float</em>) &#8211; the initial prediction score of all instances, global bias.</li>
-<li><strong>random_state</strong> (<em>int</em>) &#8211; random number seed.</li>
+<li><strong>random_state</strong> (<em>None or int or RandomState</em>) &#8211; state for a pseudo random generator</li>
 <li><strong>verbose</strong> (<em>boot</em>) &#8211; if 1, will print messages during training</li>
-<li><strong>missing</strong> (<em>float</em>) &#8211; the number considered by xgboost as missing value.</li>
+<li><strong>missing</strong> (<em>float</em>) &#8211; the number considered by XGBoost as missing value.</li>
 </ul>
 </td>
 </tr>
@@ -1124,12 +1054,12 @@ This returned as numpy.array, assuming that initially passed train_features=None
 <dl class="method">
 <dt id="rep.estimators.xgboost.XGBoostBase.get_feature_importances">
 <code class="descname">get_feature_importances</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/estimators/xgboost.html#XGBoostBase.get_feature_importances"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.estimators.xgboost.XGBoostBase.get_feature_importances" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get features importance</p>
+<dd><p>Get features importances.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">pandas.DataFrame with column effect and <cite>index=features</cite></td>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">pandas.DataFrame with <cite>index=self.features</cite></td>
 </tr>
 </tbody>
 </table>
@@ -1141,25 +1071,25 @@ This returned as numpy.array, assuming that initially passed train_features=None
 <dt id="rep.estimators.xgboost.XGBoostClassifier">
 <em class="property">class </em><code class="descclassname">rep.estimators.xgboost.</code><code class="descname">XGBoostClassifier</code><span class="sig-paren">(</span><em>features=None</em>, <em>n_estimators=100</em>, <em>nthreads=16</em>, <em>num_feature=None</em>, <em>gamma=None</em>, <em>eta=0.3</em>, <em>max_depth=6</em>, <em>scale_pos_weight=1.0</em>, <em>min_child_weight=1.0</em>, <em>subsample=1.0</em>, <em>colsample=1.0</em>, <em>base_score=0.5</em>, <em>verbose=0</em>, <em>missing=-999.0</em>, <em>random_state=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/estimators/xgboost.html#XGBoostClassifier"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.estimators.xgboost.XGBoostClassifier" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#rep.estimators.xgboost.XGBoostBase" title="rep.estimators.xgboost.XGBoostBase"><code class="xref py py-class docutils literal"><span class="pre">rep.estimators.xgboost.XGBoostBase</span></code></a>, <a class="reference internal" href="#rep.estimators.interface.Classifier" title="rep.estimators.interface.Classifier"><code class="xref py py-class docutils literal"><span class="pre">rep.estimators.interface.Classifier</span></code></a></p>
-<p>Implements classification (and multiclassification) from XGBoost library. 
-Base class for XGBoostClassifier and XGBoostRegressor. XGBoost tree booster is used.</p>
+<p>Implements classification model from XGBoost library. 
+A base class for the XGBoostClassifier and XGBoostRegressor. XGBoost tree booster is used.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>n_estimators</strong> (<em>int</em>) &#8211; the number of trees built.</li>
-<li><strong>nthreads</strong> (<em>int</em>) &#8211; number of parallel threads used to run xgboost.</li>
+<li><strong>n_estimators</strong> (<em>int</em>) &#8211; number of trees built.</li>
+<li><strong>nthreads</strong> (<em>int</em>) &#8211; number of parallel threads used to run XGBoost.</li>
 <li><strong>num_feature</strong> (<em>None or int</em>) &#8211; feature dimension used in boosting, set to maximum dimension of the feature
-(set automatically by xgboost, no need to be set by user).</li>
+(set automatically by XGBoost, no need to be set by user).</li>
 <li><strong>gamma</strong> (<em>None or float</em>) &#8211; minimum loss reduction required to make a further partition on a leaf node of the tree.
 The larger, the more conservative the algorithm will be.</li>
-<li><strong>eta</strong> (<em>float</em>) &#8211; step size shrinkage used in update to prevent overfitting.
+<li><strong>eta</strong> (<em>float</em>) &#8211; (or learning rate) step size shrinkage used in update to prevent overfitting.
 After each boosting step, we can directly get the weights of new features
-and eta actually shrinkage the feature weights to make the boosting process more conservative.</li>
+and eta actually shrinkages the feature weights to make the boosting process more conservative.</li>
 <li><strong>max_depth</strong> (<em>int</em>) &#8211; maximum depth of a tree.</li>
 <li><strong>scale_pos_weight</strong> (<em>float</em>) &#8211; ration of weights of the class 1 to the weights of the class 0.</li>
-<li><strong>min_child_weight</strong> (<em>float</em>) &#8211; <p>minimum sum of instance weight(hessian) needed in a child.
+<li><strong>min_child_weight</strong> (<em>float</em>) &#8211; <p>minimum sum of instance weight (hessian) needed in a child.
 If the tree partition step results in a leaf node with the sum of instance weight less than min_child_weight,
 then the building process will give up further partitioning.</p>
 <div class="admonition note">
@@ -1172,9 +1102,9 @@ Setting it to 0.5 means that XGBoost randomly collected half of the data instanc
 and this will prevent overfitting.</li>
 <li><strong>colsample</strong> (<em>float</em>) &#8211; subsample ratio of columns when constructing each tree.</li>
 <li><strong>base_score</strong> (<em>float</em>) &#8211; the initial prediction score of all instances, global bias.</li>
-<li><strong>random_state</strong> (<em>int</em>) &#8211; random number seed.</li>
+<li><strong>random_state</strong> (<em>None or int or RandomState</em>) &#8211; state for a pseudo random generator</li>
 <li><strong>verbose</strong> (<em>boot</em>) &#8211; if 1, will print messages during training</li>
-<li><strong>missing</strong> (<em>float</em>) &#8211; the number considered by xgboost as missing value.</li>
+<li><strong>missing</strong> (<em>float</em>) &#8211; the number considered by XGBoost as missing value.</li>
 </ul>
 </td>
 </tr>
@@ -1183,15 +1113,15 @@ and this will prevent overfitting.</li>
 <dl class="method">
 <dt id="rep.estimators.xgboost.XGBoostClassifier.fit">
 <code class="descname">fit</code><span class="sig-paren">(</span><em>X</em>, <em>y</em>, <em>sample_weight=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/estimators/xgboost.html#XGBoostClassifier.fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.estimators.xgboost.XGBoostClassifier.fit" title="Permalink to this definition">¶</a></dt>
-<dd><p>Train the classifier</p>
+<dd><p>Train a classification model on the data.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>X</strong> (<em>pandas.DataFrame</em>) &#8211; data shape [n_samples, n_features]</li>
-<li><strong>y</strong> &#8211; labels of events - array-like of shape [n_samples]</li>
-<li><strong>sample_weight</strong> &#8211; weight of events,
+<li><strong>X</strong> (<em>pandas.DataFrame</em>) &#8211; data of shape [n_samples, n_features]</li>
+<li><strong>y</strong> &#8211; labels of samples, array-like of shape [n_samples]</li>
+<li><strong>sample_weight</strong> &#8211; weight of samples,
 array-like of shape [n_samples] or None if all weights are equal</li>
 </ul>
 </td>
@@ -1206,12 +1136,12 @@ array-like of shape [n_samples] or None if all weights are equal</li>
 <dl class="method">
 <dt id="rep.estimators.xgboost.XGBoostClassifier.predict_proba">
 <code class="descname">predict_proba</code><span class="sig-paren">(</span><em>X</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/estimators/xgboost.html#XGBoostClassifier.predict_proba"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.estimators.xgboost.XGBoostClassifier.predict_proba" title="Permalink to this definition">¶</a></dt>
-<dd><p>Predict probabilities for data X.</p>
+<dd><p>Predict probabilities for each class label for samples.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>X</strong> (<em>pandas.DataFrame</em>) &#8211; data shape [n_samples, n_features]</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>X</strong> (<em>pandas.DataFrame</em>) &#8211; data of shape [n_samples, n_features]</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">numpy.array of shape [n_samples, n_classes] with probabilities</td>
 </tr>
@@ -1221,12 +1151,26 @@ array-like of shape [n_samples] or None if all weights are equal</li>
 
 <dl class="method">
 <dt id="rep.estimators.xgboost.XGBoostClassifier.staged_predict_proba">
-<code class="descname">staged_predict_proba</code><span class="sig-paren">(</span><em>X</em>, <em>step=10</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/estimators/xgboost.html#XGBoostClassifier.staged_predict_proba"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.estimators.xgboost.XGBoostClassifier.staged_predict_proba" title="Permalink to this definition">¶</a></dt>
-<dd><p>Predicts probabilities on each stage for data X.
-:param pandas.DataFrame X: data shape [n_samples, n_features]
-:param int step: step for returned iterations
-:return: iterator
-.. warning: this method may be very slow, it takes iterations^2 / step time.</p>
+<code class="descname">staged_predict_proba</code><span class="sig-paren">(</span><em>X</em>, <em>step=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/estimators/xgboost.html#XGBoostClassifier.staged_predict_proba"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.estimators.xgboost.XGBoostClassifier.staged_predict_proba" title="Permalink to this definition">¶</a></dt>
+<dd><p>Predict probabilities for data for each class label on each stage..</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>X</strong> (<em>pandas.DataFrame</em>) &#8211; data of shape [n_samples, n_features]</li>
+<li><strong>step</strong> (<em>int</em>) &#8211; step for returned iterations (None by default).
+XGBoost does not implement this functionality and we need to
+predict from the beginning each time.
+With <cite>None</cite> passed step is chosen to have 10 points in the learning curve.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">iterator</p>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 </dd></dl>
@@ -1235,25 +1179,25 @@ array-like of shape [n_samples] or None if all weights are equal</li>
 <dt id="rep.estimators.xgboost.XGBoostRegressor">
 <em class="property">class </em><code class="descclassname">rep.estimators.xgboost.</code><code class="descname">XGBoostRegressor</code><span class="sig-paren">(</span><em>features=None</em>, <em>n_estimators=100</em>, <em>nthreads=16</em>, <em>num_feature=None</em>, <em>gamma=None</em>, <em>eta=0.3</em>, <em>max_depth=6</em>, <em>min_child_weight=1.0</em>, <em>subsample=1.0</em>, <em>colsample=1.0</em>, <em>objective_type='linear'</em>, <em>base_score=0.5</em>, <em>verbose=0</em>, <em>missing=-999.0</em>, <em>random_state=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/estimators/xgboost.html#XGBoostRegressor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.estimators.xgboost.XGBoostRegressor" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#rep.estimators.xgboost.XGBoostBase" title="rep.estimators.xgboost.XGBoostBase"><code class="xref py py-class docutils literal"><span class="pre">rep.estimators.xgboost.XGBoostBase</span></code></a>, <a class="reference internal" href="#rep.estimators.interface.Regressor" title="rep.estimators.interface.Regressor"><code class="xref py py-class docutils literal"><span class="pre">rep.estimators.interface.Regressor</span></code></a></p>
-<p>Implements regression from XGBoost library. 
-Base class for XGBoostClassifier and XGBoostRegressor. XGBoost tree booster is used.</p>
+<p>Implements regression model from XGBoost library. 
+A base class for the XGBoostClassifier and XGBoostRegressor. XGBoost tree booster is used.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>n_estimators</strong> (<em>int</em>) &#8211; the number of trees built.</li>
-<li><strong>nthreads</strong> (<em>int</em>) &#8211; number of parallel threads used to run xgboost.</li>
+<li><strong>n_estimators</strong> (<em>int</em>) &#8211; number of trees built.</li>
+<li><strong>nthreads</strong> (<em>int</em>) &#8211; number of parallel threads used to run XGBoost.</li>
 <li><strong>num_feature</strong> (<em>None or int</em>) &#8211; feature dimension used in boosting, set to maximum dimension of the feature
-(set automatically by xgboost, no need to be set by user).</li>
+(set automatically by XGBoost, no need to be set by user).</li>
 <li><strong>gamma</strong> (<em>None or float</em>) &#8211; minimum loss reduction required to make a further partition on a leaf node of the tree.
 The larger, the more conservative the algorithm will be.</li>
-<li><strong>eta</strong> (<em>float</em>) &#8211; step size shrinkage used in update to prevent overfitting.
+<li><strong>eta</strong> (<em>float</em>) &#8211; (or learning rate) step size shrinkage used in update to prevent overfitting.
 After each boosting step, we can directly get the weights of new features
-and eta actually shrinkage the feature weights to make the boosting process more conservative.</li>
+and eta actually shrinkages the feature weights to make the boosting process more conservative.</li>
 <li><strong>max_depth</strong> (<em>int</em>) &#8211; maximum depth of a tree.</li>
 <li><strong>scale_pos_weight</strong> (<em>float</em>) &#8211; ration of weights of the class 1 to the weights of the class 0.</li>
-<li><strong>min_child_weight</strong> (<em>float</em>) &#8211; <p>minimum sum of instance weight(hessian) needed in a child.
+<li><strong>min_child_weight</strong> (<em>float</em>) &#8211; <p>minimum sum of instance weight (hessian) needed in a child.
 If the tree partition step results in a leaf node with the sum of instance weight less than min_child_weight,
 then the building process will give up further partitioning.</p>
 <div class="admonition note">
@@ -1266,9 +1210,9 @@ Setting it to 0.5 means that XGBoost randomly collected half of the data instanc
 and this will prevent overfitting.</li>
 <li><strong>colsample</strong> (<em>float</em>) &#8211; subsample ratio of columns when constructing each tree.</li>
 <li><strong>base_score</strong> (<em>float</em>) &#8211; the initial prediction score of all instances, global bias.</li>
-<li><strong>random_state</strong> (<em>int</em>) &#8211; random number seed.</li>
+<li><strong>random_state</strong> (<em>None or int or RandomState</em>) &#8211; state for a pseudo random generator</li>
 <li><strong>verbose</strong> (<em>boot</em>) &#8211; if 1, will print messages during training</li>
-<li><strong>missing</strong> (<em>float</em>) &#8211; the number considered by xgboost as missing value.</li>
+<li><strong>missing</strong> (<em>float</em>) &#8211; the number considered by XGBoost as missing value.</li>
 </ul>
 </td>
 </tr>
@@ -1277,15 +1221,15 @@ and this will prevent overfitting.</li>
 <dl class="method">
 <dt id="rep.estimators.xgboost.XGBoostRegressor.fit">
 <code class="descname">fit</code><span class="sig-paren">(</span><em>X</em>, <em>y</em>, <em>sample_weight=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/estimators/xgboost.html#XGBoostRegressor.fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.estimators.xgboost.XGBoostRegressor.fit" title="Permalink to this definition">¶</a></dt>
-<dd><p>Train the classifier on training dataset</p>
+<dd><p>Train a regression model on the data.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>X</strong> (<em>pandas.DataFrame</em>) &#8211; data shape [n_samples, n_features]</li>
-<li><strong>y</strong> &#8211; regression targets of events - array-like of shape [n_samples]</li>
-<li><strong>sample_weight</strong> &#8211; weight of events,
+<li><strong>X</strong> (<em>pandas.DataFrame</em>) &#8211; data of shape [n_samples, n_features]</li>
+<li><strong>y</strong> &#8211; values for samples, array-like of shape [n_samples]</li>
+<li><strong>sample_weight</strong> &#8211; weight of samples,
 array-like of shape [n_samples] or None if all weights are equal</li>
 </ul>
 </td>
@@ -1300,14 +1244,14 @@ array-like of shape [n_samples] or None if all weights are equal</li>
 <dl class="method">
 <dt id="rep.estimators.xgboost.XGBoostRegressor.predict">
 <code class="descname">predict</code><span class="sig-paren">(</span><em>X</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/estimators/xgboost.html#XGBoostRegressor.predict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.estimators.xgboost.XGBoostRegressor.predict" title="Permalink to this definition">¶</a></dt>
-<dd><p>Predicts regression target for X.</p>
+<dd><p>Predict values for data.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>X</strong> (<em>pandas.DataFrame</em>) &#8211; data shape [n_samples, n_features]</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>X</strong> (<em>pandas.DataFrame</em>) &#8211; data of shape [n_samples, n_features]</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">numpy.array of shape [n_samples, n_classes] with probabilities</td>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">numpy.array of shape [n_samples] with predicted values</td>
 </tr>
 </tbody>
 </table>
@@ -1315,15 +1259,18 @@ array-like of shape [n_samples] or None if all weights are equal</li>
 
 <dl class="method">
 <dt id="rep.estimators.xgboost.XGBoostRegressor.staged_predict">
-<code class="descname">staged_predict</code><span class="sig-paren">(</span><em>X</em>, <em>step=10</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/estimators/xgboost.html#XGBoostRegressor.staged_predict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.estimators.xgboost.XGBoostRegressor.staged_predict" title="Permalink to this definition">¶</a></dt>
-<dd><p>Predicts regression target at each stage for X.</p>
+<code class="descname">staged_predict</code><span class="sig-paren">(</span><em>X</em>, <em>step=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/estimators/xgboost.html#XGBoostRegressor.staged_predict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.estimators.xgboost.XGBoostRegressor.staged_predict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Predicts values for data on each stage.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>X</strong> (<em>pandas.DataFrame</em>) &#8211; data shape [n_samples, n_features]</li>
-<li><strong>step</strong> (<em>int</em>) &#8211; step for returned iterations</li>
+<li><strong>X</strong> &#8211; pandas.DataFrame of shape [n_samples, n_features]</li>
+<li><strong>step</strong> (<em>int</em>) &#8211; step for returned iterations (None by default).
+XGBoost does not implement this functionality and we need to
+predict from the beginning each time.
+With <cite>None</cite> passed step is chosen to have 10 points in the learning curve.</li>
 </ul>
 </td>
 </tr>
@@ -1339,12 +1286,12 @@ array-like of shape [n_samples] or None if all weights are equal</li>
 </div>
 <div class="section" id="module-rep.estimators.theanets">
 <span id="theanets-classifier-and-regressor"></span><h2>Theanets classifier and regressor<a class="headerlink" href="#module-rep.estimators.theanets" title="Permalink to this headline">¶</a></h2>
-<p>These classes are wrappers for <a class="reference external" href="http://theanets.readthedocs.org/">theanets</a> - neural network python library.</p>
+<p>These classes are wrappers for <a class="reference external" href="http://theanets.readthedocs.org/">theanets library</a> &#8212; a neural network python library.</p>
 <dl class="class">
 <dt id="rep.estimators.theanets.TheanetsBase">
 <em class="property">class </em><code class="descclassname">rep.estimators.theanets.</code><code class="descname">TheanetsBase</code><span class="sig-paren">(</span><em>features=None</em>, <em>layers=(10</em>, <em>)</em>, <em>input_layer=-1</em>, <em>output_layer=-1</em>, <em>hidden_activation='logistic'</em>, <em>output_activation='linear'</em>, <em>input_noise=0</em>, <em>hidden_noise=0</em>, <em>input_dropout=0</em>, <em>hidden_dropout=0</em>, <em>decode_from=1</em>, <em>weight_l1=0.01</em>, <em>weight_l2=0.01</em>, <em>scaler='standard'</em>, <em>trainers=None</em>, <em>random_state=42</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/estimators/theanets.html#TheanetsBase"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.estimators.theanets.TheanetsBase" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
-<p>Base class for estimators from Theanets library.</p>
+<p>A base class for the estimators from Theanets library.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -1352,42 +1299,42 @@ array-like of shape [n_samples] or None if all weights are equal</li>
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>features</strong> (<em>None or list(str)</em>) &#8211; list of features to train model</li>
 <li><strong>layers</strong> (<em>sequence of int, tuple, dict</em>) &#8211; a sequence of values specifying the <strong>hidden</strong> layer configuration for the network.
-For more information please see &#8216;Specifying layers&#8217; in theanets documentation:
-<a class="reference external" href="http://theanets.readthedocs.org/en/latest/creating.html#creating-specifying-layers">http://theanets.readthedocs.org/en/latest/creating.html#creating-specifying-layers</a>
-Note that theanets &#8220;layers&#8221; parameter included input and output layers in the sequence as well.</li>
-<li><strong>input_layer</strong> (<em>int</em>) &#8211; size of the input layer. If equals -1, the size is taken from the training dataset</li>
-<li><strong>output_layer</strong> (<em>int</em>) &#8211; size of the output layer. If equals -1, the size is taken from the training dataset</li>
-<li><strong>hidden_activation</strong> (<em>str</em>) &#8211; the name of an activation function to use on hidden network layers by default</li>
+For more information see <a class="reference external" href="http://theanets.readthedocs.org/en/latest/creating.html#creating-specifying-layers">Specifying layers</a>
+in the theanets documentation.
+Note that theanets <cite>layers</cite> parameter includes input and output layers in the sequence as well.</li>
+<li><strong>input_layer</strong> (<em>int</em>) &#8211; size of the input layer. If it equals -1, the size is taken from the training dataset</li>
+<li><strong>output_layer</strong> (<em>int</em>) &#8211; size of the output layer. If it equals -1, the size is taken from the training dataset</li>
+<li><strong>hidden_activation</strong> (<em>str</em>) &#8211; the name of an activation function to use on the hidden network layers by default</li>
 <li><strong>output_activation</strong> (<em>str</em>) &#8211; the name of an activation function to use on the output layer by default</li>
 <li><strong>input_noise</strong> (<em>float</em>) &#8211; standard deviation of desired noise to inject into input</li>
 <li><strong>hidden_noise</strong> (<em>float</em>) &#8211; standard deviation of desired noise to inject into hidden unit activation output</li>
-<li><strong>input_dropouts</strong> (<em>float in [0, 1]</em>) &#8211; proportion of input units to randomly set to 0</li>
-<li><strong>hidden_dropouts</strong> (<em>float in [0, 1]</em>) &#8211; proportion of hidden unit activations to randomly set to 0</li>
-<li><strong>decode_from</strong> (<em>positive int</em>) &#8211; any of the hidden layers can be tapped at the output. Just specify a value greater than
-1 to tap the last N hidden layers. The default is 1, which decodes from just the last layer</li>
-<li><strong>scaler</strong> (<em>str or sklearn-like transformer or False (do not scale features)</em>) &#8211; scaler used to transform data. If False, scaling will not be used</li>
-<li><strong>trainers</strong> (<em>list[dict] or None</em>) &#8211; parameters to specify training algorithm(s)
-example: [{&#8216;optimize&#8217;: sgd, &#8216;momentum&#8217;: 0.2}, {&#8216;optimize&#8217;: &#8216;nag&#8217;}]</li>
-<li><strong>random_state</strong> (<em>int</em>) &#8211; random seed</li>
+<li><strong>input_dropouts</strong> (<em>float</em>) &#8211; proportion of the input units to randomly set to 0; it ranges [0, 1]</li>
+<li><strong>hidden_dropouts</strong> (<em>float</em>) &#8211; proportion of hidden unit activations to randomly set to 0; it ranges [0, 1]</li>
+<li><strong>decode_from</strong> (<em>int</em>) &#8211; any of the hidden layers can be tapped at the output. Just specify a value greater than
+1 to tap the last N hidden layers. The default is 1, which decodes from just the last layer.</li>
+<li><strong>scaler</strong> (<em>str or sklearn-like transformer or False</em>) &#8211; transformer which is applied to the input samples. If it is False, scaling will not be used</li>
+<li><strong>trainers</strong> (<em>list[dict] or None</em>) &#8211; <p>parameters to specify training algorithm(s), for example:</p>
+<p>trainers=[{&#8216;algo&#8217;: sgd, &#8216;momentum&#8217;: 0.2}, {&#8216;algo&#8217;: &#8216;nag&#8217;}]</p>
+</li>
+<li><strong>random_state</strong> (<em>None or int or RandomState</em>) &#8211; state for a pseudo random generator</li>
 </ul>
 </td>
 </tr>
 </tbody>
 </table>
-<p>For more information on available trainers and their parameters, see this page
-<a class="reference external" href="http://theanets.readthedocs.org/en/latest/training.html">http://theanets.readthedocs.org/en/latest/training.html</a></p>
+<p>For more information on the available trainers and their parameters see this <a class="reference external" href="http://theanets.readthedocs.org/en/latest/training.html">page</a>.</p>
 <dl class="method">
 <dt id="rep.estimators.theanets.TheanetsBase.fit">
 <code class="descname">fit</code><span class="sig-paren">(</span><em>X</em>, <em>y</em>, <em>sample_weight=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/estimators/theanets.html#TheanetsBase.fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.estimators.theanets.TheanetsBase.fit" title="Permalink to this definition">¶</a></dt>
-<dd><p>Train the estimator from scratch.</p>
+<dd><p>Train a classification/regression model on the data.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>X</strong> (<em>pandas.DataFrame</em>) &#8211; data shape [n_samples, n_features]</li>
-<li><strong>y</strong> &#8211; values - array-like of shape [n_samples]</li>
-<li><strong>sample_weight</strong> &#8211; weights - array-like of shape [n_samples]</li>
+<li><strong>X</strong> (<em>pandas.DataFrame</em>) &#8211; data of shape [n_samples, n_features]</li>
+<li><strong>y</strong> &#8211; values for samples &#8212; array-like of shape [n_samples]</li>
+<li><strong>sample_weight</strong> &#8211; weights for samples &#8212; array-like of shape [n_samples]</li>
 </ul>
 </td>
 </tr>
@@ -1396,26 +1343,22 @@ example: [{&#8216;optimize&#8217;: sgd, &#8216;momentum&#8217;: 0.2}, {&#8216;op
 </tr>
 </tbody>
 </table>
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">if <cite>trainer[&#8216;optimize&#8217;] == &#8216;pretrain&#8217;</cite> (unsupervised training)</p>
-</div>
-<p><cite>y</cite> can be specific vector, details see in <cite>partial_fit</cite></p>
 </dd></dl>
 
 <dl class="method">
 <dt id="rep.estimators.theanets.TheanetsBase.partial_fit">
-<code class="descname">partial_fit</code><span class="sig-paren">(</span><em>X</em>, <em>y</em>, <em>keep_trainer=True</em>, <em>**trainer</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/estimators/theanets.html#TheanetsBase.partial_fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.estimators.theanets.TheanetsBase.partial_fit" title="Permalink to this definition">¶</a></dt>
+<code class="descname">partial_fit</code><span class="sig-paren">(</span><em>X</em>, <em>y</em>, <em>sample_weight=None</em>, <em>keep_trainer=True</em>, <em>**trainer</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/estimators/theanets.html#TheanetsBase.partial_fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.estimators.theanets.TheanetsBase.partial_fit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Train the estimator by training the existing estimator again.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>X</strong> (<em>pandas.DataFrame</em>) &#8211; data shape [n_samples, n_features]</li>
-<li><strong>y</strong> &#8211; values - array-like of shape [n_samples]</li>
+<li><strong>X</strong> (<em>pandas.DataFrame</em>) &#8211; data of shape [n_samples, n_features]</li>
+<li><strong>y</strong> &#8211; values for samples &#8212; array-like of shape [n_samples]</li>
+<li><strong>sample_weight</strong> &#8211; weights for samples &#8212; array-like of shape [n_samples]</li>
 <li><strong>keep_trainer</strong> (<em>bool</em>) &#8211; True if the trainer is not stored in self.trainers.
-If True, will add it to list of classifiers.</li>
+If True, will add it to the list of the estimators.</li>
 <li><strong>trainer</strong> (<em>dict</em>) &#8211; parameters of the training algorithm we want to use now</li>
 </ul>
 </td>
@@ -1430,10 +1373,10 @@ If True, will add it to list of classifiers.</li>
 <dl class="method">
 <dt id="rep.estimators.theanets.TheanetsBase.set_params">
 <code class="descname">set_params</code><span class="sig-paren">(</span><em>**params</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/estimators/theanets.html#TheanetsBase.set_params"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.estimators.theanets.TheanetsBase.set_params" title="Permalink to this definition">¶</a></dt>
-<dd><p>Set the parameters of this estimator. Deep parameters of trainers and scaler can be accessed,
+<dd><p>Set the parameters of the estimator. Deep parameters of trainers and scaler can be accessed,
 for instance:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">trainers__0</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;optimize&#39;</span><span class="p">:</span> <span class="s">&#39;sgd&#39;</span><span class="p">,</span> <span class="s">&#39;learning_rate&#39;</span><span class="p">:</span> <span class="mf">0.3</span><span class="p">}</span>
-<span class="n">trainers__0_optimize</span> <span class="o">=</span> <span class="s">&#39;sgd&#39;</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">trainers__0</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;algo&#39;</span><span class="p">:</span> <span class="s">&#39;sgd&#39;</span><span class="p">,</span> <span class="s">&#39;learning_rate&#39;</span><span class="p">:</span> <span class="mf">0.3</span><span class="p">}</span>
+<span class="n">trainers__0_algo</span> <span class="o">=</span> <span class="s">&#39;sgd&#39;</span>
 <span class="n">layers__1</span> <span class="o">=</span> <span class="mi">14</span>
 <span class="n">scaler__use_std</span> <span class="o">=</span> <span class="bp">True</span>
 </pre></div>
@@ -1454,50 +1397,53 @@ for instance:</p>
 <dt id="rep.estimators.theanets.TheanetsClassifier">
 <em class="property">class </em><code class="descclassname">rep.estimators.theanets.</code><code class="descname">TheanetsClassifier</code><span class="sig-paren">(</span><em>features=None</em>, <em>layers=(10</em>, <em>)</em>, <em>input_layer=-1</em>, <em>output_layer=-1</em>, <em>hidden_activation='logistic'</em>, <em>output_activation='linear'</em>, <em>input_noise=0</em>, <em>hidden_noise=0</em>, <em>input_dropout=0</em>, <em>hidden_dropout=0</em>, <em>decode_from=1</em>, <em>weight_l1=0.01</em>, <em>weight_l2=0.01</em>, <em>scaler='standard'</em>, <em>trainers=None</em>, <em>random_state=42</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/estimators/theanets.html#TheanetsClassifier"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.estimators.theanets.TheanetsClassifier" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#rep.estimators.theanets.TheanetsBase" title="rep.estimators.theanets.TheanetsBase"><code class="xref py py-class docutils literal"><span class="pre">rep.estimators.theanets.TheanetsBase</span></code></a>, <a class="reference internal" href="#rep.estimators.interface.Classifier" title="rep.estimators.interface.Classifier"><code class="xref py py-class docutils literal"><span class="pre">rep.estimators.interface.Classifier</span></code></a></p>
-<p>Classifier from Theanets library.</p>
+<p>Implements a classification model from the Theanets library.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>features</strong> (<em>None or list(str)</em>) &#8211; list of features to train model</li>
-<li><strong>layers</strong> (<em>sequence of int, tuple, dict</em>) &#8211; a sequence of values specifying the <strong>hidden</strong> layer configuration for the network.
-For more information please see &#8216;Specifying layers&#8217; in theanets documentation:
-<a class="reference external" href="http://theanets.readthedocs.org/en/latest/creating.html#creating-specifying-layers">http://theanets.readthedocs.org/en/latest/creating.html#creating-specifying-layers</a>
-Note that theanets &#8220;layers&#8221; parameter included input and output layers in the sequence as well.</li>
-<li><strong>input_layer</strong> (<em>int</em>) &#8211; size of the input layer. If equals -1, the size is taken from the training dataset</li>
-<li><strong>output_layer</strong> (<em>int</em>) &#8211; size of the output layer. If equals -1, the size is taken from the training dataset</li>
-<li><strong>hidden_activation</strong> (<em>str</em>) &#8211; the name of an activation function to use on hidden network layers by default</li>
+<li><strong>layers</strong> (<em>sequence of int, tuple, dict</em>) &#8211; <p>a sequence of values specifying the <strong>hidden</strong> layer configuration for the network.
+For more information see <a class="reference external" href="http://theanets.readthedocs.org/en/latest/creating.html#creating-specifying-layers">Specifying layers</a>
+in the theanets documentation.
+Note that theanets <cite>layers</cite> parameter includes input and output layers in the sequence as well.</p>
+</li>
+<li><strong>input_layer</strong> (<em>int</em>) &#8211; size of the input layer. If it equals -1, the size is taken from the training dataset</li>
+<li><strong>output_layer</strong> (<em>int</em>) &#8211; size of the output layer. If it equals -1, the size is taken from the training dataset</li>
+<li><strong>hidden_activation</strong> (<em>str</em>) &#8211; the name of an activation function to use on the hidden network layers by default</li>
 <li><strong>output_activation</strong> (<em>str</em>) &#8211; the name of an activation function to use on the output layer by default</li>
 <li><strong>input_noise</strong> (<em>float</em>) &#8211; standard deviation of desired noise to inject into input</li>
 <li><strong>hidden_noise</strong> (<em>float</em>) &#8211; standard deviation of desired noise to inject into hidden unit activation output</li>
-<li><strong>input_dropouts</strong> (<em>float in [0, 1]</em>) &#8211; proportion of input units to randomly set to 0</li>
-<li><strong>hidden_dropouts</strong> (<em>float in [0, 1]</em>) &#8211; proportion of hidden unit activations to randomly set to 0</li>
-<li><strong>decode_from</strong> (<em>positive int</em>) &#8211; any of the hidden layers can be tapped at the output. Just specify a value greater than
-1 to tap the last N hidden layers. The default is 1, which decodes from just the last layer</li>
-<li><strong>scaler</strong> (<em>str or sklearn-like transformer or False (do not scale features)</em>) &#8211; scaler used to transform data. If False, scaling will not be used</li>
-<li><strong>trainers</strong> (<em>list[dict] or None</em>) &#8211; parameters to specify training algorithm(s)
-example: [{&#8216;optimize&#8217;: sgd, &#8216;momentum&#8217;: 0.2}, {&#8216;optimize&#8217;: &#8216;nag&#8217;}]</li>
-<li><strong>random_state</strong> (<em>int</em>) &#8211; random seed</li>
+<li><strong>input_dropouts</strong> (<em>float</em>) &#8211; proportion of the input units to randomly set to 0; it ranges [0, 1]</li>
+<li><strong>hidden_dropouts</strong> (<em>float</em>) &#8211; proportion of hidden unit activations to randomly set to 0; it ranges [0, 1]</li>
+<li><strong>decode_from</strong> (<em>int</em>) &#8211; any of the hidden layers can be tapped at the output. Just specify a value greater than
+1 to tap the last N hidden layers. The default is 1, which decodes from just the last layer.</li>
+<li><strong>scaler</strong> (<em>str or sklearn-like transformer or False</em>) &#8211; transformer which is applied to the input samples. If it is False, scaling will not be used</li>
+<li><strong>trainers</strong> (<em>list[dict] or None</em>) &#8211; <p>parameters to specify training algorithm(s), for example:</p>
+<p>trainers=[{&#8216;algo&#8217;: sgd, &#8216;momentum&#8217;: 0.2}, {&#8216;algo&#8217;: &#8216;nag&#8217;}]</p>
+</li>
+<li><strong>random_state</strong> (<em>None or int or RandomState</em>) &#8211; state for a pseudo random generator</li>
 </ul>
 </td>
 </tr>
 </tbody>
 </table>
-<p>For more information on available trainers and their parameters, see this page
-<a class="reference external" href="http://theanets.readthedocs.org/en/latest/training.html">http://theanets.readthedocs.org/en/latest/training.html</a></p>
+<p>For more information on the available trainers and their parameters see this <a class="reference external" href="http://theanets.readthedocs.org/en/latest/training.html">page</a>.</p>
 <dl class="method">
 <dt id="rep.estimators.theanets.TheanetsClassifier.partial_fit">
 <code class="descname">partial_fit</code><span class="sig-paren">(</span><em>X</em>, <em>y</em>, <em>sample_weight=None</em>, <em>keep_trainer=True</em>, <em>**trainer</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/estimators/theanets.html#TheanetsClassifier.partial_fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.estimators.theanets.TheanetsClassifier.partial_fit" title="Permalink to this definition">¶</a></dt>
-<dd><p>Train the classifier by training the existing classifier again.</p>
+<dd><p>Train the estimator by training the existing estimator again.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>X</strong> (<em>pandas.DataFrame</em>) &#8211; data shape [n_samples, n_features]</li>
-<li><strong>y</strong> &#8211; values - array-like of shape [n_samples]</li>
-<li><strong>keep_trainer</strong> (<em>bool</em>) &#8211; True if the trainer is not stored in self.trainers</li>
+<li><strong>X</strong> (<em>pandas.DataFrame</em>) &#8211; data of shape [n_samples, n_features]</li>
+<li><strong>y</strong> &#8211; values for samples &#8212; array-like of shape [n_samples]</li>
+<li><strong>sample_weight</strong> &#8211; weights for samples &#8212; array-like of shape [n_samples]</li>
+<li><strong>keep_trainer</strong> (<em>bool</em>) &#8211; True if the trainer is not stored in self.trainers.
+If True, will add it to the list of the estimators.</li>
 <li><strong>trainer</strong> (<em>dict</em>) &#8211; parameters of the training algorithm we want to use now</li>
 </ul>
 </td>
@@ -1507,22 +1453,17 @@ example: [{&#8216;optimize&#8217;: sgd, &#8216;momentum&#8217;: 0.2}, {&#8216;op
 </tr>
 </tbody>
 </table>
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">if <cite>trainer[&#8216;optimize&#8217;] == &#8216;pretrain&#8217;</cite> (unsupervised training)</p>
-</div>
-<p><cite>y</cite> can be any vector just with information <cite>numpy.unique(y) == classes</cite></p>
 </dd></dl>
 
 <dl class="method">
 <dt id="rep.estimators.theanets.TheanetsClassifier.predict_proba">
 <code class="descname">predict_proba</code><span class="sig-paren">(</span><em>X</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/estimators/theanets.html#TheanetsClassifier.predict_proba"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.estimators.theanets.TheanetsClassifier.predict_proba" title="Permalink to this definition">¶</a></dt>
-<dd><p>Predict probabilities</p>
+<dd><p>Predict probabilities for each class label for samples.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>X</strong> (<em>pandas.DataFrame</em>) &#8211; data shape [n_samples, n_features]</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>X</strong> (<em>pandas.DataFrame</em>) &#8211; data of shape [n_samples, n_features]</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">numpy.array of shape [n_samples, n_classes] with probabilities</td>
 </tr>
@@ -1535,7 +1476,7 @@ example: [{&#8216;optimize&#8217;: sgd, &#8216;momentum&#8217;: 0.2}, {&#8216;op
 <code class="descname">staged_predict_proba</code><span class="sig-paren">(</span><em>X</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/estimators/theanets.html#TheanetsClassifier.staged_predict_proba"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.estimators.theanets.TheanetsClassifier.staged_predict_proba" title="Permalink to this definition">¶</a></dt>
 <dd><div class="admonition warning">
 <p class="first admonition-title">Warning</p>
-<p class="last">not supported in Theanets (<strong>NotImplementedError</strong> will be thrown)</p>
+<p class="last">This function is not supported in the Theanets (<strong>NotImplementedError</strong> will be thrown)</p>
 </div>
 </dd></dl>
 
@@ -1545,50 +1486,53 @@ example: [{&#8216;optimize&#8217;: sgd, &#8216;momentum&#8217;: 0.2}, {&#8216;op
 <dt id="rep.estimators.theanets.TheanetsRegressor">
 <em class="property">class </em><code class="descclassname">rep.estimators.theanets.</code><code class="descname">TheanetsRegressor</code><span class="sig-paren">(</span><em>features=None</em>, <em>layers=(10</em>, <em>)</em>, <em>input_layer=-1</em>, <em>output_layer=-1</em>, <em>hidden_activation='logistic'</em>, <em>output_activation='linear'</em>, <em>input_noise=0</em>, <em>hidden_noise=0</em>, <em>input_dropout=0</em>, <em>hidden_dropout=0</em>, <em>decode_from=1</em>, <em>weight_l1=0.01</em>, <em>weight_l2=0.01</em>, <em>scaler='standard'</em>, <em>trainers=None</em>, <em>random_state=42</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/estimators/theanets.html#TheanetsRegressor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.estimators.theanets.TheanetsRegressor" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#rep.estimators.theanets.TheanetsBase" title="rep.estimators.theanets.TheanetsBase"><code class="xref py py-class docutils literal"><span class="pre">rep.estimators.theanets.TheanetsBase</span></code></a>, <a class="reference internal" href="#rep.estimators.interface.Regressor" title="rep.estimators.interface.Regressor"><code class="xref py py-class docutils literal"><span class="pre">rep.estimators.interface.Regressor</span></code></a></p>
-<p>Regressor from Theanets library.</p>
+<p>Implements a regression model from the Theanets library.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>features</strong> (<em>None or list(str)</em>) &#8211; list of features to train model</li>
-<li><strong>layers</strong> (<em>sequence of int, tuple, dict</em>) &#8211; a sequence of values specifying the <strong>hidden</strong> layer configuration for the network.
-For more information please see &#8216;Specifying layers&#8217; in theanets documentation:
-<a class="reference external" href="http://theanets.readthedocs.org/en/latest/creating.html#creating-specifying-layers">http://theanets.readthedocs.org/en/latest/creating.html#creating-specifying-layers</a>
-Note that theanets &#8220;layers&#8221; parameter included input and output layers in the sequence as well.</li>
-<li><strong>input_layer</strong> (<em>int</em>) &#8211; size of the input layer. If equals -1, the size is taken from the training dataset</li>
-<li><strong>output_layer</strong> (<em>int</em>) &#8211; size of the output layer. If equals -1, the size is taken from the training dataset</li>
-<li><strong>hidden_activation</strong> (<em>str</em>) &#8211; the name of an activation function to use on hidden network layers by default</li>
+<li><strong>layers</strong> (<em>sequence of int, tuple, dict</em>) &#8211; <p>a sequence of values specifying the <strong>hidden</strong> layer configuration for the network.
+For more information see <a class="reference external" href="http://theanets.readthedocs.org/en/latest/creating.html#creating-specifying-layers">Specifying layers</a>
+in the theanets documentation.
+Note that theanets <cite>layers</cite> parameter includes input and output layers in the sequence as well.</p>
+</li>
+<li><strong>input_layer</strong> (<em>int</em>) &#8211; size of the input layer. If it equals -1, the size is taken from the training dataset</li>
+<li><strong>output_layer</strong> (<em>int</em>) &#8211; size of the output layer. If it equals -1, the size is taken from the training dataset</li>
+<li><strong>hidden_activation</strong> (<em>str</em>) &#8211; the name of an activation function to use on the hidden network layers by default</li>
 <li><strong>output_activation</strong> (<em>str</em>) &#8211; the name of an activation function to use on the output layer by default</li>
 <li><strong>input_noise</strong> (<em>float</em>) &#8211; standard deviation of desired noise to inject into input</li>
 <li><strong>hidden_noise</strong> (<em>float</em>) &#8211; standard deviation of desired noise to inject into hidden unit activation output</li>
-<li><strong>input_dropouts</strong> (<em>float in [0, 1]</em>) &#8211; proportion of input units to randomly set to 0</li>
-<li><strong>hidden_dropouts</strong> (<em>float in [0, 1]</em>) &#8211; proportion of hidden unit activations to randomly set to 0</li>
-<li><strong>decode_from</strong> (<em>positive int</em>) &#8211; any of the hidden layers can be tapped at the output. Just specify a value greater than
-1 to tap the last N hidden layers. The default is 1, which decodes from just the last layer</li>
-<li><strong>scaler</strong> (<em>str or sklearn-like transformer or False (do not scale features)</em>) &#8211; scaler used to transform data. If False, scaling will not be used</li>
-<li><strong>trainers</strong> (<em>list[dict] or None</em>) &#8211; parameters to specify training algorithm(s)
-example: [{&#8216;optimize&#8217;: sgd, &#8216;momentum&#8217;: 0.2}, {&#8216;optimize&#8217;: &#8216;nag&#8217;}]</li>
-<li><strong>random_state</strong> (<em>int</em>) &#8211; random seed</li>
+<li><strong>input_dropouts</strong> (<em>float</em>) &#8211; proportion of the input units to randomly set to 0; it ranges [0, 1]</li>
+<li><strong>hidden_dropouts</strong> (<em>float</em>) &#8211; proportion of hidden unit activations to randomly set to 0; it ranges [0, 1]</li>
+<li><strong>decode_from</strong> (<em>int</em>) &#8211; any of the hidden layers can be tapped at the output. Just specify a value greater than
+1 to tap the last N hidden layers. The default is 1, which decodes from just the last layer.</li>
+<li><strong>scaler</strong> (<em>str or sklearn-like transformer or False</em>) &#8211; transformer which is applied to the input samples. If it is False, scaling will not be used</li>
+<li><strong>trainers</strong> (<em>list[dict] or None</em>) &#8211; <p>parameters to specify training algorithm(s), for example:</p>
+<p>trainers=[{&#8216;algo&#8217;: sgd, &#8216;momentum&#8217;: 0.2}, {&#8216;algo&#8217;: &#8216;nag&#8217;}]</p>
+</li>
+<li><strong>random_state</strong> (<em>None or int or RandomState</em>) &#8211; state for a pseudo random generator</li>
 </ul>
 </td>
 </tr>
 </tbody>
 </table>
-<p>For more information on available trainers and their parameters, see this page
-<a class="reference external" href="http://theanets.readthedocs.org/en/latest/training.html">http://theanets.readthedocs.org/en/latest/training.html</a></p>
+<p>For more information on the available trainers and their parameters see this <a class="reference external" href="http://theanets.readthedocs.org/en/latest/training.html">page</a>.</p>
 <dl class="method">
 <dt id="rep.estimators.theanets.TheanetsRegressor.partial_fit">
 <code class="descname">partial_fit</code><span class="sig-paren">(</span><em>X</em>, <em>y</em>, <em>sample_weight=None</em>, <em>keep_trainer=True</em>, <em>**trainer</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/estimators/theanets.html#TheanetsRegressor.partial_fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.estimators.theanets.TheanetsRegressor.partial_fit" title="Permalink to this definition">¶</a></dt>
-<dd><p>Train the regressor by training the existing regressor again.</p>
+<dd><p>Train the estimator by training the existing estimator again.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>X</strong> (<em>pandas.DataFrame</em>) &#8211; data shape [n_samples, n_features]</li>
-<li><strong>y</strong> &#8211; values - array-like of shape [n_samples] (or [n_samples, n_targets])</li>
-<li><strong>keep_trainer</strong> (<em>bool</em>) &#8211; True if the trainer is not stored in self.trainers</li>
+<li><strong>X</strong> (<em>pandas.DataFrame</em>) &#8211; data of shape [n_samples, n_features]</li>
+<li><strong>y</strong> &#8211; values for samples &#8212; array-like of shape [n_samples]</li>
+<li><strong>sample_weight</strong> &#8211; weights for samples &#8212; array-like of shape [n_samples]</li>
+<li><strong>keep_trainer</strong> (<em>bool</em>) &#8211; True if the trainer is not stored in self.trainers.
+If True, will add it to the list of the estimators.</li>
 <li><strong>trainer</strong> (<em>dict</em>) &#8211; parameters of the training algorithm we want to use now</li>
 </ul>
 </td>
@@ -1598,24 +1542,19 @@ example: [{&#8216;optimize&#8217;: sgd, &#8216;momentum&#8217;: 0.2}, {&#8216;op
 </tr>
 </tbody>
 </table>
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">if <cite>trainer[&#8216;optimize&#8217;] == &#8216;pretrain&#8217;</cite> (unsupervised training)</p>
-</div>
-<p><cite>y</cite> can be any vector just with information about number of targets <cite>numpy.shape(y)</cite></p>
 </dd></dl>
 
 <dl class="method">
 <dt id="rep.estimators.theanets.TheanetsRegressor.predict">
 <code class="descname">predict</code><span class="sig-paren">(</span><em>X</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/estimators/theanets.html#TheanetsRegressor.predict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.estimators.theanets.TheanetsRegressor.predict" title="Permalink to this definition">¶</a></dt>
-<dd><p>Predict values for all events in dataset</p>
+<dd><p>Predict values for data.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>X</strong> (<em>pandas.DataFrame</em>) &#8211; data shape [n_samples, n_features]</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>X</strong> (<em>pandas.DataFrame</em>) &#8211; data of shape [n_samples, n_features]</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">numpy.array of shape [n_samples, n_classes] with probabilities</td>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">numpy.array of shape [n_samples] with predicted values</td>
 </tr>
 </tbody>
 </table>
@@ -1626,7 +1565,7 @@ example: [{&#8216;optimize&#8217;: sgd, &#8216;momentum&#8217;: 0.2}, {&#8216;op
 <code class="descname">staged_predict</code><span class="sig-paren">(</span><em>X</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/estimators/theanets.html#TheanetsRegressor.staged_predict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.estimators.theanets.TheanetsRegressor.staged_predict" title="Permalink to this definition">¶</a></dt>
 <dd><div class="admonition warning">
 <p class="first admonition-title">Warning</p>
-<p class="last">not supported in Theanets (<strong>NotImplementedError</strong> will be thrown)</p>
+<p class="last">This function is not supported in the Theanets (<strong>NotImplementedError</strong> will be thrown)</p>
 </div>
 </dd></dl>
 
@@ -1635,7 +1574,7 @@ example: [{&#8216;optimize&#8217;: sgd, &#8216;momentum&#8217;: 0.2}, {&#8216;op
 </div>
 <div class="section" id="module-rep.estimators.neurolab">
 <span id="neurolab-classifier-and-regressor"></span><h2>Neurolab classifier and regressor<a class="headerlink" href="#module-rep.estimators.neurolab" title="Permalink to this headline">¶</a></h2>
-<p>These classes are wrappers for <a class="reference external" href="https://pythonhosted.org/neurolab/lib.html">neurolab</a> - neural network python library</p>
+<p>These classes are wrappers for the <a class="reference external" href="https://pythonhosted.org/neurolab/lib.html">Neurolab library</a> &#8212; a neural network python library.</p>
 <div class="admonition warning">
 <p class="first admonition-title">Warning</p>
 <p>To make neurolab reproducible we change global random seed</p>
@@ -1644,85 +1583,10 @@ example: [{&#8216;optimize&#8217;: sgd, &#8216;momentum&#8217;: 0.2}, {&#8216;op
 </div>
 </div>
 <dl class="class">
-<dt id="rep.estimators.neurolab.NeurolabBase">
-<em class="property">class </em><code class="descclassname">rep.estimators.neurolab.</code><code class="descname">NeurolabBase</code><span class="sig-paren">(</span><em>features=None</em>, <em>layers=(10</em>, <em>)</em>, <em>net_type='feed-forward'</em>, <em>initf=&lt;function init_rand&gt;</em>, <em>trainf=None</em>, <em>scaler='standard'</em>, <em>random_state=None</em>, <em>**other_params</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/estimators/neurolab.html#NeurolabBase"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.estimators.neurolab.NeurolabBase" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
-<p>Base class for estimators from Neurolab library.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>features</strong> (<em>list[str] or None</em>) &#8211; features used in training</li>
-<li><strong>layers</strong> (<em>list[int]</em>) &#8211; sequence, number of units inside each <strong>hidden</strong> layer.</li>
-<li><strong>net_type</strong> (<em>string</em>) &#8211; type of network
-One of &#8216;feed-forward&#8217;, &#8216;single-layer&#8217;, &#8216;competing-layer&#8217;, &#8216;learning-vector&#8217;,
-&#8216;elman-recurrent&#8217;, &#8216;hopfield-recurrent&#8217;, &#8216;hemming-recurrent&#8217;</li>
-<li><strong>initf</strong> (<em>anything implementing call(layer), e.g. nl.init.* or list[nl.init.*] of shape [n_layers]</em>) &#8211; layer initializers</li>
-<li><strong>trainf</strong> &#8211; net train function, default value depends on type of network</li>
-<li><strong>scaler</strong> (<em>str or sklearn-like transformer or False (do not scale features)</em>) &#8211; transformer to apply to the input objects</li>
-<li><strong>random_state</strong> &#8211; ignored, added for uniformity.</li>
-<li><strong>kwargs</strong> (<em>dict</em>) &#8211; additional arguments to net __init__, varies with different net_types</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
-<div class="admonition seealso">
-<p class="first admonition-title">See also</p>
-<p class="last"><a class="reference external" href="https://pythonhosted.org/neurolab/lib.html">https://pythonhosted.org/neurolab/lib.html</a> for supported train functions and their parameters.</p>
-</div>
-<dl class="method">
-<dt id="rep.estimators.neurolab.NeurolabBase.get_params">
-<code class="descname">get_params</code><span class="sig-paren">(</span><em>deep=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/estimators/neurolab.html#NeurolabBase.get_params"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.estimators.neurolab.NeurolabBase.get_params" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get parameters of this estimator</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">dict</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="rep.estimators.neurolab.NeurolabBase.is_fitted">
-<code class="descname">is_fitted</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/estimators/neurolab.html#NeurolabBase.is_fitted"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.estimators.neurolab.NeurolabBase.is_fitted" title="Permalink to this definition">¶</a></dt>
-<dd><p>Check if net is fitted</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">If estimator was fitted</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">bool</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="rep.estimators.neurolab.NeurolabBase.set_params">
-<code class="descname">set_params</code><span class="sig-paren">(</span><em>**params</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/estimators/neurolab.html#NeurolabBase.set_params"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.estimators.neurolab.NeurolabBase.set_params" title="Permalink to this definition">¶</a></dt>
-<dd><p>Set the parameters of this estimator.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>params</strong> (<em>dict</em>) &#8211; parameters to set in model</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="class">
 <dt id="rep.estimators.neurolab.NeurolabClassifier">
 <em class="property">class </em><code class="descclassname">rep.estimators.neurolab.</code><code class="descname">NeurolabClassifier</code><span class="sig-paren">(</span><em>features=None</em>, <em>layers=(10</em>, <em>)</em>, <em>net_type='feed-forward'</em>, <em>initf=&lt;function init_rand&gt;</em>, <em>trainf=None</em>, <em>scaler='standard'</em>, <em>random_state=None</em>, <em>**other_params</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/estimators/neurolab.html#NeurolabClassifier"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.estimators.neurolab.NeurolabClassifier" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#rep.estimators.neurolab.NeurolabBase" title="rep.estimators.neurolab.NeurolabBase"><code class="xref py py-class docutils literal"><span class="pre">rep.estimators.neurolab.NeurolabBase</span></code></a>, <a class="reference internal" href="#rep.estimators.interface.Classifier" title="rep.estimators.interface.Classifier"><code class="xref py py-class docutils literal"><span class="pre">rep.estimators.interface.Classifier</span></code></a></p>
-<p>Classifier from neurolab library.</p>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">rep.estimators.neurolab.NeurolabBase</span></code>, <a class="reference internal" href="#rep.estimators.interface.Classifier" title="rep.estimators.interface.Classifier"><code class="xref py py-class docutils literal"><span class="pre">rep.estimators.interface.Classifier</span></code></a></p>
+<p>Implements a classification model from the Neurolab library.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -1730,14 +1594,20 @@ One of &#8216;feed-forward&#8217;, &#8216;single-layer&#8217;, &#8216;competing-
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>features</strong> (<em>list[str] or None</em>) &#8211; features used in training</li>
 <li><strong>layers</strong> (<em>list[int]</em>) &#8211; sequence, number of units inside each <strong>hidden</strong> layer.</li>
-<li><strong>net_type</strong> (<em>string</em>) &#8211; type of network
-One of &#8216;feed-forward&#8217;, &#8216;single-layer&#8217;, &#8216;competing-layer&#8217;, &#8216;learning-vector&#8217;,
-&#8216;elman-recurrent&#8217;, &#8216;hopfield-recurrent&#8217;, &#8216;hemming-recurrent&#8217;</li>
-<li><strong>initf</strong> (<em>anything implementing call(layer), e.g. nl.init.* or list[nl.init.*] of shape [n_layers]</em>) &#8211; layer initializers</li>
-<li><strong>trainf</strong> &#8211; net train function, default value depends on type of network</li>
-<li><strong>scaler</strong> (<em>str or sklearn-like transformer or False (do not scale features)</em>) &#8211; transformer to apply to the input objects</li>
-<li><strong>random_state</strong> &#8211; ignored, added for uniformity.</li>
-<li><strong>kwargs</strong> (<em>dict</em>) &#8211; additional arguments to net __init__, varies with different net_types</li>
+<li><strong>net_type</strong> (<em>string</em>) &#8211; <p>type of the network; possible values are:</p>
+<ul>
+<li><cite>feed-forward</cite></li>
+<li><cite>competing-layer</cite></li>
+<li><cite>learning-vector</cite></li>
+<li><cite>elman-recurrent</cite></li>
+<li><cite>hemming-recurrent</cite></li>
+</ul>
+</li>
+<li><strong>initf</strong> (<em>anything implementing call(layer), e.g. neurolab.init.* or list[neurolab.init.*] of shape [n_layers]</em>) &#8211; layer initializers</li>
+<li><strong>trainf</strong> &#8211; net training function; default value depends on the type of a network</li>
+<li><strong>scaler</strong> (<em>str or sklearn-like transformer or False</em>) &#8211; transformer which is applied to the input samples. If it is False, scaling will not be used</li>
+<li><strong>random_state</strong> &#8211; this parameter is ignored and is added for uniformity.</li>
+<li><strong>kwargs</strong> (<em>dict</em>) &#8211; additional arguments to net <cite>__init__</cite>, varies with different <cite>net_types</cite></li>
 </ul>
 </td>
 </tr>
@@ -1745,21 +1615,19 @@ One of &#8216;feed-forward&#8217;, &#8216;single-layer&#8217;, &#8216;competing-
 </table>
 <div class="admonition seealso">
 <p class="first admonition-title">See also</p>
-<p class="last"><a class="reference external" href="https://pythonhosted.org/neurolab/lib.html">https://pythonhosted.org/neurolab/lib.html</a> for supported train functions and their parameters.</p>
+<p class="last"><a class="reference external" href="https://pythonhosted.org/neurolab/lib.html">Supported training functions and their parameters</a></p>
 </div>
 <dl class="method">
 <dt id="rep.estimators.neurolab.NeurolabClassifier.fit">
 <code class="descname">fit</code><span class="sig-paren">(</span><em>X</em>, <em>y</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/estimators/neurolab.html#NeurolabClassifier.fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.estimators.neurolab.NeurolabClassifier.fit" title="Permalink to this definition">¶</a></dt>
-<dd><p>Train the classifier</p>
+<dd><p>Train a classification model on the data.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>X</strong> (<em>pandas.DataFrame</em>) &#8211; data shape [n_samples, n_features]</li>
-<li><strong>y</strong> &#8211; labels of events - array-like of shape [n_samples]</li>
-<li><strong>sample_weight</strong> &#8211; weight of events,
-array-like of shape [n_samples] or None if all weights are equal</li>
+<li><strong>X</strong> (<em>pandas.DataFrame</em>) &#8211; data of shape [n_samples, n_features]</li>
+<li><strong>y</strong> &#8211; labels of samples &#8212; array-like of shape [n_samples]</li>
 </ul>
 </td>
 </tr>
@@ -1773,14 +1641,14 @@ array-like of shape [n_samples] or None if all weights are equal</li>
 <dl class="method">
 <dt id="rep.estimators.neurolab.NeurolabClassifier.partial_fit">
 <code class="descname">partial_fit</code><span class="sig-paren">(</span><em>X</em>, <em>y</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/estimators/neurolab.html#NeurolabClassifier.partial_fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.estimators.neurolab.NeurolabClassifier.partial_fit" title="Permalink to this definition">¶</a></dt>
-<dd><p>Additional training of the classifier</p>
+<dd><p>Additional training of the classifier.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>X</strong> (<em>pandas.DataFrame</em>) &#8211; data shape [n_samples, n_features]</li>
-<li><strong>y</strong> &#8211; labels of events - array-like of shape [n_samples]</li>
+<li><strong>X</strong> (<em>pandas.DataFrame</em>) &#8211; data of shape [n_samples, n_features]</li>
+<li><strong>y</strong> &#8211; labels of samples, array-like of shape [n_samples]</li>
 </ul>
 </td>
 </tr>
@@ -1794,14 +1662,14 @@ array-like of shape [n_samples] or None if all weights are equal</li>
 <dl class="method">
 <dt id="rep.estimators.neurolab.NeurolabClassifier.predict_proba">
 <code class="descname">predict_proba</code><span class="sig-paren">(</span><em>X</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/estimators/neurolab.html#NeurolabClassifier.predict_proba"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.estimators.neurolab.NeurolabClassifier.predict_proba" title="Permalink to this definition">¶</a></dt>
-<dd><p>Predict labels for all events in dataset</p>
+<dd><p>Predict probabilities for each class label for samples.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>X</strong> &#8211; pandas.DataFrame of shape [n_samples, n_features]</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>X</strong> (<em>pandas.DataFrame</em>) &#8211; data of shape [n_samples, n_features]</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">numpy.array of shape [n_samples] with integer labels</td>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">numpy.array of shape [n_samples, n_classes] with probabilities</td>
 </tr>
 </tbody>
 </table>
@@ -1812,7 +1680,7 @@ array-like of shape [n_samples] or None if all weights are equal</li>
 <code class="descname">staged_predict_proba</code><span class="sig-paren">(</span><em>X</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/estimators/neurolab.html#NeurolabClassifier.staged_predict_proba"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.estimators.neurolab.NeurolabClassifier.staged_predict_proba" title="Permalink to this definition">¶</a></dt>
 <dd><div class="admonition warning">
 <p class="first admonition-title">Warning</p>
-<p class="last">not supported in Neurolab (<strong>AttributeError</strong> will be thrown)</p>
+<p class="last">This is not supported in the Neurolab (<strong>AttributeError</strong> will be thrown)</p>
 </div>
 </dd></dl>
 
@@ -1821,8 +1689,8 @@ array-like of shape [n_samples] or None if all weights are equal</li>
 <dl class="class">
 <dt id="rep.estimators.neurolab.NeurolabRegressor">
 <em class="property">class </em><code class="descclassname">rep.estimators.neurolab.</code><code class="descname">NeurolabRegressor</code><span class="sig-paren">(</span><em>features=None</em>, <em>layers=(10</em>, <em>)</em>, <em>net_type='feed-forward'</em>, <em>initf=&lt;function init_rand&gt;</em>, <em>trainf=None</em>, <em>scaler='standard'</em>, <em>random_state=None</em>, <em>**other_params</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/estimators/neurolab.html#NeurolabRegressor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.estimators.neurolab.NeurolabRegressor" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#rep.estimators.neurolab.NeurolabBase" title="rep.estimators.neurolab.NeurolabBase"><code class="xref py py-class docutils literal"><span class="pre">rep.estimators.neurolab.NeurolabBase</span></code></a>, <a class="reference internal" href="#rep.estimators.interface.Regressor" title="rep.estimators.interface.Regressor"><code class="xref py py-class docutils literal"><span class="pre">rep.estimators.interface.Regressor</span></code></a></p>
-<p>Regressor from neurolab library.</p>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">rep.estimators.neurolab.NeurolabBase</span></code>, <a class="reference internal" href="#rep.estimators.interface.Regressor" title="rep.estimators.interface.Regressor"><code class="xref py py-class docutils literal"><span class="pre">rep.estimators.interface.Regressor</span></code></a></p>
+<p>Implements a regression model from the Neurolab library.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -1830,14 +1698,20 @@ array-like of shape [n_samples] or None if all weights are equal</li>
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>features</strong> (<em>list[str] or None</em>) &#8211; features used in training</li>
 <li><strong>layers</strong> (<em>list[int]</em>) &#8211; sequence, number of units inside each <strong>hidden</strong> layer.</li>
-<li><strong>net_type</strong> (<em>string</em>) &#8211; type of network
-One of &#8216;feed-forward&#8217;, &#8216;single-layer&#8217;, &#8216;competing-layer&#8217;, &#8216;learning-vector&#8217;,
-&#8216;elman-recurrent&#8217;, &#8216;hopfield-recurrent&#8217;, &#8216;hemming-recurrent&#8217;</li>
-<li><strong>initf</strong> (<em>anything implementing call(layer), e.g. nl.init.* or list[nl.init.*] of shape [n_layers]</em>) &#8211; layer initializers</li>
-<li><strong>trainf</strong> &#8211; net train function, default value depends on type of network</li>
-<li><strong>scaler</strong> (<em>str or sklearn-like transformer or False (do not scale features)</em>) &#8211; transformer to apply to the input objects</li>
-<li><strong>random_state</strong> &#8211; ignored, added for uniformity.</li>
-<li><strong>kwargs</strong> (<em>dict</em>) &#8211; additional arguments to net __init__, varies with different net_types</li>
+<li><strong>net_type</strong> (<em>string</em>) &#8211; <p>type of the network; possible values are:</p>
+<ul>
+<li><cite>feed-forward</cite></li>
+<li><cite>competing-layer</cite></li>
+<li><cite>learning-vector</cite></li>
+<li><cite>elman-recurrent</cite></li>
+<li><cite>hemming-recurrent</cite></li>
+</ul>
+</li>
+<li><strong>initf</strong> (<em>anything implementing call(layer), e.g. neurolab.init.* or list[neurolab.init.*] of shape [n_layers]</em>) &#8211; layer initializers</li>
+<li><strong>trainf</strong> &#8211; net training function; default value depends on the type of a network</li>
+<li><strong>scaler</strong> (<em>str or sklearn-like transformer or False</em>) &#8211; transformer which is applied to the input samples. If it is False, scaling will not be used</li>
+<li><strong>random_state</strong> &#8211; this parameter is ignored and is added for uniformity.</li>
+<li><strong>kwargs</strong> (<em>dict</em>) &#8211; additional arguments to net <cite>__init__</cite>, varies with different <cite>net_types</cite></li>
 </ul>
 </td>
 </tr>
@@ -1845,21 +1719,19 @@ One of &#8216;feed-forward&#8217;, &#8216;single-layer&#8217;, &#8216;competing-
 </table>
 <div class="admonition seealso">
 <p class="first admonition-title">See also</p>
-<p class="last"><a class="reference external" href="https://pythonhosted.org/neurolab/lib.html">https://pythonhosted.org/neurolab/lib.html</a> for supported train functions and their parameters.</p>
+<p class="last"><a class="reference external" href="https://pythonhosted.org/neurolab/lib.html">Supported training functions and their parameters</a></p>
 </div>
 <dl class="method">
 <dt id="rep.estimators.neurolab.NeurolabRegressor.fit">
 <code class="descname">fit</code><span class="sig-paren">(</span><em>X</em>, <em>y</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/estimators/neurolab.html#NeurolabRegressor.fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.estimators.neurolab.NeurolabRegressor.fit" title="Permalink to this definition">¶</a></dt>
-<dd><p>Train the classifier</p>
+<dd><p>Train a regression model on the data.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>X</strong> (<em>pandas.DataFrame</em>) &#8211; data shape [n_samples, n_features]</li>
-<li><strong>y</strong> &#8211; labels of events - array-like of shape [n_samples]</li>
-<li><strong>sample_weight</strong> &#8211; weight of events,
-array-like of shape [n_samples] or None if all weights are equal</li>
+<li><strong>X</strong> (<em>pandas.DataFrame</em>) &#8211; data of shape [n_samples, n_features]</li>
+<li><strong>y</strong> &#8211; values for samples &#8212; array-like of shape [n_samples]</li>
 </ul>
 </td>
 </tr>
@@ -1873,14 +1745,14 @@ array-like of shape [n_samples] or None if all weights are equal</li>
 <dl class="method">
 <dt id="rep.estimators.neurolab.NeurolabRegressor.partial_fit">
 <code class="descname">partial_fit</code><span class="sig-paren">(</span><em>X</em>, <em>y</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/estimators/neurolab.html#NeurolabRegressor.partial_fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.estimators.neurolab.NeurolabRegressor.partial_fit" title="Permalink to this definition">¶</a></dt>
-<dd><p>Additional training of the classifier</p>
+<dd><p>Additional training of the regressor.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>X</strong> (<em>pandas.DataFrame</em>) &#8211; data shape [n_samples, n_features]</li>
-<li><strong>y</strong> &#8211; labels of events - array-like of shape [n_samples]</li>
+<li><strong>X</strong> (<em>pandas.DataFrame</em>) &#8211; data of shape [n_samples, n_features]</li>
+<li><strong>y</strong> &#8211; values for samples, array-like of shape [n_samples]</li>
 </ul>
 </td>
 </tr>
@@ -1894,12 +1766,12 @@ array-like of shape [n_samples] or None if all weights are equal</li>
 <dl class="method">
 <dt id="rep.estimators.neurolab.NeurolabRegressor.predict">
 <code class="descname">predict</code><span class="sig-paren">(</span><em>X</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/estimators/neurolab.html#NeurolabRegressor.predict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.estimators.neurolab.NeurolabRegressor.predict" title="Permalink to this definition">¶</a></dt>
-<dd><p>Predict values for all events in dataset.</p>
+<dd><p>Predict values for data.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>X</strong> &#8211; pandas.DataFrame of shape [n_samples, n_features]</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>X</strong> (<em>pandas.DataFrame</em>) &#8211; data of shape [n_samples, n_features]</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">numpy.array of shape [n_samples] with predicted values</td>
 </tr>
@@ -1909,10 +1781,10 @@ array-like of shape [n_samples] or None if all weights are equal</li>
 
 <dl class="method">
 <dt id="rep.estimators.neurolab.NeurolabRegressor.staged_predict">
-<code class="descname">staged_predict</code><span class="sig-paren">(</span><em>X</em>, <em>step=10</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/estimators/neurolab.html#NeurolabRegressor.staged_predict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.estimators.neurolab.NeurolabRegressor.staged_predict" title="Permalink to this definition">¶</a></dt>
+<code class="descname">staged_predict</code><span class="sig-paren">(</span><em>X</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/estimators/neurolab.html#NeurolabRegressor.staged_predict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.estimators.neurolab.NeurolabRegressor.staged_predict" title="Permalink to this definition">¶</a></dt>
 <dd><div class="admonition warning">
 <p class="first admonition-title">Warning</p>
-<p class="last">not supported in Neurolab (<strong>AttributeError</strong> will be thrown)</p>
+<p class="last">This is not supported in the Neurolab (<strong>AttributeError</strong> will be thrown)</p>
 </div>
 </dd></dl>
 
@@ -1921,27 +1793,27 @@ array-like of shape [n_samples] or None if all weights are equal</li>
 </div>
 <div class="section" id="module-rep.estimators.pybrain">
 <span id="pybrain-classifier-and-regressor"></span><h2>Pybrain classifier and regressor<a class="headerlink" href="#module-rep.estimators.pybrain" title="Permalink to this headline">¶</a></h2>
-<p>These classes are wrappers for <a class="reference external" href="http://pybrain.org/docs/">pybrain</a> - neural network python library.</p>
+<p>These classes are wrappers for the <a class="reference external" href="http://pybrain.org/docs/">PyBrain library</a> &#8212; a neural network python library.</p>
 <div class="admonition warning">
 <p class="first admonition-title">Warning</p>
-<p class="last">pybrain training isn&#8217;t reproducible (training again with same parameters</p>
+<p class="last">pybrain training isn&#8217;t reproducible
+(training with the same parameters produces different neural network each time)</p>
 </div>
-<p>will produce different neural network)</p>
 <dl class="class">
 <dt id="rep.estimators.pybrain.PyBrainBase">
 <em class="property">class </em><code class="descclassname">rep.estimators.pybrain.</code><code class="descname">PyBrainBase</code><span class="sig-paren">(</span><em>features=None</em>, <em>layers=(10</em>, <em>)</em>, <em>hiddenclass=None</em>, <em>epochs=10</em>, <em>scaler='standard'</em>, <em>use_rprop=False</em>, <em>learningrate=0.01</em>, <em>lrdecay=1.0</em>, <em>momentum=0.0</em>, <em>verbose=False</em>, <em>batchlearning=False</em>, <em>weightdecay=0.0</em>, <em>etaminus=0.5</em>, <em>etaplus=1.2</em>, <em>deltamin=1e-06</em>, <em>deltamax=0.5</em>, <em>delta0=0.1</em>, <em>max_epochs=None</em>, <em>continue_epochs=3</em>, <em>validation_proportion=0.25</em>, <em>random_state=None</em>, <em>**params</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/estimators/pybrain.html#PyBrainBase"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.estimators.pybrain.PyBrainBase" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
-<p>Base class for estimator from PyBrain.</p>
+<p>A base class for the estimator from the PyBrain.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>features</strong> (<em>list[str] or None</em>) &#8211; features used in training.</li>
-<li><strong>scaler</strong> (<em>str or sklearn-like transformer or False (do not scale features)</em>) &#8211; transformer to apply to the input objects</li>
+<li><strong>scaler</strong> (<em>str or sklearn-like transformer or False</em>) &#8211; transformer which is applied to the input samples. If it is False, scaling will not be used</li>
 <li><strong>use_rprop</strong> (<em>bool</em>) &#8211; flag to indicate whether we should use Rprop or SGD trainer</li>
 <li><strong>verbose</strong> (<em>bool</em>) &#8211; print train/validation errors.</li>
-<li><strong>random_state</strong> &#8211; ignored parameter, pybrain training isn&#8217;t reproducible</li>
+<li><strong>random_state</strong> &#8211; it is ignored parameter, pybrain training is not reproducible</li>
 </ul>
 </td>
 </tr>
@@ -1954,13 +1826,16 @@ array-like of shape [n_samples] or None if all weights are equal</li>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>layers</strong> (<em>list[int]</em>) &#8211; indicate how many neurons in each hidden(!) layer; default is 1 hidden layer with 10 neurons</li>
-<li><strong>hiddenclass</strong> (<em>list[str]</em>) &#8211; classes of the hidden layers; default is &#8216;SigmoidLayer&#8217;</li>
-<li><strong>params</strong> (<em>dict</em>) &#8211; other net parameters:
-bias and outputbias (boolean) flags to indicate whether the network should have the corresponding biases,
-both default to True;
-peepholes (boolean);
-recurrent (boolean) if the <cite>recurrent</cite> flag is set, a <code class="xref py py-class docutils literal"><span class="pre">RecurrentNetwork</span></code> will be created,
+<li><strong>hiddenclass</strong> (<em>list[str]</em>) &#8211; classes of the hidden layers; default is <cite>&#8216;SigmoidLayer&#8217;</cite></li>
+<li><strong>params</strong> (<em>dict</em>) &#8211; <p>other net parameters:</p>
+<ul>
+<li><cite>bias</cite> and <cite>outputbias</cite> (boolean) flags to indicate whether the network should have the corresponding biases,
+both default to True;</li>
+<li><cite>peepholes</cite> (boolean);</li>
+<li><cite>recurrent</cite> (boolean): if the <cite>recurrent</cite> flag is set, a <code class="xref py py-class docutils literal"><span class="pre">RecurrentNetwork</span></code> will be created,
 otherwise a <code class="xref py py-class docutils literal"><span class="pre">FeedForwardNetwork</span></code></li>
+</ul>
+</li>
 </ul>
 </td>
 </tr>
@@ -1974,9 +1849,9 @@ otherwise a <code class="xref py py-class docutils literal"><span class="pre">Fe
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>learningrate</strong> (<em>float</em>) &#8211; gives the ratio of which parameters are changed into the direction of the gradient</li>
 <li><strong>lrdecay</strong> (<em>float</em>) &#8211; the learning rate decreases by lrdecay, which is used to multiply the learning rate after each training step</li>
-<li><strong>momentum</strong> (<em>float</em>) &#8211; the ratio by which the gradient of the last timestep is used</li>
+<li><strong>momentum</strong> (<em>float</em>) &#8211; the ratio by which the gradient of the last time step is used</li>
 <li><strong>batchlearning</strong> (<em>boolean</em>) &#8211; if set, the parameters are updated only at the end of each epoch. Default is False</li>
-<li><strong>weightdecay</strong> (<em>float</em>) &#8211; corresponds to the weightdecay rate, where 0 is no weight decay at all</li>
+<li><strong>weightdecay</strong> (<em>float</em>) &#8211; corresponds to the <cite>weightdecay</cite> rate, where 0 is no weight decay at all</li>
 </ul>
 </td>
 </tr>
@@ -1988,12 +1863,12 @@ otherwise a <code class="xref py py-class docutils literal"><span class="pre">Fe
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>etaminus</strong> (<em>float</em>) &#8211; factor by which step width is decreased when overstepping (0.5)</li>
-<li><strong>etaplus</strong> (<em>float</em>) &#8211; factor by which step width is increased when following gradient (1.2)</li>
+<li><strong>etaminus</strong> (<em>float</em>) &#8211; factor by which a step width is decreased when overstepping (default=0.5)</li>
+<li><strong>etaplus</strong> (<em>float</em>) &#8211; factor by which a step width is increased when following gradient (default=1.2)</li>
 <li><strong>delta</strong> (<em>float</em>) &#8211; step width for each weight</li>
-<li><strong>deltamin</strong> (<em>float</em>) &#8211; minimum step width (1e-6)</li>
-<li><strong>deltamax</strong> (<em>float</em>) &#8211; maximum step width (5.0)</li>
-<li><strong>delta0</strong> (<em>float</em>) &#8211; initial step width (0.1)</li>
+<li><strong>deltamin</strong> (<em>float</em>) &#8211; minimum step width (default=1e-6)</li>
+<li><strong>deltamax</strong> (<em>float</em>) &#8211; maximum step width (default=5.0)</li>
+<li><strong>delta0</strong> (<em>float</em>) &#8211; initial step width (default=0.1)</li>
 </ul>
 </td>
 </tr>
@@ -2005,9 +1880,9 @@ otherwise a <code class="xref py py-class docutils literal"><span class="pre">Fe
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>epochs</strong> (<em>int</em>) &#8211; number of iterations of training; if &lt; 0 then classifier trains until convergence</li>
-<li><strong>max_epochs</strong> (<em>int</em>) &#8211; if is given, at most that many epochs are trained</li>
-<li><strong>continue_epochs</strong> (<em>int</em>) &#8211; each time validation error decreases, try for continue_epochs epochs to find a better one</li>
+<li><strong>epochs</strong> (<em>int</em>) &#8211; number of iterations in training; if &lt; 0 then estimator trains until converge</li>
+<li><strong>max_epochs</strong> (<em>int</em>) &#8211; maximum number of epochs the trainer should train if it is given</li>
+<li><strong>continue_epochs</strong> (<em>int</em>) &#8211; each time validation error decreases, try for <cite>continue_epochs</cite> epochs to find a better one</li>
 <li><strong>validation_proportion</strong> (<em>float</em>) &#8211; the ratio of the dataset that is used for the validation dataset</li>
 </ul>
 </td>
@@ -2016,21 +1891,19 @@ otherwise a <code class="xref py py-class docutils literal"><span class="pre">Fe
 </table>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">Details about parameters: <a class="reference external" href="http://pybrain.org/docs/">http://pybrain.org/docs/</a></p>
+<p class="last">Details about parameters <a class="reference external" href="http://pybrain.org/docs/">here</a>.</p>
 </div>
 <dl class="method">
 <dt id="rep.estimators.pybrain.PyBrainBase.fit">
 <code class="descname">fit</code><span class="sig-paren">(</span><em>X</em>, <em>y</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/estimators/pybrain.html#PyBrainBase.fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.estimators.pybrain.PyBrainBase.fit" title="Permalink to this definition">¶</a></dt>
-<dd><p>Train the estimator</p>
+<dd><p>Train a classification/regression model on the data.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>X</strong> (<em>pandas.DataFrame</em>) &#8211; data shape [n_samples, n_features]</li>
-<li><strong>y</strong> &#8211; labels of events - array-like of shape [n_samples]</li>
-<li><strong>sample_weight</strong> &#8211; weight of events,
-array-like of shape [n_samples] or None if all weights are equal</li>
+<li><strong>X</strong> (<em>pandas.DataFrame</em>) &#8211; data of shape [n_samples, n_features]</li>
+<li><strong>y</strong> &#8211; values for samples &#8212; array-like of shape [n_samples]</li>
 </ul>
 </td>
 </tr>
@@ -2042,32 +1915,16 @@ array-like of shape [n_samples] or None if all weights are equal</li>
 </dd></dl>
 
 <dl class="method">
-<dt id="rep.estimators.pybrain.PyBrainBase.is_fitted">
-<code class="descname">is_fitted</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/estimators/pybrain.html#PyBrainBase.is_fitted"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.estimators.pybrain.PyBrainBase.is_fitted" title="Permalink to this definition">¶</a></dt>
-<dd><p>Check if net is fitted</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">If estimator was fitted</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">bool</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
 <dt id="rep.estimators.pybrain.PyBrainBase.partial_fit">
 <code class="descname">partial_fit</code><span class="sig-paren">(</span><em>X</em>, <em>y</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/estimators/pybrain.html#PyBrainBase.partial_fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.estimators.pybrain.PyBrainBase.partial_fit" title="Permalink to this definition">¶</a></dt>
-<dd><p>Additional training of the estimator</p>
+<dd><p>Additional training of the classification/regression model.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>X</strong> (<em>pandas.DataFrame</em>) &#8211; data shape [n_samples, n_features]</li>
-<li><strong>y</strong> &#8211; labels of events - array-like of shape [n_samples]</li>
+<li><strong>X</strong> (<em>pandas.DataFrame</em>) &#8211; data of shape [n_samples, n_features]</li>
+<li><strong>y</strong> &#8211; values for samples, array-like of shape [n_samples]</li>
 </ul>
 </td>
 </tr>
@@ -2082,7 +1939,7 @@ array-like of shape [n_samples] or None if all weights are equal</li>
 <dt id="rep.estimators.pybrain.PyBrainBase.set_params">
 <code class="descname">set_params</code><span class="sig-paren">(</span><em>**params</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/estimators/pybrain.html#PyBrainBase.set_params"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.estimators.pybrain.PyBrainBase.set_params" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the parameters of the estimator.</p>
-<p>Names of parameters are the same as in constructor.</p>
+<p>Names of the parameters are the same as in the constructor.</p>
 </dd></dl>
 
 </dd></dl>
@@ -2091,17 +1948,17 @@ array-like of shape [n_samples] or None if all weights are equal</li>
 <dt id="rep.estimators.pybrain.PyBrainClassifier">
 <em class="property">class </em><code class="descclassname">rep.estimators.pybrain.</code><code class="descname">PyBrainClassifier</code><span class="sig-paren">(</span><em>features=None</em>, <em>layers=(10</em>, <em>)</em>, <em>hiddenclass=None</em>, <em>epochs=10</em>, <em>scaler='standard'</em>, <em>use_rprop=False</em>, <em>learningrate=0.01</em>, <em>lrdecay=1.0</em>, <em>momentum=0.0</em>, <em>verbose=False</em>, <em>batchlearning=False</em>, <em>weightdecay=0.0</em>, <em>etaminus=0.5</em>, <em>etaplus=1.2</em>, <em>deltamin=1e-06</em>, <em>deltamax=0.5</em>, <em>delta0=0.1</em>, <em>max_epochs=None</em>, <em>continue_epochs=3</em>, <em>validation_proportion=0.25</em>, <em>random_state=None</em>, <em>**params</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/estimators/pybrain.html#PyBrainClassifier"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.estimators.pybrain.PyBrainClassifier" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#rep.estimators.pybrain.PyBrainBase" title="rep.estimators.pybrain.PyBrainBase"><code class="xref py py-class docutils literal"><span class="pre">rep.estimators.pybrain.PyBrainBase</span></code></a>, <a class="reference internal" href="#rep.estimators.interface.Classifier" title="rep.estimators.interface.Classifier"><code class="xref py py-class docutils literal"><span class="pre">rep.estimators.interface.Classifier</span></code></a></p>
-<p>Implements classification from PyBrain library</p>
+<p>Implements a classification model from the PyBrain library.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>features</strong> (<em>list[str] or None</em>) &#8211; features used in training.</li>
-<li><strong>scaler</strong> (<em>str or sklearn-like transformer or False (do not scale features)</em>) &#8211; transformer to apply to the input objects</li>
+<li><strong>scaler</strong> (<em>str or sklearn-like transformer or False</em>) &#8211; transformer which is applied to the input samples. If it is False, scaling will not be used</li>
 <li><strong>use_rprop</strong> (<em>bool</em>) &#8211; flag to indicate whether we should use Rprop or SGD trainer</li>
 <li><strong>verbose</strong> (<em>bool</em>) &#8211; print train/validation errors.</li>
-<li><strong>random_state</strong> &#8211; ignored parameter, pybrain training isn&#8217;t reproducible</li>
+<li><strong>random_state</strong> &#8211; it is ignored parameter, pybrain training is not reproducible</li>
 </ul>
 </td>
 </tr>
@@ -2114,13 +1971,16 @@ array-like of shape [n_samples] or None if all weights are equal</li>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>layers</strong> (<em>list[int]</em>) &#8211; indicate how many neurons in each hidden(!) layer; default is 1 hidden layer with 10 neurons</li>
-<li><strong>hiddenclass</strong> (<em>list[str]</em>) &#8211; classes of the hidden layers; default is &#8216;SigmoidLayer&#8217;</li>
-<li><strong>params</strong> (<em>dict</em>) &#8211; other net parameters:
-bias and outputbias (boolean) flags to indicate whether the network should have the corresponding biases,
-both default to True;
-peepholes (boolean);
-recurrent (boolean) if the <cite>recurrent</cite> flag is set, a <code class="xref py py-class docutils literal"><span class="pre">RecurrentNetwork</span></code> will be created,
+<li><strong>hiddenclass</strong> (<em>list[str]</em>) &#8211; classes of the hidden layers; default is <cite>&#8216;SigmoidLayer&#8217;</cite></li>
+<li><strong>params</strong> (<em>dict</em>) &#8211; <p>other net parameters:</p>
+<ul>
+<li><cite>bias</cite> and <cite>outputbias</cite> (boolean) flags to indicate whether the network should have the corresponding biases,
+both default to True;</li>
+<li><cite>peepholes</cite> (boolean);</li>
+<li><cite>recurrent</cite> (boolean): if the <cite>recurrent</cite> flag is set, a <code class="xref py py-class docutils literal"><span class="pre">RecurrentNetwork</span></code> will be created,
 otherwise a <code class="xref py py-class docutils literal"><span class="pre">FeedForwardNetwork</span></code></li>
+</ul>
+</li>
 </ul>
 </td>
 </tr>
@@ -2134,9 +1994,9 @@ otherwise a <code class="xref py py-class docutils literal"><span class="pre">Fe
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>learningrate</strong> (<em>float</em>) &#8211; gives the ratio of which parameters are changed into the direction of the gradient</li>
 <li><strong>lrdecay</strong> (<em>float</em>) &#8211; the learning rate decreases by lrdecay, which is used to multiply the learning rate after each training step</li>
-<li><strong>momentum</strong> (<em>float</em>) &#8211; the ratio by which the gradient of the last timestep is used</li>
+<li><strong>momentum</strong> (<em>float</em>) &#8211; the ratio by which the gradient of the last time step is used</li>
 <li><strong>batchlearning</strong> (<em>boolean</em>) &#8211; if set, the parameters are updated only at the end of each epoch. Default is False</li>
-<li><strong>weightdecay</strong> (<em>float</em>) &#8211; corresponds to the weightdecay rate, where 0 is no weight decay at all</li>
+<li><strong>weightdecay</strong> (<em>float</em>) &#8211; corresponds to the <cite>weightdecay</cite> rate, where 0 is no weight decay at all</li>
 </ul>
 </td>
 </tr>
@@ -2148,12 +2008,12 @@ otherwise a <code class="xref py py-class docutils literal"><span class="pre">Fe
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>etaminus</strong> (<em>float</em>) &#8211; factor by which step width is decreased when overstepping (0.5)</li>
-<li><strong>etaplus</strong> (<em>float</em>) &#8211; factor by which step width is increased when following gradient (1.2)</li>
+<li><strong>etaminus</strong> (<em>float</em>) &#8211; factor by which a step width is decreased when overstepping (default=0.5)</li>
+<li><strong>etaplus</strong> (<em>float</em>) &#8211; factor by which a step width is increased when following gradient (default=1.2)</li>
 <li><strong>delta</strong> (<em>float</em>) &#8211; step width for each weight</li>
-<li><strong>deltamin</strong> (<em>float</em>) &#8211; minimum step width (1e-6)</li>
-<li><strong>deltamax</strong> (<em>float</em>) &#8211; maximum step width (5.0)</li>
-<li><strong>delta0</strong> (<em>float</em>) &#8211; initial step width (0.1)</li>
+<li><strong>deltamin</strong> (<em>float</em>) &#8211; minimum step width (default=1e-6)</li>
+<li><strong>deltamax</strong> (<em>float</em>) &#8211; maximum step width (default=5.0)</li>
+<li><strong>delta0</strong> (<em>float</em>) &#8211; initial step width (default=0.1)</li>
 </ul>
 </td>
 </tr>
@@ -2165,9 +2025,9 @@ otherwise a <code class="xref py py-class docutils literal"><span class="pre">Fe
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>epochs</strong> (<em>int</em>) &#8211; number of iterations of training; if &lt; 0 then classifier trains until convergence</li>
-<li><strong>max_epochs</strong> (<em>int</em>) &#8211; if is given, at most that many epochs are trained</li>
-<li><strong>continue_epochs</strong> (<em>int</em>) &#8211; each time validation error decreases, try for continue_epochs epochs to find a better one</li>
+<li><strong>epochs</strong> (<em>int</em>) &#8211; number of iterations in training; if &lt; 0 then estimator trains until converge</li>
+<li><strong>max_epochs</strong> (<em>int</em>) &#8211; maximum number of epochs the trainer should train if it is given</li>
+<li><strong>continue_epochs</strong> (<em>int</em>) &#8211; each time validation error decreases, try for <cite>continue_epochs</cite> epochs to find a better one</li>
 <li><strong>validation_proportion</strong> (<em>float</em>) &#8211; the ratio of the dataset that is used for the validation dataset</li>
 </ul>
 </td>
@@ -2176,19 +2036,19 @@ otherwise a <code class="xref py py-class docutils literal"><span class="pre">Fe
 </table>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">Details about parameters: <a class="reference external" href="http://pybrain.org/docs/">http://pybrain.org/docs/</a></p>
+<p class="last">Details about parameters <a class="reference external" href="http://pybrain.org/docs/">here</a>.</p>
 </div>
 <dl class="method">
 <dt id="rep.estimators.pybrain.PyBrainClassifier.predict_proba">
 <code class="descname">predict_proba</code><span class="sig-paren">(</span><em>X</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/estimators/pybrain.html#PyBrainClassifier.predict_proba"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.estimators.pybrain.PyBrainClassifier.predict_proba" title="Permalink to this definition">¶</a></dt>
-<dd><p>Predict labels for all events in dataset</p>
+<dd><p>Predict probabilities for each class label for samples.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>X</strong> &#8211; pandas.DataFrame of shape [n_samples, n_features]</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>X</strong> (<em>pandas.DataFrame</em>) &#8211; data of shape [n_samples, n_features]</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">numpy.array of shape [n_samples] with integer labels</td>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">numpy.array of shape [n_samples, n_classes] with probabilities</td>
 </tr>
 </tbody>
 </table>
@@ -2199,7 +2059,7 @@ otherwise a <code class="xref py py-class docutils literal"><span class="pre">Fe
 <code class="descname">staged_predict_proba</code><span class="sig-paren">(</span><em>X</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/estimators/pybrain.html#PyBrainClassifier.staged_predict_proba"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.estimators.pybrain.PyBrainClassifier.staged_predict_proba" title="Permalink to this definition">¶</a></dt>
 <dd><div class="admonition warning">
 <p class="first admonition-title">Warning</p>
-<p class="last">Isn&#8217;t supported for PyBrain (<strong>AttributeError</strong> will be thrown).</p>
+<p class="last">This function is not supported for PyBrain (<strong>AttributeError</strong> will be thrown).</p>
 </div>
 </dd></dl>
 
@@ -2209,17 +2069,17 @@ otherwise a <code class="xref py py-class docutils literal"><span class="pre">Fe
 <dt id="rep.estimators.pybrain.PyBrainRegressor">
 <em class="property">class </em><code class="descclassname">rep.estimators.pybrain.</code><code class="descname">PyBrainRegressor</code><span class="sig-paren">(</span><em>features=None</em>, <em>layers=(10</em>, <em>)</em>, <em>hiddenclass=None</em>, <em>epochs=10</em>, <em>scaler='standard'</em>, <em>use_rprop=False</em>, <em>learningrate=0.01</em>, <em>lrdecay=1.0</em>, <em>momentum=0.0</em>, <em>verbose=False</em>, <em>batchlearning=False</em>, <em>weightdecay=0.0</em>, <em>etaminus=0.5</em>, <em>etaplus=1.2</em>, <em>deltamin=1e-06</em>, <em>deltamax=0.5</em>, <em>delta0=0.1</em>, <em>max_epochs=None</em>, <em>continue_epochs=3</em>, <em>validation_proportion=0.25</em>, <em>random_state=None</em>, <em>**params</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/estimators/pybrain.html#PyBrainRegressor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.estimators.pybrain.PyBrainRegressor" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#rep.estimators.pybrain.PyBrainBase" title="rep.estimators.pybrain.PyBrainBase"><code class="xref py py-class docutils literal"><span class="pre">rep.estimators.pybrain.PyBrainBase</span></code></a>, <a class="reference internal" href="#rep.estimators.interface.Regressor" title="rep.estimators.interface.Regressor"><code class="xref py py-class docutils literal"><span class="pre">rep.estimators.interface.Regressor</span></code></a></p>
-<p>Implements regression from PyBrain library</p>
+<p>Implements a regression model from the PyBrain library.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>features</strong> (<em>list[str] or None</em>) &#8211; features used in training.</li>
-<li><strong>scaler</strong> (<em>str or sklearn-like transformer or False (do not scale features)</em>) &#8211; transformer to apply to the input objects</li>
+<li><strong>scaler</strong> (<em>str or sklearn-like transformer or False</em>) &#8211; transformer which is applied to the input samples. If it is False, scaling will not be used</li>
 <li><strong>use_rprop</strong> (<em>bool</em>) &#8211; flag to indicate whether we should use Rprop or SGD trainer</li>
 <li><strong>verbose</strong> (<em>bool</em>) &#8211; print train/validation errors.</li>
-<li><strong>random_state</strong> &#8211; ignored parameter, pybrain training isn&#8217;t reproducible</li>
+<li><strong>random_state</strong> &#8211; it is ignored parameter, pybrain training is not reproducible</li>
 </ul>
 </td>
 </tr>
@@ -2232,13 +2092,16 @@ otherwise a <code class="xref py py-class docutils literal"><span class="pre">Fe
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>layers</strong> (<em>list[int]</em>) &#8211; indicate how many neurons in each hidden(!) layer; default is 1 hidden layer with 10 neurons</li>
-<li><strong>hiddenclass</strong> (<em>list[str]</em>) &#8211; classes of the hidden layers; default is &#8216;SigmoidLayer&#8217;</li>
-<li><strong>params</strong> (<em>dict</em>) &#8211; other net parameters:
-bias and outputbias (boolean) flags to indicate whether the network should have the corresponding biases,
-both default to True;
-peepholes (boolean);
-recurrent (boolean) if the <cite>recurrent</cite> flag is set, a <code class="xref py py-class docutils literal"><span class="pre">RecurrentNetwork</span></code> will be created,
+<li><strong>hiddenclass</strong> (<em>list[str]</em>) &#8211; classes of the hidden layers; default is <cite>&#8216;SigmoidLayer&#8217;</cite></li>
+<li><strong>params</strong> (<em>dict</em>) &#8211; <p>other net parameters:</p>
+<ul>
+<li><cite>bias</cite> and <cite>outputbias</cite> (boolean) flags to indicate whether the network should have the corresponding biases,
+both default to True;</li>
+<li><cite>peepholes</cite> (boolean);</li>
+<li><cite>recurrent</cite> (boolean): if the <cite>recurrent</cite> flag is set, a <code class="xref py py-class docutils literal"><span class="pre">RecurrentNetwork</span></code> will be created,
 otherwise a <code class="xref py py-class docutils literal"><span class="pre">FeedForwardNetwork</span></code></li>
+</ul>
+</li>
 </ul>
 </td>
 </tr>
@@ -2252,9 +2115,9 @@ otherwise a <code class="xref py py-class docutils literal"><span class="pre">Fe
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>learningrate</strong> (<em>float</em>) &#8211; gives the ratio of which parameters are changed into the direction of the gradient</li>
 <li><strong>lrdecay</strong> (<em>float</em>) &#8211; the learning rate decreases by lrdecay, which is used to multiply the learning rate after each training step</li>
-<li><strong>momentum</strong> (<em>float</em>) &#8211; the ratio by which the gradient of the last timestep is used</li>
+<li><strong>momentum</strong> (<em>float</em>) &#8211; the ratio by which the gradient of the last time step is used</li>
 <li><strong>batchlearning</strong> (<em>boolean</em>) &#8211; if set, the parameters are updated only at the end of each epoch. Default is False</li>
-<li><strong>weightdecay</strong> (<em>float</em>) &#8211; corresponds to the weightdecay rate, where 0 is no weight decay at all</li>
+<li><strong>weightdecay</strong> (<em>float</em>) &#8211; corresponds to the <cite>weightdecay</cite> rate, where 0 is no weight decay at all</li>
 </ul>
 </td>
 </tr>
@@ -2266,12 +2129,12 @@ otherwise a <code class="xref py py-class docutils literal"><span class="pre">Fe
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>etaminus</strong> (<em>float</em>) &#8211; factor by which step width is decreased when overstepping (0.5)</li>
-<li><strong>etaplus</strong> (<em>float</em>) &#8211; factor by which step width is increased when following gradient (1.2)</li>
+<li><strong>etaminus</strong> (<em>float</em>) &#8211; factor by which a step width is decreased when overstepping (default=0.5)</li>
+<li><strong>etaplus</strong> (<em>float</em>) &#8211; factor by which a step width is increased when following gradient (default=1.2)</li>
 <li><strong>delta</strong> (<em>float</em>) &#8211; step width for each weight</li>
-<li><strong>deltamin</strong> (<em>float</em>) &#8211; minimum step width (1e-6)</li>
-<li><strong>deltamax</strong> (<em>float</em>) &#8211; maximum step width (5.0)</li>
-<li><strong>delta0</strong> (<em>float</em>) &#8211; initial step width (0.1)</li>
+<li><strong>deltamin</strong> (<em>float</em>) &#8211; minimum step width (default=1e-6)</li>
+<li><strong>deltamax</strong> (<em>float</em>) &#8211; maximum step width (default=5.0)</li>
+<li><strong>delta0</strong> (<em>float</em>) &#8211; initial step width (default=0.1)</li>
 </ul>
 </td>
 </tr>
@@ -2283,9 +2146,9 @@ otherwise a <code class="xref py py-class docutils literal"><span class="pre">Fe
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>epochs</strong> (<em>int</em>) &#8211; number of iterations of training; if &lt; 0 then classifier trains until convergence</li>
-<li><strong>max_epochs</strong> (<em>int</em>) &#8211; if is given, at most that many epochs are trained</li>
-<li><strong>continue_epochs</strong> (<em>int</em>) &#8211; each time validation error decreases, try for continue_epochs epochs to find a better one</li>
+<li><strong>epochs</strong> (<em>int</em>) &#8211; number of iterations in training; if &lt; 0 then estimator trains until converge</li>
+<li><strong>max_epochs</strong> (<em>int</em>) &#8211; maximum number of epochs the trainer should train if it is given</li>
+<li><strong>continue_epochs</strong> (<em>int</em>) &#8211; each time validation error decreases, try for <cite>continue_epochs</cite> epochs to find a better one</li>
 <li><strong>validation_proportion</strong> (<em>float</em>) &#8211; the ratio of the dataset that is used for the validation dataset</li>
 </ul>
 </td>
@@ -2294,19 +2157,19 @@ otherwise a <code class="xref py py-class docutils literal"><span class="pre">Fe
 </table>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">Details about parameters: <a class="reference external" href="http://pybrain.org/docs/">http://pybrain.org/docs/</a></p>
+<p class="last">Details about parameters <a class="reference external" href="http://pybrain.org/docs/">here</a>.</p>
 </div>
 <dl class="method">
 <dt id="rep.estimators.pybrain.PyBrainRegressor.predict">
 <code class="descname">predict</code><span class="sig-paren">(</span><em>X</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/estimators/pybrain.html#PyBrainRegressor.predict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.estimators.pybrain.PyBrainRegressor.predict" title="Permalink to this definition">¶</a></dt>
-<dd><p>Predict values for all events in dataset.</p>
+<dd><p>Predict labels for all samples in the dataset.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>X</strong> &#8211; pandas.DataFrame of shape [n_samples, n_features]</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>X</strong> (<em>pandas.DataFrame</em>) &#8211; data of shape [n_samples, n_features]</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">numpy.array of shape [n_samples] or shape [n_samples, n_targets] with predicted values</td>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">numpy.array of shape [n_samples] with integer labels</td>
 </tr>
 </tbody>
 </table>
@@ -2317,7 +2180,7 @@ otherwise a <code class="xref py py-class docutils literal"><span class="pre">Fe
 <code class="descname">staged_predict</code><span class="sig-paren">(</span><em>X</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/estimators/pybrain.html#PyBrainRegressor.staged_predict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.estimators.pybrain.PyBrainRegressor.staged_predict" title="Permalink to this definition">¶</a></dt>
 <dd><div class="admonition warning">
 <p class="first admonition-title">Warning</p>
-<p class="last">Isn&#8217;t supported for PyBrain (<strong>AttributeError</strong> will be thrown).</p>
+<p class="last">This function is not supported for PyBrain (<strong>AttributeError</strong> will be thrown).</p>
 </div>
 </dd></dl>
 
@@ -2474,6 +2337,11 @@ otherwise a <code class="xref py py-class docutils literal"><span class="pre">Fe
 </ul>
 </div>
 </div>
+<div class="section" id="compatible-libraries">
+<h2>Compatible libraries<a class="headerlink" href="#compatible-libraries" title="Permalink to this headline">¶</a></h2>
+<p>REP can deal with any library which supports scikit-learn interface.</p>
+<p>Examples of compatible libraries: <a class="reference external" href="http://pythonhosted.org/nolearn/">nolearn</a>, <a class="reference external" href="https://github.com/tensorflow/skflow/">skflow</a>, <a class="reference external" href="http://gplearn.readthedocs.org/en/latest/">gplearn</a> and <a class="reference external" href="https://arogozhnikov.github.io/hep_ml/">hep_ml</a>.</p>
+</div>
 </div>
 
 
@@ -2486,7 +2354,7 @@ otherwise a <code class="xref py py-class docutils literal"><span class="pre">Fe
         <a href="metaml.html" class="btn btn-neutral float-right" title="Meta Machine Learning" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="data.html" class="btn btn-neutral" title="Data" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="index.html" class="btn btn-neutral" title="Welcome to REP’s documentation!" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -2517,7 +2385,7 @@ otherwise a <code class="xref py py-class docutils literal"><span class="pre">Fe
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'./',
-            VERSION:'0.6.5',
+            VERSION:'0.6.6',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true

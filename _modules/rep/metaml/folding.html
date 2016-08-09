@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>rep.metaml.folding &mdash; REP (Reproducible Experiment Platform) 0.6.5 documentation</title>
+  <title>rep.metaml.folding &mdash; REP (Reproducible Experiment Platform) 0.6.6 documentation</title>
   
 
   
@@ -30,7 +30,7 @@
   
 
   
-    <link rel="top" title="REP (Reproducible Experiment Platform) 0.6.5 documentation" href="../../../index.html"/>
+    <link rel="top" title="REP (Reproducible Experiment Platform) 0.6.6 documentation" href="../../../index.html"/>
         <link rel="up" title="Module code" href="../../index.html"/> 
 
   
@@ -59,7 +59,7 @@
             
             
               <div class="version">
-                0.6.5
+                0.6.6
               </div>
             
           
@@ -81,12 +81,15 @@
             
             
                 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../data.html">Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../estimators.html">Estimators (classification and regression)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../metaml.html">Meta Machine Learning</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../report.html">Report for models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../metrics.html">Metrics</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../plotting.html">Plotting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../parallel.html">Parallel computing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../data.html">Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../utils.html">Utilities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reproducibility.html">REProducibility</a></li>
 <li class="toctree-l1"><a class="reference external" href="http://nbviewer.ipython.org/github/yandex/rep/tree/master/howto/">Howto notebooks</a></li>
 </ul>
 
@@ -134,21 +137,23 @@
             
   <h1>Source code for rep.metaml.folding</h1><div class="highlight"><pre>
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">This is specific meta-algorithm based on the idea of cross-validation.</span>
+<span class="sd">:class:`FoldingClassifier` and :class:`FoldingRegressor` provide an easy way</span>
+<span class="sd">to run k-Folding cross-validation. Also it is a nice way to combine predictions of trained classifiers.</span>
+
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">division</span><span class="p">,</span> <span class="n">print_function</span><span class="p">,</span> <span class="n">absolute_import</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span>
-<span class="kn">from</span> <span class="nn">sklearn</span> <span class="kn">import</span> <span class="n">clone</span>
-
+<span class="kn">import</span> <span class="nn">pandas</span>
 <span class="kn">from</span> <span class="nn">six.moves</span> <span class="kn">import</span> <span class="nb">zip</span>
-<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">utils</span>
+
+<span class="kn">from</span> <span class="nn">sklearn</span> <span class="kn">import</span> <span class="n">clone</span>
 <span class="kn">from</span> <span class="nn">sklearn.cross_validation</span> <span class="kn">import</span> <span class="n">KFold</span>
-<span class="kn">from</span> <span class="nn">sklearn.utils.validation</span> <span class="kn">import</span> <span class="n">check_random_state</span>
+<span class="kn">from</span> <span class="nn">sklearn.utils</span> <span class="kn">import</span> <span class="n">check_random_state</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">utils</span>
 <span class="kn">from</span> <span class="nn">.factory</span> <span class="kn">import</span> <span class="n">train_estimator</span>
 <span class="kn">from</span> <span class="nn">..estimators.interface</span> <span class="kn">import</span> <span class="n">Classifier</span><span class="p">,</span> <span class="n">Regressor</span>
 <span class="kn">from</span> <span class="nn">..estimators.utils</span> <span class="kn">import</span> <span class="n">check_inputs</span>
-<span class="kn">import</span> <span class="nn">pandas</span>
 
 <span class="n">__author__</span> <span class="o">=</span> <span class="s">&#39;Tatiana Likhomanenko, Alex Rogozhnikov&#39;</span>
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;FoldingClassifier&#39;</span><span class="p">,</span> <span class="s">&#39;FoldingRegressor&#39;</span><span class="p">]</span>
@@ -159,7 +164,20 @@
 
 <span class="k">class</span> <span class="nc">FoldingBase</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Base class for FoldingClassifier and FoldingRegressor</span>
+<span class="sd">    This meta-{estimator} implements folding algorithm:</span>
+
+<span class="sd">    * split training data into n equal parts;</span>
+<span class="sd">    * train n {estimator}s, each one is trained using n-1 folds</span>
+
+<span class="sd">    To get unbiased predictions for data, pass the **same** dataset (with same order of events)</span>
+<span class="sd">    as in training to prediction methods,</span>
+<span class="sd">    in which case each event is predicted with base {estimator} which didn&#39;t use that event during training.</span>
+
+<span class="sd">    To use information from not one, but several estimators during predictions,</span>
+<span class="sd">    provide appropriate voting function. Examples of voting function:</span>
+
+<span class="sd">    &gt;&gt;&gt; voting = lambda x: numpy.mean(x, axis=0)</span>
+<span class="sd">    &gt;&gt;&gt; voting = lambda x: numpy.median(x, axis=0)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
@@ -168,6 +186,17 @@
                  <span class="n">random_state</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
                  <span class="n">features</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
                  <span class="n">parallel_profile</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        :param sklearn.BaseEstimator base_estimator: base classifier, which will be used for training</span>
+<span class="sd">        :param int n_folds: count of folds</span>
+<span class="sd">        :param features: features used in training</span>
+<span class="sd">        :type features: None or list[str]</span>
+<span class="sd">        :param parallel_profile: profile for IPython cluster, None to compute locally.</span>
+<span class="sd">        :type parallel_profile: None or str</span>
+<span class="sd">        :param random_state: random state for reproducibility</span>
+<span class="sd">        :type random_state: None or int or RandomState</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">estimators</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">parallel_profile</span> <span class="o">=</span> <span class="n">parallel_profile</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">n_folds</span> <span class="o">=</span> <span class="n">n_folds</span>
@@ -195,7 +224,7 @@
 
     <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Train the classifier, will train several base classifiers on overlapping</span>
+<span class="sd">        Train the model, will train several base {estimator}s on overlapping</span>
 <span class="sd">        subsets of training dataset.</span>
 
 <span class="sd">        :param X: pandas.DataFrame of shape [n_samples, n_features]</span>
@@ -304,34 +333,14 @@
         <span class="k">return</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s">&#39;effect&#39;</span><span class="p">:</span> <span class="n">importances</span> <span class="o">/</span> <span class="n">numpy</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">importances</span><span class="p">)},</span> <span class="n">index</span><span class="o">=</span><span class="n">one_importances</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="FoldingRegressor"><a class="viewcode-back" href="../../../metaml.html#rep.metaml.folding.FoldingRegressor">[docs]</a><span class="k">class</span> <span class="nc">FoldingRegressor</span><span class="p">(</span><span class="n">FoldingBase</span><span class="p">,</span> <span class="n">Regressor</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    This meta-regressor implements folding algorithm:</span>
+<div class="viewcode-block" id="FoldingRegressor"><a class="viewcode-back" href="../../../metaml.html#rep.metaml.folding.FoldingRegressor">[docs]</a><span class="k">class</span> <span class="nc">FoldingRegressor</span><span class="p">(</span><span class="n">FoldingBase</span><span class="p">,</span> <span class="n">Regressor</span><span class="p">):</span></div>
+    <span class="c"># inherit documentation</span>
+    <span class="n">__doc__</span> <span class="o">=</span> <span class="n">FoldingBase</span><span class="o">.</span><span class="n">__doc__</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">estimator</span><span class="o">=</span><span class="s">&#39;regressor&#39;</span><span class="p">)</span>
 
-<span class="sd">    * training data is splitted into n equal parts;</span>
+    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">FoldingBase</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="n">sample_weight</span><span class="p">)</span>
 
-<span class="sd">    * we train n regressors, each one is trained using n-1 folds</span>
-
-<span class="sd">    To build unbiased predictions for data, pass the **same** dataset (with same order of events)</span>
-<span class="sd">    as in training to `predict` or `staged_predict`, in which case</span>
-<span class="sd">    classifier will use to predict each event that base classifier which didn&#39;t use that event during training.</span>
-
-<span class="sd">    To use information from not one, but several estimators during predictions,</span>
-<span class="sd">    provide appropriate voting function. Examples of voting function:</span>
-<span class="sd">    &gt;&gt;&gt; voting = lambda x: numpy.mean(x, axis=0)</span>
-<span class="sd">    &gt;&gt;&gt; voting = lambda x: numpy.median(x, axis=0)</span>
-
-<span class="sd">    Parameters:</span>
-<span class="sd">    -----------</span>
-<span class="sd">    :param sklearn.BaseEstimator base_estimator: base classifier, which will be used for training</span>
-<span class="sd">    :param int n_folds: count of folds</span>
-<span class="sd">    :param features: features used in training</span>
-<span class="sd">    :type features: None or list[str]</span>
-<span class="sd">    :param parallel_profile: profile for IPython cluster, None to compute locally.</span>
-<span class="sd">    :type parallel_profile: None or str</span>
-<span class="sd">    :param random_state: random state for reproducibility</span>
-<span class="sd">    :type random_state: None or int or RandomState</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">fit</span><span class="o">.</span><span class="n">__doc__</span> <span class="o">=</span> <span class="n">FoldingBase</span><span class="o">.</span><span class="n">fit</span><span class="o">.</span><span class="n">__doc__</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">estimator</span><span class="o">=</span><span class="s">&#39;regressor&#39;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_prepare_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="p">):</span>
         <span class="n">X</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_features</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
@@ -339,7 +348,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">n_outputs_</span> <span class="o">=</span> <span class="mi">1</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">y_shape</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span> <span class="k">else</span> <span class="n">y_shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">check_inputs</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="n">sample_weight</span><span class="p">,</span> <span class="n">allow_multiple_targets</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 
-<div class="viewcode-block" id="FoldingRegressor.predict"><a class="viewcode-back" href="../../../metaml.html#rep.metaml.folding.FoldingRegressor.predict">[docs]</a>    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">vote_function</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">vote_function</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get predictions. To get unbiased predictions on training dataset, pass training data</span>
 <span class="sd">        (with same order of events) and vote_function=None.</span>
@@ -351,9 +360,9 @@
 <span class="sd">        :rtype: numpy.array of shape [n_samples, n_outputs]</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_folding_prediction</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">prediction_function</span><span class="o">=</span><span class="n">get_regressor_prediction</span><span class="p">,</span>
-                                        <span class="n">vote_function</span><span class="o">=</span><span class="n">vote_function</span><span class="p">)</span></div>
+                                        <span class="n">vote_function</span><span class="o">=</span><span class="n">vote_function</span><span class="p">)</span>
 
-<div class="viewcode-block" id="FoldingRegressor.staged_predict"><a class="viewcode-back" href="../../../metaml.html#rep.metaml.folding.FoldingRegressor.staged_predict">[docs]</a>    <span class="k">def</span> <span class="nf">staged_predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">vote_function</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">staged_predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">vote_function</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get predictions after each iteration of base estimator.</span>
 <span class="sd">        To get unbiased predictions on training dataset, pass training data</span>
@@ -366,59 +375,38 @@
 <span class="sd">        :rtype: sequence of numpy.array of shape [n_samples, n_outputs]</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_staged_folding_prediction</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">prediction_function</span><span class="o">=</span><span class="n">get_regressor_staged_predict</span><span class="p">,</span>
-                                               <span class="n">vote_function</span><span class="o">=</span><span class="n">vote_function</span><span class="p">)</span></div>
+                                               <span class="n">vote_function</span><span class="o">=</span><span class="n">vote_function</span><span class="p">)</span>
 
-<div class="viewcode-block" id="FoldingRegressor.get_feature_importances"><a class="viewcode-back" href="../../../metaml.html#rep.metaml.folding.FoldingRegressor.get_feature_importances">[docs]</a>    <span class="k">def</span> <span class="nf">get_feature_importances</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">get_feature_importances</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get features importance</span>
 
 <span class="sd">        :rtype: pandas.DataFrame with column effect and `index=features`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_feature_importances</span><span class="p">()</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_feature_importances</span><span class="p">()</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">feature_importances_</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Sklearn-way of returning feature importance.</span>
 <span class="sd">        This returned as numpy.array, assuming that initially passed train_features=None &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_feature_importances</span><span class="p">()</span><span class="o">.</span><span class="n">ix</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">features</span><span class="p">,</span> <span class="s">&#39;effect&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_feature_importances</span><span class="p">()</span><span class="o">.</span><span class="n">ix</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">features</span><span class="p">,</span> <span class="s">&#39;effect&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
 
 
-<div class="viewcode-block" id="FoldingClassifier"><a class="viewcode-back" href="../../../metaml.html#rep.metaml.folding.FoldingClassifier">[docs]</a><span class="k">class</span> <span class="nc">FoldingClassifier</span><span class="p">(</span><span class="n">FoldingBase</span><span class="p">,</span> <span class="n">Classifier</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    This meta-classifier implements folding algorithm:</span>
+<div class="viewcode-block" id="FoldingClassifier"><a class="viewcode-back" href="../../../metaml.html#rep.metaml.folding.FoldingClassifier">[docs]</a><span class="k">class</span> <span class="nc">FoldingClassifier</span><span class="p">(</span><span class="n">FoldingBase</span><span class="p">,</span> <span class="n">Classifier</span><span class="p">):</span></div>
+    <span class="c"># inherit documentation</span>
+    <span class="n">__doc__</span> <span class="o">=</span> <span class="n">FoldingBase</span><span class="o">.</span><span class="n">__doc__</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">estimator</span><span class="o">=</span><span class="s">&#39;classifier&#39;</span><span class="p">)</span>
 
-<span class="sd">    * training data is splitted into n equal parts;</span>
+    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">FoldingBase</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="n">sample_weight</span><span class="p">)</span>
 
-<span class="sd">    * we train n classifiers, each one is trained using n-1 folds</span>
-
-
-<span class="sd">    To build unbiased predictions for data, pass the **same** dataset (with same order of events)</span>
-<span class="sd">    as in training to `predict`, `predict_proba` or `staged_predict_proba`, in which case</span>
-<span class="sd">    classifier will use to predict each event that base classifier which didn&#39;t use that event during training.</span>
-
-<span class="sd">    To use information from not one, but several estimators during predictions,</span>
-<span class="sd">    provide appropriate voting function. Examples of voting function:</span>
-<span class="sd">    &gt;&gt;&gt; voting = lambda x: numpy.mean(x, axis=0)</span>
-<span class="sd">    &gt;&gt;&gt; voting = lambda x: numpy.median(x, axis=0)</span>
-
-<span class="sd">    Parameters:</span>
-<span class="sd">    -----------</span>
-<span class="sd">    :param sklearn.BaseEstimator base_estimator: base classifier, which will be used for training</span>
-<span class="sd">    :param int n_folds: count of folds</span>
-<span class="sd">    :param features: features used in training</span>
-<span class="sd">    :type features: None or list[str]</span>
-<span class="sd">    :param parallel_profile: profile for IPython cluster, None to compute locally.</span>
-<span class="sd">    :type parallel_profile: None or str</span>
-<span class="sd">    :param random_state: random state for reproducibility</span>
-<span class="sd">    :type random_state: None or int or RandomState</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">fit</span><span class="o">.</span><span class="n">__doc__</span> <span class="o">=</span> <span class="n">FoldingBase</span><span class="o">.</span><span class="n">fit</span><span class="o">.</span><span class="n">__doc__</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">estimator</span><span class="o">=</span><span class="s">&#39;classifier&#39;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_prepare_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="p">):</span>
         <span class="n">X</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_features</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_set_classes</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">check_inputs</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="n">sample_weight</span><span class="p">,</span> <span class="n">allow_multiple_targets</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 
-<div class="viewcode-block" id="FoldingClassifier.predict"><a class="viewcode-back" href="../../../metaml.html#rep.metaml.folding.FoldingClassifier.predict">[docs]</a>    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">vote_function</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">vote_function</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Predict labels. To get unbiased predictions on training dataset, pass training data</span>
 <span class="sd">        (with same order of events) and vote_function=None.</span>
@@ -429,9 +417,9 @@
 <span class="sd">        :type vote_function: None or function</span>
 <span class="sd">        :rtype: numpy.array of shape [n_samples]</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">numpy</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">vote_function</span><span class="o">=</span><span class="n">vote_function</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">numpy</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">vote_function</span><span class="o">=</span><span class="n">vote_function</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 
-<div class="viewcode-block" id="FoldingClassifier.predict_proba"><a class="viewcode-back" href="../../../metaml.html#rep.metaml.folding.FoldingClassifier.predict_proba">[docs]</a>    <span class="k">def</span> <span class="nf">predict_proba</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">vote_function</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">predict_proba</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">vote_function</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Predict probabilities. To get unbiased predictions on training dataset, pass training data</span>
 <span class="sd">        (with same order of events) and vote_function=None.</span>
@@ -444,9 +432,9 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_folding_prediction</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">prediction_function</span><span class="o">=</span><span class="n">get_classifier_probabilities</span><span class="p">,</span>
                                           <span class="n">vote_function</span><span class="o">=</span><span class="n">vote_function</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">result</span> <span class="o">/</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">keepdims</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">result</span> <span class="o">/</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">keepdims</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 
-<div class="viewcode-block" id="FoldingClassifier.staged_predict_proba"><a class="viewcode-back" href="../../../metaml.html#rep.metaml.folding.FoldingClassifier.staged_predict_proba">[docs]</a>    <span class="k">def</span> <span class="nf">staged_predict_proba</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">vote_function</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">staged_predict_proba</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">vote_function</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Predict probabilities after each stage of base_estimator.</span>
 <span class="sd">        To get unbiased predictions on training dataset, pass training data</span>
@@ -460,22 +448,21 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">proba</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_staged_folding_prediction</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">prediction_function</span><span class="o">=</span><span class="n">get_classifier_staged_proba</span><span class="p">,</span>
                                                      <span class="n">vote_function</span><span class="o">=</span><span class="n">vote_function</span><span class="p">):</span>
-            <span class="k">yield</span> <span class="n">proba</span> <span class="o">/</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">proba</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">keepdims</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span></div>
+            <span class="k">yield</span> <span class="n">proba</span> <span class="o">/</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">proba</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">keepdims</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 
-<div class="viewcode-block" id="FoldingClassifier.get_feature_importances"><a class="viewcode-back" href="../../../metaml.html#rep.metaml.folding.FoldingClassifier.get_feature_importances">[docs]</a>    <span class="k">def</span> <span class="nf">get_feature_importances</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">get_feature_importances</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get features importance</span>
 
 <span class="sd">        :rtype: pandas.DataFrame with column effect and `index=features`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_feature_importances</span><span class="p">()</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_feature_importances</span><span class="p">()</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">feature_importances_</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Sklearn-way of returning feature importance.</span>
 <span class="sd">        This returned as numpy.array, assuming that initially passed train_features=None &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_feature_importances</span><span class="p">()</span><span class="o">.</span><span class="n">ix</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">features</span><span class="p">,</span> <span class="s">&#39;effect&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span></div>
-
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_feature_importances</span><span class="p">()</span><span class="o">.</span><span class="n">ix</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">features</span><span class="p">,</span> <span class="s">&#39;effect&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
 </pre></div>
 
            </div>
@@ -509,7 +496,7 @@
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'../../../',
-            VERSION:'0.6.5',
+            VERSION:'0.6.6',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true

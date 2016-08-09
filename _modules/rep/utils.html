@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>rep.utils &mdash; REP (Reproducible Experiment Platform) 0.6.5 documentation</title>
+  <title>rep.utils &mdash; REP (Reproducible Experiment Platform) 0.6.6 documentation</title>
   
 
   
@@ -30,7 +30,7 @@
   
 
   
-    <link rel="top" title="REP (Reproducible Experiment Platform) 0.6.5 documentation" href="../../index.html"/>
+    <link rel="top" title="REP (Reproducible Experiment Platform) 0.6.6 documentation" href="../../index.html"/>
         <link rel="up" title="Module code" href="../index.html"/> 
 
   
@@ -59,7 +59,7 @@
             
             
               <div class="version">
-                0.6.5
+                0.6.6
               </div>
             
           
@@ -81,12 +81,15 @@
             
             
                 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../data.html">Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../estimators.html">Estimators (classification and regression)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../metaml.html">Meta Machine Learning</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../report.html">Report for models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../metrics.html">Metrics</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../plotting.html">Plotting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../parallel.html">Parallel computing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../data.html">Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../utils.html">Utilities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../reproducibility.html">REProducibility</a></li>
 <li class="toctree-l1"><a class="reference external" href="http://nbviewer.ipython.org/github/yandex/rep/tree/master/howto/">Howto notebooks</a></li>
 </ul>
 
@@ -139,8 +142,8 @@
 
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">division</span><span class="p">,</span> <span class="n">print_function</span><span class="p">,</span> <span class="n">absolute_import</span>
 <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span>
-<span class="kn">import</span> <span class="nn">numexpr</span>
 
+<span class="kn">import</span> <span class="nn">time</span>
 <span class="kn">import</span> <span class="nn">numpy</span>
 <span class="kn">import</span> <span class="nn">pandas</span>
 <span class="kn">from</span> <span class="nn">sklearn.utils.validation</span> <span class="kn">import</span> <span class="n">column_or_1d</span>
@@ -159,7 +162,6 @@
 <span class="sd">    :return: array of shape [n_quantiles]</span>
 
 <span class="sd">    Example:</span>
-<span class="sd">    ________</span>
 
 <span class="sd">    &gt;&gt;&gt; weighted_quantile([1, 2, 3, 4, 5], [0.5])</span>
 <span class="sd">    Out: array([ 3.])</span>
@@ -211,27 +213,24 @@
 
 
 <div class="viewcode-block" id="Flattener"><a class="viewcode-back" href="../../utils.html#rep.utils.Flattener">[docs]</a><span class="k">class</span> <span class="nc">Flattener</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Prepares normalization function for some set of values</span>
-<span class="sd">    transforms it to uniform distribution from [0, 1]. Example of usage:</span>
-
-<span class="sd">    Parameters:</span>
-<span class="sd">    -----------</span>
-<span class="sd">    :param data: predictions</span>
-<span class="sd">    :type data: list or numpy.array</span>
-<span class="sd">    :param sample_weight: weights</span>
-<span class="sd">    :type sample_weight: None or list or numpy.array</span>
-
-<span class="sd">    Example:</span>
-<span class="sd">    --------</span>
-<span class="sd">    &gt;&gt;&gt; normalizer = Flattener(signal)</span>
-<span class="sd">    &gt;&gt;&gt; hist(normalizer(background))</span>
-<span class="sd">    &gt;&gt;&gt; hist(normalizer(signal))</span>
-
-<span class="sd">    :return func: normalization function</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Prepares normalization function for some set of values</span>
+<span class="sd">        transforms it to uniform distribution from [0, 1].</span>
+
+<span class="sd">        :param data: predictions</span>
+<span class="sd">        :type data: list or numpy.array</span>
+<span class="sd">        :param sample_weight: weights</span>
+<span class="sd">        :type sample_weight: None or list or numpy.array</span>
+<span class="sd">        :return func: normalization function</span>
+
+<span class="sd">        Example of usage:</span>
+
+<span class="sd">        &gt;&gt;&gt; normalizer = Flattener(signal)</span>
+<span class="sd">        &gt;&gt;&gt; hist(normalizer(background))</span>
+<span class="sd">        &gt;&gt;&gt; hist(normalizer(signal))</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">sample_weight</span> <span class="o">=</span> <span class="n">check_sample_weight</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="n">sample_weight</span><span class="p">)</span>
         <span class="n">data</span> <span class="o">=</span> <span class="n">column_or_1d</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
         <span class="k">assert</span> <span class="n">numpy</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">sample_weight</span> <span class="o">&gt;=</span> <span class="mf">0.</span><span class="p">),</span> <span class="s">&#39;sample weight must be non-negative&#39;</span>
@@ -242,7 +241,7 @@
         <span class="k">return</span> <span class="n">numpy</span><span class="o">.</span><span class="n">interp</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">predictions</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="Binner"><a class="viewcode-back" href="../../utils.html#rep.utils.Binner">[docs]</a><span class="k">class</span> <span class="nc">Binner</span><span class="p">:</span>
+<div class="viewcode-block" id="Binner"><a class="viewcode-back" href="../../utils.html#rep.utils.Binner">[docs]</a><span class="k">class</span> <span class="nc">Binner</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">values</span><span class="p">,</span> <span class="n">bins_number</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Binner is a class that helps to split the values into several bins.</span>
@@ -305,9 +304,9 @@
 
     <span class="k">assert</span> <span class="nb">set</span><span class="p">(</span><span class="n">signal</span><span class="p">)</span> <span class="o">==</span> <span class="p">{</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">},</span> <span class="s">&quot;the labels should be 0 and 1, labels are &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">signal</span><span class="p">))</span>
     <span class="n">fpr</span><span class="p">,</span> <span class="n">tpr</span><span class="p">,</span> <span class="n">thresholds</span> <span class="o">=</span> <span class="n">roc_curve</span><span class="p">(</span><span class="n">signal</span><span class="p">,</span> <span class="n">prediction</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="n">sample_weight</span><span class="p">)</span>
-    <span class="n">tpr</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">tpr</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mf">0.</span><span class="p">)</span>
-    <span class="n">fpr</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">fpr</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mf">0.</span><span class="p">)</span>
-    <span class="n">thresholds</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">thresholds</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">thresholds</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mf">1.</span><span class="p">)</span>
+    <span class="n">tpr</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">tpr</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">[</span><span class="mf">0.</span><span class="p">])</span>
+    <span class="n">fpr</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">fpr</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">[</span><span class="mf">0.</span><span class="p">])</span>
+    <span class="n">thresholds</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">thresholds</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">[</span><span class="n">thresholds</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mf">1.</span><span class="p">])</span>
     <span class="n">tnr</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">fpr</span>
 
     <span class="n">weight_bck</span> <span class="o">=</span> <span class="n">sample_weight</span><span class="p">[</span><span class="n">signal</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span>
@@ -382,8 +381,6 @@
 <span class="sd">    Different score functions available: Efficiency, Precision, Recall, F1Score,</span>
 <span class="sd">    and other things from sklearn.metrics</span>
 
-<span class="sd">    Parameters:</span>
-<span class="sd">    -----------</span>
 <span class="sd">    :param prediction: list of probabilities</span>
 <span class="sd">    :param spectator: list of spectator&#39;s values</span>
 <span class="sd">    :param bins_number: int, count of bins for plot</span>
@@ -444,12 +441,15 @@
 
 
 <div class="viewcode-block" id="train_test_split"><a class="viewcode-back" href="../../utils.html#rep.utils.train_test_split">[docs]</a><span class="k">def</span> <span class="nf">train_test_split</span><span class="p">(</span><span class="o">*</span><span class="n">arrays</span><span class="p">,</span> <span class="o">**</span><span class="n">kw_args</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Does the same thing as train_test_split, but preserves columns in DataFrames.</span>
-<span class="sd">    Uses the same parameters: test_size, train_size, random_state, and has the same interface</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Does the same thing as sklearn.cross_validation.train_test_split.</span>
+<span class="sd">    Additionally has &#39;allow_none&#39; parameter.</span>
 
-<span class="sd">    :param arrays: arrays to split</span>
+<span class="sd">    :param arrays: arrays to split with same first dimension</span>
 <span class="sd">    :type arrays: list[numpy.array] or list[pandas.DataFrame]</span>
-<span class="sd">    :param bool allow_none, default False (specially for sample_weight - both to None)</span>
+<span class="sd">    :param bool allow_none: default False, is set to True, allows</span>
+<span class="sd">        non-first arguments to be None (in this case, both resulting train and test parts are None).</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="kn">from</span> <span class="nn">sklearn</span> <span class="kn">import</span> <span class="n">cross_validation</span>
     <span class="n">allow_none</span> <span class="o">=</span> <span class="n">kw_args</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s">&#39;allow_none&#39;</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span>
@@ -475,19 +475,16 @@
 
 
 <div class="viewcode-block" id="train_test_split_group"><a class="viewcode-back" href="../../utils.html#rep.utils.train_test_split_group">[docs]</a><span class="k">def</span> <span class="nf">train_test_split_group</span><span class="p">(</span><span class="n">group_column</span><span class="p">,</span> <span class="o">*</span><span class="n">arrays</span><span class="p">,</span> <span class="o">**</span><span class="n">kw_args</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Does the same thing as train_test_split, but preserves names of columns in DataFrames.</span>
-<span class="sd">    Uses the same parameters: test_size, train_size, random_state, and has almost the same interface</span>
-
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Modification of :class:`train_test_split` which alters splitting rule.</span>
 
 <span class="sd">    :param group_column: array-like of shape [n_samples] with indices of groups,</span>
-<span class="sd">    events from one group will be kept together (all events in train or all events in test).</span>
-<span class="sd">    If `group_column` is used, train_size and test_size will refer to number of groups, not events</span>
-
+<span class="sd">        events from one group will be kept together (all events in train or all events in test).</span>
+<span class="sd">        If `group_column` is used, train_size and test_size will refer to number of groups, not events</span>
 <span class="sd">    :param arrays: arrays to split</span>
 <span class="sd">    :type arrays: list[numpy.array] or list[pandas.DataFrame]</span>
-
 <span class="sd">    :param bool allow_none: default False</span>
-<span class="sd">    (specially for sample_weight - after splitting train and test of `None` are `None` too)</span>
+<span class="sd">        (useful for sample_weight - after splitting train and test of `None` are again `None`)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="kn">from</span> <span class="nn">sklearn</span> <span class="kn">import</span> <span class="n">cross_validation</span>
     <span class="n">allow_none</span> <span class="o">=</span> <span class="n">kw_args</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s">&#39;allow_none&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
@@ -558,12 +555,14 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="c"># warning - this thing is known to fail in threads</span>
             <span class="c"># numexpr.evaluate(column, local_dict=df)</span>
+            <span class="c"># thus we are using python engine, which is slow :(</span>
             <span class="n">df_new</span><span class="p">[</span><span class="n">column_new</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">eval</span><span class="p">(</span><span class="n">column</span><span class="p">,</span> <span class="n">engine</span><span class="o">=</span><span class="s">&#39;python&#39;</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">df_new</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="check_arrays"><a class="viewcode-back" href="../../utils.html#rep.utils.check_arrays">[docs]</a><span class="k">def</span> <span class="nf">check_arrays</span><span class="p">(</span><span class="o">*</span><span class="n">arrays</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Left for consistency version of sklearn.validation.check_arrays</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Left for consistency, version of `sklearn.validation.check_arrays`</span>
 
 <span class="sd">    :param list[iterable] arrays: arrays with same length of first dimension.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -582,9 +581,48 @@
 
 
 <div class="viewcode-block" id="fit_metric"><a class="viewcode-back" href="../../utils.html#rep.utils.fit_metric">[docs]</a><span class="k">def</span> <span class="nf">fit_metric</span><span class="p">(</span><span class="n">metric</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kargs</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Simple wrapper to fit metrics, which checks if metrics has `fit` method.&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Metric can implement one of two interfaces (function or object).</span>
+<span class="sd">    This function fits metrics, if it is required (by simply checking presence of fit method).</span>
+
+<span class="sd">    :param metric: metric function, following REP conventions</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">metric</span><span class="p">,</span> <span class="s">&#39;fit&#39;</span><span class="p">):</span>
         <span class="n">metric</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kargs</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Stopwatch"><a class="viewcode-back" href="../../utils.html#rep.utils.Stopwatch">[docs]</a><span class="k">class</span> <span class="nc">Stopwatch</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Simple tool to measure time.</span>
+<span class="sd">    If your internet connection is reliable, use %time magic.</span>
+
+<span class="sd">    &gt;&gt;&gt; with Stopwatch() as timer:</span>
+<span class="sd">    &gt;&gt;&gt;     # do something here</span>
+<span class="sd">    &gt;&gt;&gt;     classifier.fit(X, y)</span>
+<span class="sd">    &gt;&gt;&gt; # print how much time was spent</span>
+<span class="sd">    &gt;&gt;&gt; print(timer)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">def</span> <span class="nf">__exit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">err_type</span><span class="p">,</span> <span class="n">err_value</span><span class="p">,</span> <span class="n">err_traceback</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stop</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">err_type</span> <span class="o">=</span> <span class="n">err_type</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">err_value</span> <span class="o">=</span> <span class="n">err_value</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">err_traceback</span> <span class="o">=</span> <span class="n">err_traceback</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">elapsed</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">stop</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">start</span>
+
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="s">&quot;interval: {:.2f} sec&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elapsed</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">err_type</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">message</span> <span class="o">=</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">Error {error} of type {error_type} was raised&quot;</span>
+            <span class="n">result</span> <span class="o">+=</span> <span class="n">message</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">error</span><span class="o">=</span><span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">err_value</span><span class="p">),</span> <span class="n">error_type</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">err_type</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">result</span></div>
 </pre></div>
 
            </div>
@@ -618,7 +656,7 @@
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'../../',
-            VERSION:'0.6.5',
+            VERSION:'0.6.6',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true

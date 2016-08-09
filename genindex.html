@@ -9,7 +9,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Index &mdash; REP (Reproducible Experiment Platform) 0.6.5 documentation</title>
+  <title>Index &mdash; REP (Reproducible Experiment Platform) 0.6.6 documentation</title>
   
 
   
@@ -31,7 +31,7 @@
   
 
   
-    <link rel="top" title="REP (Reproducible Experiment Platform) 0.6.5 documentation" href="index.html"/> 
+    <link rel="top" title="REP (Reproducible Experiment Platform) 0.6.6 documentation" href="index.html"/> 
 
   
   <script src="_static/js/modernizr.min.js"></script>
@@ -59,7 +59,7 @@
             
             
               <div class="version">
-                0.6.5
+                0.6.6
               </div>
             
           
@@ -81,12 +81,15 @@
             
             
                 <ul>
-<li class="toctree-l1"><a class="reference internal" href="data.html">Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="estimators.html">Estimators (classification and regression)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="metaml.html">Meta Machine Learning</a></li>
 <li class="toctree-l1"><a class="reference internal" href="report.html">Report for models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metrics.html">Metrics</a></li>
 <li class="toctree-l1"><a class="reference internal" href="plotting.html">Plotting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="parallel.html">Parallel computing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="data.html">Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="utils.html">Utilities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reproducibility.html">REProducibility</a></li>
 <li class="toctree-l1"><a class="reference external" href="http://nbviewer.ipython.org/github/yandex/rep/tree/master/howto/">Howto notebooks</a></li>
 </ul>
 
@@ -137,12 +140,10 @@
  <a href="#A"><strong>A</strong></a>
  | <a href="#B"><strong>B</strong></a>
  | <a href="#C"><strong>C</strong></a>
- | <a href="#D"><strong>D</strong></a>
  | <a href="#E"><strong>E</strong></a>
  | <a href="#F"><strong>F</strong></a>
  | <a href="#G"><strong>G</strong></a>
  | <a href="#H"><strong>H</strong></a>
- | <a href="#I"><strong>I</strong></a>
  | <a href="#L"><strong>L</strong></a>
  | <a href="#M"><strong>M</strong></a>
  | <a href="#N"><strong>N</strong></a>
@@ -160,10 +161,6 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%" valign="top"><dl>
       
-  <dt><a href="metaml.html#rep.metaml.factory.AbstractFactory">AbstractFactory (class in rep.metaml.factory)</a>
-  </dt>
-
-      
   <dt><a href="metaml.html#rep.metaml.gridsearch.AbstractParameterGenerator">AbstractParameterGenerator (class in rep.metaml.gridsearch)</a>
   </dt>
 
@@ -175,12 +172,12 @@
   <dt><a href="metaml.html#rep.metaml.factory.ClassifiersFactory.add_classifier">add_classifier() (rep.metaml.factory.ClassifiersFactory method)</a>
   </dt>
 
-  </dl></td>
-  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="metaml.html#rep.metaml.factory.RegressorsFactory.add_regressor">add_regressor() (rep.metaml.factory.RegressorsFactory method)</a>
   </dt>
 
+  </dl></td>
+  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="metaml.html#rep.metaml.gridsearch.AbstractParameterGenerator.add_result">add_result() (rep.metaml.gridsearch.AbstractParameterGenerator method)</a>
   </dt>
@@ -192,7 +189,7 @@
 
       </dl></dd>
       
-  <dt><a href="report.html#rep.report.metrics.ams">ams() (in module rep.report.metrics)</a>
+  <dt><a href="metrics.html#rep.report.metrics.ams">ams() (in module rep.report.metrics)</a>
   </dt>
 
       
@@ -238,6 +235,14 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%" valign="top"><dl>
       
+  <dt><a href="metaml.html#rep.metaml.cache.CacheClassifier">CacheClassifier (class in rep.metaml.cache)</a>
+  </dt>
+
+      
+  <dt><a href="metaml.html#rep.metaml.cache.CacheRegressor">CacheRegressor (class in rep.metaml.cache)</a>
+  </dt>
+
+      
   <dt><a href="utils.html#rep.utils.calc_feature_correlation_matrix">calc_feature_correlation_matrix() (in module rep.utils)</a>
   </dt>
 
@@ -265,12 +270,12 @@
   <dt><a href="metaml.html#rep.metaml.gridsearch.ClassificationFoldingScorer">ClassificationFoldingScorer (class in rep.metaml.gridsearch)</a>
   </dt>
 
+  </dl></td>
+  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="report.html#rep.report.classification.ClassificationReport">ClassificationReport (class in rep.report.classification)</a>
   </dt>
 
-  </dl></td>
-  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="estimators.html#rep.estimators.interface.Classifier">Classifier (class in rep.estimators.interface)</a>
   </dt>
@@ -308,16 +313,6 @@
   </dl></td>
 </tr></table>
 
-<h2 id="D">D</h2>
-<table style="width: 100%" class="indextable genindextable"><tr>
-  <td style="width: 33%" valign="top"><dl>
-      
-  <dt><a href="plotting.html#rep.plotting.default_canvas">default_canvas() (in module rep.plotting)</a>
-  </dt>
-
-  </dl></td>
-</tr></table>
-
 <h2 id="E">E</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%" valign="top"><dl>
@@ -327,6 +322,10 @@
 
       
   <dt><a href="report.html#rep.report.classification.ClassificationReport.efficiencies_2d">efficiencies_2d() (rep.report.classification.ClassificationReport method)</a>
+  </dt>
+
+      
+  <dt><a href="utils.html#rep.utils.Stopwatch.elapsed">elapsed (rep.utils.Stopwatch attribute)</a>
   </dt>
 
   </dl></td>
@@ -451,7 +450,11 @@
   </dt>
 
         
-  <dt><a href="metaml.html#rep.metaml.factory.AbstractFactory.fit">(rep.metaml.factory.AbstractFactory method)</a>
+  <dt><a href="metaml.html#rep.metaml.folding.FoldingClassifier.fit">(rep.metaml.folding.FoldingClassifier method)</a>
+  </dt>
+
+        
+  <dt><a href="metaml.html#rep.metaml.folding.FoldingRegressor.fit">(rep.metaml.folding.FoldingRegressor method)</a>
   </dt>
 
         
@@ -463,7 +466,7 @@
   </dt>
 
         
-  <dt><a href="report.html#rep.report.metrics.MetricMixin.fit">(rep.report.metrics.MetricMixin method)</a>
+  <dt><a href="metrics.html#rep.report.metrics.MetricMixin.fit">(rep.report.metrics.MetricMixin method)</a>
   </dt>
 
       </dl></dd>
@@ -480,10 +483,6 @@
       <dd><dl>
         
   <dt><a href="estimators.html#rep.estimators.interface.Regressor.fit_lds">(rep.estimators.interface.Regressor method)</a>
-  </dt>
-
-        
-  <dt><a href="metaml.html#rep.metaml.factory.AbstractFactory.fit_lds">(rep.metaml.factory.AbstractFactory method)</a>
   </dt>
 
       </dl></dd>
@@ -504,7 +503,7 @@
   </dt>
 
       
-  <dt><a href="report.html#rep.report.metrics.FPRatTPR">FPRatTPR (class in rep.report.metrics)</a>
+  <dt><a href="metrics.html#rep.report.metrics.FPRatTPR">FPRatTPR (class in rep.report.metrics)</a>
   </dt>
 
       
@@ -615,10 +614,6 @@
   </dt>
 
         
-  <dt><a href="estimators.html#rep.estimators.neurolab.NeurolabBase.get_params">(rep.estimators.neurolab.NeurolabBase method)</a>
-  </dt>
-
-        
   <dt><a href="estimators.html#rep.estimators.tmva.TMVAClassifier.get_params">(rep.estimators.tmva.TMVAClassifier method)</a>
   </dt>
 
@@ -662,22 +657,6 @@
   </dl></td>
 </tr></table>
 
-<h2 id="I">I</h2>
-<table style="width: 100%" class="indextable genindextable"><tr>
-  <td style="width: 33%" valign="top"><dl>
-      
-  <dt><a href="estimators.html#rep.estimators.neurolab.NeurolabBase.is_fitted">is_fitted() (rep.estimators.neurolab.NeurolabBase method)</a>
-  </dt>
-
-      <dd><dl>
-        
-  <dt><a href="estimators.html#rep.estimators.pybrain.PyBrainBase.is_fitted">(rep.estimators.pybrain.PyBrainBase method)</a>
-  </dt>
-
-      </dl></dd>
-  </dl></td>
-</tr></table>
-
 <h2 id="L">L</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%" valign="top"><dl>
@@ -698,7 +677,7 @@
   </dl></td>
   <td style="width: 33%" valign="top"><dl>
       
-  <dt><a href="report.html#rep.report.metrics.LogLoss">LogLoss (class in rep.report.metrics)</a>
+  <dt><a href="metrics.html#rep.report.metrics.LogLoss">LogLoss (class in rep.report.metrics)</a>
   </dt>
 
   </dl></td>
@@ -708,7 +687,7 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%" valign="top"><dl>
       
-  <dt><a href="report.html#rep.report.metrics.MetricMixin">MetricMixin (class in rep.report.metrics)</a>
+  <dt><a href="metrics.html#rep.report.metrics.MetricMixin">MetricMixin (class in rep.report.metrics)</a>
   </dt>
 
   </dl></td>
@@ -723,10 +702,6 @@
 <h2 id="N">N</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%" valign="top"><dl>
-      
-  <dt><a href="estimators.html#rep.estimators.neurolab.NeurolabBase">NeurolabBase (class in rep.estimators.neurolab)</a>
-  </dt>
-
       
   <dt><a href="estimators.html#rep.estimators.neurolab.NeurolabClassifier">NeurolabClassifier (class in rep.estimators.neurolab)</a>
   </dt>
@@ -744,25 +719,25 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%" valign="top"><dl>
       
-  <dt><a href="report.html#rep.report.metrics.OptimalAccuracy">OptimalAccuracy (class in rep.report.metrics)</a>
+  <dt><a href="metrics.html#rep.report.metrics.OptimalAccuracy">OptimalAccuracy (class in rep.report.metrics)</a>
   </dt>
 
       
-  <dt><a href="report.html#rep.report.metrics.OptimalAMS">OptimalAMS (class in rep.report.metrics)</a>
+  <dt><a href="metrics.html#rep.report.metrics.OptimalAMS">OptimalAMS (class in rep.report.metrics)</a>
   </dt>
 
       
-  <dt><a href="report.html#rep.report.metrics.OptimalMetric">OptimalMetric (class in rep.report.metrics)</a>
+  <dt><a href="metrics.html#rep.report.metrics.OptimalMetric">OptimalMetric (class in rep.report.metrics)</a>
   </dt>
 
   </dl></td>
   <td style="width: 33%" valign="top"><dl>
       
-  <dt><a href="report.html#rep.report.metrics.OptimalMetricNdim">OptimalMetricNdim (class in rep.report.metrics)</a>
+  <dt><a href="metrics.html#rep.report.metrics.OptimalMetricNdim">OptimalMetricNdim (class in rep.report.metrics)</a>
   </dt>
 
       
-  <dt><a href="report.html#rep.report.metrics.OptimalSignificance">OptimalSignificance (class in rep.report.metrics)</a>
+  <dt><a href="metrics.html#rep.report.metrics.OptimalSignificance">OptimalSignificance (class in rep.report.metrics)</a>
   </dt>
 
   </dl></td>
@@ -806,10 +781,6 @@
   </dt>
 
       
-  <dt><a href="plotting.html#rep.plotting.AbstractPlot.plot_plotly">plot_plotly() (rep.plotting.AbstractPlot method)</a>
-  </dt>
-
-      
   <dt><a href="plotting.html#rep.plotting.AbstractPlot.plot_tmva">plot_tmva() (rep.plotting.AbstractPlot method)</a>
   </dt>
 
@@ -831,7 +802,11 @@
   </dt>
 
         
-  <dt><a href="estimators.html#rep.estimators.sklearn.SklearnBase.predict">(rep.estimators.sklearn.SklearnBase method)</a>
+  <dt><a href="estimators.html#rep.estimators.sklearn.SklearnClassifier.predict">(rep.estimators.sklearn.SklearnClassifier method)</a>
+  </dt>
+
+        
+  <dt><a href="estimators.html#rep.estimators.sklearn.SklearnRegressor.predict">(rep.estimators.sklearn.SklearnRegressor method)</a>
   </dt>
 
         
@@ -844,10 +819,6 @@
 
         
   <dt><a href="estimators.html#rep.estimators.xgboost.XGBoostRegressor.predict">(rep.estimators.xgboost.XGBoostRegressor method)</a>
-  </dt>
-
-        
-  <dt><a href="metaml.html#rep.metaml.factory.AbstractFactory.predict">(rep.metaml.factory.AbstractFactory method)</a>
   </dt>
 
         
@@ -867,12 +838,6 @@
   </dt>
 
       </dl></dd>
-      
-  <dt><a href="metaml.html#rep.metaml.factory.predict_estimator">predict_estimator() (in module rep.metaml.factory)</a>
-  </dt>
-
-  </dl></td>
-  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="estimators.html#rep.estimators.interface.Classifier.predict_proba">predict_proba() (rep.estimators.interface.Classifier method)</a>
   </dt>
@@ -915,6 +880,8 @@
   </dt>
 
       </dl></dd>
+  </dl></td>
+  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="report.html#rep.report.classification.ClassificationReport.prediction_pdf">prediction_pdf() (rep.report.classification.ClassificationReport method)</a>
   </dt>
@@ -997,14 +964,18 @@
   <dt><a href="estimators.html#module-rep.estimators.theanets">rep.estimators.theanets (module)</a>
   </dt>
 
-  </dl></td>
-  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="estimators.html#module-rep.estimators.tmva">rep.estimators.tmva (module)</a>
   </dt>
 
+  </dl></td>
+  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="estimators.html#module-rep.estimators.xgboost">rep.estimators.xgboost (module)</a>
+  </dt>
+
+      
+  <dt><a href="metaml.html#module-rep.metaml.cache">rep.metaml.cache (module)</a>
   </dt>
 
       
@@ -1032,7 +1003,7 @@
   </dt>
 
       
-  <dt><a href="report.html#module-rep.report.metrics">rep.report.metrics (module)</a>
+  <dt><a href="metrics.html#module-rep.report.metrics">rep.report.metrics (module)</a>
   </dt>
 
       
@@ -1048,7 +1019,7 @@
   </dt>
 
       
-  <dt><a href="report.html#rep.report.metrics.RocAuc">RocAuc (class in rep.report.metrics)</a>
+  <dt><a href="metrics.html#rep.report.metrics.RocAuc">RocAuc (class in rep.report.metrics)</a>
   </dt>
 
   </dl></td>
@@ -1095,19 +1066,7 @@
   </dt>
 
         
-  <dt><a href="estimators.html#rep.estimators.neurolab.NeurolabBase.set_params">(rep.estimators.neurolab.NeurolabBase method)</a>
-  </dt>
-
-        
   <dt><a href="estimators.html#rep.estimators.pybrain.PyBrainBase.set_params">(rep.estimators.pybrain.PyBrainBase method)</a>
-  </dt>
-
-        
-  <dt><a href="estimators.html#rep.estimators.sklearn.SklearnClassifier.set_params">(rep.estimators.sklearn.SklearnClassifier method)</a>
-  </dt>
-
-        
-  <dt><a href="estimators.html#rep.estimators.sklearn.SklearnRegressor.set_params">(rep.estimators.sklearn.SklearnRegressor method)</a>
   </dt>
 
         
@@ -1124,19 +1083,15 @@
 
       </dl></dd>
       
-  <dt><a href="report.html#rep.report.metrics.significance">significance() (in module rep.report.metrics)</a>
+  <dt><a href="metrics.html#rep.report.metrics.significance">significance() (in module rep.report.metrics)</a>
   </dt>
 
-      
-  <dt><a href="estimators.html#rep.estimators.sklearn.SklearnBase">SklearnBase (class in rep.estimators.sklearn)</a>
-  </dt>
-
-  </dl></td>
-  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="estimators.html#rep.estimators.sklearn.SklearnClassifier">SklearnClassifier (class in rep.estimators.sklearn)</a>
   </dt>
 
+  </dl></td>
+  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="estimators.html#rep.estimators.sklearn.SklearnRegressor">SklearnRegressor (class in rep.estimators.sklearn)</a>
   </dt>
@@ -1226,6 +1181,10 @@
 
       </dl></dd>
       
+  <dt><a href="utils.html#rep.utils.Stopwatch">Stopwatch (class in rep.utils)</a>
+  </dt>
+
+      
   <dt><a href="metaml.html#rep.metaml.gridsearch.SubgridParameterOptimizer">SubgridParameterOptimizer (class in rep.metaml.gridsearch)</a>
   </dt>
 
@@ -1244,10 +1203,6 @@
   <dt><a href="estimators.html#rep.estimators.interface.Regressor.test_on">(rep.estimators.interface.Regressor method)</a>
   </dt>
 
-        
-  <dt><a href="metaml.html#rep.metaml.factory.AbstractFactory.test_on">(rep.metaml.factory.AbstractFactory method)</a>
-  </dt>
-
       </dl></dd>
       
   <dt><a href="estimators.html#rep.estimators.interface.Classifier.test_on_lds">test_on_lds() (rep.estimators.interface.Classifier method)</a>
@@ -1256,10 +1211,6 @@
       <dd><dl>
         
   <dt><a href="estimators.html#rep.estimators.interface.Regressor.test_on_lds">(rep.estimators.interface.Regressor method)</a>
-  </dt>
-
-        
-  <dt><a href="metaml.html#rep.metaml.factory.AbstractFactory.test_on_lds">(rep.metaml.factory.AbstractFactory method)</a>
   </dt>
 
         
@@ -1283,10 +1234,6 @@
   <dt><a href="estimators.html#rep.estimators.theanets.TheanetsRegressor">TheanetsRegressor (class in rep.estimators.theanets)</a>
   </dt>
 
-      
-  <dt><a href="estimators.html#rep.estimators.tmva.TMVABase">TMVABase (class in rep.estimators.tmva)</a>
-  </dt>
-
   </dl></td>
   <td style="width: 33%" valign="top"><dl>
       
@@ -1298,11 +1245,7 @@
   </dt>
 
       
-  <dt><a href="report.html#rep.report.metrics.TPRatFPR">TPRatFPR (class in rep.report.metrics)</a>
-  </dt>
-
-      
-  <dt><a href="metaml.html#rep.metaml.factory.train_estimator">train_estimator() (in module rep.metaml.factory)</a>
+  <dt><a href="metrics.html#rep.report.metrics.TPRatFPR">TPRatFPR (class in rep.report.metrics)</a>
   </dt>
 
       
@@ -1389,7 +1332,7 @@
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'./',
-            VERSION:'0.6.5',
+            VERSION:'0.6.6',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true

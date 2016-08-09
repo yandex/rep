@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>rep.estimators.interface &mdash; REP (Reproducible Experiment Platform) 0.6.5 documentation</title>
+  <title>rep.estimators.interface &mdash; REP (Reproducible Experiment Platform) 0.6.6 documentation</title>
   
 
   
@@ -30,7 +30,7 @@
   
 
   
-    <link rel="top" title="REP (Reproducible Experiment Platform) 0.6.5 documentation" href="../../../index.html"/>
+    <link rel="top" title="REP (Reproducible Experiment Platform) 0.6.6 documentation" href="../../../index.html"/>
         <link rel="up" title="Module code" href="../../index.html"/> 
 
   
@@ -59,7 +59,7 @@
             
             
               <div class="version">
-                0.6.5
+                0.6.6
               </div>
             
           
@@ -81,12 +81,15 @@
             
             
                 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../data.html">Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../estimators.html">Estimators (classification and regression)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../metaml.html">Meta Machine Learning</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../report.html">Report for models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../metrics.html">Metrics</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../plotting.html">Plotting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../parallel.html">Parallel computing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../data.html">Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../utils.html">Utilities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reproducibility.html">REProducibility</a></li>
 <li class="toctree-l1"><a class="reference external" href="http://nbviewer.ipython.org/github/yandex/rep/tree/master/howto/">Howto notebooks</a></li>
 </ul>
 
@@ -134,41 +137,45 @@
             
   <h1>Source code for rep.estimators.interface</h1><div class="highlight"><pre>
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">There are interfaces for **classification** and **regression** wrappers.</span>
+<span class="sd">**REP** wrappers are derived from :class:`Classifier` and :class:`Regressor`</span>
+<span class="sd">depending on the problem of interest.</span>
+
+<span class="sd">Below you can see the standard methods available in the wrappers.</span>
+
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">division</span><span class="p">,</span> <span class="n">print_function</span><span class="p">,</span> <span class="n">absolute_import</span>
 <span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABCMeta</span><span class="p">,</span> <span class="n">abstractmethod</span>
-<span class="kn">import</span> <span class="nn">logging</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span>
 <span class="kn">import</span> <span class="nn">pandas</span>
-
 <span class="kn">from</span> <span class="nn">sklearn.base</span> <span class="kn">import</span> <span class="n">BaseEstimator</span><span class="p">,</span> <span class="n">ClassifierMixin</span><span class="p">,</span> <span class="n">RegressorMixin</span>
+
 <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">_get_features</span>
 
 <span class="n">__author__</span> <span class="o">=</span> <span class="s">&#39;Tatiana Likhomanenko, Alex Rogozhnikov&#39;</span>
 
-<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span>
-
-
-<div class="viewcode-block" id="Classifier"><a class="viewcode-back" href="../../../estimators.html#rep.estimators.interface.Classifier">[docs]</a><span class="k">class</span> <span class="nc">Classifier</span><span class="p">(</span><span class="n">BaseEstimator</span><span class="p">,</span> <span class="n">ClassifierMixin</span><span class="p">):</span>
+<span class="n">_docs</span> <span class="o">=</span> \
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Interface to train different **classification** model from different</span>
-<span class="sd">    machine learning libraries, like **Sklearn, TMVA, XGBoost**...</span>
+<span class="sd">    Interface to train different **{}** models from different machine learning libraries, like **sklearn, TMVA, XGBoost**, ...</span>
 
-<span class="sd">    :param features: features used to train model</span>
+<span class="sd">    :param features: features used to train a model</span>
 <span class="sd">    :type features: list[str] or None</span>
 
 <span class="sd">    .. note::</span>
-<span class="sd">        * Classes must be from 0 to n_classes-1!!!</span>
+<span class="sd">        * if `features` aren&#39;t set (**None**), then all features in the training dataset will be used</span>
 
-<span class="sd">        * if `features` aren&#39;t set (**None**), then all features in training dataset will be used</span>
-
-<span class="sd">        * Datasets should be `pandas.DataFrame`, `not numpy.array`.</span>
+<span class="sd">        * Datasets should be `pandas.DataFrame`, not `numpy.array`.</span>
 <span class="sd">          Provided this, you&#39;ll be able to choose features used in training by setting e.g.</span>
-<span class="sd">          `features=[&#39;FlightTime&#39;, &#39;p&#39;]` in constructor.</span>
+<span class="sd">          `features=[&#39;mass&#39;, &#39;momentum&#39;]` in the constructor.</span>
 
 <span class="sd">        * It works fine with `numpy.array` as well, but in this case all the features will be used.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+
+<div class="viewcode-block" id="Classifier"><a class="viewcode-back" href="../../../estimators.html#rep.estimators.interface.Classifier">[docs]</a><span class="k">class</span> <span class="nc">Classifier</span><span class="p">(</span><span class="n">BaseEstimator</span><span class="p">,</span> <span class="n">ClassifierMixin</span><span class="p">):</span>
+    <span class="n">__doc__</span> <span class="o">=</span> <span class="n">_docs</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s">&#39;classification&#39;</span><span class="p">)</span> <span class="o">+</span> \
+              <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        * Classes values must be from 0 to n_classes-1!</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">__metaclass__</span> <span class="o">=</span> <span class="n">ABCMeta</span>
 
@@ -177,9 +184,10 @@
 
     <span class="k">def</span> <span class="nf">_get_features</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">allow_nans</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        :param pandas.DataFrame X: train dataset</span>
+<span class="sd">        Return data with the necessary features.</span>
 
-<span class="sd">        :return: pandas.DataFrame with used features</span>
+<span class="sd">        :param pandas.DataFrame X: training data</span>
+<span class="sd">        :return: pandas.DataFrame with necessary features</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">X_prepared</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">features</span> <span class="o">=</span> <span class="n">_get_features</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">features</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">allow_nans</span><span class="o">=</span><span class="n">allow_nans</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">X_prepared</span>
@@ -195,22 +203,21 @@
     <span class="nd">@abstractmethod</span>
 <div class="viewcode-block" id="Classifier.fit"><a class="viewcode-back" href="../../../estimators.html#rep.estimators.interface.Classifier.fit">[docs]</a>    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Train the classifier model on dataset</span>
+<span class="sd">        Train a classification model on the data.</span>
 
-<span class="sd">        :param X: pandas.DataFrame of shape [n_samples, n_features]</span>
-<span class="sd">        :param y: labels of events - array-like of shape [n_samples]</span>
-<span class="sd">        :param sample_weight: weight of events,</span>
+<span class="sd">        :param pandas.DataFrame X: data of shape [n_samples, n_features]</span>
+<span class="sd">        :param y: labels of samples, array-like of shape [n_samples]</span>
+<span class="sd">        :param sample_weight: weight of samples,</span>
 <span class="sd">               array-like of shape [n_samples] or None if all weights are equal</span>
-
 <span class="sd">        :return: self</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">pass</span></div>
 
 <div class="viewcode-block" id="Classifier.predict"><a class="viewcode-back" href="../../../estimators.html#rep.estimators.interface.Classifier.predict">[docs]</a>    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Predict labels for all events in dataset</span>
+<span class="sd">        Predict labels for all samples in the dataset.</span>
 
-<span class="sd">        :param X: pandas.DataFrame of shape [n_samples, n_features]</span>
+<span class="sd">        :param pandas.DataFrame X: data of shape [n_samples, n_features]</span>
 <span class="sd">        :rtype: numpy.array of shape [n_samples] with integer labels</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">proba</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
@@ -219,9 +226,9 @@
     <span class="nd">@abstractmethod</span>
 <div class="viewcode-block" id="Classifier.predict_proba"><a class="viewcode-back" href="../../../estimators.html#rep.estimators.interface.Classifier.predict_proba">[docs]</a>    <span class="k">def</span> <span class="nf">predict_proba</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Predict probabilities for each class label on dataset</span>
+<span class="sd">        Predict probabilities for each class label for samples.</span>
 
-<span class="sd">        :param X: pandas.DataFrame of shape [n_samples, n_features]</span>
+<span class="sd">        :param pandas.DataFrame X: data of shape [n_samples, n_features]</span>
 <span class="sd">        :rtype: numpy.array of shape [n_samples, n_classes] with probabilities</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">pass</span></div>
@@ -229,16 +236,16 @@
     <span class="nd">@abstractmethod</span>
 <div class="viewcode-block" id="Classifier.staged_predict_proba"><a class="viewcode-back" href="../../../estimators.html#rep.estimators.interface.Classifier.staged_predict_proba">[docs]</a>    <span class="k">def</span> <span class="nf">staged_predict_proba</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Predicts probabilities on each stage</span>
+<span class="sd">        Predict probabilities for data for each class label on each stage (i.e. for boosting algorithms).</span>
 
-<span class="sd">        :param X: pandas.DataFrame of shape [n_samples, n_features]</span>
+<span class="sd">        :param pandas.DataFrame X: data of shape [n_samples, n_features]</span>
 <span class="sd">        :rtype: iterator</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">pass</span></div>
 
 <div class="viewcode-block" id="Classifier.get_feature_importances"><a class="viewcode-back" href="../../../estimators.html#rep.estimators.interface.Classifier.get_feature_importances">[docs]</a>    <span class="k">def</span> <span class="nf">get_feature_importances</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Get features importance</span>
+<span class="sd">        Return features importance.</span>
 
 <span class="sd">        :rtype: pandas.DataFrame with `index=self.features`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -249,10 +256,9 @@
 
 <div class="viewcode-block" id="Classifier.fit_lds"><a class="viewcode-back" href="../../../estimators.html#rep.estimators.interface.Classifier.fit_lds">[docs]</a>    <span class="k">def</span> <span class="nf">fit_lds</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lds</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Train the classifier on specific type dataset</span>
+<span class="sd">        Train a classifier on the specific type of dataset.</span>
 
 <span class="sd">        :param LabeledDataStorage lds: data</span>
-
 <span class="sd">        :return: self</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span> <span class="o">=</span> <span class="n">lds</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">features</span><span class="p">),</span> <span class="n">lds</span><span class="o">.</span><span class="n">get_targets</span><span class="p">(),</span> <span class="n">lds</span><span class="o">.</span><span class="n">get_weights</span><span class="p">(</span><span class="n">allow_nones</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
@@ -260,7 +266,7 @@
 
 <div class="viewcode-block" id="Classifier.test_on_lds"><a class="viewcode-back" href="../../../estimators.html#rep.estimators.interface.Classifier.test_on_lds">[docs]</a>    <span class="k">def</span> <span class="nf">test_on_lds</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lds</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Prepare classification report for a single classifier</span>
+<span class="sd">        Prepare a classification report for a single classifier.</span>
 
 <span class="sd">        :param LabeledDataStorage lds: data</span>
 <span class="sd">        :return: ClassificationReport</span>
@@ -270,11 +276,12 @@
 
 <div class="viewcode-block" id="Classifier.test_on"><a class="viewcode-back" href="../../../estimators.html#rep.estimators.interface.Classifier.test_on">[docs]</a>    <span class="k">def</span> <span class="nf">test_on</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Prepare classification report for a single classifier</span>
+<span class="sd">        Prepare classification report for a single classifier.</span>
 
-<span class="sd">        :param X: data, pandas.DataFrame</span>
-<span class="sd">        :param y: target</span>
-<span class="sd">        :param sample_weight: weights, optional.</span>
+<span class="sd">        :param pandas.DataFrame X: data of shape [n_samples, n_features]</span>
+<span class="sd">        :param y: labels of samples --- array-like of shape [n_samples]</span>
+<span class="sd">        :param sample_weight: weight of samples,</span>
+<span class="sd">               array-like of shape [n_samples] or None if all weights are equal</span>
 <span class="sd">        :return: ClassificationReport</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="kn">from</span> <span class="nn">..data</span> <span class="kn">import</span> <span class="n">LabeledDataStorage</span>
@@ -283,22 +290,7 @@
 
 
 <div class="viewcode-block" id="Regressor"><a class="viewcode-back" href="../../../estimators.html#rep.estimators.interface.Regressor">[docs]</a><span class="k">class</span> <span class="nc">Regressor</span><span class="p">(</span><span class="n">BaseEstimator</span><span class="p">,</span> <span class="n">RegressorMixin</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Interface to train different **regression** model from different</span>
-<span class="sd">     machine learning libraries, like **TMVA, Sklearn, XGBoost**...</span>
-
-<span class="sd">    :param features: features used to train model</span>
-<span class="sd">    :type features: list[str] or None</span>
-
-<span class="sd">    .. note::</span>
-<span class="sd">        * if `features` aren&#39;t set (**None**), then all features in training dataset will be used</span>
-
-<span class="sd">        * Datasets should be `pandas.DataFrame`, `not numpy.array`.</span>
-<span class="sd">          Provided this, you&#39;ll be able to choose features used in training by setting e.g.</span>
-<span class="sd">          `features=[&#39;FlightTime&#39;, &#39;p&#39;]` in constructor.</span>
-
-<span class="sd">        * It works fine with `numpy.array` as well, but in this case all the features will be used.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">__doc__</span> <span class="o">=</span> <span class="n">_docs</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s">&#39;regression&#39;</span><span class="p">)</span>
     <span class="n">__metaclass__</span> <span class="o">=</span> <span class="n">ABCMeta</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
@@ -306,9 +298,10 @@
 
     <span class="k">def</span> <span class="nf">_get_features</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">allow_nans</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        :param pandas.DataFrame X: train dataset</span>
+<span class="sd">        Return data with the necessary features.</span>
 
-<span class="sd">        :return: pandas.DataFrame with used features</span>
+<span class="sd">        :param pandas.DataFrame X: training data</span>
+<span class="sd">        :return: pandas.DataFrame with necessary features</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">X_prepared</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">features</span> <span class="o">=</span> <span class="n">_get_features</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">features</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">allow_nans</span><span class="o">=</span><span class="n">allow_nans</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">X_prepared</span>
@@ -316,13 +309,12 @@
     <span class="nd">@abstractmethod</span>
 <div class="viewcode-block" id="Regressor.fit"><a class="viewcode-back" href="../../../estimators.html#rep.estimators.interface.Regressor.fit">[docs]</a>    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Train the regressor model</span>
+<span class="sd">        Train a regression model on the data.</span>
 
-<span class="sd">        :param X: pandas.DataFrame of shape [n_samples, n_features]</span>
-<span class="sd">        :param y: values - array-like of shape [n_samples]</span>
-<span class="sd">        :param sample_weight: weight of events,</span>
+<span class="sd">        :param pandas.DataFrame X: data of shape [n_samples, n_features]</span>
+<span class="sd">        :param y: values for samples, array-like of shape [n_samples]</span>
+<span class="sd">        :param sample_weight: weight of samples,</span>
 <span class="sd">               array-like of shape [n_samples] or None if all weights are equal</span>
-
 <span class="sd">        :return: self</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">pass</span></div>
@@ -330,9 +322,9 @@
     <span class="nd">@abstractmethod</span>
 <div class="viewcode-block" id="Regressor.predict"><a class="viewcode-back" href="../../../estimators.html#rep.estimators.interface.Regressor.predict">[docs]</a>    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Predict values for all events in dataset.</span>
+<span class="sd">        Predict values for data.</span>
 
-<span class="sd">        :param X: pandas.DataFrame of shape [n_samples, n_features]</span>
+<span class="sd">        :param pandas.DataFrame X: data of shape [n_samples, n_features]</span>
 <span class="sd">        :rtype: numpy.array of shape [n_samples] with predicted values</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">pass</span></div>
@@ -340,19 +332,18 @@
     <span class="nd">@abstractmethod</span>
 <div class="viewcode-block" id="Regressor.staged_predict"><a class="viewcode-back" href="../../../estimators.html#rep.estimators.interface.Regressor.staged_predict">[docs]</a>    <span class="k">def</span> <span class="nf">staged_predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Predicts values on each stage</span>
+<span class="sd">        Predicts values for data on each stage (i.e. for boosting algorithms).</span>
 
-<span class="sd">        :param X: pandas.DataFrame of shape [n_samples, n_features]</span>
+<span class="sd">        :param pandas.DataFrame X: data of shape [n_samples, n_features]</span>
 <span class="sd">        :rtype: iterator</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">pass</span></div>
 
 <div class="viewcode-block" id="Regressor.fit_lds"><a class="viewcode-back" href="../../../estimators.html#rep.estimators.interface.Regressor.fit_lds">[docs]</a>    <span class="k">def</span> <span class="nf">fit_lds</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lds</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Train the regressor model on specific dataset</span>
+<span class="sd">        Train a regression model on the specific type of dataset.</span>
 
 <span class="sd">        :param LabeledDataStorage lds: data</span>
-
 <span class="sd">        :return: self</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span> <span class="o">=</span> <span class="n">lds</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">features</span><span class="p">),</span> <span class="n">lds</span><span class="o">.</span><span class="n">get_targets</span><span class="p">(),</span> <span class="n">lds</span><span class="o">.</span><span class="n">get_weights</span><span class="p">()</span>
@@ -363,7 +354,7 @@
 
 <div class="viewcode-block" id="Regressor.get_feature_importances"><a class="viewcode-back" href="../../../estimators.html#rep.estimators.interface.Regressor.get_feature_importances">[docs]</a>    <span class="k">def</span> <span class="nf">get_feature_importances</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Get features importances</span>
+<span class="sd">        Get features importances.</span>
 
 <span class="sd">        :rtype: pandas.DataFrame with `index=self.features`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -374,7 +365,7 @@
 
 <div class="viewcode-block" id="Regressor.test_on_lds"><a class="viewcode-back" href="../../../estimators.html#rep.estimators.interface.Regressor.test_on_lds">[docs]</a>    <span class="k">def</span> <span class="nf">test_on_lds</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lds</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Prepare regression report for a single classifier</span>
+<span class="sd">        Prepare a regression report for a single regressor.</span>
 
 <span class="sd">        :param LabeledDataStorage lds: data</span>
 <span class="sd">        :return: RegressionReport</span>
@@ -384,17 +375,17 @@
 
 <div class="viewcode-block" id="Regressor.test_on"><a class="viewcode-back" href="../../../estimators.html#rep.estimators.interface.Regressor.test_on">[docs]</a>    <span class="k">def</span> <span class="nf">test_on</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Prepare regression report for a single classifier</span>
+<span class="sd">        Prepare a regression report for a single regressor</span>
 
-<span class="sd">        :param X: data, pandas.DataFrame</span>
-<span class="sd">        :param y: target</span>
-<span class="sd">        :param sample_weight: weights, optional.</span>
+<span class="sd">        :param pandas.DataFrame X: data of shape [n_samples, n_features]</span>
+<span class="sd">        :param y: values of samples --- array-like of shape [n_samples]</span>
+<span class="sd">        :param sample_weight: weight of samples,</span>
+<span class="sd">               array-like of shape [n_samples] or None if all weights are equal</span>
 <span class="sd">        :return: RegressionReport</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="kn">from</span> <span class="nn">..data</span> <span class="kn">import</span> <span class="n">LabeledDataStorage</span>
         <span class="n">lds</span> <span class="o">=</span> <span class="n">LabeledDataStorage</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">X</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="n">sample_weight</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">test_on_lds</span><span class="p">(</span><span class="n">lds</span><span class="o">=</span><span class="n">lds</span><span class="p">)</span></div></div>
-
 </pre></div>
 
            </div>
@@ -428,7 +419,7 @@
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'../../../',
-            VERSION:'0.6.5',
+            VERSION:'0.6.6',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>rep.estimators.theanets &mdash; REP (Reproducible Experiment Platform) 0.6.5 documentation</title>
+  <title>rep.estimators.theanets &mdash; REP (Reproducible Experiment Platform) 0.6.6 documentation</title>
   
 
   
@@ -30,7 +30,7 @@
   
 
   
-    <link rel="top" title="REP (Reproducible Experiment Platform) 0.6.5 documentation" href="../../../index.html"/>
+    <link rel="top" title="REP (Reproducible Experiment Platform) 0.6.6 documentation" href="../../../index.html"/>
         <link rel="up" title="Module code" href="../../index.html"/> 
 
   
@@ -59,7 +59,7 @@
             
             
               <div class="version">
-                0.6.5
+                0.6.6
               </div>
             
           
@@ -81,12 +81,15 @@
             
             
                 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../data.html">Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../estimators.html">Estimators (classification and regression)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../metaml.html">Meta Machine Learning</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../report.html">Report for models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../metrics.html">Metrics</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../plotting.html">Plotting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../parallel.html">Parallel computing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../data.html">Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../utils.html">Utilities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reproducibility.html">REProducibility</a></li>
 <li class="toctree-l1"><a class="reference external" href="http://nbviewer.ipython.org/github/yandex/rep/tree/master/howto/">Howto notebooks</a></li>
 </ul>
 
@@ -134,7 +137,7 @@
             
   <h1>Source code for rep.estimators.theanets</h1><div class="highlight"><pre>
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">These classes are wrappers for `theanets &lt;http://theanets.readthedocs.org/&gt;`_ - neural network python library.</span>
+<span class="sd">These classes are wrappers for `theanets library &lt;http://theanets.readthedocs.org/&gt;`_ --- a neural network python library.</span>
 
 <span class="sd">&quot;&quot;&quot;</span>
 
@@ -168,45 +171,48 @@
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;TheanetsBase&#39;</span><span class="p">,</span> <span class="s">&#39;TheanetsClassifier&#39;</span><span class="p">,</span> <span class="s">&#39;TheanetsRegressor&#39;</span><span class="p">]</span>
 
 <span class="n">UNSUPPORTED_OPTIMIZERS</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;sample&#39;</span><span class="p">,</span> <span class="s">&#39;hf&#39;</span><span class="p">}</span>
-<span class="c"># sample has too different interface from what we support here</span>
+<span class="c"># sample has too different interfaces from what we support here</span>
 <span class="c"># currently, hf now does not work in theanets, see https://github.com/lmjohns3/theanets/issues/62</span>
+
+<span class="c"># to keep climate from printing anything, uncomment following:</span>
+<span class="c"># import os</span>
+<span class="c"># import climate</span>
+<span class="c"># null_file = open(os.devnull, &quot;w&quot;)</span>
+<span class="c"># climate.enable_default_logging(default_level=&#39;ERROR&#39;, stream=null_file)</span>
 
 
 <div class="viewcode-block" id="TheanetsBase"><a class="viewcode-back" href="../../../estimators.html#rep.estimators.theanets.TheanetsBase">[docs]</a><span class="k">class</span> <span class="nc">TheanetsBase</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Base class for estimators from Theanets library.</span>
+    <span class="sd">&quot;&quot;&quot;A base class for the estimators from Theanets library.</span>
 
-<span class="sd">    Parameters:</span>
-<span class="sd">    -----------</span>
 <span class="sd">    :param features: list of features to train model</span>
 <span class="sd">    :type features: None or list(str)</span>
 <span class="sd">    :param layers: a sequence of values specifying the **hidden** layer configuration for the network.</span>
-<span class="sd">        For more information please see &#39;Specifying layers&#39; in theanets documentation:</span>
-<span class="sd">        http://theanets.readthedocs.org/en/latest/creating.html#creating-specifying-layers</span>
-<span class="sd">        Note that theanets &quot;layers&quot; parameter included input and output layers in the sequence as well.</span>
+<span class="sd">        For more information see `Specifying layers &lt;http://theanets.readthedocs.org/en/latest/creating.html#creating-specifying-layers&gt;`_</span>
+<span class="sd">        in the theanets documentation.</span>
+<span class="sd">        Note that theanets `layers` parameter includes input and output layers in the sequence as well.</span>
 <span class="sd">    :type layers: sequence of int, tuple, dict</span>
-<span class="sd">    :param int input_layer: size of the input layer. If equals -1, the size is taken from the training dataset</span>
-<span class="sd">    :param int output_layer: size of the output layer. If equals -1, the size is taken from the training dataset</span>
-<span class="sd">    :param str hidden_activation: the name of an activation function to use on hidden network layers by default</span>
+<span class="sd">    :param int input_layer: size of the input layer. If it equals -1, the size is taken from the training dataset</span>
+<span class="sd">    :param int output_layer: size of the output layer. If it equals -1, the size is taken from the training dataset</span>
+<span class="sd">    :param str hidden_activation: the name of an activation function to use on the hidden network layers by default</span>
 <span class="sd">    :param str output_activation: the name of an activation function to use on the output layer by default</span>
 <span class="sd">    :param float input_noise: standard deviation of desired noise to inject into input</span>
 <span class="sd">    :param float hidden_noise: standard deviation of desired noise to inject into hidden unit activation output</span>
-<span class="sd">    :param input_dropouts: proportion of input units to randomly set to 0</span>
-<span class="sd">    :type input_dropouts: float in [0, 1]</span>
-<span class="sd">    :param hidden_dropouts: proportion of hidden unit activations to randomly set to 0</span>
-<span class="sd">    :type hidden_dropouts: float in [0, 1]</span>
-<span class="sd">    :param decode_from: any of the hidden layers can be tapped at the output. Just specify a value greater than</span>
-<span class="sd">        1 to tap the last N hidden layers. The default is 1, which decodes from just the last layer</span>
-<span class="sd">    :type decode_from: positive int</span>
-<span class="sd">    :param scaler: scaler used to transform data. If False, scaling will not be used</span>
-<span class="sd">    :type scaler: str or sklearn-like transformer or False (do not scale features)</span>
-<span class="sd">    :param trainers: parameters to specify training algorithm(s)</span>
-<span class="sd">        example: [{&#39;optimize&#39;: sgd, &#39;momentum&#39;: 0.2}, {&#39;optimize&#39;: &#39;nag&#39;}]</span>
+<span class="sd">    :param float input_dropouts: proportion of the input units to randomly set to 0; it ranges [0, 1]</span>
+<span class="sd">    :param float hidden_dropouts: proportion of hidden unit activations to randomly set to 0; it ranges [0, 1]</span>
+<span class="sd">    :param int decode_from: any of the hidden layers can be tapped at the output. Just specify a value greater than</span>
+<span class="sd">        1 to tap the last N hidden layers. The default is 1, which decodes from just the last layer.</span>
+<span class="sd">    :param scaler: transformer which is applied to the input samples. If it is False, scaling will not be used</span>
+<span class="sd">    :type scaler: str or sklearn-like transformer or False</span>
+<span class="sd">    :param trainers: parameters to specify training algorithm(s), for example::</span>
+
+<span class="sd">        trainers=[{&#39;algo&#39;: sgd, &#39;momentum&#39;: 0.2}, {&#39;algo&#39;: &#39;nag&#39;}]</span>
+
 <span class="sd">    :type trainers: list[dict] or None</span>
-<span class="sd">    :param int random_state: random seed</span>
+<span class="sd">    :param random_state: state for a pseudo random generator</span>
+<span class="sd">    :type random_state: None or int or RandomState</span>
 
 
-<span class="sd">    For more information on available trainers and their parameters, see this page</span>
-<span class="sd">    http://theanets.readthedocs.org/en/latest/training.html</span>
+<span class="sd">    For more information on the available trainers and their parameters see this `page &lt;http://theanets.readthedocs.org/en/latest/training.html&gt;`_.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">__metaclass__</span> <span class="o">=</span> <span class="n">ABCMeta</span>
@@ -252,11 +258,11 @@
 
 <div class="viewcode-block" id="TheanetsBase.set_params"><a class="viewcode-back" href="../../../estimators.html#rep.estimators.theanets.TheanetsBase.set_params">[docs]</a>    <span class="k">def</span> <span class="nf">set_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Set the parameters of this estimator. Deep parameters of trainers and scaler can be accessed,</span>
+<span class="sd">        Set the parameters of the estimator. Deep parameters of trainers and scaler can be accessed,</span>
 <span class="sd">        for instance::</span>
 
-<span class="sd">                trainers__0 = {&#39;optimize&#39;: &#39;sgd&#39;, &#39;learning_rate&#39;: 0.3}</span>
-<span class="sd">                trainers__0_optimize = &#39;sgd&#39;</span>
+<span class="sd">                trainers__0 = {&#39;algo&#39;: &#39;sgd&#39;, &#39;learning_rate&#39;: 0.3}</span>
+<span class="sd">                trainers__0_algo = &#39;sgd&#39;</span>
 <span class="sd">                layers__1 = 14</span>
 <span class="sd">                scaler__use_std = True</span>
 
@@ -279,10 +285,10 @@
                         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&#39;{} is an invalid parameter for a Theanets estimator: index &#39;</span>
                                          <span class="s">&#39;too big&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">key</span><span class="p">))</span>
                     <span class="k">if</span> <span class="n">param</span> <span class="o">==</span> <span class="s">&#39;&#39;</span><span class="p">:</span>
-                        <span class="c"># e.g. trainers__0 = {&#39;optimize&#39;: &#39;sgd&#39;, &#39;learning_rate&#39;: 0.3}</span>
+                        <span class="c"># e.g. trainers__0 = {&#39;algo&#39;: &#39;sgd&#39;, &#39;learning_rate&#39;: 0.3}</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">trainers</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
                     <span class="k">else</span><span class="p">:</span>
-                        <span class="c"># e.g. trainers__0_optimize = &#39;sgd&#39;</span>
+                        <span class="c"># e.g. trainers__0_algo = &#39;sgd&#39;</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">trainers</span><span class="p">[</span><span class="n">index</span><span class="p">][</span><span class="n">param</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
                 <span class="k">elif</span> <span class="n">param</span> <span class="o">==</span> <span class="s">&#39;layers&#39;</span><span class="p">:</span>
                     <span class="n">index</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">param_of_param</span><span class="p">)</span>
@@ -301,10 +307,11 @@
 
     <span class="k">def</span> <span class="nf">_transform_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Takes the features and transforms data using self.scaler, also fits the scaler if needed.</span>
-<span class="sd">        :param data: data which should be scaled</span>
-<span class="sd">        :param y: labels for this data</span>
-<span class="sd">        :return: transformed data</span>
+<span class="sd">        Transform input samples by the scaler.</span>
+
+<span class="sd">        :param pandas.DataFrame X: input data</span>
+<span class="sd">        :param y: array-like target</span>
+<span class="sd">        :return: array-like transformed data</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">data_backup</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_fitted</span><span class="p">():</span>
@@ -313,19 +320,21 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">scaler</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">data_backup</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_is_fitted</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Check if the estimator is fitted or not.</span>
+
+<span class="sd">        :rtype: bool</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">exp</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span>
 
 <div class="viewcode-block" id="TheanetsBase.fit"><a class="viewcode-back" href="../../../estimators.html#rep.estimators.theanets.TheanetsBase.fit">[docs]</a>    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Train the estimator from scratch.</span>
+<span class="sd">        Train a classification/regression model on the data.</span>
 
-<span class="sd">        :param pandas.DataFrame X: data shape [n_samples, n_features]</span>
-<span class="sd">        :param y: values - array-like of shape [n_samples]</span>
-<span class="sd">        :param sample_weight: weights - array-like of shape [n_samples]</span>
+<span class="sd">        :param pandas.DataFrame X: data of shape [n_samples, n_features]</span>
+<span class="sd">        :param y: values for samples --- array-like of shape [n_samples]</span>
+<span class="sd">        :param sample_weight: weights for samples --- array-like of shape [n_samples]</span>
 <span class="sd">        :return: self</span>
-
-<span class="sd">        .. note:: if `trainer[&#39;optimize&#39;] == &#39;pretrain&#39;` (unsupervised training)</span>
-<span class="sd">        `y` can be specific vector, details see in `partial_fit`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">exp</span> <span class="o">=</span> <span class="bp">None</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">trainers</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
@@ -333,20 +342,21 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">trainers</span> <span class="o">=</span> <span class="p">[{}]</span>
 
         <span class="k">for</span> <span class="n">trainer</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">trainers</span><span class="p">:</span>
-            <span class="k">if</span> <span class="s">&#39;optimize&#39;</span> <span class="ow">in</span> <span class="n">trainer</span> <span class="ow">and</span> <span class="n">trainer</span><span class="p">[</span><span class="s">&#39;optimize&#39;</span><span class="p">]</span> <span class="ow">in</span> <span class="n">UNSUPPORTED_OPTIMIZERS</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="n">trainer</span><span class="p">[</span><span class="s">&#39;optimize&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s">&#39; is not supported&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="s">&#39;algo&#39;</span> <span class="ow">in</span> <span class="n">trainer</span> <span class="ow">and</span> <span class="n">trainer</span><span class="p">[</span><span class="s">&#39;algo&#39;</span><span class="p">]</span> <span class="ow">in</span> <span class="n">UNSUPPORTED_OPTIMIZERS</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="n">trainer</span><span class="p">[</span><span class="s">&#39;algo&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s">&#39; is not supported&#39;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">partial_fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="n">sample_weight</span><span class="p">,</span> <span class="n">keep_trainer</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="o">**</span><span class="n">trainer</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span></div>
 
     <span class="nd">@abstractmethod</span>
-<div class="viewcode-block" id="TheanetsBase.partial_fit"><a class="viewcode-back" href="../../../estimators.html#rep.estimators.theanets.TheanetsBase.partial_fit">[docs]</a>    <span class="k">def</span> <span class="nf">partial_fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">keep_trainer</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="o">**</span><span class="n">trainer</span><span class="p">):</span>
+<div class="viewcode-block" id="TheanetsBase.partial_fit"><a class="viewcode-back" href="../../../estimators.html#rep.estimators.theanets.TheanetsBase.partial_fit">[docs]</a>    <span class="k">def</span> <span class="nf">partial_fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">keep_trainer</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="o">**</span><span class="n">trainer</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Train the estimator by training the existing estimator again.</span>
 
-<span class="sd">        :param pandas.DataFrame X: data shape [n_samples, n_features]</span>
-<span class="sd">        :param y: values - array-like of shape [n_samples]</span>
+<span class="sd">        :param pandas.DataFrame X: data of shape [n_samples, n_features]</span>
+<span class="sd">        :param y: values for samples --- array-like of shape [n_samples]</span>
+<span class="sd">        :param sample_weight: weights for samples --- array-like of shape [n_samples]</span>
 <span class="sd">        :param bool keep_trainer: True if the trainer is not stored in self.trainers.</span>
-<span class="sd">            If True, will add it to list of classifiers.</span>
+<span class="sd">            If True, will add it to the list of the estimators.</span>
 <span class="sd">        :param dict trainer: parameters of the training algorithm we want to use now</span>
 <span class="sd">        :return: self</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -355,13 +365,15 @@
     <span class="k">def</span> <span class="nf">_prepare_for_partial_fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">allow_multiple_targets</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">keep_trainer</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
                                  <span class="o">**</span><span class="n">trainer</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Does preparation for fitting which is the same for classifier and regressor</span>
+<span class="sd">        Do preparation for fitting which is the same for a classifier and regressor.</span>
 
-<span class="sd">        :param pandas.DataFrame X: data shape [n_samples, n_features]</span>
-<span class="sd">        :param y: values - array-like of shape [n_samples]</span>
+<span class="sd">        :param pandas.DataFrame X: data of shape [n_samples, n_features]</span>
+<span class="sd">        :param y: values for samples --- array-like of shape [n_samples]</span>
+<span class="sd">        :param sample_weight: weights for samples --- array-like of shape [n_samples]</span>
+<span class="sd">        :param bool allow_multiple_targets: True if target can contain multiple targets</span>
 <span class="sd">        :param bool keep_trainer: True if the trainer is not stored in self.trainers</span>
 <span class="sd">        :param dict trainer: parameters of the training algorithm we want to use now</span>
-<span class="sd">        :return: prepared data and labels</span>
+<span class="sd">        :return: prepared data and target</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span> <span class="o">=</span> <span class="n">check_inputs</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="n">sample_weight</span><span class="p">,</span> <span class="n">allow_none_weights</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
                                            <span class="n">allow_multiple_targets</span><span class="o">=</span><span class="n">allow_multiple_targets</span><span class="p">)</span>
@@ -372,10 +384,11 @@
 
     <span class="k">def</span> <span class="nf">_construct_layers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_layer</span><span class="p">,</span> <span class="n">output_layer</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Build a layer list, including correct input/output layers&#39; sizes.</span>
+<span class="sd">        Build a layer list including correct input/output layers&#39; sizes.</span>
+
 <span class="sd">        :param int input_layer: input layer size taken from the data</span>
 <span class="sd">        :param int output_layer: output layer size taken from the data</span>
-<span class="sd">        :return: list layers</span>
+<span class="sd">        :return: list of layers</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">layers</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">input_layer</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">layers</span> <span class="o">+</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">output_layer</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">layers</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
@@ -385,6 +398,18 @@
         <span class="k">return</span> <span class="n">layers</span>
 
     <span class="k">def</span> <span class="nf">_prepare_network_params</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Prepare simple net parameters.</span>
+
+<span class="sd">        :return: prepared dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">random_state</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">seed</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">random_state</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="n">seed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">random_state</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">seed</span> <span class="o">=</span> <span class="n">check_random_state</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">random_state</span><span class="p">)</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">10000</span><span class="p">)</span>
+
         <span class="k">return</span> <span class="p">{</span><span class="s">&#39;hidden_activation&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">hidden_activation</span><span class="p">,</span>
                 <span class="s">&#39;output_activation&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_activation</span><span class="p">,</span>
                 <span class="s">&#39;input_noise&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_noise</span><span class="p">,</span>
@@ -392,30 +417,18 @@
                 <span class="s">&#39;input_dropout&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_dropout</span><span class="p">,</span>
                 <span class="s">&#39;hidden_dropout&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">hidden_dropout</span><span class="p">,</span>
                 <span class="s">&#39;decode_from&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">decode_from</span><span class="p">,</span>
-                <span class="s">&#39;rng&#39;</span><span class="p">:</span> <span class="n">check_random_state</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">random_state</span><span class="p">),</span>
+                <span class="s">&#39;rng&#39;</span><span class="p">:</span> <span class="n">seed</span><span class="p">,</span>
                 <span class="s">&#39;weight_l1&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">weight_l1</span><span class="p">,</span>
                 <span class="s">&#39;weight_l2&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">weight_l2</span>
         <span class="p">}</span></div>
 
 
 <div class="viewcode-block" id="TheanetsClassifier"><a class="viewcode-back" href="../../../estimators.html#rep.estimators.theanets.TheanetsClassifier">[docs]</a><span class="k">class</span> <span class="nc">TheanetsClassifier</span><span class="p">(</span><span class="n">TheanetsBase</span><span class="p">,</span> <span class="n">Classifier</span><span class="p">):</span>
-    <span class="n">__doc__</span> <span class="o">=</span> <span class="s">&#39;Classifier from Theanets library. </span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">+</span> <span class="n">remove_first_line</span><span class="p">(</span><span class="n">TheanetsBase</span><span class="o">.</span><span class="n">__doc__</span><span class="p">)</span>
+    <span class="n">__doc__</span> <span class="o">=</span> <span class="s">&#39;Implements a classification model from the Theanets library. </span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">+</span> <span class="n">remove_first_line</span><span class="p">(</span><span class="n">TheanetsBase</span><span class="o">.</span><span class="n">__doc__</span><span class="p">)</span>
 
     <span class="n">_model_type</span> <span class="o">=</span> <span class="s">&#39;classification&#39;</span>
 
 <div class="viewcode-block" id="TheanetsClassifier.partial_fit"><a class="viewcode-back" href="../../../estimators.html#rep.estimators.theanets.TheanetsClassifier.partial_fit">[docs]</a>    <span class="k">def</span> <span class="nf">partial_fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">keep_trainer</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="o">**</span><span class="n">trainer</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Train the classifier by training the existing classifier again.</span>
-
-<span class="sd">        :param pandas.DataFrame X: data shape [n_samples, n_features]</span>
-<span class="sd">        :param y: values - array-like of shape [n_samples]</span>
-<span class="sd">        :param bool keep_trainer: True if the trainer is not stored in self.trainers</span>
-<span class="sd">        :param dict trainer: parameters of the training algorithm we want to use now</span>
-<span class="sd">        :return: self</span>
-
-<span class="sd">        .. note:: if `trainer[&#39;optimize&#39;] == &#39;pretrain&#39;` (unsupervised training)</span>
-<span class="sd">        `y` can be any vector just with information `numpy.unique(y) == classes`</span>
-<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prepare_for_partial_fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="n">sample_weight</span><span class="p">,</span>
                                                             <span class="n">keep_trainer</span><span class="o">=</span><span class="n">keep_trainer</span><span class="p">,</span> <span class="o">**</span><span class="n">trainer</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">exp</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
@@ -424,49 +437,34 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">exp</span> <span class="o">=</span> <span class="n">tnt</span><span class="o">.</span><span class="n">Experiment</span><span class="p">(</span><span class="n">tnt</span><span class="o">.</span><span class="n">Classifier</span><span class="p">,</span> <span class="n">layers</span><span class="o">=</span><span class="n">layers</span><span class="p">,</span> <span class="n">weighted</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
         <span class="n">params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prepare_network_params</span><span class="p">()</span>
         <span class="n">params</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="o">**</span><span class="n">trainer</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">trainer</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;optimize&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span> <span class="o">==</span> <span class="s">&#39;pretrain&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">trainer</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;algo&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span> <span class="o">==</span> <span class="s">&#39;pretrain&#39;</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">exp</span><span class="o">.</span><span class="n">train</span><span class="p">([</span><span class="n">X</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">float32</span><span class="p">)],</span> <span class="o">**</span><span class="n">params</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">exp</span><span class="o">.</span><span class="n">train</span><span class="p">([</span><span class="n">X</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">float32</span><span class="p">),</span> <span class="n">y</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">int32</span><span class="p">),</span> <span class="n">sample_weight</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">float32</span><span class="p">)],</span>
                            <span class="o">**</span><span class="n">params</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span></div>
+    <span class="n">partial_fit</span><span class="o">.</span><span class="n">__doc__</span> <span class="o">=</span> <span class="n">TheanetsBase</span><span class="o">.</span><span class="n">partial_fit</span><span class="o">.</span><span class="n">__doc__</span>
 
 <div class="viewcode-block" id="TheanetsClassifier.predict_proba"><a class="viewcode-back" href="../../../estimators.html#rep.estimators.theanets.TheanetsClassifier.predict_proba">[docs]</a>    <span class="k">def</span> <span class="nf">predict_proba</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Predict probabilities</span>
-
-<span class="sd">        :param pandas.DataFrame X: data shape [n_samples, n_features]</span>
-<span class="sd">        :rtype: numpy.array of shape [n_samples, n_classes] with probabilities</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_fitted</span><span class="p">(),</span> <span class="s">&#39;Classifier wasn`t fitted, please call `fit` first&#39;</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_fitted</span><span class="p">(),</span> <span class="s">&#39;Classifier wasn`t fitted, please, call `fit` first&#39;</span>
         <span class="n">X</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_transform_data</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_features</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">allow_nans</span><span class="o">=</span><span class="bp">True</span><span class="p">))</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">exp</span><span class="o">.</span><span class="n">network</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">float32</span><span class="p">))</span></div>
 
+    <span class="n">predict_proba</span><span class="o">.</span><span class="n">__doc__</span> <span class="o">=</span> <span class="n">Classifier</span><span class="o">.</span><span class="n">predict_proba</span><span class="o">.</span><span class="n">__doc__</span>
+
 <div class="viewcode-block" id="TheanetsClassifier.staged_predict_proba"><a class="viewcode-back" href="../../../estimators.html#rep.estimators.theanets.TheanetsClassifier.staged_predict_proba">[docs]</a>    <span class="k">def</span> <span class="nf">staged_predict_proba</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        .. warning:: not supported in Theanets (**NotImplementedError** will be thrown)</span>
+<span class="sd">        .. warning:: This function is not supported in the Theanets (**NotImplementedError** will be thrown)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s">&#39;staged_predict_proba is not supported for theanets classifier&#39;</span><span class="p">)</span></div></div>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s">&quot;&#39;staged_predict_proba&#39; is not supported by the Theanets classifiers&quot;</span><span class="p">)</span></div></div>
 
 
 <div class="viewcode-block" id="TheanetsRegressor"><a class="viewcode-back" href="../../../estimators.html#rep.estimators.theanets.TheanetsRegressor">[docs]</a><span class="k">class</span> <span class="nc">TheanetsRegressor</span><span class="p">(</span><span class="n">TheanetsBase</span><span class="p">,</span> <span class="n">Regressor</span><span class="p">):</span>
-    <span class="n">__doc__</span> <span class="o">=</span> <span class="s">&#39;Regressor from Theanets library. </span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">+</span> <span class="n">remove_first_line</span><span class="p">(</span><span class="n">TheanetsBase</span><span class="o">.</span><span class="n">__doc__</span><span class="p">)</span>
+    <span class="n">__doc__</span> <span class="o">=</span> <span class="s">&#39;Implements a regression model from the Theanets library. </span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">+</span> <span class="n">remove_first_line</span><span class="p">(</span><span class="n">TheanetsBase</span><span class="o">.</span><span class="n">__doc__</span><span class="p">)</span>
 
     <span class="n">_model_type</span> <span class="o">=</span> <span class="s">&#39;regression&#39;</span>
 
 <div class="viewcode-block" id="TheanetsRegressor.partial_fit"><a class="viewcode-back" href="../../../estimators.html#rep.estimators.theanets.TheanetsRegressor.partial_fit">[docs]</a>    <span class="k">def</span> <span class="nf">partial_fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">keep_trainer</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="o">**</span><span class="n">trainer</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Train the regressor by training the existing regressor again.</span>
-
-<span class="sd">        :param pandas.DataFrame X: data shape [n_samples, n_features]</span>
-<span class="sd">        :param y: values - array-like of shape [n_samples] (or [n_samples, n_targets])</span>
-<span class="sd">        :param bool keep_trainer: True if the trainer is not stored in self.trainers</span>
-<span class="sd">        :param dict trainer: parameters of the training algorithm we want to use now</span>
-<span class="sd">        :return: self</span>
-
-<span class="sd">        .. note:: if `trainer[&#39;optimize&#39;] == &#39;pretrain&#39;` (unsupervised training)</span>
-<span class="sd">        `y` can be any vector just with information about number of targets `numpy.shape(y)`</span>
-<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">allow_multiple_targets</span> <span class="o">=</span> <span class="bp">False</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">y</span><span class="p">))</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="bp">True</span>
         <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prepare_for_partial_fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="n">sample_weight</span><span class="p">,</span>
                                                             <span class="n">allow_multiple_targets</span><span class="o">=</span><span class="n">allow_multiple_targets</span><span class="p">,</span>
@@ -481,28 +479,26 @@
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">sample_weight</span><span class="p">))</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
             <span class="n">sample_weight</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">sample_weight</span><span class="p">,</span> <span class="n">y</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
             <span class="n">sample_weight</span> <span class="o">=</span> <span class="n">sample_weight</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">y</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">trainer</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;optimize&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="s">&#39;pretrain&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">trainer</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;algo&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="s">&#39;pretrain&#39;</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">exp</span><span class="o">.</span><span class="n">train</span><span class="p">([</span><span class="n">X</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">float32</span><span class="p">)],</span> <span class="o">**</span><span class="n">params</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">exp</span><span class="o">.</span><span class="n">train</span><span class="p">([</span><span class="n">X</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">float32</span><span class="p">),</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">float32</span><span class="p">)],</span> <span class="o">**</span><span class="n">params</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span></div>
 
-<div class="viewcode-block" id="TheanetsRegressor.predict"><a class="viewcode-back" href="../../../estimators.html#rep.estimators.theanets.TheanetsRegressor.predict">[docs]</a>    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Predict values for all events in dataset</span>
+    <span class="n">partial_fit</span><span class="o">.</span><span class="n">__doc__</span> <span class="o">=</span> <span class="n">TheanetsBase</span><span class="o">.</span><span class="n">partial_fit</span><span class="o">.</span><span class="n">__doc__</span>
 
-<span class="sd">        :param pandas.DataFrame X: data shape [n_samples, n_features]</span>
-<span class="sd">        :rtype: numpy.array of shape [n_samples, n_classes] with probabilities</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_fitted</span><span class="p">(),</span> <span class="s">&quot;Regressor wasn&#39;t fitted, please call `fit` first&quot;</span>
+<div class="viewcode-block" id="TheanetsRegressor.predict"><a class="viewcode-back" href="../../../estimators.html#rep.estimators.theanets.TheanetsRegressor.predict">[docs]</a>    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_fitted</span><span class="p">(),</span> <span class="s">&quot;Regressor wasn&#39;t fitted, please, call `fit` first&quot;</span>
         <span class="n">X</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_transform_data</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_features</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">allow_nans</span><span class="o">=</span><span class="bp">True</span><span class="p">))</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">exp</span><span class="o">.</span><span class="n">network</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">float32</span><span class="p">))</span></div>
 
+    <span class="n">predict</span><span class="o">.</span><span class="n">__doc__</span> <span class="o">=</span> <span class="n">Regressor</span><span class="o">.</span><span class="n">predict</span><span class="o">.</span><span class="n">__doc__</span>
+
 <div class="viewcode-block" id="TheanetsRegressor.staged_predict"><a class="viewcode-back" href="../../../estimators.html#rep.estimators.theanets.TheanetsRegressor.staged_predict">[docs]</a>    <span class="k">def</span> <span class="nf">staged_predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        .. warning:: not supported in Theanets (**NotImplementedError** will be thrown)</span>
+<span class="sd">        .. warning:: This function is not supported in the Theanets (**NotImplementedError** will be thrown)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s">&#39;staged_predict is not supported for theanets regressor&#39;</span><span class="p">)</span></div></div>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s">&quot;&#39;staged_predict&#39; is not supported by the Theanets regressors&quot;</span><span class="p">)</span></div></div>
 </pre></div>
 
            </div>
@@ -536,7 +532,7 @@
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'../../../',
-            VERSION:'0.6.5',
+            VERSION:'0.6.6',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true
