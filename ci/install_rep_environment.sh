@@ -72,9 +72,6 @@ REP_ENV_FILE="$HERE/environment-rep${PYTHON_MAJOR_VERSION}.yaml"
 
 echo "Creating conda venv $REP_ENV_NAME"
 conda env create -q --file $REP_ENV_FILE > /dev/null
-# next line is hack. Unfortunately, sometimes conda does not set CONDA_ENV_PATH (anymore).
-# due to this, ROOT can not be sourced
-export CONDA_ENV_PATH=$HOME/miniconda/envs/$REP_ENV_NAME
 source activate $REP_ENV_NAME || throw_error "Error installing $REP_ENV_NAME environment"
 
 echo "Removing conda packages and caches:"
@@ -107,11 +104,10 @@ python --version
 mkdir -p /etc/profile.d/
 cat >/etc/profile.d/rep_profile.sh << EOL_PROFILESH
     export PATH=$HOME/miniconda/bin:\$PATH
-    # next line is temporary hack to fix that conda may ignore this path
-    export CONDA_ENV_PATH=$HOME/miniconda/envs/$REP_ENV_NAME
     source activate ${REP_ENV_NAME}
-    # actually, ROOT shall be alredy sourced by previous
+    # actually, ROOT shall be alredy sourced by previous command
     source $(which thisroot.sh) || echo "Could not source ROOT!"
+
 EOL_PROFILESH
 
 # printing message about environment

@@ -38,6 +38,7 @@ if [ "$JPY_API_TOKEN" != "" ] ; then
 	  --hub-prefix=$JPY_HUB_PREFIX \
 	  --hub-api-url=$JPY_HUB_API_URL \
 	  --notebook-dir=$NOTEBOOK_DIR
+	# exit with return code of jupyterhub
 	exit $?
 fi
 
