@@ -10,18 +10,17 @@ import pandas
 from six.moves import zip
 
 from sklearn import clone
-from sklearn.cross_validation import KFold
+from sklearn.cross_validation import KFold, StratifiedKFold
 from sklearn.utils import check_random_state
 from . import utils
 from .factory import train_estimator
 from ..estimators.interface import Classifier, Regressor
 from ..estimators.utils import check_inputs
+from .utils import get_classifier_probabilities, get_classifier_staged_proba, get_regressor_prediction, \
+    get_regressor_staged_predict
 
 __author__ = 'Tatiana Likhomanenko, Alex Rogozhnikov'
 __all__ = ['FoldingClassifier', 'FoldingRegressor']
-
-from .utils import get_classifier_probabilities, get_classifier_staged_proba, get_regressor_prediction, \
-    get_regressor_staged_predict
 
 
 class FoldingBase(object):
@@ -45,27 +44,37 @@ class FoldingBase(object):
     def __init__(self,
                  base_estimator,
                  n_folds=2,
+                 stratified=False,
                  random_state=None,
                  features=None,
-                 parallel_profile=None):
+                 parallel_profile=None,
+                 verbose=True):
         """
 
         :param sklearn.BaseEstimator base_estimator: base classifier, which will be used for training
         :param int n_folds: count of folds
+        :param bool stratified: if True, use stratified splitting
+            (samples from each class are distributed equally across folds).
+            Parameter is available only for classification.
         :param features: features used in training
         :type features: None or list[str]
         :param parallel_profile: profile for IPython cluster, None to compute locally.
         :type parallel_profile: None or str
         :param random_state: random state for reproducibility
         :type random_state: None or int or RandomState
+        :param bool verbose: print messages about used prediction strategy
         """
+        if stratified and isinstance(self, FoldingRegressor):
+            raise ValueError('Stratified folding is possible only for classification, not regression.')
         self.estimators = []
         self.parallel_profile = parallel_profile
         self.n_folds = n_folds
+        self.stratified = stratified
         self.base_estimator = base_estimator
         self._folds_indices = None
         self.random_state = random_state
         self._random_number = None
+        self.verbose = verbose
         # setting features directly
         self.features = features
 
@@ -73,13 +82,29 @@ class FoldingBase(object):
         """
         Return special column with indices of folds for all events.
         """
-        if self._random_number is None:
-            self._random_number = check_random_state(self.random_state).randint(0, 100000)
-        folds_column = numpy.zeros(length)
+        if self.stratified and (length == len(self._stratified_folds_saved_column)):
+            # in the case of stratified folding, we should return return 'remembered' version
+            return self._stratified_folds_saved_column.copy()
+        assert self._random_number is not None
+        folds_column = numpy.zeros(length, dtype='int')
         for fold_number, (_, folds_indices) in enumerate(
                 KFold(length, self.n_folds, shuffle=True, random_state=self._random_number)):
             folds_column[folds_indices] = fold_number
         return folds_column
+
+    def _set_folds_column(self, y):
+        """
+        Generate and store the column if it is needed.
+        """
+        # generating random number
+        if self._random_number is None:
+            self._random_number = check_random_state(self.random_state).randint(0, 100000)
+        if self.stratified:
+            folds_column = numpy.zeros(len(y), dtype='uint8')
+            for fold_number, (_, folds_indices) in enumerate(
+                    StratifiedKFold(y, self.n_folds, shuffle=True, random_state=self._random_number)):
+                folds_column[folds_indices] = fold_number
+            self._stratified_folds_saved_column = folds_column
 
     def _prepare_data(self, X, y, sample_weight):
         raise NotImplementedError('To be implemented in descendant')
@@ -97,9 +122,14 @@ class FoldingBase(object):
         if hasattr(self.base_estimator, 'features'):
             assert self.base_estimator.features is None, \
                 'Base estimator must have None features! Use features parameter in Folding instead'
+        if self.n_folds > 100:
+            raise ValueError('too many folds: {}, 100 is maximum'.format(self.n_folds))
+        if self.stratified and isinstance(self, FoldingRegressor):
+            raise ValueError('Stratified folding is possible only for classification, not regression.')
         self.train_length = len(X)
         X, y, sample_weight = self._prepare_data(X, y, sample_weight)
 
+        self._set_folds_column(y)
         folds_column = self._get_folds_column(len(X))
 
         for _ in range(self.n_folds):
@@ -135,7 +165,7 @@ class FoldingBase(object):
         """
         X = self._get_features(X)
         if vote_function is not None:
-            print('KFold prediction with voting function')
+            self._print('KFold prediction with voting function')
             results = []
             for estimator in self.estimators:
                 results.append(prediction_function(estimator, X))
@@ -144,9 +174,10 @@ class FoldingBase(object):
             return vote_function(results)
         else:
             if len(X) != self.train_length:
-                print('KFold prediction using random classifier (length of data passed not equal to length of train)')
+                self._print('KFold prediction using random estimator '
+                            '(length of data passed not equal to length of train)')
             else:
-                print('KFold prediction using folds column')
+                self._print('KFold prediction using folds column')
             folds_column = self._get_folds_column(len(X))
             parts = []
             for fold in range(self.n_folds):
@@ -162,16 +193,17 @@ class FoldingBase(object):
     def _staged_folding_prediction(self, X, prediction_function, vote_function=None):
         X = self._get_features(X)
         if vote_function is not None:
-            print('Using voting KFold prediction')
+            self._print('Using voting KFold prediction')
             iterators = [prediction_function(estimator, X) for estimator in self.estimators]
             for fold_prob in zip(*iterators):
                 result = numpy.array(fold_prob)
                 yield vote_function(result)
         else:
             if len(X) != self.train_length:
-                print('KFold prediction using random classifier (length of data passed not equal to length of train)')
+                self._print('KFold prediction using random estimator ' +
+                            '(length of data passed not equal to length of train)')
             else:
-                print('KFold prediction using folds column')
+                self._print('KFold prediction using folds column')
             folds_column = self._get_folds_column(len(X))
             iterators = [prediction_function(self.estimators[fold], X.iloc[folds_column == fold, :])
                          for fold in range(self.n_folds)]
@@ -186,6 +218,7 @@ class FoldingBase(object):
     def _get_feature_importances(self):
         """
         Get features importance
+        Get features importance
 
         :return: pandas.DataFrame with column effect and `index=features`
         """
@@ -193,6 +226,10 @@ class FoldingBase(object):
         # to get train_features, not features
         one_importances = self.estimators[0].get_feature_importances()
         return pandas.DataFrame({'effect': importances / numpy.max(importances)}, index=one_importances.index)
+
+    def _print(self, *args, **kwargs):
+        if self.verbose:
+            print(*args, **kwargs)
 
 
 class FoldingRegressor(FoldingBase, Regressor):
