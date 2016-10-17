@@ -30,7 +30,7 @@ before_install:
       brew update > /dev/null;
       brew install xz;
       brew install homebrew/science/root;
-      echo 'shell_session_update' > $HOME/.bash_logout
+      echo 'shell_session_update' > $HOME/.bash_logout;
       virtualenv venv -p python${PYTHON_VERSION};
       source venv/bin/activate;
       source $(brew --prefix root)/libexec/thisroot.sh;
