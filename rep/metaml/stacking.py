@@ -25,11 +25,10 @@ class FeatureSplitter(Classifier):
     When building predictions, classifier predicts the events with
     the same value of `split_feature` it was trained on.
 
-    :param str split_feature: the name of key feature,
+    :param str split_feature: the name of key feature
     :param base_estimator: the classifier, its' copies are trained on parts of dataset
-    :param list[str] features: list of columns classifier uses
+    :param list[str] train_features: list of columns classifier uses in training
 
-    Pay attention: `split_feature` must be in list of `features` (if those are passed).
     """
     def __init__(self, split_feature, base_estimator, train_features=None):
         self.base_estimator = base_estimator
