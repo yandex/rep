@@ -33,10 +33,9 @@ before_install:
       brew install homebrew/science/root;
       virtualenv venv -p python${PYTHON_VERSION};
       source venv/bin/activate;
-      echo 'sourse THISROOT.sh'
+      echo 'source THISROOT.sh';
       source $(brew --prefix root)/libexec/thisroot.sh;
       otool -L $(brew --prefix root)/lib/root/libPyROOT.so;
-      otool -L root/lib/libPyROOT.so;
       echo 'TRY IMPORT ROOT';
       python -c 'import ROOT';
       pip install pip -U;
@@ -52,6 +51,7 @@ before_install:
   # printing DEBUG information
   - which python
   - echo $LD_LIBRARY_PATH
+  - echo "{'url':'$MN_URL','token':'$MN_TOKEN'}" > $HOME/.rep-matrixnet.config.json
 install:
   - pip install .
 script:
