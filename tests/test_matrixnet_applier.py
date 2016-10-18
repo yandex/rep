@@ -10,7 +10,7 @@ from scipy.special import expit
 import pandas
 from six import BytesIO
 from six.moves import zip
-from rep_ef.estimators._matrixnetapplier import MatrixnetApplier as NumpyClassifier
+from rep.estimators._matrixnetapplier import MatrixNetApplier as NumpyClassifier
 
 
 __author__ = 'Alex Rogozhnikov'

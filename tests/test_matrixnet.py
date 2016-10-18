@@ -13,7 +13,7 @@ __author__ = 'Tatiana Likhomanenko, Alex Rogozhnikov'
 
 
 def test_mn_classification():
-    clf = MatrixNetClassifier(iterations=50, auto_stop=1e-3)
+    clf = MatrixNetClassifier(iterations=20, auto_stop=1e-3)
     check_classifier(clf, n_classes=2)
     assert {'effect', 'information', 'efficiency'} == set(clf.get_feature_importances().columns)
     # import cPickle
@@ -28,7 +28,7 @@ def test_mn_regression():
 
 
 def test_mn_baseline():
-    clf = MatrixNetClassifier(iterations=50, baseline_feature='column0')
+    clf = MatrixNetClassifier(iterations=20, baseline_feature='column0')
     check_classifier(clf, n_classes=2)
 
 

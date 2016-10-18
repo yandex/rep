@@ -7,7 +7,7 @@ from nose.tools import raises
 import unittest
 import json
 from rep.estimators._mnkit import MatrixNetClient
-from rep_ef.estimators import MatrixNetClassifier, MatrixNetRegressor
+from rep.estimators import MatrixNetClassifier, MatrixNetRegressor
 from rep.test.test_estimators import generate_classification_data, generate_regression_data
 
 __author__ = 'Alexander Baranov, Tatiana Likhomanenko'
