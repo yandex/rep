@@ -42,7 +42,7 @@ from .utils import check_inputs, score_to_proba, remove_first_line, _get_feature
 from ._matrixnetapplier import MatrixNetApplier
 from copy import deepcopy
 
-from ._mnkit import import MatrixNetClient
+from ._mnkit import MatrixNetClient
 
 __author__ = 'Tatiana Likhomanenko, Alex Rogozhnikov'
 __all__ = ['MatrixNetBase', 'MatrixNetClassifier', 'MatrixNetRegressor']
