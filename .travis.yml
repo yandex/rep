@@ -28,10 +28,9 @@ matrix:
 before_install:
   - if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
       brew update > /dev/null;
+      rvm get head;
       brew install xz;
       brew install homebrew/science/root;
-      echo 'shell_session_update' > $HOME/.bash_logout;
-      echo 'shell_session_update() { :; }' > $HOME/.direnvrc;
       virtualenv venv -p python${PYTHON_VERSION};
       source venv/bin/activate;
       source $(brew --prefix root)/libexec/thisroot.sh;
