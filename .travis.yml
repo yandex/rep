@@ -30,14 +30,14 @@ before_install:
       brew update > /dev/null;
       rvm get head;
       brew install xz;
+      which python;
       brew install homebrew/science/root;
-      brew install python;
       virtualenv venv -p python${PYTHON_VERSION};
       source venv/bin/activate;
-      which python;
       echo 'source THISROOT.sh';
       source $(brew --prefix root)/libexec/thisroot.sh;
       otool -L $(brew --prefix root)/lib/root/libPyROOT.so;
+      sudo install_name_tool -change /System/Library/Frameworks/Python.framework/Versions/2.7/Python /usr/local/Frameworks/Python.framework/Versions/2.7/Python $(brew --prefix root)/lib/root/libPyROOT.so;
       echo 'TRY IMPORT ROOT';
       python -c 'import ROOT';
       pip install pip -U;
