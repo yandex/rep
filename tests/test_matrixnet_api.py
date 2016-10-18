@@ -12,33 +12,37 @@ from rep.test.test_estimators import generate_classification_data, generate_regr
 
 __author__ = 'Alexander Baranov, Tatiana Likhomanenko'
 
+DATA_PATH = os.path.join(
+        os.path.dirname(os.path.realpath(__file__)), "help_files")
+
+CONFIG_FILE = os.path.join(DATA_PATH, 'wrong_config.json')
 
 # test api errors
 @raises(Exception)
 def test_Exception_credential():
     X, y, sample_weight = generate_classification_data()
-    cl = MatrixNetClassifier(api_config_file='help_files/wrong_config.json', iterations=50)
+    cl = MatrixNetClassifier(api_config_file=CONFIG_FILE, iterations=50)
     cl.fit(X, y, sample_weight=sample_weight)
 
 
 @raises(Exception)
 def test_Exception_server():
     X, y, sample_weight = generate_classification_data()
-    cl = MatrixNetClassifier(api_config_file='help_files/wrong_config.json', iterations=50)
+    cl = MatrixNetClassifier(api_config_file=CONFIG_FILE, iterations=50)
     cl.fit(X, y, sample_weight=sample_weight)
 
 
 @raises(AssertionError)
 def test_Exception_predict_proba():
     X, _, _ = generate_classification_data()
-    cl = MatrixNetClassifier(api_config_file='help_files/wrong_config.json', iterations=50)
+    cl = MatrixNetClassifier(api_config_file=CONFIG_FILE, iterations=50)
     cl.predict_proba(X)
 
 
 @raises(AssertionError)
 def test_Exception_staged_predict_proba():
     X, _, _ = generate_classification_data()
-    cl = MatrixNetClassifier(api_config_file='help_files/wrong_config.json', iterations=50)
+    cl = MatrixNetClassifier(api_config_file=CONFIG_FILE, iterations=50)
     for _ in cl.staged_predict_proba(X):
         pass
 
@@ -46,35 +50,35 @@ def test_Exception_staged_predict_proba():
 @raises(AssertionError)
 def test_Exception_feature_importances():
     X, _, _ = generate_classification_data()
-    cl = MatrixNetClassifier(api_config_file='help_files/wrong_config.json', iterations=50)
+    cl = MatrixNetClassifier(api_config_file=CONFIG_FILE, iterations=50)
     print(cl.feature_importances_)
 
 
 @raises(AssertionError)
 def test_Exception_trained_status():
     X, _, _ = generate_classification_data()
-    cl = MatrixNetClassifier(api_config_file='help_files/wrong_config.json', iterations=50)
+    cl = MatrixNetClassifier(api_config_file=CONFIG_FILE, iterations=50)
     cl.training_status()
 
 
 @raises(AssertionError)
 def test_Exception_synchronized():
     X, _, _ = generate_classification_data()
-    cl = MatrixNetClassifier(api_config_file='help_files/wrong_config.json', iterations=50)
+    cl = MatrixNetClassifier(api_config_file=CONFIG_FILE, iterations=50)
     cl.synchronize()
 
 
 @raises(AssertionError)
 def test_Exception_reg_predict():
     X, _, _ = generate_regression_data()
-    cl = MatrixNetRegressor(api_config_file='help_files/wrong_config.json', iterations=50)
+    cl = MatrixNetRegressor(api_config_file=CONFIG_FILE, iterations=50)
     cl.predict(X)
 
 
 @raises(AssertionError)
 def test_Exception_reg_staged_predict():
     X, _, _ = generate_regression_data()
-    cl = MatrixNetRegressor(api_config_file='help_files/wrong_config.json', iterations=50)
+    cl = MatrixNetRegressor(api_config_file=CONFIG_FILE, iterations=50)
     for _ in cl.staged_predict(X):
         pass
 
@@ -82,21 +86,21 @@ def test_Exception_reg_staged_predict():
 @raises(AssertionError)
 def test_Exception_reg_feature_importances():
     X, _, _ = generate_regression_data()
-    cl = MatrixNetRegressor(api_config_file='help_files/wrong_config.json', iterations=50)
+    cl = MatrixNetRegressor(api_config_file=CONFIG_FILE, iterations=50)
     print(cl.feature_importances_)
 
 
 @raises(AssertionError)
 def test_Exception_reg_trained_status():
     X, _, _ = generate_regression_data()
-    cl = MatrixNetRegressor(api_config_file='help_files/wrong_config.json', iterations=50)
+    cl = MatrixNetRegressor(api_config_file=CONFIG_FILE, iterations=50)
     cl.training_status()
 
 
 @raises(AssertionError)
 def test_Exception_reg_synchronized():
     X, _, _ = generate_regression_data()
-    cl = MatrixNetRegressor(api_config_file='help_files/wrong_config.json', iterations=50)
+    cl = MatrixNetRegressor(api_config_file=CONFIG_FILE, iterations=50)
     cl.synchronize()
 
 
@@ -131,8 +135,7 @@ class TestBuckets(MatrixNetTest):
     def test_upload(self):
         b1 = self.mn.bucket()
 
-        here = os.path.dirname(os.path.realpath(__file__))
-        datapath = os.path.join(here, "help_files/data.csv")
+        datapath = os.path.join(DATA_PATH, "data.csv")
 
         result = b1.upload(datapath)
         self.assertTrue(result)
@@ -164,8 +167,7 @@ TEST_PARAMS = {
 #     def test_classifier(self):
 #         bucket_test = self.mn.bucket()
 #
-#         here = os.path.dirname(os.path.realpath(__file__))
-#         datapath = os.path.join(here, "help_files/data.csv")
+#         datapath = os.path.join(DATA_PATH, "data.csv")
 #
 #         result = bucket_test.upload(datapath)
 #         self.assertTrue(result)

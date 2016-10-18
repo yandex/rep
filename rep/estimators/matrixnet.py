@@ -162,7 +162,7 @@ class MatrixNetBase(object):
 
     def __getstate__(self):
         result = deepcopy(self.__dict__)
-        if result.has_key('_api'):
+        if '_api' in result:
             del result['_api']
         if result['mn_cls'] is not None:
             result['mn_cls'].requests_kwargs['headers']['X-Yacern-Token'] = ""
