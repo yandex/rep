@@ -52,7 +52,6 @@ before_install:
   # printing DEBUG information
   - which python
   - echo $LD_LIBRARY_PATH
-  - echo "{'url': '$MN_URL', 'token': '$MN_TOKEN'}" > $HOME/.rep-matrixnet.config.json
 install:
   - pip install .
 script:
