@@ -5,6 +5,9 @@
 # ---Incompatible library version: libCore.so requires version 8.0.0 or later, but liblzma.5.dylib provides version 6.0.0 
 # ---try to solve by https://github.com/Homebrew/legacy-homebrew/issues/42209 installing xz
 # Theano flags were set accordingly to this issue: https://github.com/Theano/Theano/issues/3780
+# -rvm get head (it is necessary to avoid error during source thisroot.sh:
+# ----http://stackoverflow.com/questions/40105686/root-installation-on-mac-os-el-capitan-in-continuous-integration
+# -El Capitan uses brew python, not system python. It is installed with the system biuld on travis. Thus change PyROOT link to the brew python.
 
 sudo: required
 services:

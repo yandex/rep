@@ -24,3 +24,4 @@ dependencies:
     - mpld3==0.2
     - hep_ml==0.4
     - xgboost==0.4a30
+    - requests==2.9.1

@@ -26,6 +26,7 @@ It includes:
     * Pybrain
     * Neurolab
     * Theanets.
+    * MatrixNet service (**available to CERN**)
 
     These can be used as base estimators in sklearn.
 

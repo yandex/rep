@@ -164,7 +164,7 @@ def check_classifier(classifier, check_instance=True, has_staged_pp=True, has_im
     X, y, sample_weight = generate_classification_data(n_classes=n_classes)
     check_deepcopy(classifier)
     fit_on_data(classifier, X, y, sample_weight, supports_weight=supports_weight)
-    assert list(classifier.features) == list(X.columns)
+    assert list(classifier.features) == list(X.columns), classifier.features
 
     check_classification_model(classifier, X, y, check_instance=check_instance, has_staged_pp=has_staged_pp,
                                has_importances=has_importances)

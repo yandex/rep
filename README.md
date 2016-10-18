@@ -18,6 +18,7 @@ __REP__ is ipython-based environment for conducting data-driven research in a co
     * Theanets
     * Pybrain
     * Neurolab
+    * MatrixNet service(**available to CERN**)
   * parallel training of classifiers on cluster 
   * classification/regression reports with plots
   * interactive plots supported
