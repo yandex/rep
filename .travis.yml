@@ -31,8 +31,10 @@ before_install:
       rvm get head;
       brew install xz;
       brew install homebrew/science/root;
+      brew install python;
       virtualenv venv -p python${PYTHON_VERSION};
       source venv/bin/activate;
+      which python;
       echo 'source THISROOT.sh';
       source $(brew --prefix root)/libexec/thisroot.sh;
       otool -L $(brew --prefix root)/lib/root/libPyROOT.so;
