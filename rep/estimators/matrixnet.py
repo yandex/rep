@@ -414,7 +414,7 @@ class MatrixNetClassifier(MatrixNetBase, Classifier):
             assert self.baseline_feature is None, 'Baseline option is supported only for binary classification'
             self._train_type_options = '-m'
         baseline, X = self._get_features(X)
-        mn_bucket = self._upload_training_to_bucket(X, y, sample_weight)
+        # mn_bucket = self._upload_training_to_bucket(X, y, sample_weight)
         # self._train_formula(mn_bucket, list(X.columns), baseline)
         #
         # if self.sync:
