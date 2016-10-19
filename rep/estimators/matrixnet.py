@@ -185,7 +185,7 @@ class MatrixNetBase(object):
         compute md5 hash for file
         """
         md5 = hashlib.md5()
-        with open(filename, 'r') as file_d:
+        with open(filename, 'rb') as file_d:
             for chunk in iter(lambda: file_d.read(128 * md5.block_size), b''):
                 md5.update(chunk.encode('utf-8'))
         return md5.hexdigest()

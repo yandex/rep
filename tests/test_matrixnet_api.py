@@ -21,20 +21,6 @@ CONFIG_FILE = os.path.join(DATA_PATH, 'wrong_config.json')
 
 def test_A_md5():
     md5 = hashlib.md5()
-    md5.update("ffdfdf".encode('utf-8'))
-    print(md5.hexdigest())
-
-
-# def test_B_md5():
-#     md5 = hashlib.md5()
-#     with open(os.path.join(DATA_PATH, 'data.csv'), 'rb') as file_d:
-#         for chunk in iter(lambda: file_d.read(128 * md5.block_size), b''):
-#             md5.update(chunk.encode('utf-8'))
-#     print(md5.hexdigest())
-
-
-def test_C_md5():
-    md5 = hashlib.md5()
     with open(os.path.join(DATA_PATH, 'data.csv'), 'rb') as f:
         for chunk in iter(lambda: f.read(8192), b''):
             md5.update(chunk)
