@@ -19,7 +19,7 @@ DATA_PATH = os.path.join(
 CONFIG_FILE = os.path.join(DATA_PATH, 'wrong_config.json')
 
 
-def test_firtstly_md5():
+def test_A_md5():
     md5 = hashlib.md5()
     with open(os.path.join(DATA_PATH, 'data.csv'), 'r') as file_d:
         for chunk in iter(lambda: file_d.read(128 * md5.block_size), b''):
