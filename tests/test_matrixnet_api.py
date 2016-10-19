@@ -6,10 +6,10 @@ from tempfile import mkstemp
 from nose.tools import raises
 import unittest
 import json
-import requests
 from rep.estimators._mnkit import MatrixNetClient
 from rep.estimators import MatrixNetClassifier, MatrixNetRegressor
 from rep.test.test_estimators import generate_classification_data, generate_regression_data
+import hashlib
 
 __author__ = 'Alexander Baranov, Tatiana Likhomanenko'
 
@@ -18,15 +18,18 @@ DATA_PATH = os.path.join(
 
 CONFIG_FILE = os.path.join(DATA_PATH, 'wrong_config.json')
 
-# test api errors
 
+def test_firtstly_md5():
+    md5 = hashlib.md5()
+    with open(os.path.join(DATA_PATH, 'data.csv'), 'r') as file_d:
+        for chunk in iter(lambda: file_d.read(128 * md5.block_size), b''):
+            md5.update(chunk.encode('utf-8'))
+    print(md5.hexdigest())
+
+
+# test api errors
 @raises(Exception)
 def test_Exception_credential():
-    requests.get(u'https://blah.blah.blah/buckets/e493fc3dddc492badd21b098526b986b', headers={'X-Yacern-Token': u'abcd'})
-
-
-@raises(Exception)
-def test_Exception_credential2():
     X, y, sample_weight = generate_classification_data()
     cl = MatrixNetClassifier(api_config_file=CONFIG_FILE, iterations=50)
     cl.fit(X, y, sample_weight=sample_weight)
@@ -164,44 +167,47 @@ TEST_PARAMS = {
         'VertexChi2',
         'weight'
     ],
+    'mn_version': 1,
     'extra': {
     },
 }
 
-# for some reason the task is pending all time.
 
-# class TestEstimator(MatrixNetTest):
-#     def test_classifier(self):
-#         bucket_test = self.mn.bucket()
-#
-#         datapath = os.path.join(DATA_PATH, "data.csv")
-#
-#         result = bucket_test.upload(datapath)
-#         self.assertTrue(result)
-#
-#         cls = self.mn.classifier(
-#                 parameters=TEST_PARAMS,
-#                 description="Some description",
-#                 bucket_id=bucket_test.bucket_id,
-#         )
-#         cls.upload()
-#         status = cls.get_status()
-#         while status != "completed":
-#             status = cls.get_status()
-#             iterations = cls.get_iterations()
-#             print("Training: status={} iterations={}".format(status, iterations))
-#             sleep(2)
-#         print('finish training')
-#         formula_tmp_local = mkstemp(dir='/tmp')[1]
-#         cls.save_formula(formula_tmp_local)
-#         os.remove(formula_tmp_local)
-#
-#         self.assertTrue(cls.resubmit())
-#         status = cls.get_status()
-#         while status != "completed":
-#             status = cls.get_status()
-#             iterations = cls.get_iterations()
-#             print("Training after resubmit: status={} iterations={}".format(status, iterations))
-#             sleep(2)
-#         print('finish resubmit job')
-#         bucket_test.remove()
+# for some reason the task is pending all time.
+class TestEstimator(MatrixNetTest):
+    def test_classifier(self):
+        bucket_test = self.mn.bucket()
+
+        datapath = os.path.join(DATA_PATH, "data.csv")
+
+        result = bucket_test.upload(datapath)
+        self.assertTrue(result)
+
+        cls = self.mn.classifier(
+                parameters=TEST_PARAMS,
+                description="REP-submitted classifier",
+                bucket_id=bucket_test.bucket_id,
+        )
+        cls.upload()
+        status = cls.get_status()
+        while status != "completed":
+            status = cls.get_status()
+            assert status != 'failed', 'Failed formula'
+            iterations = cls.get_iterations()
+            print("Training: status={} iterations={}".format(status, iterations))
+            sleep(2)
+        print('finish training')
+        formula_tmp_local = mkstemp(dir='/tmp')[1]
+        cls.save_formula(formula_tmp_local)
+        os.remove(formula_tmp_local)
+
+        self.assertTrue(cls.resubmit())
+        status = cls.get_status()
+        while status != "completed":
+            status = cls.get_status()
+            assert status != 'failed', 'Failed formula'
+            iterations = cls.get_iterations()
+            print("Training after resubmit: status={} iterations={}".format(status, iterations))
+            sleep(2)
+        print('finish resubmit job')
+        bucket_test.remove()

@@ -208,13 +208,13 @@ class MatrixNetBase(object):
         with make_temp_directory() as temp_dir:
             data_local = os.path.join(temp_dir, 'data.csv')
             self._save_df_to_file(X, y, sample_weight, data_local)
-        #    self._pool_hash = self._md5(data_local)
+            self._pool_hash = self._md5(data_local)
 
-            # self._configure_api(self.api_config_file)
-        #     mn_bucket = self._api.bucket(bucket_id=self._pool_hash)
-        #     if 'data.csv' not in set(mn_bucket.ls()):
-        #         mn_bucket.upload(data_local)
-        # return mn_bucket
+            self._configure_api(self.api_config_file)
+            mn_bucket = self._api.bucket(bucket_id=self._pool_hash)
+            if 'data.csv' not in set(mn_bucket.ls()):
+                mn_bucket.upload(data_local)
+        return mn_bucket
 
     def _train_formula(self, mn_bucket, features, baseline=None):
         """
@@ -415,11 +415,11 @@ class MatrixNetClassifier(MatrixNetBase, Classifier):
             self._train_type_options = '-m'
         baseline, X = self._get_features(X)
         mn_bucket = self._upload_training_to_bucket(X, y, sample_weight)
-        # self._train_formula(mn_bucket, list(X.columns), baseline)
-        #
-        # if self.sync:
-        #     self.synchronize()
-        # return self
+        self._train_formula(mn_bucket, list(X.columns), baseline)
+
+        if self.sync:
+            self.synchronize()
+        return self
 
     fit.__doc__ = Classifier.fit.__doc__
 
