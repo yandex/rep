@@ -208,7 +208,7 @@ class MatrixNetBase(object):
         with make_temp_directory() as temp_dir:
             data_local = os.path.join(temp_dir, 'data.csv')
             self._save_df_to_file(X, y, sample_weight, data_local)
-            self._pool_hash = self._md5(data_local)
+        #    self._pool_hash = self._md5(data_local)
 
             # self._configure_api(self.api_config_file)
         #     mn_bucket = self._api.bucket(bucket_id=self._pool_hash)
