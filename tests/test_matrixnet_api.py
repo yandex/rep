@@ -24,6 +24,7 @@ CONFIG_FILE = os.path.join(DATA_PATH, 'wrong_config.json')
 def test_Exception_credential():
     requests.get(u'https://blah.blah.blah/buckets/e493fc3dddc492badd21b098526b986b', headers={'X-Yacern-Token': u'abcd'})
 
+
 @raises(Exception)
 def test_Exception_credential2():
     X, y, sample_weight = generate_classification_data()

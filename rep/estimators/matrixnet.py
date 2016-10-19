@@ -211,10 +211,10 @@ class MatrixNetBase(object):
             self._pool_hash = self._md5(data_local)
 
             self._configure_api(self.api_config_file)
-            mn_bucket = self._api.bucket(bucket_id=self._pool_hash)
-            if 'data.csv' not in set(mn_bucket.ls()):
-                pass #mn_bucket.upload(data_local)
-        return mn_bucket
+        #     mn_bucket = self._api.bucket(bucket_id=self._pool_hash)
+        #     if 'data.csv' not in set(mn_bucket.ls()):
+        #         mn_bucket.upload(data_local)
+        # return mn_bucket
 
     def _train_formula(self, mn_bucket, features, baseline=None):
         """
