@@ -41,6 +41,9 @@ help:
 version:
 	@echo $(REP_IMAGE_NAME)
 
+print_name:
+	@echo $(CONTAINER_NAME)
+
 rep-image:	## build REP image with python set by PYTHON
 	@echo "\n\nBuilding docker for python=$(PYTHON) \n\n"
 	docker build --build-arg REP_PYTHON_VERSION=$(PYTHON) -t $(REP_IMAGE_NAME) -f ci/Dockerfile.rep .
@@ -67,7 +70,7 @@ restart:	## restart REP container
 	docker restart $(CONTAINER_NAME)
 
 exec:       ## run command within REP container
-	docker exec -ti $(CONTAINER_NAME)
+	docker exec -ti $(CONTAINER_NAME) $(COMMAND)
 
 show-logs:  ## show container logs
 	docker logs $(CONTAINER_NAME)

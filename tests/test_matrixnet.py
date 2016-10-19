@@ -16,9 +16,6 @@ def test_mn_classification():
     clf = MatrixNetClassifier(iterations=20, auto_stop=1e-3)
     check_classifier(clf, n_classes=2)
     assert {'effect', 'information', 'efficiency'} == set(clf.get_feature_importances().columns)
-    # import cPickle
-    # with open('new', 'w') as f:
-    #     cPickle.dump(clf, f)
 
 
 def test_mn_regression():
@@ -34,20 +31,19 @@ def test_mn_baseline():
 
 def test_simple_stacking_mn():
     base_mn = MatrixNetClassifier(iterations=10)
-    check_classifier(SklearnClassifier(clf=AdaBoostClassifier(base_estimator=base_mn, n_estimators=5)),
-                     has_staged_pp=False)
+    check_classifier(SklearnClassifier(clf=AdaBoostClassifier(base_estimator=base_mn, n_estimators=2)),
+                     has_staged_pp=True)
 
 
 def test_mn_reproducibility():
-    clf =MatrixNetClassifier(iterations=10)
+    clf = MatrixNetClassifier(iterations=10)
     X, y, _ = generate_classification_data()
     check_classification_reproducibility(clf, X, y)
 
 
 def test_complex_stacking_mn():
-    # Ada over kFold over EventFilter
-    base_kfold = FoldingClassifier(
-        base_estimator=MatrixNetClassifier(iterations=30))
+    # Ada over kFold over MatrixNet
+    base_kfold = FoldingClassifier(base_estimator=MatrixNetClassifier(iterations=30))
     check_classifier(SklearnClassifier(clf=AdaBoostClassifier(base_estimator=base_kfold, n_estimators=3)),
                      has_staged_pp=False, has_importances=False)
 
