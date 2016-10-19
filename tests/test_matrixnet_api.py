@@ -17,6 +17,7 @@ DATA_PATH = os.path.join(
         os.path.dirname(os.path.realpath(__file__)), "help_files")
 
 CONFIG_FILE = os.path.join(DATA_PATH, 'wrong_config.json')
+CONFIG_FILE_TOKEN = os.path.join(DATA_PATH, 'wrong_config_token.json')
 
 
 def test_A_md5():
@@ -31,7 +32,7 @@ def test_A_md5():
 @raises(Exception)
 def test_Exception_credential():
     X, y, sample_weight = generate_classification_data()
-    cl = MatrixNetClassifier(api_config_file=CONFIG_FILE, iterations=50)
+    cl = MatrixNetClassifier(api_config_file=CONFIG_FILE_TOKEN, iterations=50)
     cl.fit(X, y, sample_weight=sample_weight)
 
 
