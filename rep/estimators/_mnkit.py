@@ -80,6 +80,8 @@ class Bucket(object):
             self.bucket_url = os.path.join(self.all_buckets_url, self.bucket_id)
 
     def ls(self):
+        print(self.bucket_url, self.requests_kwargs)
+        assert 1 == 0
         return mn_get(self.bucket_url, **self.requests_kwargs)
 
     def remove(self):
