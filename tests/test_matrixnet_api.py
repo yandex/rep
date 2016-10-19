@@ -19,97 +19,92 @@ DATA_PATH = os.path.join(
 CONFIG_FILE = os.path.join(DATA_PATH, 'wrong_config.json')
 
 # test api errors
-
 @raises(Exception)
 def test_Exception_credential():
-    requests.get("https://blah.blah.blah")
+    X, y, sample_weight = generate_classification_data()
+    cl = MatrixNetClassifier(api_config_file=CONFIG_FILE, iterations=50)
+    cl.fit(X, y, sample_weight=sample_weight)
 
-# @raises(Exception)
-# def test_Exception_credential():
-#     X, y, sample_weight = generate_classification_data()
-#     cl = MatrixNetClassifier(api_config_file=CONFIG_FILE, iterations=50)
-#     cl.fit(X, y, sample_weight=sample_weight)
-#
-#
-# @raises(Exception)
-# def test_Exception_server():
-#     X, y, sample_weight = generate_classification_data()
-#     cl = MatrixNetClassifier(api_config_file=CONFIG_FILE, iterations=50)
-#     cl.fit(X, y, sample_weight=sample_weight)
-#
-#
-# @raises(AssertionError)
-# def test_Exception_predict_proba():
-#     X, _, _ = generate_classification_data()
-#     cl = MatrixNetClassifier(api_config_file=CONFIG_FILE, iterations=50)
-#     cl.predict_proba(X)
-#
-#
-# @raises(AssertionError)
-# def test_Exception_staged_predict_proba():
-#     X, _, _ = generate_classification_data()
-#     cl = MatrixNetClassifier(api_config_file=CONFIG_FILE, iterations=50)
-#     for _ in cl.staged_predict_proba(X):
-#         pass
-#
-#
-# @raises(AssertionError)
-# def test_Exception_feature_importances():
-#     X, _, _ = generate_classification_data()
-#     cl = MatrixNetClassifier(api_config_file=CONFIG_FILE, iterations=50)
-#     print(cl.feature_importances_)
-#
-#
-# @raises(AssertionError)
-# def test_Exception_trained_status():
-#     X, _, _ = generate_classification_data()
-#     cl = MatrixNetClassifier(api_config_file=CONFIG_FILE, iterations=50)
-#     cl.training_status()
-#
-#
-# @raises(AssertionError)
-# def test_Exception_synchronized():
-#     X, _, _ = generate_classification_data()
-#     cl = MatrixNetClassifier(api_config_file=CONFIG_FILE, iterations=50)
-#     cl.synchronize()
-#
-#
-# @raises(AssertionError)
-# def test_Exception_reg_predict():
-#     X, _, _ = generate_regression_data()
-#     cl = MatrixNetRegressor(api_config_file=CONFIG_FILE, iterations=50)
-#     cl.predict(X)
-#
-#
-# @raises(AssertionError)
-# def test_Exception_reg_staged_predict():
-#     X, _, _ = generate_regression_data()
-#     cl = MatrixNetRegressor(api_config_file=CONFIG_FILE, iterations=50)
-#     for _ in cl.staged_predict(X):
-#         pass
-#
-#
-# @raises(AssertionError)
-# def test_Exception_reg_feature_importances():
-#     X, _, _ = generate_regression_data()
-#     cl = MatrixNetRegressor(api_config_file=CONFIG_FILE, iterations=50)
-#     print(cl.feature_importances_)
-#
-#
-# @raises(AssertionError)
-# def test_Exception_reg_trained_status():
-#     X, _, _ = generate_regression_data()
-#     cl = MatrixNetRegressor(api_config_file=CONFIG_FILE, iterations=50)
-#     cl.training_status()
-#
-#
-# @raises(AssertionError)
-# def test_Exception_reg_synchronized():
-#     X, _, _ = generate_regression_data()
-#     cl = MatrixNetRegressor(api_config_file=CONFIG_FILE, iterations=50)
-#     cl.synchronize()
-#
-#
+
+@raises(Exception)
+def test_Exception_server():
+    X, y, sample_weight = generate_classification_data()
+    cl = MatrixNetClassifier(api_config_file=CONFIG_FILE, iterations=50)
+    cl.fit(X, y, sample_weight=sample_weight)
+
+
+@raises(AssertionError)
+def test_Exception_predict_proba():
+    X, _, _ = generate_classification_data()
+    cl = MatrixNetClassifier(api_config_file=CONFIG_FILE, iterations=50)
+    cl.predict_proba(X)
+
+
+@raises(AssertionError)
+def test_Exception_staged_predict_proba():
+    X, _, _ = generate_classification_data()
+    cl = MatrixNetClassifier(api_config_file=CONFIG_FILE, iterations=50)
+    for _ in cl.staged_predict_proba(X):
+        pass
+
+
+@raises(AssertionError)
+def test_Exception_feature_importances():
+    X, _, _ = generate_classification_data()
+    cl = MatrixNetClassifier(api_config_file=CONFIG_FILE, iterations=50)
+    print(cl.feature_importances_)
+
+
+@raises(AssertionError)
+def test_Exception_trained_status():
+    X, _, _ = generate_classification_data()
+    cl = MatrixNetClassifier(api_config_file=CONFIG_FILE, iterations=50)
+    cl.training_status()
+
+
+@raises(AssertionError)
+def test_Exception_synchronized():
+    X, _, _ = generate_classification_data()
+    cl = MatrixNetClassifier(api_config_file=CONFIG_FILE, iterations=50)
+    cl.synchronize()
+
+
+@raises(AssertionError)
+def test_Exception_reg_predict():
+    X, _, _ = generate_regression_data()
+    cl = MatrixNetRegressor(api_config_file=CONFIG_FILE, iterations=50)
+    cl.predict(X)
+
+
+@raises(AssertionError)
+def test_Exception_reg_staged_predict():
+    X, _, _ = generate_regression_data()
+    cl = MatrixNetRegressor(api_config_file=CONFIG_FILE, iterations=50)
+    for _ in cl.staged_predict(X):
+        pass
+
+
+@raises(AssertionError)
+def test_Exception_reg_feature_importances():
+    X, _, _ = generate_regression_data()
+    cl = MatrixNetRegressor(api_config_file=CONFIG_FILE, iterations=50)
+    print(cl.feature_importances_)
+
+
+@raises(AssertionError)
+def test_Exception_reg_trained_status():
+    X, _, _ = generate_regression_data()
+    cl = MatrixNetRegressor(api_config_file=CONFIG_FILE, iterations=50)
+    cl.training_status()
+
+
+@raises(AssertionError)
+def test_Exception_reg_synchronized():
+    X, _, _ = generate_regression_data()
+    cl = MatrixNetRegressor(api_config_file=CONFIG_FILE, iterations=50)
+    cl.synchronize()
+
+
 class MatrixNetTest(unittest.TestCase):
     DEFAULT_CONFIG_PATH = "$HOME/.rep-matrixnet.config.json"
 
@@ -120,8 +115,8 @@ class MatrixNetTest(unittest.TestCase):
         self.api_url = config['url']
         self.mn = MatrixNetClient(self.api_url, config['token'])
 
-
 # test Bucket
+
 
 class TestBuckets(MatrixNetTest):
     def test_create_delete(self):

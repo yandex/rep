@@ -483,10 +483,10 @@ class MatrixNetRegressor(MatrixNetBase, Regressor):
         baseline, X = self._get_features(X)
         self._train_type_options = '--quad-fast'
         mn_bucket = self._upload_training_to_bucket(X, y, sample_weight)
-        self._train_formula(mn_bucket, list(X.columns), baseline)
+        # self._train_formula(mn_bucket, list(X.columns), baseline)
 
-        if self.sync:
-            self.synchronize()
+        # if self.sync:
+        #     self.synchronize()
         return self
 
     fit.__doc__ = Classifier.fit.__doc__
