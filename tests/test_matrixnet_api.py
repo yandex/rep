@@ -21,10 +21,17 @@ CONFIG_FILE = os.path.join(DATA_PATH, 'wrong_config.json')
 
 def test_A_md5():
     md5 = hashlib.md5()
+    md5.update("ffdfdf".encode('utf-8'))
+    print(md5.hexdigest())
+
+
+def test_B_md5():
+    md5 = hashlib.md5()
     with open(os.path.join(DATA_PATH, 'data.csv'), 'r') as file_d:
         for chunk in iter(lambda: file_d.read(128 * md5.block_size), b''):
             md5.update(chunk.encode('utf-8'))
     print(md5.hexdigest())
+
 
 
 # test api errors
@@ -193,7 +200,7 @@ class TestEstimator(MatrixNetTest):
         while status != "completed":
             status = cls.get_status()
             assert status != 'failed', 'Failed formula'
-            iterations = cls.get_iterations()
+            iterations = cls.get_iterations
             print("Training: status={} iterations={}".format(status, iterations))
             sleep(2)
         print('finish training')
@@ -206,7 +213,7 @@ class TestEstimator(MatrixNetTest):
         while status != "completed":
             status = cls.get_status()
             assert status != 'failed', 'Failed formula'
-            iterations = cls.get_iterations()
+            iterations = cls.get_iterations
             print("Training after resubmit: status={} iterations={}".format(status, iterations))
             sleep(2)
         print('finish resubmit job')
