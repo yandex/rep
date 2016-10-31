@@ -122,7 +122,7 @@ class Estimator(object):
             self.cl_id = cl_id
             self.cl_url = os.path.join(self.all_cl_url, self.cl_id)
             self.load_from_api()
-        elif all((cl_type, parameters, description, bucket_id)):
+        elif all([cl_type, parameters, description, bucket_id]):
             self.cl_type = cl_type
             self.parameters = parameters
             self.description = description
@@ -184,7 +184,7 @@ class Estimator(object):
 
     def save_formula(self, path):
         response = requests.get(os.path.join(self.cl_url, 'formula'), stream=True, **self.requests_kwargs)
-        if not response.ok():
+        if not response.ok:
             raise ServerError('Error during formula downloading, {}'.format(response))
 
         with open(path, 'wb') as f:
@@ -192,7 +192,7 @@ class Estimator(object):
 
     def save_stats(self, path):
         response = requests.get(os.path.join(self.cl_url, 'stats'), stream=True, **self.requests_kwargs)
-        if not response.ok():
+        if not response.ok:
             raise ServerError('Error during feature importances downloading, {}'.format(response))
 
         with open(path, 'wb') as f:
