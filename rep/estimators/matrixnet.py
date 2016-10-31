@@ -74,9 +74,6 @@ class MatrixNetBase(object):
 
     :param train_features: features used in training
     :type train_features: list[str] or None
-    :param baseline_feature: feature values of which are used as initial predictions
-    :type baseline_feature: str or None'
-
     :param api_config_file: path to the file with remote api configuration in the json format::
 
                 {"url": "https://ml.cern.yandex.net/v1", "token": "<your_token>"}
@@ -102,7 +99,6 @@ class MatrixNetBase(object):
     _model_type = None
 
     def __init__(self, api_config_file=DEFAULT_CONFIG_PATH,
-                 train_features=None, baseline_feature=None,
                  iterations=100, regularization=0.01, intervals=8,
                  max_features_per_iteration=6, features_sample_rate_per_iteration=1.0,
                  training_fraction=0.5, auto_stop=None, command_line_params=None, sync=True,
@@ -113,8 +109,6 @@ class MatrixNetBase(object):
         self.regularization = regularization
         self.intervals = intervals
         self.auto_stop = auto_stop
-        self.train_features = train_features
-        self.baseline_feature = baseline_feature
         self.max_features_per_iteration = max_features_per_iteration
         self.features_sample_rate_per_iteration = features_sample_rate_per_iteration
         self.training_fraction = training_fraction
@@ -132,29 +126,6 @@ class MatrixNetBase(object):
         self._feature_importances = None
         self._pool_hash = None
         self._fit_status = False
-
-    def _features(self):
-        if self.train_features is None:
-            return None
-        else:
-            if self.baseline_feature is not None and self.baseline_feature not in set(self.train_features):
-                    return list(self.train_features) + [self.baseline_feature]
-            else:
-                return self.train_features
-
-    def _get_features(self, X, allow_nans=False):
-        """
-        :param pandas.DataFrame X: train dataset
-
-        :return: pandas.DataFrame with used features
-        """
-        baseline_column_values = None
-        if self.baseline_feature is not None:
-            baseline_column_values, _ = _get_features([self.baseline_feature], X, allow_nans=allow_nans)
-            baseline_column_values = numpy.ravel(numpy.array(baseline_column_values))
-        X_prepared, self.train_features = _get_features(self.train_features, X, allow_nans=allow_nans)
-        self.features = self._features()
-        return baseline_column_values, X_prepared
 
     def _configure_api(self, config_file_path):
         config_file_path = os.path.expandvars(config_file_path)
@@ -220,7 +191,7 @@ class MatrixNetBase(object):
                 mn_bucket.upload(data_local)
         return mn_bucket
 
-    def _train_formula(self, mn_bucket, features, baseline=None):
+    def _train_formula(self, mn_bucket, features):
         """
         prepare parameters and call _train_sync
         """
@@ -260,18 +231,6 @@ class MatrixNetBase(object):
                     mn_bucket.upload(borders_name)
 
             mn_options = "{params} -B {name}".format(params=mn_options, name='borders' + suffix)
-
-        if baseline is not None:
-            with make_temp_directory() as temp_dir:
-                baseline_path = os.path.join(temp_dir, 'train.txt')
-                pandas.DataFrame({'baseline': baseline}).to_csv(baseline_path, index=False, header=False)
-                suffix = '.{}.baseline'.format(self._md5(baseline_path))
-                baseline_name = baseline_path + suffix
-                os.rename(baseline_path, baseline_name)
-                if baseline_name not in set(mn_bucket.ls()):
-                    mn_bucket.upload(baseline_name)
-
-            mn_options = "{params} -b {suffix}".format(params=mn_options, suffix=suffix)
 
         if self.auto_stop is not None:
             mn_options = "{params} {auto_stop}".format(params=mn_options,
@@ -400,24 +359,33 @@ class MatrixNetBase(object):
 class MatrixNetClassifier(MatrixNetBase, Classifier):
     __doc__ = 'MatrixNet classification model. \n' + remove_first_line(MatrixNetBase.__doc__)
 
+    def __init__(self, features=None, api_config_file=DEFAULT_CONFIG_PATH,
+                 iterations=100, regularization=0.01, intervals=8,
+                 max_features_per_iteration=6, features_sample_rate_per_iteration=1.0,
+                 training_fraction=0.5, auto_stop=None, command_line_params=None, sync=True,
+                 random_state=42):
+        MatrixNetBase.__init__(self, api_config_file=api_config_file,
+                               iterations=iterations, regularization=regularization, intervals=intervals,
+                               max_features_per_iteration=max_features_per_iteration,
+                               features_sample_rate_per_iteration=features_sample_rate_per_iteration,
+                               training_fraction=training_fraction, auto_stop=auto_stop,
+                               command_line_params=command_line_params, sync=sync,
+                               random_state=random_state)
+        Classifier.__init__(self, features=features)
+
     def _set_classes_special(self, y):
-        indices = self._set_classes(y)
+        self._set_classes(y)
         assert self.n_classes_ == 2, "Support only 2 classes (data contain {})".format(self.n_classes_)
-        self.classes_mn_ = self.classes_
 
     def fit(self, X, y, sample_weight=None):
         self._initialisation_before_fit()
         X, y, sample_weight = check_inputs(X, y, sample_weight=sample_weight, allow_none_weights=False)
 
         self._set_classes_special(y)
-        if self.n_classes_ == 2:
-            self._train_type_options = '-c --c-fast'
-        else:
-            assert self.baseline_feature is None, 'Baseline option is supported only for binary classification'
-            self._train_type_options = '-m'
-        baseline, X = self._get_features(X)
+        self._train_type_options = '-c --c-fast'
+        X = self._get_features(X)
         mn_bucket = self._upload_training_to_bucket(X, y, sample_weight)
-        self._train_formula(mn_bucket, list(X.columns), baseline)
+        self._train_formula(mn_bucket, list(X.columns))
 
         if self.sync:
             self.synchronize()
@@ -428,21 +396,12 @@ class MatrixNetClassifier(MatrixNetBase, Classifier):
     def predict_proba(self, X):
         self.synchronize()
 
-        baseline, X = self._get_features(X)
-        if baseline is None:
-            baseline = 0.
-
+        X = self._get_features(X)
         data = X.astype(float)
         data = pandas.DataFrame(data)
         mx = MatrixNetApplier(StringIO(self.formula_mx))
 
-        if self.n_classes_ == 2:
-            if baseline is None:
-                return score_to_proba(mx.apply(data))
-            else:
-                return score_to_proba(baseline + mx.apply(data))
-        else:
-            return mx.apply(data)[:, numpy.argsort(self.classes_mn_)]
+        return score_to_proba(mx.apply(data))
 
     predict_proba.__doc__ = Classifier.predict_proba.__doc__
 
@@ -457,7 +416,7 @@ class MatrixNetClassifier(MatrixNetBase, Classifier):
         """
         self.synchronize()
 
-        baseline, X = self._get_features(X)
+        X = self._get_features(X)
 
         data = X.astype(float)
         data = pandas.DataFrame(data)
@@ -467,27 +426,35 @@ class MatrixNetClassifier(MatrixNetBase, Classifier):
         for stage, prediction_iteration in enumerate(mx.apply_separately(data)):
             prediction += prediction_iteration
             if stage % step == 0 or stage == self.iterations:
-                if self.n_classes_ == 2:
-                    if baseline is None:
-                        yield score_to_proba(prediction)
-                    else:
-                        yield score_to_proba(baseline + prediction)
-                else:
-                    yield prediction[:, numpy.argsort(self.classes_mn_)]
+                yield score_to_proba(prediction)
 
 
 class MatrixNetRegressor(MatrixNetBase, Regressor):
     __doc__ = 'MatrixNet for regression model. \n' + remove_first_line(MatrixNetBase.__doc__)
     _model_type = 'regression'
 
+    def __init__(self, features=None, api_config_file=DEFAULT_CONFIG_PATH,
+                 iterations=100, regularization=0.01, intervals=8,
+                 max_features_per_iteration=6, features_sample_rate_per_iteration=1.0,
+                 training_fraction=0.5, auto_stop=None, command_line_params=None, sync=True,
+                 random_state=42):
+        MatrixNetBase.__init__(self, api_config_file=api_config_file,
+                               iterations=iterations, regularization=regularization, intervals=intervals,
+                               max_features_per_iteration=max_features_per_iteration,
+                               features_sample_rate_per_iteration=features_sample_rate_per_iteration,
+                               training_fraction=training_fraction, auto_stop=auto_stop,
+                               command_line_params=command_line_params, sync=sync,
+                               random_state=random_state)
+        Regressor.__init__(self, features=features)
+
     def fit(self, X, y, sample_weight=None):
         self._initialisation_before_fit()
         X, y, sample_weight = check_inputs(X, y, sample_weight=sample_weight, allow_none_weights=False)
 
-        baseline, X = self._get_features(X)
+        X = self._get_features(X)
         self._train_type_options = '--quad-fast'
         mn_bucket = self._upload_training_to_bucket(X, y, sample_weight)
-        self._train_formula(mn_bucket, list(X.columns), baseline)
+        self._train_formula(mn_bucket, list(X.columns))
 
         if self.sync:
             self.synchronize()
@@ -498,14 +465,11 @@ class MatrixNetRegressor(MatrixNetBase, Regressor):
     def predict(self, X):
         self.synchronize()
 
-        baseline, X = self._get_features(X)
+        X = self._get_features(X)
         data = X.astype(float)
         data = pandas.DataFrame(data)
         mx = MatrixNetApplier(StringIO(self.formula_mx))
-        if baseline is None:
-            return mx.apply(data)
-        else:
-            return baseline + mx.apply(data)
+        return mx.apply(data)
 
     predict.__doc__ = Classifier.predict.__doc__
 
@@ -520,15 +484,12 @@ class MatrixNetRegressor(MatrixNetBase, Regressor):
         """
         self.synchronize()
 
-        baseline, X = self._get_features(X)
+        X = self._get_features(X)
 
         data = X.astype(float)
         data = pandas.DataFrame(data)
         mx = MatrixNetApplier(StringIO(self.formula_mx))
         prediction = numpy.zeros(len(data), dtype='float64')
-        if baseline is not None:
-            prediction += baseline
-
         for stage, prediction_iteration in enumerate(mx.apply_separately(data)):
             prediction += prediction_iteration
             if stage % step == 0 or stage == self.iterations:

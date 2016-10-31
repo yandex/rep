@@ -24,11 +24,6 @@ def test_mn_regression():
     assert {'effect', 'information', 'efficiency'} == set(clf.get_feature_importances().columns)
 
 
-def test_mn_baseline():
-    clf = MatrixNetClassifier(iterations=20, baseline_feature='column0')
-    check_classifier(clf, n_classes=2)
-
-
 def test_simple_stacking_mn():
     base_mn = MatrixNetClassifier(iterations=10)
     check_classifier(SklearnClassifier(clf=AdaBoostClassifier(base_estimator=base_mn, n_estimators=2)),
