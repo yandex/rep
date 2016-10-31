@@ -1,3 +1,5 @@
+from __future__ import print_function, division, absolute_import
+
 import os
 import shutil
 import requests
@@ -52,6 +54,9 @@ class MatrixNetClient(object):
 
 
 class Bucket(object):
+    """
+    Bucket is a proxy for a dataset placed on the server.
+    """
     def __init__(self, api_url, bucket_id=None, requests_kwargs=None):
         if requests_kwargs is None:
             requests_kwargs = {}
@@ -66,17 +71,17 @@ class Bucket(object):
             # Check if exists, create if does not.
             exists_resp = requests.get(self.bucket_url, **self.requests_kwargs)
             if exists_resp.status_code == 404:
-                create_resp = mn_put(
-                        self.all_buckets_url,
-                        data={"bucket_id": self.bucket_id},
-                        **self.requests_kwargs
+                _ = mn_put(
+                    self.all_buckets_url,
+                    data={"bucket_id": self.bucket_id},
+                    **self.requests_kwargs
                 )
             else:
                 exists_resp.raise_for_status()
 
         else:
-            ret = mn_put(self.all_buckets_url, **self.requests_kwargs)
-            self.bucket_id = ret['bucket_id']
+            response = mn_put(self.all_buckets_url, **self.requests_kwargs)
+            self.bucket_id = response['bucket_id']
             self.bucket_url = os.path.join(self.all_buckets_url, self.bucket_id)
 
     def ls(self):
@@ -85,13 +90,13 @@ class Bucket(object):
     def remove(self):
         return mn_delete(self.bucket_url, **self.requests_kwargs)
 
-    def upload(self, filepath):
-        files = {'file': open(filepath, 'rb')}
+    def upload(self, local_filepath):
+        files = {'file': open(local_filepath, 'rb')}
 
         result = mn_put(
-                self.bucket_url,
-                files=files,
-                **self.requests_kwargs
+            self.bucket_url,
+            files=files,
+            **self.requests_kwargs
         )
 
         return result['uploaded'] == 'ok'
@@ -102,8 +107,10 @@ class Estimator(object):
             self, api_url,
             cl_id=None,
             cl_type="mn", parameters=None, description=None, bucket_id=None,
-            requests_kwargs={'headers': JSON_HEADER}
+            requests_kwargs=None
     ):
+        if requests_kwargs is None:
+            requests_kwargs = {'headers': JSON_HEADER}
         self.api_url = api_url
         self.all_cl_url = os.path.join(self.api_url, "classifiers")
         self.requests_kwargs = requests_kwargs
@@ -116,13 +123,12 @@ class Estimator(object):
             self.cl_url = os.path.join(self.all_cl_url, self.cl_id)
             self.load_from_api()
         elif all((cl_type, parameters, description, bucket_id)):
-            self.description = description
-            self.parameters = parameters
             self.cl_type = cl_type
+            self.parameters = parameters
+            self.description = description
             self.bucket_id = bucket_id
-
         else:
-            raise Exception("Neither cl_id nor estimator parameters are sepcified")
+            raise Exception("Neither cl_id nor estimator parameters are specified")
 
     def _update_with_dict(self, data):
         self.cl_id = data['classifier_id']
@@ -134,9 +140,9 @@ class Estimator(object):
         self.cl_type = data['type']
 
     def _update_iteration_and_debug(self):
-        ret = mn_get(os.path.join(self.cl_url, 'iterations'), **self.requests_kwargs)
-        self._iterations = ret.get('iterations')
-        self._debug = ret.get('debug')
+        response = mn_get(os.path.join(self.cl_url, 'iterations'), **self.requests_kwargs)
+        self._iterations = response.get('iterations')
+        self._debug = response.get('debug')
 
     def load_from_api(self):
         self.cl_url = os.path.join(self.all_cl_url, self.cl_id)
@@ -152,9 +158,9 @@ class Estimator(object):
         }
 
         data = mn_put(
-                self.all_cl_url,
-                json=payload,
-                **self.requests_kwargs
+            self.all_cl_url,
+            json=payload,
+            **self.requests_kwargs
         )
         self._update_with_dict(data)
 
@@ -177,15 +183,17 @@ class Estimator(object):
         return self._debug
 
     def save_formula(self, path):
-        r = requests.get(os.path.join(self.cl_url, 'formula'), stream=True, **self.requests_kwargs)
+        response = requests.get(os.path.join(self.cl_url, 'formula'), stream=True, **self.requests_kwargs)
+        if not response.ok():
+            raise ServerError('Error during formula downloading, {}'.format(response))
 
-        assert r.ok, 'Error during formula dowloading, {}'.format(r)
         with open(path, 'wb') as f:
-            shutil.copyfileobj(r.raw, f)
+            shutil.copyfileobj(response.raw, f)
 
     def save_stats(self, path):
-        r = requests.get(os.path.join(self.cl_url, 'stats'), stream=True, **self.requests_kwargs)
+        response = requests.get(os.path.join(self.cl_url, 'stats'), stream=True, **self.requests_kwargs)
+        if not response.ok():
+            raise ServerError('Error during feature importances downloading, {}'.format(response))
 
-        assert r.ok, 'Error during feature importances dowloading, {}'.format(r)
         with open(path, 'wb') as f:
-            shutil.copyfileobj(r.raw, f)
+            shutil.copyfileobj(response.raw, f)
