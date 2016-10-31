@@ -337,7 +337,7 @@ class MatrixNetBase(object):
         with tempfile.NamedTemporaryFile() as outfile:
             self._configure_api(self.api_config_file)
             self.mn_cls.save_formula(outfile.name)
-            with open(outfile.name, 'r') as formula_file:
+            with open(outfile.name, 'rb') as formula_file:
                 self.formula_mx = formula_file.read()
                 assert len(self.formula_mx) > 0, "Formula is empty"
 
