@@ -191,7 +191,7 @@ class MatrixNetBase(object):
         md5 = hashlib.md5()
         with open(filename, 'rb') as file_d:
             for chunk in iter(lambda: file_d.read(128 * md5.block_size), b''):
-                md5.update(chunk.encode('utf-8'))
+                md5.update(chunk)
         return md5.hexdigest()
 
     def _save_df_to_file(self, df, labels, sample_weight, outfile):
