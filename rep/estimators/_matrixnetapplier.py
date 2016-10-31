@@ -25,7 +25,8 @@ class MatrixNetApplier(object):
 
         self.bins_total = struct.unpack('I', formula_stream.read(4))[0]
         for index in range(used_features_quantity):
-            self.bins.append(self.read_array(formula_stream, 'f', bins_quantities[index]))
+            n_bins_for_feature = int(bins_quantities[index])
+            self.bins.append(self.read_array(formula_stream, 'f', n_bins_for_feature))
 
         _ = formula_stream.read(4)  # skip classes_count == 0
 
