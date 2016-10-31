@@ -14,52 +14,43 @@ class MatrixNetApplier(object):
         self.features = []  # list of strings
         self.bins = []
 
-        bytes_array = formula_stream.read(4)
-        features_quantity = struct.unpack('i', bytes_array)[0]
+        features_quantity = struct.unpack('i', formula_stream.read(4))[0]
         for index in range(0, features_quantity):
-            bytes_array = formula_stream.read(4)
-            factor_length = struct.unpack('i', bytes_array)[0]
+            factor_length = struct.unpack('i', formula_stream.read(4))[0]
             self.features.append(formula_stream.read(factor_length))
 
         _ = formula_stream.read(4)  # skip formula length
         used_features_quantity = struct.unpack('I', formula_stream.read(4))[0]
-        bins_quantities = struct.unpack(
-                'I' * used_features_quantity,
-                formula_stream.read(4 * used_features_quantity)
-        )
+        bins_quantities = self.read_array(formula_stream, 'I', used_features_quantity)
 
         self.bins_total = struct.unpack('I', formula_stream.read(4))[0]
         for index in range(used_features_quantity):
-            self.bins.append(
-                    struct.unpack(
-                            'f' * bins_quantities[index],
-                            formula_stream.read(4 * bins_quantities[index])
-                    )
-            )
+            self.bins.append(self.read_array(formula_stream, 'f', bins_quantities[index]))
 
         _ = formula_stream.read(4)  # skip classes_count == 0
 
         nf_counts_len = struct.unpack('I', formula_stream.read(4))[0]
-        self.nf_counts = struct.unpack('I' * nf_counts_len,
-                                       formula_stream.read(4 * nf_counts_len)
-                                       )
+        self.nf_counts = self.read_array(formula_stream, 'I', nf_counts_len)
 
         ids_len = struct.unpack('I', formula_stream.read(4))[0]
-        self.feature_ids = struct.unpack(
-                'I' * ids_len,
-                formula_stream.read(4 * ids_len)
-        )
-        self.feature_ids = numpy.array(self.feature_ids)
+        self.feature_ids = self.read_array(formula_stream, 'I', ids_len)
 
         tree_table_len = struct.unpack('I', formula_stream.read(4))[0]
-        self.tree_table = struct.unpack(
-                'i' * tree_table_len,
-                formula_stream.read(4 * tree_table_len)
-        )
-        self.tree_table = numpy.array(self.tree_table)
+        self.tree_table = self.read_array(formula_stream, 'i', tree_table_len)
 
         self.bias = struct.unpack('d', formula_stream.read(8))[0]
         self.delta_mult = struct.unpack('d', formula_stream.read(8))[0]
+
+    @staticmethod
+    def read_array(stream, element_formatter, length):
+        elements_length = {'d': 8, 'i': 4, 'I': 4, 'f': 4}
+        array_format = '{}{}'.format(length, element_formatter)
+        array_size_in_bytes = elements_length[element_formatter] * length
+        # checking that sizes are matching
+        assert struct.calcsize(array_format) == array_size_in_bytes
+
+        result = struct.unpack(array_format, stream.read(array_size_in_bytes))
+        return numpy.array(result)
 
     def get_stats(self):
         """
@@ -174,7 +165,7 @@ class MatrixNetApplier(object):
         return result
 
     def compute_leaf_indices_separately(self, events):
-        """for each tree yields leaf_indices of events """
+        """ For each tree yields leaf_indices of events """
         # extending the data so the number of events is divisible by 8
         n_events = len(events)
         n_extended64 = (n_events + 7) // 8
