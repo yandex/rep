@@ -8,7 +8,8 @@ To get the access to MatrixNet, you'll need:
  * Login with your CERN-account
  * Click `Add token` at the left panel
  * Choose service `MatrixNet` and click `Create token`
- * Create `~/.rep-matrixnet.config.json` file with the following content (the path to config file can be changed in the constructor of the wrappers)::
+ * Create `~/.rep-matrixnet.config.json` file with the following content
+   (custom path to the config file can be specified when creating a wrapper object)::
 
         {
             "url": "https://ml.cern.yandex.net/v1",
@@ -17,32 +18,35 @@ To get the access to MatrixNet, you'll need:
         }
 
 """
+# TODO remove baseline support
+# TODO remove MN_options?
+# TODO remove multi-classification?
+# TODO (Alex) single code for predict and stage_predicts
 
 from __future__ import division, print_function, absolute_import
-from collections import defaultdict
+
+import contextlib
+import hashlib
 import json
 import numbers
-from logging import getLogger
-import hashlib
-import tempfile
-import time
 import os
 import shutil
-import contextlib
+import tempfile
+import time
 from abc import ABCMeta
+from collections import defaultdict
+from copy import deepcopy
+from logging import getLogger
 
-import pandas
 import numpy
+import pandas
 from six import StringIO
 from sklearn.utils import check_random_state
 
+from ._matrixnetapplier import MatrixNetApplier
+from ._mnkit import MatrixNetClient
 from .interface import Classifier, Regressor
 from .utils import check_inputs, score_to_proba, remove_first_line, _get_features
-
-from ._matrixnetapplier import MatrixNetApplier
-from copy import deepcopy
-
-from ._mnkit import MatrixNetClient
 
 __author__ = 'Tatiana Likhomanenko, Alex Rogozhnikov'
 __all__ = ['MatrixNetBase', 'MatrixNetClassifier', 'MatrixNetRegressor']
@@ -399,8 +403,6 @@ class MatrixNetClassifier(MatrixNetBase, Classifier):
     def _set_classes_special(self, y):
         indices = self._set_classes(y)
         assert self.n_classes_ == 2, "Support only 2 classes (data contain {})".format(self.n_classes_)
-        # if self.n_classes_ > 2:
-        #     self.classes_mn_ = self.classes_[numpy.argsort(indices)]
         self.classes_mn_ = self.classes_
 
     def fit(self, X, y, sample_weight=None):
@@ -427,6 +429,8 @@ class MatrixNetClassifier(MatrixNetBase, Classifier):
         self.synchronize()
 
         baseline, X = self._get_features(X)
+        if baseline is None:
+            baseline = 0.
 
         data = X.astype(float)
         data = pandas.DataFrame(data)
@@ -521,12 +525,11 @@ class MatrixNetRegressor(MatrixNetBase, Regressor):
         data = X.astype(float)
         data = pandas.DataFrame(data)
         mx = MatrixNetApplier(StringIO(self.formula_mx))
-        prediction = numpy.zeros(len(data))
+        prediction = numpy.zeros(len(data), dtype='float64')
+        if baseline is not None:
+            prediction += baseline
 
         for stage, prediction_iteration in enumerate(mx.apply_separately(data)):
             prediction += prediction_iteration
             if stage % step == 0 or stage == self.iterations:
-                if baseline is None:
-                    yield prediction
-                else:
-                    yield baseline + prediction
+                yield prediction
