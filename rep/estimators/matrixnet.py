@@ -40,7 +40,7 @@ from logging import getLogger
 
 import numpy
 import pandas
-from six import StringIO
+from six import BytesIO
 from sklearn.utils import check_random_state
 
 from ._matrixnetapplier import MatrixNetApplier
@@ -399,7 +399,7 @@ class MatrixNetClassifier(MatrixNetBase, Classifier):
         X = self._get_features(X)
         data = X.astype(float)
         data = pandas.DataFrame(data)
-        mx = MatrixNetApplier(StringIO(self.formula_mx))
+        mx = MatrixNetApplier(BytesIO(self.formula_mx))
 
         return score_to_proba(mx.apply(data))
 
@@ -420,7 +420,7 @@ class MatrixNetClassifier(MatrixNetBase, Classifier):
 
         data = X.astype(float)
         data = pandas.DataFrame(data)
-        mx = MatrixNetApplier(StringIO(self.formula_mx))
+        mx = MatrixNetApplier(BytesIO(self.formula_mx))
         prediction = numpy.zeros(len(data))
 
         for stage, prediction_iteration in enumerate(mx.apply_separately(data)):
@@ -468,7 +468,7 @@ class MatrixNetRegressor(MatrixNetBase, Regressor):
         X = self._get_features(X)
         data = X.astype(float)
         data = pandas.DataFrame(data)
-        mx = MatrixNetApplier(StringIO(self.formula_mx))
+        mx = MatrixNetApplier(BytesIO(self.formula_mx))
         return mx.apply(data)
 
     predict.__doc__ = Classifier.predict.__doc__
@@ -488,7 +488,7 @@ class MatrixNetRegressor(MatrixNetBase, Regressor):
 
         data = X.astype(float)
         data = pandas.DataFrame(data)
-        mx = MatrixNetApplier(StringIO(self.formula_mx))
+        mx = MatrixNetApplier(BytesIO(self.formula_mx))
         prediction = numpy.zeros(len(data), dtype='float64')
         for stage, prediction_iteration in enumerate(mx.apply_separately(data)):
             prediction += prediction_iteration
