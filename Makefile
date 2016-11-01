@@ -63,7 +63,7 @@ run-tests:  ## run tests inside a container, both notebooks and scripts. Noteboo
 	mkdir -p $(HERE)/_docker_tests/
 	cp -r $(HERE)/tests $(HERE)/_docker_tests/
 	cp -r $(HERE)/howto $(HERE)/_docker_tests/
-	docker run  --interactive --tty --rm --volume $(HERE)/_docker_tests:/notebooks $(REP_IMAGE_NAME) \
+	docker run  --interactive --tty --rm --volume $(HERE)/_docker_tests:/notebooks --name $(CONTAINER_NAME)  $(REP_IMAGE_NAME) \
 		/bin/bash -l -c "cd /notebooks/tests && nosetests -v --detailed-errors --nocapture . "
 
 restart:	## restart REP container
@@ -81,7 +81,7 @@ stop:       ## stop REP container
 remove: stop    ## remove REP container
 	docker rm $(CONTAINER_NAME)
 
-push: rep-image	# build REP image & push to docker hub
+push2: rep-image	# build REP image & push to docker hub
 	# next line is @echoed in order not to show credentials during publishing
 	@docker login -e="$(DOCKER_EMAIL)" -u="$(DOCKER_USERNAME)" -p="$(DOCKER_PASSWORD)"
 	docker push $(REP_IMAGE_NAME)
