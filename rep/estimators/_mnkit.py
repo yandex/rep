@@ -111,6 +111,11 @@ class Estimator(object):
     ):
         if requests_kwargs is None:
             requests_kwargs = {'headers': JSON_HEADER}
+
+        if not all([cl_type, parameters, description, bucket_id]):
+            raise Exception("Parameters `cl_type`, `parameters`, `description`, `bucket_id` should be set")
+
+            
         self.api_url = api_url
         self.all_cl_url = os.path.join(self.api_url, "classifiers")
         self.requests_kwargs = requests_kwargs
@@ -118,17 +123,11 @@ class Estimator(object):
         self._iterations = None
         self._debug = None
 
-        if cl_id:
-            self.cl_id = cl_id
-            self.cl_url = os.path.join(self.all_cl_url, self.cl_id)
-            self.load_from_api()
-        elif all([cl_type, parameters, description, bucket_id]):
-            self.cl_type = cl_type
-            self.parameters = parameters
-            self.description = description
-            self.bucket_id = bucket_id
-        else:
-            raise Exception("Neither cl_id nor estimator parameters are specified")
+        self.cl_type = cl_type
+        self.parameters = parameters
+        self.description = description
+        self.bucket_id = bucket_id
+
 
     def _update_with_dict(self, data):
         self.cl_id = data['classifier_id']
