@@ -155,15 +155,15 @@ class MatrixNetApplier(object):
                     leaf_indices |= (features[:, feature] > cut).view('uint64') << tree_level
                 yield leaf_values[leaf_indices.view('uint8')[:n_events]]
 
-    def apply(self, events):
+    def staged_apply(self, events):
         """
         :param events: numpy.array (or DataFrame) of shape [n_samples, n_features]
-        :return: prediction of shape [n_samples]
+        :return: yields sequence of predictions of shape [n_samples]
         """
-        result = numpy.zeros(len(events), dtype=float)
+        result = numpy.zeros(len(events), dtype='float64')
         for stage_predictions in self.apply_separately(events):
             result += stage_predictions
-        return result
+            yield result
 
     def compute_leaf_indices_separately(self, events):
         """ For each tree yields leaf_indices of events """

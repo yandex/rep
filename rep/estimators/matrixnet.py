@@ -18,10 +18,6 @@ To get the access to MatrixNet, you'll need:
         }
 
 """
-# TODO remove baseline support
-# TODO remove MN_options?
-# TODO remove multi-classification?
-# TODO (Alex) single code for predict and stage_predicts
 
 from __future__ import division, print_function, absolute_import
 
@@ -46,7 +42,8 @@ from sklearn.utils import check_random_state
 from ._matrixnetapplier import MatrixNetApplier
 from ._mnkit import MatrixNetClient
 from .interface import Classifier, Regressor
-from .utils import check_inputs, score_to_proba, remove_first_line, _get_features
+from .utils import check_inputs, score_to_proba, remove_first_line
+from ..utils import take_last
 
 __author__ = 'Tatiana Likhomanenko, Alex Rogozhnikov'
 __all__ = ['MatrixNetBase', 'MatrixNetClassifier', 'MatrixNetRegressor']
@@ -394,14 +391,7 @@ class MatrixNetClassifier(MatrixNetBase, Classifier):
     fit.__doc__ = Classifier.fit.__doc__
 
     def predict_proba(self, X):
-        self.synchronize()
-
-        X = self._get_features(X)
-        data = X.astype(float)
-        data = pandas.DataFrame(data)
-        mx = MatrixNetApplier(BytesIO(self.formula_mx))
-
-        return score_to_proba(mx.apply(data))
+        return take_last(self.staged_predict_proba(X, step=1000))
 
     predict_proba.__doc__ = Classifier.predict_proba.__doc__
 
@@ -421,10 +411,7 @@ class MatrixNetClassifier(MatrixNetBase, Classifier):
         data = X.astype(float)
         data = pandas.DataFrame(data)
         mx = MatrixNetApplier(BytesIO(self.formula_mx))
-        prediction = numpy.zeros(len(data))
-
-        for stage, prediction_iteration in enumerate(mx.apply_separately(data)):
-            prediction += prediction_iteration
+        for stage, prediction in enumerate(mx.staged_apply(data)):
             if stage % step == 0 or stage == self.iterations:
                 yield score_to_proba(prediction)
 
@@ -463,13 +450,7 @@ class MatrixNetRegressor(MatrixNetBase, Regressor):
     fit.__doc__ = Classifier.fit.__doc__
 
     def predict(self, X):
-        self.synchronize()
-
-        X = self._get_features(X)
-        data = X.astype(float)
-        data = pandas.DataFrame(data)
-        mx = MatrixNetApplier(BytesIO(self.formula_mx))
-        return mx.apply(data)
+        return take_last(self.staged_predict(X, step=1000))
 
     predict.__doc__ = Classifier.predict.__doc__
 
@@ -489,8 +470,6 @@ class MatrixNetRegressor(MatrixNetBase, Regressor):
         data = X.astype(float)
         data = pandas.DataFrame(data)
         mx = MatrixNetApplier(BytesIO(self.formula_mx))
-        prediction = numpy.zeros(len(data), dtype='float64')
-        for stage, prediction_iteration in enumerate(mx.apply_separately(data)):
-            prediction += prediction_iteration
+        for stage, prediction in enumerate(mx.staged_apply(data)):
             if stage % step == 0 or stage == self.iterations:
                 yield prediction
