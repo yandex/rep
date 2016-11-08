@@ -65,6 +65,8 @@ script:
   # setting flag: don't proceed if one of commands fails.
   - set -e
   - mkdir -p ./.cache/rep
+  # testing matrixnet
+  - nosetests -v --detailed-errors --nocapture ./tests/m_test_*;
   # testing all but notebooks
   - nosetests -v --detailed-errors --nocapture ./tests/test_*;
   # testing only notebooks
