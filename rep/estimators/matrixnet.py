@@ -3,9 +3,8 @@
 developed at Yandex. Think about this as a specific Boosted Decision Tree algorithm which is available as a service.
 At this moment MatrixMet is available only for **CERN users**.
 
-To get the access to MatrixNet, you'll need:
- * Go to https://yandex-apps.cern.ch/
- * Login with your CERN-account
+To use MatrixNet, first acquire token::
+ * Go to https://yandex-apps.cern.ch/ (ogin with your CERN-account)
  * Click `Add token` at the left panel
  * Choose service `MatrixNet` and click `Create token`
  * Create `~/.rep-matrixnet.config.json` file with the following content
@@ -204,11 +203,11 @@ class MatrixNetBase(object):
                      '-S {training_fraction}'
 
         mn_options = mn_options.format(
-                iterations=int(self.iterations),
-                regularization=float(self.regularization),
-                max_features_per_iteration=int(self.max_features_per_iteration),
-                training_fraction=self.training_fraction,
-                features_sample_rate_per_iteration=self.features_sample_rate_per_iteration)
+            iterations=int(self.iterations),
+            regularization=float(self.regularization),
+            max_features_per_iteration=int(self.max_features_per_iteration),
+            training_fraction=self.training_fraction,
+            features_sample_rate_per_iteration=self.features_sample_rate_per_iteration)
 
         if seed is not None:
             mn_options = "{params} -r {seed}".format(params=mn_options, seed=seed)
@@ -246,9 +245,9 @@ class MatrixNetBase(object):
         }
         self._configure_api(self.api_config_file)
         self.mn_cls = self._api.classifier(
-                parameters=descriptor,
-                description="REP-submitted classifier",
-                bucket_id=mn_bucket.bucket_id,
+            parameters=descriptor,
+            description="REP-submitted classifier",
+            bucket_id=mn_bucket.bucket_id,
         )
         self.mn_cls.upload()
 
@@ -263,7 +262,7 @@ class MatrixNetBase(object):
         self._configure_api(self.api_config_file)
         assert self._fit_status and self.mn_cls is not None, 'Call fit before'
         assert self.mn_cls.get_status() != 'failed', 'Estimator is failed, run resubmit function, job id {}'.format(
-                self.mn_cls.cl_id)
+            self.mn_cls.cl_id)
 
         if self.mn_cls.get_status() == 'completed':
             self._download_formula()
@@ -331,7 +330,6 @@ class MatrixNetBase(object):
         """
         return numpy.array(self.get_feature_importances()['effect'].ix[self.features])
 
-    @property
     def get_iterations(self):
         """
         Return number of already constructed trees during training
@@ -391,7 +389,7 @@ class MatrixNetClassifier(MatrixNetBase, Classifier):
     fit.__doc__ = Classifier.fit.__doc__
 
     def predict_proba(self, X):
-        return take_last(self.staged_predict_proba(X, step=1000))
+        return take_last(self.staged_predict_proba(X, step=100000))
 
     predict_proba.__doc__ = Classifier.predict_proba.__doc__
 
@@ -412,8 +410,10 @@ class MatrixNetClassifier(MatrixNetBase, Classifier):
         data = pandas.DataFrame(data)
         mx = MatrixNetApplier(BytesIO(self.formula_mx))
         for stage, prediction in enumerate(mx.staged_apply(data)):
-            if stage % step == 0 or stage == self.iterations:
+            if stage % step == 0:
                 yield score_to_proba(prediction)
+        if stage % step != 0:
+            yield score_to_proba(prediction)
 
 
 class MatrixNetRegressor(MatrixNetBase, Regressor):
@@ -450,7 +450,7 @@ class MatrixNetRegressor(MatrixNetBase, Regressor):
     fit.__doc__ = Classifier.fit.__doc__
 
     def predict(self, X):
-        return take_last(self.staged_predict(X, step=1000))
+        return take_last(self.staged_predict(X, step=100000))
 
     predict.__doc__ = Classifier.predict.__doc__
 
@@ -471,5 +471,7 @@ class MatrixNetRegressor(MatrixNetBase, Regressor):
         data = pandas.DataFrame(data)
         mx = MatrixNetApplier(BytesIO(self.formula_mx))
         for stage, prediction in enumerate(mx.staged_apply(data)):
-            if stage % step == 0 or stage == self.iterations:
+            if stage % step == 0:
                 yield prediction
+        if stage % step != 0:
+            yield prediction
