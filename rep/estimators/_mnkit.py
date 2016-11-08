@@ -50,7 +50,7 @@ class MatrixNetClient(object):
         return Bucket(self.api_url, requests_kwargs=self.bucket_kwargs, **kwargs)
 
     def classifier(self, **kwargs):
-        return Estimator(self.api_url, requests_kwargs=self.cls_kwargs, **kwargs)
+        return Estimator(api_url=self.api_url, classifier_type='mn', requests_kwargs=self.cls_kwargs, **kwargs)
 
 
 class Bucket(object):

@@ -208,7 +208,7 @@ class MatrixNetBase(object):
 
         mn_options = mn_options.format(
                 iterations=int(self.iterations),
-                regularization=self.regularization,
+                regularization=float(self.regularization),
                 max_features_per_iteration=int(self.max_features_per_iteration),
                 training_fraction=self.training_fraction,
                 features_sample_rate_per_iteration=self.features_sample_rate_per_iteration)

@@ -45,8 +45,8 @@ class MatrixNetApplier(object):
     @staticmethod
     def read_array(stream, element_formatter, length):
         elements_length = {'d': 8, 'i': 4, 'I': 4, 'f': 4}
-        array_format = '{}{}'.format(length, element_formatter)
         array_size_in_bytes = elements_length[element_formatter] * length
+        array_format = '{}{}'.format(length, element_formatter)
         # checking that sizes are matching
         assert struct.calcsize(array_format) == array_size_in_bytes
 
