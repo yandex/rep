@@ -73,7 +73,7 @@ script:
     fi
   # if on master and tests passed successfully, trigger rebuilding of docker image.
   - if [[ "$TRAVIS_BRANCH" = "master" && "$TRAVIS_OS_NAME" != "osx" && "$REP_PYTHON_VERSION" = "2" ]] ; then make push-latest2 ; fi
-  # reseting flag
+  # resetting flag
   - set +e
 notifications:
   email: true

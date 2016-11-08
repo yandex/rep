@@ -105,15 +105,21 @@ class Bucket(object):
 
 class Estimator(object):
     def __init__(
-            self, api_url,
-            cl_type="mn", parameters=None, description=None, bucket_id=None,
+            self,
+            api_url,
+            classifier_type, parameters, description, bucket_id,
             requests_kwargs=None
     ):
+        """
+        :param api_url: URL of server API
+        :param classifier_type: string, for instance, 'mn'
+        :param parameters: parameters of a classifier
+        :param description: description of model
+        :param bucket_id: associated bucked_id
+        :param requests_kwargs: kwargs passed to request
+        """
         if requests_kwargs is None:
             requests_kwargs = {'headers': JSON_HEADER}
-
-        if not all([cl_type, parameters, description, bucket_id]):
-            raise Exception("Parameters `cl_type`, `parameters`, `description`, `bucket_id` should be set")
 
         self.api_url = api_url
         self.all_cl_url = os.path.join(self.api_url, "classifiers")
@@ -122,34 +128,37 @@ class Estimator(object):
         self._iterations = None
         self._debug = None
 
-        self.cl_type = cl_type
+        self.classifier_type = classifier_type
         self.parameters = parameters
         self.description = description
         self.bucket_id = bucket_id
 
     def _update_with_dict(self, data):
-        self.cl_id = data['classifier_id']
-        self.cl_url = os.path.join(self.all_cl_url, self.cl_id)
-
+        self.classifier_id = data['classifier_id']
         self.bucket_id = data['bucket_id']
         self.description = data['description']
         self.parameters = data['parameters']
-        self.cl_type = data['type']
+        self.classifier_type = data['type']
 
     def _update_iteration_and_debug(self):
-        response = mn_get(os.path.join(self.cl_url, 'iterations'), **self.requests_kwargs)
+        response = mn_get(self._get_classifier_url_for('iterations'), **self.requests_kwargs)
         self._iterations = response.get('iterations')
         self._debug = response.get('debug')
 
+    def _get_classifier_url(self):
+        return os.path.join(self.all_cl_url, self.classifier_id)
+
+    def _get_classifier_url_for(self, action):
+        return os.path.join(self._get_classifier_url(), action)
+
     def load_from_api(self):
-        self.cl_url = os.path.join(self.all_cl_url, self.cl_id)
-        data = mn_get(self.cl_url, **self.requests_kwargs)
+        data = mn_get(self._get_classifier_url(), **self.requests_kwargs)
         self._update_with_dict(data)
 
     def upload(self):
         payload = {
             'description': self.description,
-            'type': self.cl_type,
+            'type': self.classifier_type,
             'parameters': self.parameters,
             'bucket_id': self.bucket_id
         }
@@ -164,12 +173,12 @@ class Estimator(object):
         return True
 
     def get_status(self):
-        self.status = mn_get(os.path.join(self.cl_url, 'status'), **self.requests_kwargs)['status']
+        self.status = mn_get(self._get_classifier_url_for('status'), **self.requests_kwargs)['status']
         return self.status
 
     def resubmit(self):
         self._iterations = None
-        return mn_post(os.path.join(self.cl_url, 'resubmit'), **self.requests_kwargs)['resubmit']
+        return mn_post(self._get_classifier_url_for('resubmit'), **self.requests_kwargs)['resubmit']
 
     def get_iterations(self):
         self._update_iteration_and_debug()
@@ -180,7 +189,7 @@ class Estimator(object):
         return self._debug
 
     def save_formula(self, path):
-        response = requests.get(os.path.join(self.cl_url, 'formula'), stream=True, **self.requests_kwargs)
+        response = requests.get(self._get_classifier_url_for('formula'), stream=True, **self.requests_kwargs)
         if not response.ok:
             raise ServerError('Error during formula downloading, {}'.format(response))
 
@@ -188,7 +197,7 @@ class Estimator(object):
             shutil.copyfileobj(response.raw, f)
 
     def save_stats(self, path):
-        response = requests.get(os.path.join(self.cl_url, 'stats'), stream=True, **self.requests_kwargs)
+        response = requests.get(self._get_classifier_url_for('stats'), stream=True, **self.requests_kwargs)
         if not response.ok:
             raise ServerError('Error during feature importances downloading, {}'.format(response))
 
