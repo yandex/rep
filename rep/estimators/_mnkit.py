@@ -57,6 +57,7 @@ class Bucket(object):
     """
     Bucket is a proxy for a dataset placed on the server.
     """
+
     def __init__(self, api_url, bucket_id=None, requests_kwargs=None):
         if requests_kwargs is None:
             requests_kwargs = {}
@@ -105,7 +106,6 @@ class Bucket(object):
 class Estimator(object):
     def __init__(
             self, api_url,
-            cl_id=None,
             cl_type="mn", parameters=None, description=None, bucket_id=None,
             requests_kwargs=None
     ):
@@ -115,7 +115,6 @@ class Estimator(object):
         if not all([cl_type, parameters, description, bucket_id]):
             raise Exception("Parameters `cl_type`, `parameters`, `description`, `bucket_id` should be set")
 
-            
         self.api_url = api_url
         self.all_cl_url = os.path.join(self.api_url, "classifiers")
         self.requests_kwargs = requests_kwargs
@@ -127,7 +126,6 @@ class Estimator(object):
         self.parameters = parameters
         self.description = description
         self.bucket_id = bucket_id
-
 
     def _update_with_dict(self, data):
         self.cl_id = data['classifier_id']
