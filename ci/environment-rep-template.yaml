@@ -4,24 +4,24 @@ channels:
 dependencies:
   - python={PYTHON_VERSION}
   - nomkl
-  - matplotlib=1.5.3
+  - matplotlib=1.5.1
   - numpy=1.10.4
-  - scipy=0.18.1
-  - pandas=0.19.1
-  - scikit-learn=0.18
+  - scipy=0.17.0
+  - pandas=0.17.1
+  - scikit-learn=0.17.1
   - six=1.10.0
   - root_numpy
   - rootpy
   - root=5*
   - pip:
-    - ipykernel==4.5.0
-    - notebook==4.2.3
-    - bokeh==0.12.3
+    - ipykernel==4.3.1
+    - notebook==4.2.1
+    - bokeh==0.11.1
     - neurolab==0.3.5
     - theano==0.8.2
     - theanets==0.7.3
     - pybrain==0.3
     - mpld3==0.2
     - hep_ml==0.4
-    - xgboost==0.6a2
-    - requests==2.11.1
+    - xgboost==0.4a30
+    - requests==2.9.1
