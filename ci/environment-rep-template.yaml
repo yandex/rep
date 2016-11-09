@@ -7,7 +7,7 @@ dependencies:
   - matplotlib=1.5.1
   - numpy=1.10.4
   - scipy=0.17.1
-  - pandas=0.19.1
+  - pandas=0.18.1
   - scikit-learn=0.18
   - six=1.10.0
   - root_numpy
