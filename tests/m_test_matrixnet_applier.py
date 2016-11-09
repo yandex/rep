@@ -81,16 +81,17 @@ def check_staged_predictions(mx_filename, test_filename, n_iterations, stage_pre
 
 # How the file was obtained
 # def write_staged_predictions(mx_filename, test_filename):
-# mx_content, test_file = read_files(mx_filename, test_filename)
-# # testing on first 100 events
-# test_file = test_file[:100]
+#   mx_content, test_file = read_files(mx_filename, test_filename)
+#   # testing on first 100 events
+#   test_file = test_file[:100]
 #
-# predictions = numpy.zeros([100, 100], dtype=float)
+#   predictions = numpy.zeros([100, 100], dtype=float)
 #
 # for i, x in enumerate(stage_cython_predict(mx_content, test_file)):
-# if i == 100:
-# break
+#   if i == 100:
+#       break
 #   predictions[i, :] = x
+#
 # pandas.DataFrame(predictions).to_csv('data/predictions.csv', index=False)
 
 

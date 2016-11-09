@@ -1,8 +1,8 @@
 from __future__ import division, print_function, absolute_import
 
+import numpy
 from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier, RandomForestRegressor
 from sklearn.metrics import accuracy_score, roc_auc_score, mean_squared_error
-import numpy
 from six.moves import cPickle
 
 from rep.estimators import SklearnClassifier, SklearnRegressor
@@ -96,7 +96,7 @@ def check_report_with_mask(report, mask, X):
 
 def test_own_classification_reports():
     """
-    testing clf.test_on
+    testing classifier.test_on
     """
     X, y, sample_weight = generate_classification_data()
     clf = SklearnClassifier(RandomForestClassifier())
