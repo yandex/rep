@@ -86,7 +86,6 @@ class MatrixNetBase(object):
     :param float training_fraction: training rows bagging (default=0.5)
     :param auto_stop: error value for training prestopping
     :type auto_stop: None or float
-    :param str command_line_params: command line additional parameters for MatrixNet.
     :param bool sync: synchronic or asynchronic training on the server
     :param random_state: state for a pseudo random generator
     :type random_state: None or int or RandomState
@@ -97,8 +96,7 @@ class MatrixNetBase(object):
     def __init__(self, api_config_file=DEFAULT_CONFIG_PATH,
                  iterations=100, regularization=0.01, intervals=8,
                  max_features_per_iteration=6, features_sample_rate_per_iteration=1.0,
-                 training_fraction=0.5, auto_stop=None, command_line_params=None, sync=True,
-                 random_state=42):
+                 training_fraction=0.5, auto_stop=None, sync=True, random_state=42):
 
         self.api_config_file = api_config_file
         self.iterations = iterations
@@ -108,10 +106,8 @@ class MatrixNetBase(object):
         self.max_features_per_iteration = max_features_per_iteration
         self.features_sample_rate_per_iteration = features_sample_rate_per_iteration
         self.training_fraction = training_fraction
-        self.command_line_params = command_line_params
         self.sync = sync
         self.random_state = random_state
-        self._train_type_options = ""
         self._initialisation_before_fit()
 
     def _initialisation_before_fit(self):
@@ -198,21 +194,20 @@ class MatrixNetBase(object):
         else:
             seed = check_random_state(self.random_state).randint(0, 10000)
 
-        mn_options = '-i {iterations} -w {regularization} ' \
-                     '-W -n {max_features_per_iteration} -Z {features_sample_rate_per_iteration} ' \
-                     '-S {training_fraction}'
-
-        mn_options = mn_options.format(
-            iterations=int(self.iterations),
-            regularization=float(self.regularization),
-            max_features_per_iteration=int(self.max_features_per_iteration),
-            training_fraction=self.training_fraction,
-            features_sample_rate_per_iteration=self.features_sample_rate_per_iteration)
+        mn_options = {'iterations': int(self.iterations),
+                      'regularization': float(self.regularization),
+                      'max_features_per_iteration': int(self.max_features_per_iteration),
+                      'features_sample_rate_per_iteration': float(self.features_sample_rate_per_iteration),
+                      'training_fraction': float(self.training_fraction),
+                      'seed': None,
+                      'intervals': None,
+                      'auto_stop': None,
+                      'train_type': self._model_type}
 
         if seed is not None:
-            mn_options = "{params} -r {seed}".format(params=mn_options, seed=seed)
+            mn_options['seed'] = int(seed)
         if isinstance(self.intervals, numbers.Number):
-            mn_options = "{params} -x {intervals}".format(params=mn_options, intervals=self.intervals)
+            mn_options['intervals'] = int(self.intervals)
         else:
             assert set(self.intervals.keys()) == set(features), 'intervals must contains borders for all features'
             with make_temp_directory() as temp_dir:
@@ -226,16 +221,10 @@ class MatrixNetBase(object):
                 if borders_name not in set(mn_bucket.ls()):
                     mn_bucket.upload(borders_name)
 
-            mn_options = "{params} -B {name}".format(params=mn_options, name='borders' + suffix)
+            mn_options['intervals'] = 'borders' + suffix
 
         if self.auto_stop is not None:
-            mn_options = "{params} {auto_stop}".format(params=mn_options,
-                                                       auto_stop='--auto-stop %f' % self.auto_stop)
-
-        if self.command_line_params is not None:
-            mn_options = "{params} {cmd_line}".format(params=mn_options, cmd_line=self.command_line_params)
-        if self._train_type_options is not None:
-            mn_options = "{params} {type}".format(params=mn_options, type=self._train_type_options)
+            mn_options['auto_stop'] = float(self.auto_stop)
 
         descriptor = {
             'mn_parameters': mn_options,
@@ -261,8 +250,9 @@ class MatrixNetBase(object):
         """
         self._configure_api(self.api_config_file)
         assert self._fit_status and self.mn_cls is not None, 'Call fit before'
+        print(self.mn_cls)
         assert self.mn_cls.get_status() != 'failed', 'Estimator is failed, run resubmit function, job id {}'.format(
-            self.mn_cls.cl_id)
+            self.mn_cls.classifier_id)
 
         if self.mn_cls.get_status() == 'completed':
             self._download_formula()
@@ -357,16 +347,15 @@ class MatrixNetClassifier(MatrixNetBase, Classifier):
     def __init__(self, features=None, api_config_file=DEFAULT_CONFIG_PATH,
                  iterations=100, regularization=0.01, intervals=8,
                  max_features_per_iteration=6, features_sample_rate_per_iteration=1.0,
-                 training_fraction=0.5, auto_stop=None, command_line_params=None, sync=True,
-                 random_state=42):
+                 training_fraction=0.5, auto_stop=None, sync=True, random_state=42):
         MatrixNetBase.__init__(self, api_config_file=api_config_file,
                                iterations=iterations, regularization=regularization, intervals=intervals,
                                max_features_per_iteration=max_features_per_iteration,
                                features_sample_rate_per_iteration=features_sample_rate_per_iteration,
                                training_fraction=training_fraction, auto_stop=auto_stop,
-                               command_line_params=command_line_params, sync=sync,
-                               random_state=random_state)
+                               sync=sync, random_state=random_state)
         Classifier.__init__(self, features=features)
+        self._model_type = 'classification'
 
     def _set_classes_special(self, y):
         self._set_classes(y)
@@ -377,7 +366,6 @@ class MatrixNetClassifier(MatrixNetBase, Classifier):
         X, y, sample_weight = check_inputs(X, y, sample_weight=sample_weight, allow_none_weights=False)
 
         self._set_classes_special(y)
-        self._train_type_options = '-c --c-fast'
         X = self._get_features(X)
         mn_bucket = self._upload_training_to_bucket(X, y, sample_weight)
         self._train_formula(mn_bucket, list(X.columns))
@@ -418,28 +406,25 @@ class MatrixNetClassifier(MatrixNetBase, Classifier):
 
 class MatrixNetRegressor(MatrixNetBase, Regressor):
     __doc__ = 'MatrixNet for regression model. \n' + remove_first_line(MatrixNetBase.__doc__)
-    _model_type = 'regression'
 
     def __init__(self, features=None, api_config_file=DEFAULT_CONFIG_PATH,
                  iterations=100, regularization=0.01, intervals=8,
                  max_features_per_iteration=6, features_sample_rate_per_iteration=1.0,
-                 training_fraction=0.5, auto_stop=None, command_line_params=None, sync=True,
-                 random_state=42):
+                 training_fraction=0.5, auto_stop=None, sync=True, random_state=42):
         MatrixNetBase.__init__(self, api_config_file=api_config_file,
                                iterations=iterations, regularization=regularization, intervals=intervals,
                                max_features_per_iteration=max_features_per_iteration,
                                features_sample_rate_per_iteration=features_sample_rate_per_iteration,
-                               training_fraction=training_fraction, auto_stop=auto_stop,
-                               command_line_params=command_line_params, sync=sync,
+                               training_fraction=training_fraction, auto_stop=auto_stop, sync=sync,
                                random_state=random_state)
         Regressor.__init__(self, features=features)
+        self._model_type = 'regression'
 
     def fit(self, X, y, sample_weight=None):
         self._initialisation_before_fit()
         X, y, sample_weight = check_inputs(X, y, sample_weight=sample_weight, allow_none_weights=False)
 
         X = self._get_features(X)
-        self._train_type_options = '--quad-fast'
         mn_bucket = self._upload_training_to_bucket(X, y, sample_weight)
         self._train_formula(mn_bucket, list(X.columns))
 

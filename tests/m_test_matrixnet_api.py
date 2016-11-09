@@ -159,7 +159,15 @@ class TestBuckets(MatrixNetTest):
 # test Classifier
 
 TEST_PARAMS = {
-    'mn_parameters': '-i 10 -w 0.01 -x 8 -C 0.5 -W',
+    'mn_parameters': {'iterations': 10,
+                      'regularization': 0.01,
+                      'max_features_per_iteration': 6,
+                      'features_sample_rate_per_iteration': 0.5,
+                      'training_fraction': 0.5,
+                      'seed': None,
+                      'intervals': 8,
+                      'auto_stop': None,
+                      'train_type': 'classification'},
     'fields': [
         'FlightDistance',
         'FlightDistanceError',
