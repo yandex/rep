@@ -64,7 +64,7 @@ run-tests:  ## run tests inside a container, both notebooks and scripts. Noteboo
 	cp -r $(HERE)/tests $(HERE)/_docker_tests/
 	cp -r $(HERE)/howto $(HERE)/_docker_tests/
 	docker run  --interactive --tty --rm --volume $(HERE)/_docker_tests:/notebooks $(REP_IMAGE_NAME) \
-		/bin/bash -l -c "cd /notebooks && nosetests -v --detailed-errors --nocapture tests/[^m]* "
+		/bin/bash -l -c "cd /notebooks && nosetests -v --detailed-errors --nocapture tests/test_* "
 
 restart:	## restart REP container
 	docker restart $(CONTAINER_NAME)
