@@ -9,7 +9,7 @@ dependencies:
   - numpy=1.10.4
   - scipy=0.17.0
   - pandas=0.17.1
-  - scikit-learn=0.17.1
+  - scikit-learn=0.18
   - six=1.10.0
   - root_numpy
   - rootpy
