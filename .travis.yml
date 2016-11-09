@@ -44,7 +44,7 @@ before_install:
       echo 'TRY IMPORT ROOT';
       python -c 'import ROOT';
       pip install pip -U;
-      brew install gcc5 --without-multilib;
+      brew install llvm;
       pip install -r requirements.txt;
       pip install rootpy root_numpy;
       python -c 'import root_numpy';
