@@ -50,12 +50,9 @@ before_install:
       mkdir -p $HOME/.matplotlib;
       echo 'backend:TkAgg' > $HOME/.matplotlib/matplotlibrc;
     else
-      # TODO DELETE
       pip install numpy;
       pip install scipy;
       pip install rep;
-      # source ci/install_rep_environment.sh $REP_PYTHON_VERSION;
-      # conda list;
     fi
   # printing DEBUG information
   - which python
