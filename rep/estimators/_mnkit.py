@@ -1,3 +1,5 @@
+from __future__ import print_function, division, absolute_import
+
 import os
 import shutil
 import requests
@@ -48,10 +50,14 @@ class MatrixNetClient(object):
         return Bucket(self.api_url, requests_kwargs=self.bucket_kwargs, **kwargs)
 
     def classifier(self, **kwargs):
-        return Estimator(self.api_url, requests_kwargs=self.cls_kwargs, **kwargs)
+        return Estimator(api_url=self.api_url, classifier_type='mn', requests_kwargs=self.cls_kwargs, **kwargs)
 
 
 class Bucket(object):
+    """
+    Bucket is a proxy for a dataset placed on the server.
+    """
+
     def __init__(self, api_url, bucket_id=None, requests_kwargs=None):
         if requests_kwargs is None:
             requests_kwargs = {}
@@ -66,17 +72,17 @@ class Bucket(object):
             # Check if exists, create if does not.
             exists_resp = requests.get(self.bucket_url, **self.requests_kwargs)
             if exists_resp.status_code == 404:
-                create_resp = mn_put(
-                        self.all_buckets_url,
-                        data={"bucket_id": self.bucket_id},
-                        **self.requests_kwargs
+                _ = mn_put(
+                    self.all_buckets_url,
+                    data={"bucket_id": self.bucket_id},
+                    **self.requests_kwargs
                 )
             else:
                 exists_resp.raise_for_status()
 
         else:
-            ret = mn_put(self.all_buckets_url, **self.requests_kwargs)
-            self.bucket_id = ret['bucket_id']
+            response = mn_put(self.all_buckets_url, **self.requests_kwargs)
+            self.bucket_id = response['bucket_id']
             self.bucket_url = os.path.join(self.all_buckets_url, self.bucket_id)
 
     def ls(self):
@@ -85,13 +91,13 @@ class Bucket(object):
     def remove(self):
         return mn_delete(self.bucket_url, **self.requests_kwargs)
 
-    def upload(self, filepath):
-        files = {'file': open(filepath, 'rb')}
+    def upload(self, local_filepath):
+        files = {'file': open(local_filepath, 'rb')}
 
         result = mn_put(
-                self.bucket_url,
-                files=files,
-                **self.requests_kwargs
+            self.bucket_url,
+            files=files,
+            **self.requests_kwargs
         )
 
         return result['uploaded'] == 'ok'
@@ -99,11 +105,22 @@ class Bucket(object):
 
 class Estimator(object):
     def __init__(
-            self, api_url,
-            cl_id=None,
-            cl_type="mn", parameters=None, description=None, bucket_id=None,
-            requests_kwargs={'headers': JSON_HEADER}
+            self,
+            api_url,
+            classifier_type, parameters, description, bucket_id,
+            requests_kwargs=None
     ):
+        """
+        :param api_url: URL of server API
+        :param classifier_type: string, for instance, 'mn'
+        :param parameters: parameters of a classifier
+        :param description: description of model
+        :param bucket_id: associated bucked_id
+        :param requests_kwargs: kwargs passed to request
+        """
+        if requests_kwargs is None:
+            requests_kwargs = {'headers': JSON_HEADER}
+
         self.api_url = api_url
         self.all_cl_url = os.path.join(self.api_url, "classifiers")
         self.requests_kwargs = requests_kwargs
@@ -111,62 +128,57 @@ class Estimator(object):
         self._iterations = None
         self._debug = None
 
-        if cl_id:
-            self.cl_id = cl_id
-            self.cl_url = os.path.join(self.all_cl_url, self.cl_id)
-            self.load_from_api()
-        elif all((cl_type, parameters, description, bucket_id)):
-            self.description = description
-            self.parameters = parameters
-            self.cl_type = cl_type
-            self.bucket_id = bucket_id
-
-        else:
-            raise Exception("Neither cl_id nor estimator parameters are sepcified")
+        self.classifier_type = classifier_type
+        self.parameters = parameters
+        self.description = description
+        self.bucket_id = bucket_id
 
     def _update_with_dict(self, data):
-        self.cl_id = data['classifier_id']
-        self.cl_url = os.path.join(self.all_cl_url, self.cl_id)
-
+        self.classifier_id = data['classifier_id']
         self.bucket_id = data['bucket_id']
         self.description = data['description']
         self.parameters = data['parameters']
-        self.cl_type = data['type']
+        self.classifier_type = data['type']
 
     def _update_iteration_and_debug(self):
-        ret = mn_get(os.path.join(self.cl_url, 'iterations'), **self.requests_kwargs)
-        self._iterations = ret.get('iterations')
-        self._debug = ret.get('debug')
+        response = mn_get(self._get_classifier_url_for('iterations'), **self.requests_kwargs)
+        self._iterations = response.get('iterations')
+        self._debug = response.get('debug')
+
+    def _get_classifier_url(self):
+        return os.path.join(self.all_cl_url, self.classifier_id)
+
+    def _get_classifier_url_for(self, action):
+        return os.path.join(self._get_classifier_url(), action)
 
     def load_from_api(self):
-        self.cl_url = os.path.join(self.all_cl_url, self.cl_id)
-        data = mn_get(self.cl_url, **self.requests_kwargs)
+        data = mn_get(self._get_classifier_url(), **self.requests_kwargs)
         self._update_with_dict(data)
 
     def upload(self):
         payload = {
             'description': self.description,
-            'type': self.cl_type,
+            'type': self.classifier_type,
             'parameters': self.parameters,
             'bucket_id': self.bucket_id
         }
 
         data = mn_put(
-                self.all_cl_url,
-                json=payload,
-                **self.requests_kwargs
+            self.all_cl_url,
+            json=payload,
+            **self.requests_kwargs
         )
         self._update_with_dict(data)
 
         return True
 
     def get_status(self):
-        self.status = mn_get(os.path.join(self.cl_url, 'status'), **self.requests_kwargs)['status']
+        self.status = mn_get(self._get_classifier_url_for('status'), **self.requests_kwargs)['status']
         return self.status
 
     def resubmit(self):
         self._iterations = None
-        return mn_post(os.path.join(self.cl_url, 'resubmit'), **self.requests_kwargs)['resubmit']
+        return mn_post(self._get_classifier_url_for('resubmit'), **self.requests_kwargs)['resubmit']
 
     def get_iterations(self):
         self._update_iteration_and_debug()
@@ -177,15 +189,17 @@ class Estimator(object):
         return self._debug
 
     def save_formula(self, path):
-        r = requests.get(os.path.join(self.cl_url, 'formula'), stream=True, **self.requests_kwargs)
+        response = requests.get(self._get_classifier_url_for('formula'), stream=True, **self.requests_kwargs)
+        if not response.ok:
+            raise ServerError('Error during formula downloading, {}'.format(response))
 
-        assert r.ok, 'Error during formula dowloading, {}'.format(r)
         with open(path, 'wb') as f:
-            shutil.copyfileobj(r.raw, f)
+            shutil.copyfileobj(response.raw, f)
 
     def save_stats(self, path):
-        r = requests.get(os.path.join(self.cl_url, 'stats'), stream=True, **self.requests_kwargs)
+        response = requests.get(self._get_classifier_url_for('stats'), stream=True, **self.requests_kwargs)
+        if not response.ok:
+            raise ServerError('Error during feature importances downloading, {}'.format(response))
 
-        assert r.ok, 'Error during feature importances dowloading, {}'.format(r)
         with open(path, 'wb') as f:
-            shutil.copyfileobj(r.raw, f)
+            shutil.copyfileobj(response.raw, f)

@@ -19,11 +19,13 @@ test:
     # running docker in background
     - mkdir -p /home/ubuntu/rep/notebooks
     - make -e NOTEBOOKS=/home/ubuntu/rep/notebooks run-daemon; sleep 20
+    - docker ps
     - REP_IMAGE_NAME=`make print_name`
     - echo $REP_IMAGE_NAME
     - echo "{\"url\":\"$MN_URL\",\"token\":\"$MN_TOKEN\"}" > .rep-matrixnet.config.json
     # TODO use $HOME
     - docker cp .rep-matrixnet.config.json `make print_name`:/root/.rep-matrixnet.config.json
+    - docker ps
     # looking at the contents of folder
     - ls -la /home/ubuntu/rep/notebooks
     - make show-logs

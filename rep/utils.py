@@ -485,3 +485,16 @@ class Stopwatch(object):
             message = "\nError {error} of type {error_type} was raised"
             result += message.format(error=repr(self.err_value), error_type=self.err_type)
         return result
+
+
+def take_last(sequence):
+    """
+    Returns the last element in sequence or raises an error
+    """
+    empty = True
+    for element in sequence:
+        empty = False
+    if empty:
+        raise IndexError('The sequence is empty.')
+    else:
+        return element
