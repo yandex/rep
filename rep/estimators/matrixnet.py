@@ -4,7 +4,7 @@ developed at Yandex. Think about this as a specific Boosted Decision Tree algori
 At this moment MatrixMet is available only for **CERN users**.
 
 To use MatrixNet, first acquire token::
- * Go to https://yandex-apps.cern.ch/ (ogin with your CERN-account)
+ * Go to https://yandex-apps.cern.ch/ (login with your CERN-account)
  * Click `Add token` at the left panel
  * Choose service `MatrixNet` and click `Create token`
  * Create `~/.rep-matrixnet.config.json` file with the following content
@@ -68,25 +68,23 @@ class MatrixNetBase(object):
     which is available for CERN people using authorization.
     Trained estimator is downloaded and stored at your computer, so you can use it at any time.
 
-    :param train_features: features used in training
-    :type train_features: list[str] or None
-    :param api_config_file: path to the file with remote api configuration in the json format::
+    :param features: features used in training
+    :type features: list[str] or None
+    :param str api_config_file: path to the file with remote api configuration in the json format::
 
                 {"url": "https://ml.cern.yandex.net/v1", "token": "<your_token>"}
-
-    :type api_config_file: str
 
     :param int iterations: number of constructed trees (default=100)
     :param float regularization: regularization number (default=0.01)
     :param intervals: number of bins for features discretization or dict with borders
-     list for each feature for its discretisation (default=8)
+     list for each feature for its discretization (default=8)
     :type intervals: int or dict(str, list)
     :param int max_features_per_iteration: depth (default=6, supports 1 <= .. <= 6)
     :param float features_sample_rate_per_iteration: training features sampling (default=1.0)
     :param float training_fraction: training rows bagging (default=0.5)
-    :param auto_stop: error value for training prestopping
+    :param auto_stop: error value for training pre-stopping
     :type auto_stop: None or float
-    :param bool sync: synchronic or asynchronic training on the server
+    :param bool sync: synchronous or asynchronous training on the server
     :param random_state: state for a pseudo random generator
     :type random_state: None or int or RandomState
     """
@@ -383,7 +381,7 @@ class MatrixNetClassifier(MatrixNetBase, Classifier):
 
     def staged_predict_proba(self, X, step=10):
         """
-        Predict probabilities for data for each class label on each stage..
+        Predict probabilities for data for each class label on each stage.
 
         :param pandas.DataFrame X: data of shape [n_samples, n_features]
         :param int step: step for returned iterations (10 by default).
@@ -441,7 +439,7 @@ class MatrixNetRegressor(MatrixNetBase, Regressor):
 
     def staged_predict(self, X, step=10):
         """
-        Predict probabilities for data for each class label on each stage..
+        Predict probabilities for data for each class label on each stage.
 
         :param pandas.DataFrame X: data of shape [n_samples, n_features]
         :param int step: step for returned iterations (10 by default).
