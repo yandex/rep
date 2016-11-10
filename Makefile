@@ -12,7 +12,7 @@ PORT ?= 8888
 DOCKER_ARGS := --volume $(NOTEBOOKS):/notebooks -p $(PORT):8888
 
 HERE := $(shell pwd)
-REP_IMAGE_NAME_PY2 := yandex/rep:0.6.6
+REP_IMAGE_NAME_PY2 := yandex/rep:0.6.7
 REP_IMAGE_NAME_PY3 := $(REP_IMAGE_NAME_PY2)_py3
 
 ifeq ($(PYTHON), 2)
