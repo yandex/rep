@@ -201,8 +201,8 @@ class TestEstimator(MatrixNetTest):
         status = cls.get_status()
         while status != "completed":
             status = cls.get_status()
-            assert status != 'failed', 'Failed formula'
-            iterations = cls.get_iterations
+            assert status != 'failed', 'Failed formula, %d' % cls.classifier_id'
+            iterations = cls.get_iterations()
             print("Training: status={} iterations={}".format(status, iterations))
             sleep(2)
         print('finish training')
@@ -214,8 +214,8 @@ class TestEstimator(MatrixNetTest):
         status = cls.get_status()
         while status != "completed":
             status = cls.get_status()
-            assert status != 'failed', 'Failed formula'
-            iterations = cls.get_iterations
+            assert status != 'failed', 'Failed formula, %d' % cls.classifier_id
+            iterations = cls.get_iterations()
             print("Training after resubmit: status={} iterations={}".format(status, iterations))
             sleep(2)
         print('finish resubmit job')
