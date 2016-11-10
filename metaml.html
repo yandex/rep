@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Meta Machine Learning &mdash; REP (Reproducible Experiment Platform) 0.6.6 documentation</title>
+  <title>Meta Machine Learning &mdash; REP (Reproducible Experiment Platform) 0.6.7 documentation</title>
   
 
   
@@ -30,7 +30,7 @@
   
 
   
-    <link rel="top" title="REP (Reproducible Experiment Platform) 0.6.6 documentation" href="index.html"/>
+    <link rel="top" title="REP (Reproducible Experiment Platform) 0.6.7 documentation" href="index.html"/>
         <link rel="next" title="Report for models" href="report.html"/>
         <link rel="prev" title="Estimators (classification and regression)" href="estimators.html"/> 
 
@@ -60,7 +60,7 @@
             
             
               <div class="version">
-                0.6.6
+                0.6.7
               </div>
             
           
@@ -369,15 +369,15 @@ to specify features used by regressor, wrap it first with <code class="xref py p
 <ul>
 <li><dl class="first docutils">
 <dt>Prepare dataset</dt>
-<dd><div class="first last highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">sklearn</span> <span class="kn">import</span> <span class="n">datasets</span>
+<dd><div class="first last highlight-python"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">sklearn</span> <span class="kn">import</span> <span class="n">datasets</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">pandas</span><span class="o">,</span> <span class="nn">numpy</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">rep.utils</span> <span class="kn">import</span> <span class="n">train_test_split</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">roc_auc_score</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="c"># iris data</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># iris data</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">iris</span> <span class="o">=</span> <span class="n">datasets</span><span class="o">.</span><span class="n">load_iris</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">iris</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;a&#39;</span><span class="p">,</span> <span class="s">&#39;b&#39;</span><span class="p">,</span> <span class="s">&#39;c&#39;</span><span class="p">,</span> <span class="s">&#39;d&#39;</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">iris</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="s1">&#39;b&#39;</span><span class="p">,</span> <span class="s1">&#39;c&#39;</span><span class="p">,</span> <span class="s1">&#39;d&#39;</span><span class="p">])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">labels</span> <span class="o">=</span> <span class="n">iris</span><span class="o">.</span><span class="n">target</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="c"># Take just two classes instead of three</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Take just two classes instead of three</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">labels</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">labels</span> <span class="o">=</span> <span class="n">labels</span><span class="p">[</span><span class="n">labels</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">train_data</span><span class="p">,</span> <span class="n">test_data</span><span class="p">,</span> <span class="n">train_labels</span><span class="p">,</span> <span class="n">test_labels</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">train_size</span><span class="o">=</span><span class="mf">0.7</span><span class="p">)</span>
@@ -388,14 +388,14 @@ to specify features used by regressor, wrap it first with <code class="xref py p
 </li>
 <li><dl class="first docutils">
 <dt>Train factory of classifiers</dt>
-<dd><div class="first last highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">rep.metaml</span> <span class="kn">import</span> <span class="n">ClassifiersFactory</span>
+<dd><div class="first last highlight-python"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">rep.metaml</span> <span class="kn">import</span> <span class="n">ClassifiersFactory</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">rep.estimators</span> <span class="kn">import</span> <span class="n">TMVAClassifier</span><span class="p">,</span> <span class="n">SklearnClassifier</span><span class="p">,</span> <span class="n">XGBoostClassifier</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">sklearn.ensemble</span> <span class="kn">import</span> <span class="n">GradientBoostingClassifier</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">factory</span> <span class="o">=</span> <span class="n">ClassifiersFactory</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">estimators</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">factory</span><span class="o">.</span><span class="n">add_classifier</span><span class="p">(</span><span class="s">&#39;tmva&#39;</span><span class="p">,</span> <span class="n">TMVAClassifier</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="s">&#39;kBDT&#39;</span><span class="p">,</span> <span class="n">NTrees</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">Shrinkage</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">nCuts</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">BoostType</span><span class="o">=</span><span class="s">&#39;Grad&#39;</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;a&#39;</span><span class="p">,</span> <span class="s">&#39;b&#39;</span><span class="p">]))</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">factory</span><span class="o">.</span><span class="n">add_classifier</span><span class="p">(</span><span class="s">&#39;ada&#39;</span><span class="p">,</span> <span class="n">GradientBoostingClassifier</span><span class="p">())</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">factory</span><span class="p">[</span><span class="s">&#39;xgb&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">XGBoostClassifier</span><span class="p">(</span><span class="n">features</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;a&#39;</span><span class="p">,</span> <span class="s">&#39;b&#39;</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">factory</span><span class="o">.</span><span class="n">add_classifier</span><span class="p">(</span><span class="s1">&#39;tmva&#39;</span><span class="p">,</span> <span class="n">TMVAClassifier</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="s1">&#39;kBDT&#39;</span><span class="p">,</span> <span class="n">NTrees</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">Shrinkage</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">nCuts</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">BoostType</span><span class="o">=</span><span class="s1">&#39;Grad&#39;</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="s1">&#39;b&#39;</span><span class="p">]))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">factory</span><span class="o">.</span><span class="n">add_classifier</span><span class="p">(</span><span class="s1">&#39;ada&#39;</span><span class="p">,</span> <span class="n">GradientBoostingClassifier</span><span class="p">())</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">factory</span><span class="p">[</span><span class="s1">&#39;xgb&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">XGBoostClassifier</span><span class="p">(</span><span class="n">features</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="s1">&#39;b&#39;</span><span class="p">])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">factory</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">train_data</span><span class="p">,</span> <span class="n">train_labels</span><span class="p">)</span>
 <span class="go">model ef           was trained in 0.22 seconds</span>
 <span class="go">model tmva         was trained in 2.47 seconds</span>
@@ -542,7 +542,7 @@ array-like of shape [n_samples] or None if all weights are equal</li>
 </tbody>
 </table>
 <p>Example:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">new_score_function</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">proba</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">new_score_function</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">proba</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
 <span class="gp">&gt;&gt;&gt; </span>    <span class="sd">&#39;&#39;&#39;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="sd">    y_true: [n_samples]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="sd">    proba: [n_samples, n_classes]</span>
@@ -590,7 +590,7 @@ array-like of shape [n_samples] or None if all weights are equal</li>
 </tbody>
 </table>
 <p>Example:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">new_score_function</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">pred</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">new_score_function</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">pred</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
 <span class="gp">&gt;&gt;&gt; </span>    <span class="sd">&#39;&#39;&#39;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="sd">    y_true: [n_samples]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="sd">    pred: [n_samples]</span>
@@ -854,7 +854,7 @@ as in training to prediction methods,
 in which case each event is predicted with base classifier which didn&#8217;t use that event during training.</p>
 <p>To use information from not one, but several estimators during predictions,
 provide appropriate voting function. Examples of voting function:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">voting</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">voting</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">voting</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -1001,7 +1001,7 @@ as in training to prediction methods,
 in which case each event is predicted with base regressor which didn&#8217;t use that event during training.</p>
 <p>To use information from not one, but several estimators during predictions,
 provide appropriate voting function. Examples of voting function:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">voting</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">voting</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">voting</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -1132,17 +1132,17 @@ After training, classifier/regressor is stored in the file under specific name (
 <div class="section" id="example-of-usage">
 <h3>Example of usage<a class="headerlink" href="#example-of-usage" title="Permalink to this headline">¶</a></h3>
 <p><a class="reference internal" href="#rep.metaml.cache.CacheClassifier" title="rep.metaml.cache.CacheClassifier"><code class="xref py py-class docutils literal"><span class="pre">CacheClassifier</span></code></a> and <a class="reference internal" href="#rep.metaml.cache.CacheRegressor" title="rep.metaml.cache.CacheRegressor"><code class="xref py py-class docutils literal"><span class="pre">CacheRegressor</span></code></a> work as meta-estimators</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">rep.estimators</span> <span class="kn">import</span> <span class="n">XGBoostClassifier</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">rep.estimators</span> <span class="kn">import</span> <span class="n">XGBoostClassifier</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">rep.metaml</span> <span class="kn">import</span> <span class="n">FoldingClassifier</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">rep.metaml.cache</span> <span class="kn">import</span> <span class="n">CacheClassifier</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">clf</span> <span class="o">=</span> <span class="n">CacheClassifier</span><span class="p">(</span><span class="s">&#39;xgboost folding&#39;</span><span class="p">,</span> <span class="n">FoldingClassifier</span><span class="p">(</span><span class="n">XGBoostClassifier</span><span class="p">(),</span> <span class="n">n_folds</span><span class="o">=</span><span class="mi">3</span><span class="p">))</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="c"># this works normally</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">clf</span> <span class="o">=</span> <span class="n">CacheClassifier</span><span class="p">(</span><span class="s1">&#39;xgboost folding&#39;</span><span class="p">,</span> <span class="n">FoldingClassifier</span><span class="p">(</span><span class="n">XGBoostClassifier</span><span class="p">(),</span> <span class="n">n_folds</span><span class="o">=</span><span class="mi">3</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># this works normally</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">clf</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">clf</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">testX</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>However in the following situation:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">clf</span> <span class="o">=</span> <span class="n">FoldingClassifier</span><span class="p">(</span><span class="n">CacheClassifier</span><span class="p">(</span><span class="s">&#39;xgboost&#39;</span><span class="p">,</span> <span class="n">XGBoostClassifier</span><span class="p">()))</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">clf</span> <span class="o">=</span> <span class="n">FoldingClassifier</span><span class="p">(</span><span class="n">CacheClassifier</span><span class="p">(</span><span class="s1">&#39;xgboost&#39;</span><span class="p">,</span> <span class="n">XGBoostClassifier</span><span class="p">()))</span>
 </pre></div>
 </div>
 <p>cache is not going to work, because for each fold a copy of classifier is created.
@@ -1150,10 +1150,10 @@ Each time after looking at cache, a version with same parameters, but different 
 <p>So, every time stored copy will be erased and a new one saved.</p>
 <p>By default, cache is stored in &#8216;.cache/rep&#8217; subfolder of project directory (where the ipython notebook is placed).
 To change parameters of caching use:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">rep.metaml.cache</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">rep.metaml.cache</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">rep.metaml._cache</span> <span class="kn">import</span> <span class="n">CacheHelper</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">rep</span><span class="o">.</span><span class="n">metaml</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">cache_helper</span> <span class="o">=</span> <span class="n">CacheHelper</span><span class="p">(</span><span class="n">folder</span><span class="p">,</span> <span class="n">expiration_in_seconds</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="c"># to delete all cached items, use:</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># to delete all cached items, use:</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">rep</span><span class="o">.</span><span class="n">metaml</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">cache_helper</span><span class="o">.</span><span class="n">clear_cache</span><span class="p">()</span>
 </pre></div>
 </div>
@@ -1221,15 +1221,14 @@ the same value of <cite>split_feature</cite> it was trained on.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>split_feature</strong> (<em>str</em>) &#8211; the name of key feature,</li>
+<li><strong>split_feature</strong> (<em>str</em>) &#8211; the name of key feature</li>
 <li><strong>base_estimator</strong> &#8211; the classifier, its&#8217; copies are trained on parts of dataset</li>
-<li><strong>features</strong> (<em>list[str]</em>) &#8211; list of columns classifier uses</li>
+<li><strong>train_features</strong> (<em>list[str]</em>) &#8211; list of columns classifier uses in training</li>
 </ul>
 </td>
 </tr>
 </tbody>
 </table>
-<p>Pay attention: <cite>split_feature</cite> must be in list of <cite>features</cite> (if those are passed).</p>
 <dl class="method">
 <dt id="rep.metaml.stacking.FeatureSplitter.fit">
 <code class="descname">fit</code><span class="sig-paren">(</span><em>X</em>, <em>y</em>, <em>sample_weight=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/metaml/stacking.html#FeatureSplitter.fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.metaml.stacking.FeatureSplitter.fit" title="Permalink to this definition">¶</a></dt>
@@ -1332,7 +1331,7 @@ Each event is predicted by the classifier trained on corresponding value of <cit
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'./',
-            VERSION:'0.6.6',
+            VERSION:'0.6.7',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true

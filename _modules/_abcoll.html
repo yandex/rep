@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>_abcoll &mdash; REP (Reproducible Experiment Platform) 0.6.6 documentation</title>
+  <title>_abcoll &mdash; REP (Reproducible Experiment Platform) 0.6.7 documentation</title>
   
 
   
@@ -30,7 +30,7 @@
   
 
   
-    <link rel="top" title="REP (Reproducible Experiment Platform) 0.6.6 documentation" href="../index.html"/>
+    <link rel="top" title="REP (Reproducible Experiment Platform) 0.6.7 documentation" href="../index.html"/>
         <link rel="up" title="Module code" href="index.html"/> 
 
   
@@ -59,7 +59,7 @@
             
             
               <div class="version">
-                0.6.6
+                0.6.7
               </div>
             
           
@@ -136,8 +136,8 @@
            <div itemprop="articleBody">
             
   <h1>Source code for _abcoll</h1><div class="highlight"><pre>
-<span class="c"># Copyright 2007 Google, Inc. All Rights Reserved.</span>
-<span class="c"># Licensed to PSF under a Contributor Agreement.</span>
+<span></span><span class="c1"># Copyright 2007 Google, Inc. All Rights Reserved.</span>
+<span class="c1"># Licensed to PSF under a Contributor Agreement.</span>
 
 <span class="sd">&quot;&quot;&quot;Abstract Base Classes (ABCs) for collections, according to PEP 3119.</span>
 
@@ -149,21 +149,21 @@
 <span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABCMeta</span><span class="p">,</span> <span class="n">abstractmethod</span>
 <span class="kn">import</span> <span class="nn">sys</span>
 
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;Hashable&quot;</span><span class="p">,</span> <span class="s">&quot;Iterable&quot;</span><span class="p">,</span> <span class="s">&quot;Iterator&quot;</span><span class="p">,</span>
-           <span class="s">&quot;Sized&quot;</span><span class="p">,</span> <span class="s">&quot;Container&quot;</span><span class="p">,</span> <span class="s">&quot;Callable&quot;</span><span class="p">,</span>
-           <span class="s">&quot;Set&quot;</span><span class="p">,</span> <span class="s">&quot;MutableSet&quot;</span><span class="p">,</span>
-           <span class="s">&quot;Mapping&quot;</span><span class="p">,</span> <span class="s">&quot;MutableMapping&quot;</span><span class="p">,</span>
-           <span class="s">&quot;MappingView&quot;</span><span class="p">,</span> <span class="s">&quot;KeysView&quot;</span><span class="p">,</span> <span class="s">&quot;ItemsView&quot;</span><span class="p">,</span> <span class="s">&quot;ValuesView&quot;</span><span class="p">,</span>
-           <span class="s">&quot;Sequence&quot;</span><span class="p">,</span> <span class="s">&quot;MutableSequence&quot;</span><span class="p">,</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Hashable&quot;</span><span class="p">,</span> <span class="s2">&quot;Iterable&quot;</span><span class="p">,</span> <span class="s2">&quot;Iterator&quot;</span><span class="p">,</span>
+           <span class="s2">&quot;Sized&quot;</span><span class="p">,</span> <span class="s2">&quot;Container&quot;</span><span class="p">,</span> <span class="s2">&quot;Callable&quot;</span><span class="p">,</span>
+           <span class="s2">&quot;Set&quot;</span><span class="p">,</span> <span class="s2">&quot;MutableSet&quot;</span><span class="p">,</span>
+           <span class="s2">&quot;Mapping&quot;</span><span class="p">,</span> <span class="s2">&quot;MutableMapping&quot;</span><span class="p">,</span>
+           <span class="s2">&quot;MappingView&quot;</span><span class="p">,</span> <span class="s2">&quot;KeysView&quot;</span><span class="p">,</span> <span class="s2">&quot;ItemsView&quot;</span><span class="p">,</span> <span class="s2">&quot;ValuesView&quot;</span><span class="p">,</span>
+           <span class="s2">&quot;Sequence&quot;</span><span class="p">,</span> <span class="s2">&quot;MutableSequence&quot;</span><span class="p">,</span>
            <span class="p">]</span>
 
-<span class="c">### ONE-TRICK PONIES ###</span>
+<span class="c1">### ONE-TRICK PONIES ###</span>
 
 <span class="k">def</span> <span class="nf">_hasattr</span><span class="p">(</span><span class="n">C</span><span class="p">,</span> <span class="n">attr</span><span class="p">):</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="k">return</span> <span class="nb">any</span><span class="p">(</span><span class="n">attr</span> <span class="ow">in</span> <span class="n">B</span><span class="o">.</span><span class="n">__dict__</span> <span class="k">for</span> <span class="n">B</span> <span class="ow">in</span> <span class="n">C</span><span class="o">.</span><span class="n">__mro__</span><span class="p">)</span>
     <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
-        <span class="c"># Old-style class</span>
+        <span class="c1"># Old-style class</span>
         <span class="k">return</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">C</span><span class="p">,</span> <span class="n">attr</span><span class="p">)</span>
 
 
@@ -179,13 +179,13 @@
         <span class="k">if</span> <span class="n">cls</span> <span class="ow">is</span> <span class="n">Hashable</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="k">for</span> <span class="n">B</span> <span class="ow">in</span> <span class="n">C</span><span class="o">.</span><span class="n">__mro__</span><span class="p">:</span>
-                    <span class="k">if</span> <span class="s">&quot;__hash__&quot;</span> <span class="ow">in</span> <span class="n">B</span><span class="o">.</span><span class="n">__dict__</span><span class="p">:</span>
-                        <span class="k">if</span> <span class="n">B</span><span class="o">.</span><span class="n">__dict__</span><span class="p">[</span><span class="s">&quot;__hash__&quot;</span><span class="p">]:</span>
+                    <span class="k">if</span> <span class="s2">&quot;__hash__&quot;</span> <span class="ow">in</span> <span class="n">B</span><span class="o">.</span><span class="n">__dict__</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">B</span><span class="o">.</span><span class="n">__dict__</span><span class="p">[</span><span class="s2">&quot;__hash__&quot;</span><span class="p">]:</span>
                             <span class="k">return</span> <span class="bp">True</span>
                         <span class="k">break</span>
             <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
-                <span class="c"># Old-style class</span>
-                <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">C</span><span class="p">,</span> <span class="s">&quot;__hash__&quot;</span><span class="p">,</span> <span class="bp">None</span><span class="p">):</span>
+                <span class="c1"># Old-style class</span>
+                <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">C</span><span class="p">,</span> <span class="s2">&quot;__hash__&quot;</span><span class="p">,</span> <span class="bp">None</span><span class="p">):</span>
                     <span class="k">return</span> <span class="bp">True</span>
         <span class="k">return</span> <span class="bp">NotImplemented</span>
 
@@ -201,7 +201,7 @@
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">__subclasshook__</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">C</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">cls</span> <span class="ow">is</span> <span class="n">Iterable</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">_hasattr</span><span class="p">(</span><span class="n">C</span><span class="p">,</span> <span class="s">&quot;__iter__&quot;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">_hasattr</span><span class="p">(</span><span class="n">C</span><span class="p">,</span> <span class="s2">&quot;__iter__&quot;</span><span class="p">):</span>
                 <span class="k">return</span> <span class="bp">True</span>
         <span class="k">return</span> <span class="bp">NotImplemented</span>
 
@@ -212,7 +212,7 @@
 
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span> <span class="nf">next</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="s">&#39;Return the next item from the iterator. When exhausted, raise StopIteration&#39;</span>
+        <span class="s1">&#39;Return the next item from the iterator. When exhausted, raise StopIteration&#39;</span>
         <span class="k">raise</span> <span class="ne">StopIteration</span>
 
     <span class="k">def</span> <span class="nf">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -221,7 +221,7 @@
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">__subclasshook__</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">C</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">cls</span> <span class="ow">is</span> <span class="n">Iterator</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">_hasattr</span><span class="p">(</span><span class="n">C</span><span class="p">,</span> <span class="s">&quot;next&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">_hasattr</span><span class="p">(</span><span class="n">C</span><span class="p">,</span> <span class="s">&quot;__iter__&quot;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">_hasattr</span><span class="p">(</span><span class="n">C</span><span class="p">,</span> <span class="s2">&quot;next&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">_hasattr</span><span class="p">(</span><span class="n">C</span><span class="p">,</span> <span class="s2">&quot;__iter__&quot;</span><span class="p">):</span>
                 <span class="k">return</span> <span class="bp">True</span>
         <span class="k">return</span> <span class="bp">NotImplemented</span>
 
@@ -236,7 +236,7 @@
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">__subclasshook__</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">C</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">cls</span> <span class="ow">is</span> <span class="n">Sized</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">_hasattr</span><span class="p">(</span><span class="n">C</span><span class="p">,</span> <span class="s">&quot;__len__&quot;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">_hasattr</span><span class="p">(</span><span class="n">C</span><span class="p">,</span> <span class="s2">&quot;__len__&quot;</span><span class="p">):</span>
                 <span class="k">return</span> <span class="bp">True</span>
         <span class="k">return</span> <span class="bp">NotImplemented</span>
 
@@ -251,7 +251,7 @@
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">__subclasshook__</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">C</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">cls</span> <span class="ow">is</span> <span class="n">Container</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">_hasattr</span><span class="p">(</span><span class="n">C</span><span class="p">,</span> <span class="s">&quot;__contains__&quot;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">_hasattr</span><span class="p">(</span><span class="n">C</span><span class="p">,</span> <span class="s2">&quot;__contains__&quot;</span><span class="p">):</span>
                 <span class="k">return</span> <span class="bp">True</span>
         <span class="k">return</span> <span class="bp">NotImplemented</span>
 
@@ -266,12 +266,12 @@
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">__subclasshook__</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">C</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">cls</span> <span class="ow">is</span> <span class="n">Callable</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">_hasattr</span><span class="p">(</span><span class="n">C</span><span class="p">,</span> <span class="s">&quot;__call__&quot;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">_hasattr</span><span class="p">(</span><span class="n">C</span><span class="p">,</span> <span class="s2">&quot;__call__&quot;</span><span class="p">):</span>
                 <span class="k">return</span> <span class="bp">True</span>
         <span class="k">return</span> <span class="bp">NotImplemented</span>
 
 
-<span class="c">### SETS ###</span>
+<span class="c1">### SETS ###</span>
 
 
 <span class="k">class</span> <span class="nc">Set</span><span class="p">(</span><span class="n">Sized</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Container</span><span class="p">):</span>
@@ -340,7 +340,7 @@
     <span class="n">__rand__</span> <span class="o">=</span> <span class="n">__and__</span>
 
     <span class="k">def</span> <span class="nf">isdisjoint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
-        <span class="s">&#39;Return True if two sets have a null intersection.&#39;</span>
+        <span class="s1">&#39;Return True if two sets have a null intersection.&#39;</span>
         <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">other</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
                 <span class="k">return</span> <span class="bp">False</span>
@@ -379,7 +379,7 @@
 
     <span class="n">__rxor__</span> <span class="o">=</span> <span class="n">__xor__</span>
 
-    <span class="c"># Sets are not hashable by default, but subclasses can change this</span>
+    <span class="c1"># Sets are not hashable by default, but subclasses can change this</span>
     <span class="n">__hash__</span> <span class="o">=</span> <span class="bp">None</span>
 
     <span class="k">def</span> <span class="nf">_hash</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -497,7 +497,7 @@
 <span class="n">MutableSet</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="nb">set</span><span class="p">)</span>
 
 
-<span class="c">### MAPPINGS ###</span>
+<span class="c1">### MAPPINGS ###</span>
 
 
 <span class="k">class</span> <span class="nc">Mapping</span><span class="p">(</span><span class="n">Sized</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Container</span><span class="p">):</span>
@@ -515,7 +515,7 @@
         <span class="k">raise</span> <span class="ne">KeyError</span>
 
     <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-        <span class="s">&#39;D.get(k[,d]) -&gt; D[k] if k in D, else d.  d defaults to None.&#39;</span>
+        <span class="s1">&#39;D.get(k[,d]) -&gt; D[k] if k in D, else d.  d defaults to None.&#39;</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
         <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
@@ -530,32 +530,32 @@
             <span class="k">return</span> <span class="bp">True</span>
 
     <span class="k">def</span> <span class="nf">iterkeys</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="s">&#39;D.iterkeys() -&gt; an iterator over the keys of D&#39;</span>
+        <span class="s1">&#39;D.iterkeys() -&gt; an iterator over the keys of D&#39;</span>
         <span class="k">return</span> <span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">itervalues</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="s">&#39;D.itervalues() -&gt; an iterator over the values of D&#39;</span>
+        <span class="s1">&#39;D.itervalues() -&gt; an iterator over the values of D&#39;</span>
         <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
             <span class="k">yield</span> <span class="bp">self</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
 
     <span class="k">def</span> <span class="nf">iteritems</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="s">&#39;D.iteritems() -&gt; an iterator over the (key, value) items of D&#39;</span>
+        <span class="s1">&#39;D.iteritems() -&gt; an iterator over the (key, value) items of D&#39;</span>
         <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
             <span class="k">yield</span> <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="bp">self</span><span class="p">[</span><span class="n">key</span><span class="p">])</span>
 
     <span class="k">def</span> <span class="nf">keys</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="s">&quot;D.keys() -&gt; list of D&#39;s keys&quot;</span>
+        <span class="s2">&quot;D.keys() -&gt; list of D&#39;s keys&quot;</span>
         <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">items</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="s">&quot;D.items() -&gt; list of D&#39;s (key, value) pairs, as 2-tuples&quot;</span>
+        <span class="s2">&quot;D.items() -&gt; list of D&#39;s (key, value) pairs, as 2-tuples&quot;</span>
         <span class="k">return</span> <span class="p">[(</span><span class="n">key</span><span class="p">,</span> <span class="bp">self</span><span class="p">[</span><span class="n">key</span><span class="p">])</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">]</span>
 
     <span class="k">def</span> <span class="nf">values</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="s">&quot;D.values() -&gt; list of D&#39;s values&quot;</span>
+        <span class="s2">&quot;D.values() -&gt; list of D&#39;s values&quot;</span>
         <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">]</span>
 
-    <span class="c"># Mappings are not hashable by default, but subclasses can change this</span>
+    <span class="c1"># Mappings are not hashable by default, but subclasses can change this</span>
     <span class="n">__hash__</span> <span class="o">=</span> <span class="bp">None</span>
 
     <span class="k">def</span> <span class="nf">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
@@ -575,7 +575,7 @@
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_mapping</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="s">&#39;{0.__class__.__name__}({0._mapping!r})&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="k">return</span> <span class="s1">&#39;{0.__class__.__name__}({0._mapping!r})&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
 
 <span class="k">class</span> <span class="nc">KeysView</span><span class="p">(</span><span class="n">MappingView</span><span class="p">,</span> <span class="n">Set</span><span class="p">):</span>
@@ -676,7 +676,7 @@
         <span class="k">return</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span>
 
     <span class="k">def</span> <span class="nf">clear</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="s">&#39;D.clear() -&gt; None.  Remove all items from D.&#39;</span>
+        <span class="s1">&#39;D.clear() -&gt; None.  Remove all items from D.&#39;</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">popitem</span><span class="p">()</span>
@@ -690,19 +690,19 @@
 <span class="sd">            In either case, this is followed by: for k, v in F.items(): D[k] = v</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s">&quot;descriptor &#39;update&#39; of &#39;MutableMapping&#39; object &quot;</span>
-                            <span class="s">&quot;needs an argument&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;descriptor &#39;update&#39; of &#39;MutableMapping&#39; object &quot;</span>
+                            <span class="s2">&quot;needs an argument&quot;</span><span class="p">)</span>
         <span class="bp">self</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="n">args</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s">&#39;update expected at most 1 arguments, got </span><span class="si">%d</span><span class="s">&#39;</span> <span class="o">%</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;update expected at most 1 arguments, got </span><span class="si">%d</span><span class="s1">&#39;</span> <span class="o">%</span>
                             <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">))</span>
         <span class="k">if</span> <span class="n">args</span><span class="p">:</span>
             <span class="n">other</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">):</span>
                 <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">other</span><span class="p">:</span>
                     <span class="bp">self</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">other</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
-            <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="s">&quot;keys&quot;</span><span class="p">):</span>
+            <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="s2">&quot;keys&quot;</span><span class="p">):</span>
                 <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">other</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
                     <span class="bp">self</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">other</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
             <span class="k">else</span><span class="p">:</span>
@@ -712,7 +712,7 @@
             <span class="bp">self</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
 
     <span class="k">def</span> <span class="nf">setdefault</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-        <span class="s">&#39;D.setdefault(k[,d]) -&gt; D.get(k,d), also set D[k]=d if k not in D&#39;</span>
+        <span class="s1">&#39;D.setdefault(k[,d]) -&gt; D.get(k,d), also set D[k]=d if k not in D&#39;</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
         <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
@@ -722,7 +722,7 @@
 <span class="n">MutableMapping</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="nb">dict</span><span class="p">)</span>
 
 
-<span class="c">### SEQUENCES ###</span>
+<span class="c1">### SEQUENCES ###</span>
 
 
 <span class="k">class</span> <span class="nc">Sequence</span><span class="p">(</span><span class="n">Sized</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Container</span><span class="p">):</span>
@@ -766,7 +766,7 @@
         <span class="k">raise</span> <span class="ne">ValueError</span>
 
     <span class="k">def</span> <span class="nf">count</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-        <span class="s">&#39;S.count(value) -&gt; integer -- return number of occurrences of value&#39;</span>
+        <span class="s1">&#39;S.count(value) -&gt; integer -- return number of occurrences of value&#39;</span>
         <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="mi">1</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span> <span class="k">if</span> <span class="n">v</span> <span class="o">==</span> <span class="n">value</span><span class="p">)</span>
 
 <span class="n">Sequence</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="nb">tuple</span><span class="p">)</span>
@@ -794,21 +794,21 @@
 
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span> <span class="nf">insert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-        <span class="s">&#39;S.insert(index, object) -- insert object before index&#39;</span>
+        <span class="s1">&#39;S.insert(index, object) -- insert object before index&#39;</span>
         <span class="k">raise</span> <span class="ne">IndexError</span>
 
     <span class="k">def</span> <span class="nf">append</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-        <span class="s">&#39;S.append(object) -- append object to the end of the sequence&#39;</span>
+        <span class="s1">&#39;S.append(object) -- append object to the end of the sequence&#39;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span> <span class="n">value</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">reverse</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="s">&#39;S.reverse() -- reverse *IN PLACE*&#39;</span>
+        <span class="s1">&#39;S.reverse() -- reverse *IN PLACE*&#39;</span>
         <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="o">//</span><span class="mi">2</span><span class="p">):</span>
             <span class="bp">self</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="bp">self</span><span class="p">[</span><span class="n">n</span><span class="o">-</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">n</span><span class="o">-</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="bp">self</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
 
     <span class="k">def</span> <span class="nf">extend</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">values</span><span class="p">):</span>
-        <span class="s">&#39;S.extend(iterable) -- extend sequence by appending elements from the iterable&#39;</span>
+        <span class="s1">&#39;S.extend(iterable) -- extend sequence by appending elements from the iterable&#39;</span>
         <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">values</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
 
@@ -864,7 +864,7 @@
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'../',
-            VERSION:'0.6.6',
+            VERSION:'0.6.7',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true

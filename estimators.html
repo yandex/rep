@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Estimators (classification and regression) &mdash; REP (Reproducible Experiment Platform) 0.6.6 documentation</title>
+  <title>Estimators (classification and regression) &mdash; REP (Reproducible Experiment Platform) 0.6.7 documentation</title>
   
 
   
@@ -30,7 +30,7 @@
   
 
   
-    <link rel="top" title="REP (Reproducible Experiment Platform) 0.6.6 documentation" href="index.html"/>
+    <link rel="top" title="REP (Reproducible Experiment Platform) 0.6.7 documentation" href="index.html"/>
         <link rel="next" title="Meta Machine Learning" href="metaml.html"/>
         <link rel="prev" title="Welcome to REP’s documentation!" href="index.html"/> 
 
@@ -60,7 +60,7 @@
             
             
               <div class="version">
-                0.6.6
+                0.6.7
               </div>
             
           
@@ -90,6 +90,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#module-rep.estimators.theanets">Theanets classifier and regressor</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-rep.estimators.neurolab">Neurolab classifier and regressor</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-rep.estimators.pybrain">Pybrain classifier and regressor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-rep.estimators.matrixnet">MatrixNet classifier and regressor</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#examples">Examples</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#classification">Classification</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#regression">Regression</a></li>
@@ -321,7 +322,7 @@ each label set be correctly predicted.</p>
 <code class="descname">set_params</code><span class="sig-paren">(</span><em>**params</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.estimators.interface.Classifier.set_params" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the parameters of this estimator.</p>
 <p>The method works on simple estimators as well as on nested objects
-(such as pipelines). The former have parameters of the form
+(such as pipelines). The latter have parameters of the form
 <code class="docutils literal"><span class="pre">&lt;component&gt;__&lt;parameter&gt;</span></code> so that it&#8217;s possible to update each
 component of a nested object.</p>
 <p>self</p>
@@ -521,7 +522,7 @@ would get a R^2 score of 0.0.</p>
 <code class="descname">set_params</code><span class="sig-paren">(</span><em>**params</em><span class="sig-paren">)</span><a class="headerlink" href="#rep.estimators.interface.Regressor.set_params" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the parameters of this estimator.</p>
 <p>The method works on simple estimators as well as on nested objects
-(such as pipelines). The former have parameters of the form
+(such as pipelines). The latter have parameters of the form
 <code class="docutils literal"><span class="pre">&lt;component&gt;__&lt;parameter&gt;</span></code> so that it&#8217;s possible to update each
 component of a nested object.</p>
 <p>self</p>
@@ -788,7 +789,7 @@ for the list of the available algorithms and parameters.</p>
 <li><strong>method</strong> (<em>str</em>) &#8211; algorithm method (default=&#8217;kBDT&#8217;)</li>
 <li><strong>features</strong> (<em>list[str] or None</em>) &#8211; features used in training</li>
 <li><strong>factory_options</strong> (<em>str</em>) &#8211; <p>system options, including data transformations before training, for example:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="s">&quot;!V:!Silent:Color:Transformations=I;D;P;G,D&quot;</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="s2">&quot;!V:!Silent:Color:Transformations=I;D;P;G,D&quot;</span>
 </pre></div>
 </div>
 </li>
@@ -905,7 +906,7 @@ array-like of shape [n_samples] or None if all weights are equal</li>
 <li><strong>method</strong> (<em>str</em>) &#8211; algorithm method (default=&#8217;kBDT&#8217;)</li>
 <li><strong>features</strong> (<em>list[str] or None</em>) &#8211; features used in training</li>
 <li><strong>factory_options</strong> (<em>str</em>) &#8211; <p>system options, including data transformations before training, for example:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="s">&quot;!V:!Silent:Color:Transformations=I;D;P;G,D&quot;</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="s2">&quot;!V:!Silent:Color:Transformations=I;D;P;G,D&quot;</span>
 </pre></div>
 </div>
 </li>
@@ -1375,8 +1376,8 @@ If True, will add it to the list of the estimators.</li>
 <code class="descname">set_params</code><span class="sig-paren">(</span><em>**params</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/estimators/theanets.html#TheanetsBase.set_params"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.estimators.theanets.TheanetsBase.set_params" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the parameters of the estimator. Deep parameters of trainers and scaler can be accessed,
 for instance:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">trainers__0</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;algo&#39;</span><span class="p">:</span> <span class="s">&#39;sgd&#39;</span><span class="p">,</span> <span class="s">&#39;learning_rate&#39;</span><span class="p">:</span> <span class="mf">0.3</span><span class="p">}</span>
-<span class="n">trainers__0_algo</span> <span class="o">=</span> <span class="s">&#39;sgd&#39;</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">trainers__0</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;algo&#39;</span><span class="p">:</span> <span class="s1">&#39;sgd&#39;</span><span class="p">,</span> <span class="s1">&#39;learning_rate&#39;</span><span class="p">:</span> <span class="mf">0.3</span><span class="p">}</span>
+<span class="n">trainers__0_algo</span> <span class="o">=</span> <span class="s1">&#39;sgd&#39;</span>
 <span class="n">layers__1</span> <span class="o">=</span> <span class="mi">14</span>
 <span class="n">scaler__use_std</span> <span class="o">=</span> <span class="bp">True</span>
 </pre></div>
@@ -1578,7 +1579,7 @@ If True, will add it to the list of the estimators.</li>
 <div class="admonition warning">
 <p class="first admonition-title">Warning</p>
 <p>To make neurolab reproducible we change global random seed</p>
-<div class="last highlight-python"><div class="highlight"><pre><span class="n">numpy</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
+<div class="last highlight-python"><div class="highlight"><pre><span></span><span class="n">numpy</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -2187,6 +2188,323 @@ otherwise a <code class="xref py py-class docutils literal"><span class="pre">Fe
 </dd></dl>
 
 </div>
+<div class="section" id="module-rep.estimators.matrixnet">
+<span id="matrixnet-classifier-and-regressor"></span><h2>MatrixNet classifier and regressor<a class="headerlink" href="#module-rep.estimators.matrixnet" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference internal" href="#rep.estimators.matrixnet.MatrixNetClassifier" title="rep.estimators.matrixnet.MatrixNetClassifier"><code class="xref py py-class docutils literal"><span class="pre">MatrixNetClassifier</span></code></a> and <a class="reference internal" href="#rep.estimators.matrixnet.MatrixNetRegressor" title="rep.estimators.matrixnet.MatrixNetRegressor"><code class="xref py py-class docutils literal"><span class="pre">MatrixNetRegressor</span></code></a> are wrappers for MatrixNet web service - proprietary BDT
+developed at Yandex. Think about this as a specific Boosted Decision Tree algorithm which is available as a service.
+At this moment MatrixMet is available only for <strong>CERN users</strong>.</p>
+<dl class="docutils">
+<dt>To use MatrixNet, first acquire token::</dt>
+<dd><ul class="first last">
+<li><p class="first">Go to <a class="reference external" href="https://yandex-apps.cern.ch/">https://yandex-apps.cern.ch/</a> (login with your CERN-account)</p>
+</li>
+<li><p class="first">Click <cite>Add token</cite> at the left panel</p>
+</li>
+<li><p class="first">Choose service <cite>MatrixNet</cite> and click <cite>Create token</cite></p>
+</li>
+<li><p class="first">Create <cite>~/.rep-matrixnet.config.json</cite> file with the following content
+(custom path to the config file can be specified when creating a wrapper object):</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="s2">&quot;url&quot;</span><span class="p">:</span> <span class="s2">&quot;https://ml.cern.yandex.net/v1&quot;</span><span class="p">,</span>
+
+    <span class="s2">&quot;token&quot;</span><span class="p">:</span> <span class="s2">&quot;&lt;your_token&gt;&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</dd>
+</dl>
+<dl class="class">
+<dt id="rep.estimators.matrixnet.MatrixNetBase">
+<em class="property">class </em><code class="descclassname">rep.estimators.matrixnet.</code><code class="descname">MatrixNetBase</code><span class="sig-paren">(</span><em>api_config_file='$HOME/.rep-matrixnet.config.json'</em>, <em>iterations=100</em>, <em>regularization=0.01</em>, <em>intervals=8</em>, <em>max_features_per_iteration=6</em>, <em>features_sample_rate_per_iteration=1.0</em>, <em>training_fraction=0.5</em>, <em>auto_stop=None</em>, <em>sync=True</em>, <em>random_state=42</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/estimators/matrixnet.html#MatrixNetBase"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.estimators.matrixnet.MatrixNetBase" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>Base class for MatrixNetClassifier and MatrixNetRegressor.</p>
+<p>This is a wrapper around <strong>MatrixNet (specific BDT)</strong> technology developed at <strong>Yandex</strong>,
+which is available for CERN people using authorization.
+Trained estimator is downloaded and stored at your computer, so you can use it at any time.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>features</strong> (<em>list[str] or None</em>) &#8211; features used in training</li>
+<li><strong>api_config_file</strong> (<em>str</em>) &#8211; <p>path to the file with remote api configuration in the json format:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="p">{</span><span class="s2">&quot;url&quot;</span><span class="p">:</span> <span class="s2">&quot;https://ml.cern.yandex.net/v1&quot;</span><span class="p">,</span> <span class="s2">&quot;token&quot;</span><span class="p">:</span> <span class="s2">&quot;&lt;your_token&gt;&quot;</span><span class="p">}</span>
+</pre></div>
+</div>
+</li>
+<li><strong>iterations</strong> (<em>int</em>) &#8211; number of constructed trees (default=100)</li>
+<li><strong>regularization</strong> (<em>float</em>) &#8211; regularization number (default=0.01)</li>
+<li><strong>intervals</strong> (<em>int or dict(str, list)</em>) &#8211; number of bins for features discretization or dict with borders
+list for each feature for its discretization (default=8)</li>
+<li><strong>max_features_per_iteration</strong> (<em>int</em>) &#8211; depth (default=6, supports 1 &lt;= .. &lt;= 6)</li>
+<li><strong>features_sample_rate_per_iteration</strong> (<em>float</em>) &#8211; training features sampling (default=1.0)</li>
+<li><strong>training_fraction</strong> (<em>float</em>) &#8211; training rows bagging (default=0.5)</li>
+<li><strong>auto_stop</strong> (<em>None or float</em>) &#8211; error value for training pre-stopping</li>
+<li><strong>sync</strong> (<em>bool</em>) &#8211; synchronous or asynchronous training on the server</li>
+<li><strong>random_state</strong> (<em>None or int or RandomState</em>) &#8211; state for a pseudo random generator</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="attribute">
+<dt id="rep.estimators.matrixnet.MatrixNetBase.feature_importances_">
+<code class="descname">feature_importances_</code><a class="headerlink" href="#rep.estimators.matrixnet.MatrixNetBase.feature_importances_" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sklearn-way of returning feature importance.
+This returned as numpy.array, &#8216;effect&#8217; column is used among MatrixNet importances.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="rep.estimators.matrixnet.MatrixNetBase.get_feature_importances">
+<code class="descname">get_feature_importances</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/estimators/matrixnet.html#MatrixNetBase.get_feature_importances"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.estimators.matrixnet.MatrixNetBase.get_feature_importances" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get features importance: <cite>effect</cite>, <cite>efficiency</cite>, <cite>information</cite> characteristics</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">pandas.DataFrame with <cite>index=self.features</cite></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rep.estimators.matrixnet.MatrixNetBase.get_iterations">
+<code class="descname">get_iterations</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/estimators/matrixnet.html#MatrixNetBase.get_iterations"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.estimators.matrixnet.MatrixNetBase.get_iterations" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return number of already constructed trees during training</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">int or None</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rep.estimators.matrixnet.MatrixNetBase.resubmit">
+<code class="descname">resubmit</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/estimators/matrixnet.html#MatrixNetBase.resubmit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.estimators.matrixnet.MatrixNetBase.resubmit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Resubmit training process on the server in case of failing job.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="rep.estimators.matrixnet.MatrixNetBase.synchronize">
+<code class="descname">synchronize</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/estimators/matrixnet.html#MatrixNetBase.synchronize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.estimators.matrixnet.MatrixNetBase.synchronize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Synchronise asynchronic training: wait while training process will be finished on the server</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="rep.estimators.matrixnet.MatrixNetBase.training_status">
+<code class="descname">training_status</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/estimators/matrixnet.html#MatrixNetBase.training_status"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.estimators.matrixnet.MatrixNetBase.training_status" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if training has finished on the server</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">bool</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="rep.estimators.matrixnet.MatrixNetClassifier">
+<em class="property">class </em><code class="descclassname">rep.estimators.matrixnet.</code><code class="descname">MatrixNetClassifier</code><span class="sig-paren">(</span><em>features=None</em>, <em>api_config_file='$HOME/.rep-matrixnet.config.json'</em>, <em>iterations=100</em>, <em>regularization=0.01</em>, <em>intervals=8</em>, <em>max_features_per_iteration=6</em>, <em>features_sample_rate_per_iteration=1.0</em>, <em>training_fraction=0.5</em>, <em>auto_stop=None</em>, <em>sync=True</em>, <em>random_state=42</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/estimators/matrixnet.html#MatrixNetClassifier"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.estimators.matrixnet.MatrixNetClassifier" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#rep.estimators.matrixnet.MatrixNetBase" title="rep.estimators.matrixnet.MatrixNetBase"><code class="xref py py-class docutils literal"><span class="pre">rep.estimators.matrixnet.MatrixNetBase</span></code></a>, <a class="reference internal" href="#rep.estimators.interface.Classifier" title="rep.estimators.interface.Classifier"><code class="xref py py-class docutils literal"><span class="pre">rep.estimators.interface.Classifier</span></code></a></p>
+<p>MatrixNet classification model.</p>
+<p>This is a wrapper around <strong>MatrixNet (specific BDT)</strong> technology developed at <strong>Yandex</strong>,
+which is available for CERN people using authorization.
+Trained estimator is downloaded and stored at your computer, so you can use it at any time.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>features</strong> (<em>list[str] or None</em>) &#8211; features used in training</li>
+<li><strong>api_config_file</strong> (<em>str</em>) &#8211; <p>path to the file with remote api configuration in the json format:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="p">{</span><span class="s2">&quot;url&quot;</span><span class="p">:</span> <span class="s2">&quot;https://ml.cern.yandex.net/v1&quot;</span><span class="p">,</span> <span class="s2">&quot;token&quot;</span><span class="p">:</span> <span class="s2">&quot;&lt;your_token&gt;&quot;</span><span class="p">}</span>
+</pre></div>
+</div>
+</li>
+<li><strong>iterations</strong> (<em>int</em>) &#8211; number of constructed trees (default=100)</li>
+<li><strong>regularization</strong> (<em>float</em>) &#8211; regularization number (default=0.01)</li>
+<li><strong>intervals</strong> (<em>int or dict(str, list)</em>) &#8211; number of bins for features discretization or dict with borders
+list for each feature for its discretization (default=8)</li>
+<li><strong>max_features_per_iteration</strong> (<em>int</em>) &#8211; depth (default=6, supports 1 &lt;= .. &lt;= 6)</li>
+<li><strong>features_sample_rate_per_iteration</strong> (<em>float</em>) &#8211; training features sampling (default=1.0)</li>
+<li><strong>training_fraction</strong> (<em>float</em>) &#8211; training rows bagging (default=0.5)</li>
+<li><strong>auto_stop</strong> (<em>None or float</em>) &#8211; error value for training pre-stopping</li>
+<li><strong>sync</strong> (<em>bool</em>) &#8211; synchronous or asynchronous training on the server</li>
+<li><strong>random_state</strong> (<em>None or int or RandomState</em>) &#8211; state for a pseudo random generator</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="rep.estimators.matrixnet.MatrixNetClassifier.fit">
+<code class="descname">fit</code><span class="sig-paren">(</span><em>X</em>, <em>y</em>, <em>sample_weight=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/estimators/matrixnet.html#MatrixNetClassifier.fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.estimators.matrixnet.MatrixNetClassifier.fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Train a classification model on the data.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>X</strong> (<em>pandas.DataFrame</em>) &#8211; data of shape [n_samples, n_features]</li>
+<li><strong>y</strong> &#8211; labels of samples, array-like of shape [n_samples]</li>
+<li><strong>sample_weight</strong> &#8211; weight of samples,
+array-like of shape [n_samples] or None if all weights are equal</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">self</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rep.estimators.matrixnet.MatrixNetClassifier.predict_proba">
+<code class="descname">predict_proba</code><span class="sig-paren">(</span><em>X</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/estimators/matrixnet.html#MatrixNetClassifier.predict_proba"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.estimators.matrixnet.MatrixNetClassifier.predict_proba" title="Permalink to this definition">¶</a></dt>
+<dd><p>Predict probabilities for each class label for samples.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>X</strong> (<em>pandas.DataFrame</em>) &#8211; data of shape [n_samples, n_features]</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">numpy.array of shape [n_samples, n_classes] with probabilities</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rep.estimators.matrixnet.MatrixNetClassifier.staged_predict_proba">
+<code class="descname">staged_predict_proba</code><span class="sig-paren">(</span><em>X</em>, <em>step=10</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/estimators/matrixnet.html#MatrixNetClassifier.staged_predict_proba"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.estimators.matrixnet.MatrixNetClassifier.staged_predict_proba" title="Permalink to this definition">¶</a></dt>
+<dd><p>Predict probabilities for data for each class label on each stage.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>X</strong> (<em>pandas.DataFrame</em>) &#8211; data of shape [n_samples, n_features]</li>
+<li><strong>step</strong> (<em>int</em>) &#8211; step for returned iterations (10 by default).</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">iterator</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="rep.estimators.matrixnet.MatrixNetRegressor">
+<em class="property">class </em><code class="descclassname">rep.estimators.matrixnet.</code><code class="descname">MatrixNetRegressor</code><span class="sig-paren">(</span><em>features=None</em>, <em>api_config_file='$HOME/.rep-matrixnet.config.json'</em>, <em>iterations=100</em>, <em>regularization=0.01</em>, <em>intervals=8</em>, <em>max_features_per_iteration=6</em>, <em>features_sample_rate_per_iteration=1.0</em>, <em>training_fraction=0.5</em>, <em>auto_stop=None</em>, <em>sync=True</em>, <em>random_state=42</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/estimators/matrixnet.html#MatrixNetRegressor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.estimators.matrixnet.MatrixNetRegressor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#rep.estimators.matrixnet.MatrixNetBase" title="rep.estimators.matrixnet.MatrixNetBase"><code class="xref py py-class docutils literal"><span class="pre">rep.estimators.matrixnet.MatrixNetBase</span></code></a>, <a class="reference internal" href="#rep.estimators.interface.Regressor" title="rep.estimators.interface.Regressor"><code class="xref py py-class docutils literal"><span class="pre">rep.estimators.interface.Regressor</span></code></a></p>
+<p>MatrixNet for regression model.</p>
+<p>This is a wrapper around <strong>MatrixNet (specific BDT)</strong> technology developed at <strong>Yandex</strong>,
+which is available for CERN people using authorization.
+Trained estimator is downloaded and stored at your computer, so you can use it at any time.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>features</strong> (<em>list[str] or None</em>) &#8211; features used in training</li>
+<li><strong>api_config_file</strong> (<em>str</em>) &#8211; <p>path to the file with remote api configuration in the json format:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="p">{</span><span class="s2">&quot;url&quot;</span><span class="p">:</span> <span class="s2">&quot;https://ml.cern.yandex.net/v1&quot;</span><span class="p">,</span> <span class="s2">&quot;token&quot;</span><span class="p">:</span> <span class="s2">&quot;&lt;your_token&gt;&quot;</span><span class="p">}</span>
+</pre></div>
+</div>
+</li>
+<li><strong>iterations</strong> (<em>int</em>) &#8211; number of constructed trees (default=100)</li>
+<li><strong>regularization</strong> (<em>float</em>) &#8211; regularization number (default=0.01)</li>
+<li><strong>intervals</strong> (<em>int or dict(str, list)</em>) &#8211; number of bins for features discretization or dict with borders
+list for each feature for its discretization (default=8)</li>
+<li><strong>max_features_per_iteration</strong> (<em>int</em>) &#8211; depth (default=6, supports 1 &lt;= .. &lt;= 6)</li>
+<li><strong>features_sample_rate_per_iteration</strong> (<em>float</em>) &#8211; training features sampling (default=1.0)</li>
+<li><strong>training_fraction</strong> (<em>float</em>) &#8211; training rows bagging (default=0.5)</li>
+<li><strong>auto_stop</strong> (<em>None or float</em>) &#8211; error value for training pre-stopping</li>
+<li><strong>sync</strong> (<em>bool</em>) &#8211; synchronous or asynchronous training on the server</li>
+<li><strong>random_state</strong> (<em>None or int or RandomState</em>) &#8211; state for a pseudo random generator</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="rep.estimators.matrixnet.MatrixNetRegressor.fit">
+<code class="descname">fit</code><span class="sig-paren">(</span><em>X</em>, <em>y</em>, <em>sample_weight=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/estimators/matrixnet.html#MatrixNetRegressor.fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.estimators.matrixnet.MatrixNetRegressor.fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Train a classification model on the data.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>X</strong> (<em>pandas.DataFrame</em>) &#8211; data of shape [n_samples, n_features]</li>
+<li><strong>y</strong> &#8211; labels of samples, array-like of shape [n_samples]</li>
+<li><strong>sample_weight</strong> &#8211; weight of samples,
+array-like of shape [n_samples] or None if all weights are equal</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">self</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rep.estimators.matrixnet.MatrixNetRegressor.predict">
+<code class="descname">predict</code><span class="sig-paren">(</span><em>X</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/estimators/matrixnet.html#MatrixNetRegressor.predict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.estimators.matrixnet.MatrixNetRegressor.predict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Predict labels for all samples in the dataset.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>X</strong> (<em>pandas.DataFrame</em>) &#8211; data of shape [n_samples, n_features]</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">numpy.array of shape [n_samples] with integer labels</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rep.estimators.matrixnet.MatrixNetRegressor.staged_predict">
+<code class="descname">staged_predict</code><span class="sig-paren">(</span><em>X</em>, <em>step=10</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/estimators/matrixnet.html#MatrixNetRegressor.staged_predict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.estimators.matrixnet.MatrixNetRegressor.staged_predict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Predict probabilities for data for each class label on each stage.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>X</strong> (<em>pandas.DataFrame</em>) &#8211; data of shape [n_samples, n_features]</li>
+<li><strong>step</strong> (<em>int</em>) &#8211; step for returned iterations (10 by default).</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">iterator</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
 <div class="section" id="examples">
 <h2>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="classification">
@@ -2194,15 +2512,15 @@ otherwise a <code class="xref py py-class docutils literal"><span class="pre">Fe
 <ul>
 <li><dl class="first docutils">
 <dt>Prepare dataset</dt>
-<dd><div class="first last highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">sklearn</span> <span class="kn">import</span> <span class="n">datasets</span>
+<dd><div class="first last highlight-python"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">sklearn</span> <span class="kn">import</span> <span class="n">datasets</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">pandas</span><span class="o">,</span> <span class="nn">numpy</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">rep.utils</span> <span class="kn">import</span> <span class="n">train_test_split</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">roc_auc_score</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="c"># iris data</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># iris data</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">iris</span> <span class="o">=</span> <span class="n">datasets</span><span class="o">.</span><span class="n">load_iris</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">iris</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;a&#39;</span><span class="p">,</span> <span class="s">&#39;b&#39;</span><span class="p">,</span> <span class="s">&#39;c&#39;</span><span class="p">,</span> <span class="s">&#39;d&#39;</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">iris</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="s1">&#39;b&#39;</span><span class="p">,</span> <span class="s1">&#39;c&#39;</span><span class="p">,</span> <span class="s1">&#39;d&#39;</span><span class="p">])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">labels</span> <span class="o">=</span> <span class="n">iris</span><span class="o">.</span><span class="n">target</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="c"># Take just two classes instead of three</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Take just two classes instead of three</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">labels</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">labels</span> <span class="o">=</span> <span class="n">labels</span><span class="p">[</span><span class="n">labels</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">train_data</span><span class="p">,</span> <span class="n">test_data</span><span class="p">,</span> <span class="n">train_labels</span><span class="p">,</span> <span class="n">test_labels</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">train_size</span><span class="o">=</span><span class="mf">0.7</span><span class="p">)</span>
@@ -2213,11 +2531,11 @@ otherwise a <code class="xref py py-class docutils literal"><span class="pre">Fe
 </li>
 <li><dl class="first docutils">
 <dt>Sklearn classification</dt>
-<dd><div class="first last highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">rep.estimators</span> <span class="kn">import</span> <span class="n">SklearnClassifier</span>
+<dd><div class="first last highlight-python"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">rep.estimators</span> <span class="kn">import</span> <span class="n">SklearnClassifier</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">sklearn.ensemble</span> <span class="kn">import</span> <span class="n">GradientBoostingClassifier</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="c"># Using gradient boosting with default settings</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">sk</span> <span class="o">=</span> <span class="n">SklearnClassifier</span><span class="p">(</span><span class="n">GradientBoostingClassifier</span><span class="p">(),</span> <span class="n">features</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;a&#39;</span><span class="p">,</span> <span class="s">&#39;b&#39;</span><span class="p">])</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="c"># Training classifier</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Using gradient boosting with default settings</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sk</span> <span class="o">=</span> <span class="n">SklearnClassifier</span><span class="p">(</span><span class="n">GradientBoostingClassifier</span><span class="p">(),</span> <span class="n">features</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="s1">&#39;b&#39;</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Training classifier</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">sk</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">train_data</span><span class="p">,</span> <span class="n">train_labels</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">pred</span> <span class="o">=</span> <span class="n">sk</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">test_data</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">pred</span>
@@ -2234,8 +2552,8 @@ otherwise a <code class="xref py py-class docutils literal"><span class="pre">Fe
 </li>
 <li><dl class="first docutils">
 <dt>TMVA classification</dt>
-<dd><div class="first last highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">rep.estimators</span> <span class="kn">import</span> <span class="n">TMVAClassifier</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">tmva</span> <span class="o">=</span> <span class="n">TMVAClassifier</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="s">&#39;kBDT&#39;</span><span class="p">,</span> <span class="n">NTrees</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">Shrinkage</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">nCuts</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">BoostType</span><span class="o">=</span><span class="s">&#39;Grad&#39;</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;a&#39;</span><span class="p">,</span> <span class="s">&#39;b&#39;</span><span class="p">])</span>
+<dd><div class="first last highlight-python"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">rep.estimators</span> <span class="kn">import</span> <span class="n">TMVAClassifier</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tmva</span> <span class="o">=</span> <span class="n">TMVAClassifier</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="s1">&#39;kBDT&#39;</span><span class="p">,</span> <span class="n">NTrees</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">Shrinkage</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">nCuts</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">BoostType</span><span class="o">=</span><span class="s1">&#39;Grad&#39;</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="s1">&#39;b&#39;</span><span class="p">])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">tmva</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">train_data</span><span class="p">,</span> <span class="n">train_labels</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">pred</span> <span class="o">=</span> <span class="n">tmva</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">test_data</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">pred</span>
@@ -2252,9 +2570,9 @@ otherwise a <code class="xref py py-class docutils literal"><span class="pre">Fe
 </li>
 <li><dl class="first docutils">
 <dt>XGBoost classification</dt>
-<dd><div class="first last highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">rep.estimators</span> <span class="kn">import</span> <span class="n">XGBoostClassifier</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="c"># XGBoost with default parameters</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">xgb</span> <span class="o">=</span> <span class="n">XGBoostClassifier</span><span class="p">(</span><span class="n">features</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;a&#39;</span><span class="p">,</span> <span class="s">&#39;b&#39;</span><span class="p">])</span>
+<dd><div class="first last highlight-python"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">rep.estimators</span> <span class="kn">import</span> <span class="n">XGBoostClassifier</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># XGBoost with default parameters</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">xgb</span> <span class="o">=</span> <span class="n">XGBoostClassifier</span><span class="p">(</span><span class="n">features</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="s1">&#39;b&#39;</span><span class="p">])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">xgb</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">train_data</span><span class="p">,</span> <span class="n">train_labels</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="n">numpy</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">train_labels</span><span class="p">)))</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">pred</span> <span class="o">=</span> <span class="n">xgb</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">test_data</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">pred</span>
@@ -2276,13 +2594,13 @@ otherwise a <code class="xref py py-class docutils literal"><span class="pre">Fe
 <ul>
 <li><dl class="first docutils">
 <dt>Prepare dataset</dt>
-<dd><div class="first last highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">sklearn</span> <span class="kn">import</span> <span class="n">datasets</span>
+<dd><div class="first last highlight-python"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">sklearn</span> <span class="kn">import</span> <span class="n">datasets</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">mean_squared_error</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">rep.utils</span> <span class="kn">import</span> <span class="n">train_test_split</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">pandas</span><span class="o">,</span> <span class="nn">numpy</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="c"># diabetes data</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># diabetes data</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">diabetes</span> <span class="o">=</span> <span class="n">datasets</span><span class="o">.</span><span class="n">load_diabetes</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">features</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;feature_</span><span class="si">%d</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">number</span> <span class="k">for</span> <span class="n">number</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">diabetes</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">features</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;feature_</span><span class="si">%d</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">number</span> <span class="k">for</span> <span class="n">number</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">diabetes</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">diabetes</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">features</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">labels</span> <span class="o">=</span> <span class="n">diabetes</span><span class="o">.</span><span class="n">target</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">train_data</span><span class="p">,</span> <span class="n">test_data</span><span class="p">,</span> <span class="n">train_labels</span><span class="p">,</span> <span class="n">test_labels</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">train_size</span><span class="o">=</span><span class="mf">0.7</span><span class="p">)</span>
@@ -2293,11 +2611,11 @@ otherwise a <code class="xref py py-class docutils literal"><span class="pre">Fe
 </li>
 <li><dl class="first docutils">
 <dt>Sklearn regression</dt>
-<dd><div class="first last highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">rep.estimators</span> <span class="kn">import</span> <span class="n">SklearnRegressor</span>
+<dd><div class="first last highlight-python"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">rep.estimators</span> <span class="kn">import</span> <span class="n">SklearnRegressor</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">sklearn.ensemble</span> <span class="kn">import</span> <span class="n">GradientBoostingRegressor</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="c"># Using gradient boosting with default settings</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Using gradient boosting with default settings</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">sk</span> <span class="o">=</span> <span class="n">SklearnRegressor</span><span class="p">(</span><span class="n">GradientBoostingRegressor</span><span class="p">(),</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">[:</span><span class="mi">8</span><span class="p">])</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="c"># Training classifier</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Training classifier</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">sk</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">train_data</span><span class="p">,</span> <span class="n">train_labels</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">pred</span> <span class="o">=</span> <span class="n">sk</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">train_data</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">numpy</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">mean_squared_error</span><span class="p">(</span><span class="n">train_labels</span><span class="p">,</span> <span class="n">pred</span><span class="p">))</span>
@@ -2309,8 +2627,8 @@ otherwise a <code class="xref py py-class docutils literal"><span class="pre">Fe
 </li>
 <li><dl class="first docutils">
 <dt>TMVA regression</dt>
-<dd><div class="first last highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">rep.estimators</span> <span class="kn">import</span> <span class="n">TMVARegressor</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">tmva</span> <span class="o">=</span> <span class="n">TMVARegressor</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="s">&#39;kBDT&#39;</span><span class="p">,</span> <span class="n">NTrees</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">Shrinkage</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">nCuts</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">BoostType</span><span class="o">=</span><span class="s">&#39;Grad&#39;</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">[:</span><span class="mi">8</span><span class="p">])</span>
+<dd><div class="first last highlight-python"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">rep.estimators</span> <span class="kn">import</span> <span class="n">TMVARegressor</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tmva</span> <span class="o">=</span> <span class="n">TMVARegressor</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="s1">&#39;kBDT&#39;</span><span class="p">,</span> <span class="n">NTrees</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">Shrinkage</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">nCuts</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">BoostType</span><span class="o">=</span><span class="s1">&#39;Grad&#39;</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">[:</span><span class="mi">8</span><span class="p">])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">tmva</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">train_data</span><span class="p">,</span> <span class="n">train_labels</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">pred</span> <span class="o">=</span> <span class="n">tmva</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">test_data</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">numpy</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">mean_squared_error</span><span class="p">(</span><span class="n">test_labels</span><span class="p">,</span> <span class="n">pred</span><span class="p">))</span>
@@ -2322,8 +2640,8 @@ otherwise a <code class="xref py py-class docutils literal"><span class="pre">Fe
 </li>
 <li><dl class="first docutils">
 <dt>XGBoost regression</dt>
-<dd><div class="first last highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">rep.estimators</span> <span class="kn">import</span> <span class="n">XGBoostRegressor</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="c"># XGBoost with default parameters</span>
+<dd><div class="first last highlight-python"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">rep.estimators</span> <span class="kn">import</span> <span class="n">XGBoostRegressor</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># XGBoost with default parameters</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">xgb</span> <span class="o">=</span> <span class="n">XGBoostRegressor</span><span class="p">(</span><span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">[:</span><span class="mi">8</span><span class="p">])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">xgb</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">train_data</span><span class="p">,</span> <span class="n">train_labels</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="n">numpy</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">train_labels</span><span class="p">)))</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">pred</span> <span class="o">=</span> <span class="n">xgb</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">test_data</span><span class="p">)</span>
@@ -2385,7 +2703,7 @@ otherwise a <code class="xref py py-class docutils literal"><span class="pre">Fe
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'./',
-            VERSION:'0.6.6',
+            VERSION:'0.6.7',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true

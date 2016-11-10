@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>rep.report.regression &mdash; REP (Reproducible Experiment Platform) 0.6.6 documentation</title>
+  <title>rep.report.regression &mdash; REP (Reproducible Experiment Platform) 0.6.7 documentation</title>
   
 
   
@@ -30,7 +30,7 @@
   
 
   
-    <link rel="top" title="REP (Reproducible Experiment Platform) 0.6.6 documentation" href="../../../index.html"/>
+    <link rel="top" title="REP (Reproducible Experiment Platform) 0.6.7 documentation" href="../../../index.html"/>
         <link rel="up" title="Module code" href="../../index.html"/> 
 
   
@@ -59,7 +59,7 @@
             
             
               <div class="version">
-                0.6.6
+                0.6.7
               </div>
             
           
@@ -136,7 +136,7 @@
            <div itemprop="articleBody">
             
   <h1>Source code for rep.report.regression</h1><div class="highlight"><pre>
-<span class="sd">&quot;&quot;&quot;</span>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">This file contains report class for regression estimators. Report includes:</span>
 
 <span class="sd">    * features scatter plots, correlations</span>
@@ -160,7 +160,7 @@
 <span class="kn">from</span> <span class="nn">._base</span> <span class="kn">import</span> <span class="n">AbstractReport</span>
 <span class="kn">from</span> <span class="nn">..estimators.interface</span> <span class="kn">import</span> <span class="n">Regressor</span>
 
-<span class="n">__author__</span> <span class="o">=</span> <span class="s">&#39;Alex Rogozhnikov, Tatiana Likhomanenko&#39;</span>
+<span class="n">__author__</span> <span class="o">=</span> <span class="s1">&#39;Alex Rogozhnikov, Tatiana Likhomanenko&#39;</span>
 
 
 <div class="viewcode-block" id="RegressionReport"><a class="viewcode-back" href="../../../report.html#rep.report.regression.RegressionReport">[docs]</a><span class="k">class</span> <span class="nc">RegressionReport</span><span class="p">(</span><span class="n">AbstractReport</span><span class="p">):</span>
@@ -173,7 +173,7 @@
 <span class="sd">        :param LabeledDataStorage lds: data</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">regressor</span> <span class="ow">in</span> <span class="n">regressors</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">regressor</span><span class="p">,</span> <span class="n">Regressor</span><span class="p">),</span> <span class="s">&quot;Object {} doesn&#39;t implement interface&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+            <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">regressor</span><span class="p">,</span> <span class="n">Regressor</span><span class="p">),</span> <span class="s2">&quot;Object {} doesn&#39;t implement interface&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
         <span class="n">AbstractReport</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lds</span><span class="o">=</span><span class="n">lds</span><span class="p">,</span> <span class="n">estimators</span><span class="o">=</span><span class="n">regressors</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">estimator</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
@@ -227,7 +227,7 @@
         <span class="k">for</span> <span class="n">feature1_c</span><span class="p">,</span> <span class="n">feature2_c</span> <span class="ow">in</span> <span class="n">correlation_pairs</span><span class="p">:</span>
             <span class="n">feature1</span><span class="p">,</span> <span class="n">feature2</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">get_columns_dict</span><span class="p">([</span><span class="n">feature1_c</span><span class="p">,</span> <span class="n">feature2_c</span><span class="p">])</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
             <span class="n">corr_pairs</span><span class="p">[(</span><span class="n">feature1</span><span class="p">,</span> <span class="n">feature2</span><span class="p">)]</span> <span class="o">=</span> <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">feature1</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">df</span><span class="p">[</span><span class="n">feature2</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
-            <span class="n">plot_fig</span> <span class="o">=</span> <span class="n">plotting</span><span class="o">.</span><span class="n">ScatterPlot</span><span class="p">({</span><span class="s">&#39;correlation&#39;</span><span class="p">:</span> <span class="n">corr_pairs</span><span class="p">[(</span><span class="n">feature1</span><span class="p">,</span> <span class="n">feature2</span><span class="p">)]},</span> <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">,</span>
+            <span class="n">plot_fig</span> <span class="o">=</span> <span class="n">plotting</span><span class="o">.</span><span class="n">ScatterPlot</span><span class="p">({</span><span class="s1">&#39;correlation&#39;</span><span class="p">:</span> <span class="n">corr_pairs</span><span class="p">[(</span><span class="n">feature1</span><span class="p">,</span> <span class="n">feature2</span><span class="p">)]},</span> <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">,</span>
                                             <span class="n">size</span><span class="o">=</span><span class="n">marker_size</span><span class="p">)</span>
             <span class="n">plot_fig</span><span class="o">.</span><span class="n">xlabel</span> <span class="o">=</span> <span class="n">feature1</span>
             <span class="n">plot_fig</span><span class="o">.</span><span class="n">ylabel</span> <span class="o">=</span> <span class="n">feature2</span>
@@ -295,7 +295,7 @@
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'../../../',
-            VERSION:'0.6.6',
+            VERSION:'0.6.7',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true

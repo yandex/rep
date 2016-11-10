@@ -69,6 +69,13 @@ Pybrain classifier and regressor
     :show-inheritance:
     :undoc-members:
 
+MatrixNet classifier and regressor
+----------------------------------
+.. automodule:: rep.estimators.matrixnet
+    :members:
+    :show-inheritance:
+    :undoc-members:
+
 Examples
 --------
 

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Metrics &mdash; REP (Reproducible Experiment Platform) 0.6.6 documentation</title>
+  <title>Metrics &mdash; REP (Reproducible Experiment Platform) 0.6.7 documentation</title>
   
 
   
@@ -30,7 +30,7 @@
   
 
   
-    <link rel="top" title="REP (Reproducible Experiment Platform) 0.6.6 documentation" href="index.html"/>
+    <link rel="top" title="REP (Reproducible Experiment Platform) 0.6.7 documentation" href="index.html"/>
         <link rel="next" title="Plotting" href="plotting.html"/>
         <link rel="prev" title="Report for models" href="report.html"/> 
 
@@ -60,7 +60,7 @@
             
             
               <div class="version">
-                0.6.6
+                0.6.7
               </div>
             
           
@@ -154,23 +154,23 @@ Metric functions following this format can be used in grid search and reports.</
 <div><ul class="simple">
 <li>constructor (you should create an instance of metric!), all fine-tuning should be done at this step:</li>
 </ul>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">metric</span> <span class="o">=</span> <span class="n">RocAuc</span><span class="p">(</span><span class="n">positive_label</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">metric</span> <span class="o">=</span> <span class="n">RocAuc</span><span class="p">(</span><span class="n">positive_label</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
 </pre></div>
 </div>
 <ul class="simple">
 <li>fitting, where checks and heavy computations performed
 (this step is needed for ranking metrics, uniformity metrics):</li>
 </ul>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">metric</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">metric</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
 </pre></div>
 </div>
 <ul class="simple">
 <li>computation of metrics by probabilities (important: metric should be computed on exactly same dataset as was used on previous step):</li>
 </ul>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="c"># in case of classification</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># in case of classification</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">proba</span> <span class="o">=</span> <span class="n">classifier</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">metric</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">proba</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="c"># in case of regression</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># in case of regression</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">prediction</span> <span class="o">=</span> <span class="n">regressor</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">metric</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">prediction</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
 </pre></div>
@@ -184,9 +184,9 @@ Once fitted (and heavy computations done in fitting), then for every stage compu
 <dl class="docutils">
 <dt>Many metric functions do not require complex settings and different precomputing,</dt>
 <dd><p class="first">so <strong>REP</strong> also works with functions having following API:</p>
-<div class="last highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="c"># for classification</span>
+<div class="last highlight-python"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># for classification</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">metric</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">probabilities</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="c"># for regression</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># for regression</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">metric</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">predictions</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -468,11 +468,11 @@ Here we use normalization, so maximal s and b are equal to 1.</p>
 </tr>
 </tbody>
 </table>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">proba1</span> <span class="o">=</span> <span class="n">classifier1</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">X</span><span class="p">)[:,</span> <span class="mi">1</span><span class="p">]</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">proba1</span> <span class="o">=</span> <span class="n">classifier1</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">X</span><span class="p">)[:,</span> <span class="mi">1</span><span class="p">]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">proba2</span> <span class="o">=</span> <span class="n">classifier2</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">X</span><span class="p">)[:,</span> <span class="mi">1</span><span class="p">]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">optimal_ndim</span> <span class="o">=</span> <span class="n">OptimalMetricNdim</span><span class="p">(</span><span class="n">ams</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">optimal_ndim</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="p">,</span> <span class="n">proba1</span><span class="p">,</span> <span class="n">proba2</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="c"># returns optimal AUC and thresholds for proba1 and proba2</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># returns optimal AUC and thresholds for proba1 and proba2</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="mf">0.99</span><span class="p">,</span> <span class="p">(</span><span class="mf">0.88</span><span class="p">,</span> <span class="mf">0.45</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -522,7 +522,7 @@ Here we use normalization, so maximal s and b are equal to 1.</p>
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'./',
-            VERSION:'0.6.6',
+            VERSION:'0.6.7',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true

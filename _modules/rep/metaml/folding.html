@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>rep.metaml.folding &mdash; REP (Reproducible Experiment Platform) 0.6.6 documentation</title>
+  <title>rep.metaml.folding &mdash; REP (Reproducible Experiment Platform) 0.6.7 documentation</title>
   
 
   
@@ -30,7 +30,7 @@
   
 
   
-    <link rel="top" title="REP (Reproducible Experiment Platform) 0.6.6 documentation" href="../../../index.html"/>
+    <link rel="top" title="REP (Reproducible Experiment Platform) 0.6.7 documentation" href="../../../index.html"/>
         <link rel="up" title="Module code" href="../../index.html"/> 
 
   
@@ -59,7 +59,7 @@
             
             
               <div class="version">
-                0.6.6
+                0.6.7
               </div>
             
           
@@ -136,7 +136,7 @@
            <div itemprop="articleBody">
             
   <h1>Source code for rep.metaml.folding</h1><div class="highlight"><pre>
-<span class="sd">&quot;&quot;&quot;</span>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">:class:`FoldingClassifier` and :class:`FoldingRegressor` provide an easy way</span>
 <span class="sd">to run k-Folding cross-validation. Also it is a nice way to combine predictions of trained classifiers.</span>
 
@@ -155,8 +155,8 @@
 <span class="kn">from</span> <span class="nn">..estimators.interface</span> <span class="kn">import</span> <span class="n">Classifier</span><span class="p">,</span> <span class="n">Regressor</span>
 <span class="kn">from</span> <span class="nn">..estimators.utils</span> <span class="kn">import</span> <span class="n">check_inputs</span>
 
-<span class="n">__author__</span> <span class="o">=</span> <span class="s">&#39;Tatiana Likhomanenko, Alex Rogozhnikov&#39;</span>
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;FoldingClassifier&#39;</span><span class="p">,</span> <span class="s">&#39;FoldingRegressor&#39;</span><span class="p">]</span>
+<span class="n">__author__</span> <span class="o">=</span> <span class="s1">&#39;Tatiana Likhomanenko, Alex Rogozhnikov&#39;</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;FoldingClassifier&#39;</span><span class="p">,</span> <span class="s1">&#39;FoldingRegressor&#39;</span><span class="p">]</span>
 
 <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">get_classifier_probabilities</span><span class="p">,</span> <span class="n">get_classifier_staged_proba</span><span class="p">,</span> <span class="n">get_regressor_prediction</span><span class="p">,</span> \
     <span class="n">get_regressor_staged_predict</span>
@@ -204,7 +204,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_folds_indices</span> <span class="o">=</span> <span class="bp">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">random_state</span> <span class="o">=</span> <span class="n">random_state</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_random_number</span> <span class="o">=</span> <span class="bp">None</span>
-        <span class="c"># setting features directly</span>
+        <span class="c1"># setting features directly</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">features</span> <span class="o">=</span> <span class="n">features</span>
 
     <span class="k">def</span> <span class="nf">_get_folds_column</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">length</span><span class="p">):</span>
@@ -220,7 +220,7 @@
         <span class="k">return</span> <span class="n">folds_column</span>
 
     <span class="k">def</span> <span class="nf">_prepare_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s">&#39;To be implemented in descendant&#39;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s1">&#39;To be implemented in descendant&#39;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -232,9 +232,9 @@
 <span class="sd">        :param sample_weight: weight of events,</span>
 <span class="sd">               array-like of shape [n_samples] or None if all weights are equal</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">base_estimator</span><span class="p">,</span> <span class="s">&#39;features&#39;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">base_estimator</span><span class="p">,</span> <span class="s1">&#39;features&#39;</span><span class="p">):</span>
             <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_estimator</span><span class="o">.</span><span class="n">features</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">,</span> \
-                <span class="s">&#39;Base estimator must have None features! Use features parameter in Folding instead&#39;</span>
+                <span class="s1">&#39;Base estimator must have None features! Use features parameter in Folding instead&#39;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">train_length</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
         <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prepare_data</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="p">)</span>
 
@@ -255,11 +255,11 @@
                                       <span class="p">(</span><span class="n">y</span><span class="p">[</span><span class="n">folds_column</span> <span class="o">!=</span> <span class="n">index</span><span class="p">]</span> <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_folds</span><span class="p">)),</span>
                                       <span class="n">weights_iterator</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">status</span><span class="p">,</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">result</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">status</span> <span class="o">==</span> <span class="s">&#39;success&#39;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">status</span> <span class="o">==</span> <span class="s1">&#39;success&#39;</span><span class="p">:</span>
                 <span class="n">name</span><span class="p">,</span> <span class="n">classifier</span><span class="p">,</span> <span class="n">spent_time</span> <span class="o">=</span> <span class="n">data</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">estimators</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">classifier</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="k">print</span><span class="p">(</span><span class="s">&#39;Problem while training on the node, report:</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+                <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Problem while training on the node, report:</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span>
 
     <span class="k">def</span> <span class="nf">_folding_prediction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">prediction_function</span><span class="p">,</span> <span class="n">vote_function</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
@@ -273,18 +273,18 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">X</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_features</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">vote_function</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
-            <span class="k">print</span><span class="p">(</span><span class="s">&#39;KFold prediction with voting function&#39;</span><span class="p">)</span>
+            <span class="k">print</span><span class="p">(</span><span class="s1">&#39;KFold prediction with voting function&#39;</span><span class="p">)</span>
             <span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="k">for</span> <span class="n">estimator</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">estimators</span><span class="p">:</span>
                 <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">prediction_function</span><span class="p">(</span><span class="n">estimator</span><span class="p">,</span> <span class="n">X</span><span class="p">))</span>
-            <span class="c"># results: [n_classifiers, n_samples, n_dimensions], reduction over 0th axis</span>
+            <span class="c1"># results: [n_classifiers, n_samples, n_dimensions], reduction over 0th axis</span>
             <span class="n">results</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">vote_function</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">X</span><span class="p">)</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">train_length</span><span class="p">:</span>
-                <span class="k">print</span><span class="p">(</span><span class="s">&#39;KFold prediction using random classifier (length of data passed not equal to length of train)&#39;</span><span class="p">)</span>
+                <span class="k">print</span><span class="p">(</span><span class="s1">&#39;KFold prediction using random classifier (length of data passed not equal to length of train)&#39;</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="k">print</span><span class="p">(</span><span class="s">&#39;KFold prediction using folds column&#39;</span><span class="p">)</span>
+                <span class="k">print</span><span class="p">(</span><span class="s1">&#39;KFold prediction using folds column&#39;</span><span class="p">)</span>
             <span class="n">folds_column</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_folds_column</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">X</span><span class="p">))</span>
             <span class="n">parts</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="k">for</span> <span class="n">fold</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_folds</span><span class="p">):</span>
@@ -300,16 +300,16 @@
     <span class="k">def</span> <span class="nf">_staged_folding_prediction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">prediction_function</span><span class="p">,</span> <span class="n">vote_function</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="n">X</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_features</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">vote_function</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
-            <span class="k">print</span><span class="p">(</span><span class="s">&#39;Using voting KFold prediction&#39;</span><span class="p">)</span>
+            <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Using voting KFold prediction&#39;</span><span class="p">)</span>
             <span class="n">iterators</span> <span class="o">=</span> <span class="p">[</span><span class="n">prediction_function</span><span class="p">(</span><span class="n">estimator</span><span class="p">,</span> <span class="n">X</span><span class="p">)</span> <span class="k">for</span> <span class="n">estimator</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">estimators</span><span class="p">]</span>
             <span class="k">for</span> <span class="n">fold_prob</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">iterators</span><span class="p">):</span>
                 <span class="n">result</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">fold_prob</span><span class="p">)</span>
                 <span class="k">yield</span> <span class="n">vote_function</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">X</span><span class="p">)</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">train_length</span><span class="p">:</span>
-                <span class="k">print</span><span class="p">(</span><span class="s">&#39;KFold prediction using random classifier (length of data passed not equal to length of train)&#39;</span><span class="p">)</span>
+                <span class="k">print</span><span class="p">(</span><span class="s1">&#39;KFold prediction using random classifier (length of data passed not equal to length of train)&#39;</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="k">print</span><span class="p">(</span><span class="s">&#39;KFold prediction using folds column&#39;</span><span class="p">)</span>
+                <span class="k">print</span><span class="p">(</span><span class="s1">&#39;KFold prediction using folds column&#39;</span><span class="p">)</span>
             <span class="n">folds_column</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_folds_column</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">X</span><span class="p">))</span>
             <span class="n">iterators</span> <span class="o">=</span> <span class="p">[</span><span class="n">prediction_function</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">estimators</span><span class="p">[</span><span class="n">fold</span><span class="p">],</span> <span class="n">X</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">folds_column</span> <span class="o">==</span> <span class="n">fold</span><span class="p">,</span> <span class="p">:])</span>
                          <span class="k">for</span> <span class="n">fold</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_folds</span><span class="p">)]</span>
@@ -328,19 +328,19 @@
 <span class="sd">        :return: pandas.DataFrame with column effect and `index=features`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">importances</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sum</span><span class="p">([</span><span class="n">est</span><span class="o">.</span><span class="n">feature_importances_</span> <span class="k">for</span> <span class="n">est</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">estimators</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-        <span class="c"># to get train_features, not features</span>
+        <span class="c1"># to get train_features, not features</span>
         <span class="n">one_importances</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">estimators</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">get_feature_importances</span><span class="p">()</span>
-        <span class="k">return</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s">&#39;effect&#39;</span><span class="p">:</span> <span class="n">importances</span> <span class="o">/</span> <span class="n">numpy</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">importances</span><span class="p">)},</span> <span class="n">index</span><span class="o">=</span><span class="n">one_importances</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s1">&#39;effect&#39;</span><span class="p">:</span> <span class="n">importances</span> <span class="o">/</span> <span class="n">numpy</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">importances</span><span class="p">)},</span> <span class="n">index</span><span class="o">=</span><span class="n">one_importances</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="FoldingRegressor"><a class="viewcode-back" href="../../../metaml.html#rep.metaml.folding.FoldingRegressor">[docs]</a><span class="k">class</span> <span class="nc">FoldingRegressor</span><span class="p">(</span><span class="n">FoldingBase</span><span class="p">,</span> <span class="n">Regressor</span><span class="p">):</span></div>
-    <span class="c"># inherit documentation</span>
-    <span class="n">__doc__</span> <span class="o">=</span> <span class="n">FoldingBase</span><span class="o">.</span><span class="n">__doc__</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">estimator</span><span class="o">=</span><span class="s">&#39;regressor&#39;</span><span class="p">)</span>
+    <span class="c1"># inherit documentation</span>
+    <span class="n">__doc__</span> <span class="o">=</span> <span class="n">FoldingBase</span><span class="o">.</span><span class="n">__doc__</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">estimator</span><span class="o">=</span><span class="s1">&#39;regressor&#39;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">FoldingBase</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="n">sample_weight</span><span class="p">)</span>
 
-    <span class="n">fit</span><span class="o">.</span><span class="n">__doc__</span> <span class="o">=</span> <span class="n">FoldingBase</span><span class="o">.</span><span class="n">fit</span><span class="o">.</span><span class="n">__doc__</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">estimator</span><span class="o">=</span><span class="s">&#39;regressor&#39;</span><span class="p">)</span>
+    <span class="n">fit</span><span class="o">.</span><span class="n">__doc__</span> <span class="o">=</span> <span class="n">FoldingBase</span><span class="o">.</span><span class="n">fit</span><span class="o">.</span><span class="n">__doc__</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">estimator</span><span class="o">=</span><span class="s1">&#39;regressor&#39;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_prepare_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="p">):</span>
         <span class="n">X</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_features</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
@@ -389,17 +389,17 @@
     <span class="k">def</span> <span class="nf">feature_importances_</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Sklearn-way of returning feature importance.</span>
 <span class="sd">        This returned as numpy.array, assuming that initially passed train_features=None &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_feature_importances</span><span class="p">()</span><span class="o">.</span><span class="n">ix</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">features</span><span class="p">,</span> <span class="s">&#39;effect&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_feature_importances</span><span class="p">()</span><span class="o">.</span><span class="n">ix</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">features</span><span class="p">,</span> <span class="s1">&#39;effect&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
 
 
 <div class="viewcode-block" id="FoldingClassifier"><a class="viewcode-back" href="../../../metaml.html#rep.metaml.folding.FoldingClassifier">[docs]</a><span class="k">class</span> <span class="nc">FoldingClassifier</span><span class="p">(</span><span class="n">FoldingBase</span><span class="p">,</span> <span class="n">Classifier</span><span class="p">):</span></div>
-    <span class="c"># inherit documentation</span>
-    <span class="n">__doc__</span> <span class="o">=</span> <span class="n">FoldingBase</span><span class="o">.</span><span class="n">__doc__</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">estimator</span><span class="o">=</span><span class="s">&#39;classifier&#39;</span><span class="p">)</span>
+    <span class="c1"># inherit documentation</span>
+    <span class="n">__doc__</span> <span class="o">=</span> <span class="n">FoldingBase</span><span class="o">.</span><span class="n">__doc__</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">estimator</span><span class="o">=</span><span class="s1">&#39;classifier&#39;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">FoldingBase</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="n">sample_weight</span><span class="p">)</span>
 
-    <span class="n">fit</span><span class="o">.</span><span class="n">__doc__</span> <span class="o">=</span> <span class="n">FoldingBase</span><span class="o">.</span><span class="n">fit</span><span class="o">.</span><span class="n">__doc__</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">estimator</span><span class="o">=</span><span class="s">&#39;classifier&#39;</span><span class="p">)</span>
+    <span class="n">fit</span><span class="o">.</span><span class="n">__doc__</span> <span class="o">=</span> <span class="n">FoldingBase</span><span class="o">.</span><span class="n">fit</span><span class="o">.</span><span class="n">__doc__</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">estimator</span><span class="o">=</span><span class="s1">&#39;classifier&#39;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_prepare_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="p">):</span>
         <span class="n">X</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_features</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
@@ -462,7 +462,7 @@
     <span class="k">def</span> <span class="nf">feature_importances_</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Sklearn-way of returning feature importance.</span>
 <span class="sd">        This returned as numpy.array, assuming that initially passed train_features=None &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_feature_importances</span><span class="p">()</span><span class="o">.</span><span class="n">ix</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">features</span><span class="p">,</span> <span class="s">&#39;effect&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_feature_importances</span><span class="p">()</span><span class="o">.</span><span class="n">ix</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">features</span><span class="p">,</span> <span class="s1">&#39;effect&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
 </pre></div>
 
            </div>
@@ -496,7 +496,7 @@
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'../../../',
-            VERSION:'0.6.6',
+            VERSION:'0.6.7',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true

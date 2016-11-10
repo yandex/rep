@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>rep.estimators.sklearn &mdash; REP (Reproducible Experiment Platform) 0.6.6 documentation</title>
+  <title>rep.estimators.sklearn &mdash; REP (Reproducible Experiment Platform) 0.6.7 documentation</title>
   
 
   
@@ -30,7 +30,7 @@
   
 
   
-    <link rel="top" title="REP (Reproducible Experiment Platform) 0.6.6 documentation" href="../../../index.html"/>
+    <link rel="top" title="REP (Reproducible Experiment Platform) 0.6.7 documentation" href="../../../index.html"/>
         <link rel="up" title="Module code" href="../../index.html"/> 
 
   
@@ -59,7 +59,7 @@
             
             
               <div class="version">
-                0.6.6
+                0.6.7
               </div>
             
           
@@ -136,7 +136,7 @@
            <div itemprop="articleBody">
             
   <h1>Source code for rep.estimators.sklearn</h1><div class="highlight"><pre>
-<span class="sd">&quot;&quot;&quot;</span>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">:class:`SklearnClassifier` and :class:`SklearnRegressor` are wrappers for algorithms from scikit-learn.</span>
 
 <span class="sd">From user perspective, wrapped sklearn model behaves in the same way as non-wrapped,</span>
@@ -154,9 +154,9 @@
 <span class="kn">from</span> <span class="nn">.interface</span> <span class="kn">import</span> <span class="n">Classifier</span><span class="p">,</span> <span class="n">Regressor</span>
 <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">check_inputs</span>
 
-<span class="n">__author__</span> <span class="o">=</span> <span class="s">&#39;Alex Rogozhnikov&#39;</span>
+<span class="n">__author__</span> <span class="o">=</span> <span class="s1">&#39;Alex Rogozhnikov&#39;</span>
 
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;SklearnClassifier&#39;</span><span class="p">,</span> <span class="s">&#39;SklearnRegressor&#39;</span><span class="p">]</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;SklearnClassifier&#39;</span><span class="p">,</span> <span class="s1">&#39;SklearnRegressor&#39;</span><span class="p">]</span>
 
 
 <span class="k">class</span> <span class="nc">SklearnBase</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
@@ -195,10 +195,10 @@
         <span class="k">return</span> <span class="bp">self</span>
 
     <span class="k">def</span> <span class="nf">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
-        <span class="c"># In order not to break pickling/unpickling.</span>
-        <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="p">[</span><span class="s">&#39;__getstate__&#39;</span><span class="p">,</span> <span class="s">&#39;__setstate__&#39;</span><span class="p">]:</span>
+        <span class="c1"># In order not to break pickling/unpickling.</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;__getstate__&#39;</span><span class="p">,</span> <span class="s1">&#39;__setstate__&#39;</span><span class="p">]:</span>
             <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">()</span>
-        <span class="c"># Those methods not defined here will be used directly from the estimator</span>
+        <span class="c1"># Those methods not defined here will be used directly from the estimator</span>
         <span class="n">base</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">clf</span>
         <span class="k">return</span> <span class="n">base</span><span class="o">.</span><span class="n">__getattribute__</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
 
@@ -211,11 +211,11 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">params_for_clf</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">params</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="s">&#39;features&#39;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="s1">&#39;features&#39;</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">features</span> <span class="o">=</span> <span class="n">value</span>
-            <span class="k">elif</span> <span class="n">name</span> <span class="o">==</span> <span class="s">&#39;clf&#39;</span><span class="p">:</span>
+            <span class="k">elif</span> <span class="n">name</span> <span class="o">==</span> <span class="s1">&#39;clf&#39;</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">clf</span> <span class="o">=</span> <span class="n">value</span>
-            <span class="k">elif</span> <span class="n">name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;clf__&#39;</span><span class="p">):</span>
+            <span class="k">elif</span> <span class="n">name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;clf__&#39;</span><span class="p">):</span>
                 <span class="n">params_for_clf</span><span class="p">[</span><span class="n">name</span><span class="p">[</span><span class="mi">5</span><span class="p">:]]</span> <span class="o">=</span> <span class="n">value</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">params_for_clf</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
@@ -232,7 +232,7 @@
 <span class="sd">        :type features: list[str] or None</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">clf</span><span class="p">,</span> <span class="n">Classifier</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&#39;Base class should be simply sklearn classifier, not descendant of Classifier&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Base class should be simply sklearn classifier, not descendant of Classifier&#39;</span><span class="p">)</span>
         <span class="n">SklearnBase</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">clf</span><span class="o">=</span><span class="n">clf</span><span class="p">)</span>
         <span class="n">Classifier</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">)</span>
 
@@ -241,7 +241,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_set_classes</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="n">sample_weight</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
-    <span class="n">fit</span><span class="o">.</span><span class="n">__doc__</span> <span class="o">=</span> <span class="n">SklearnBase</span><span class="o">.</span><span class="n">_fit</span><span class="o">.</span><span class="n">__doc__</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">estimator</span><span class="o">=</span><span class="s">&#39;classifier&#39;</span><span class="p">)</span>
+    <span class="n">fit</span><span class="o">.</span><span class="n">__doc__</span> <span class="o">=</span> <span class="n">SklearnBase</span><span class="o">.</span><span class="n">_fit</span><span class="o">.</span><span class="n">__doc__</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">estimator</span><span class="o">=</span><span class="s1">&#39;classifier&#39;</span><span class="p">)</span>
 
 <div class="viewcode-block" id="SklearnClassifier.predict"><a class="viewcode-back" href="../../../estimators.html#rep.estimators.sklearn.SklearnClassifier.predict">[docs]</a>    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">clf</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_features</span><span class="p">(</span><span class="n">X</span><span class="p">))</span></div>
@@ -269,7 +269,7 @@
 <span class="sd">        :type features: list[str] or None</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">clf</span><span class="p">,</span> <span class="n">Regressor</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&#39;Base class should be simply sklearn classifier, not descendant of Regressor&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Base class should be simply sklearn classifier, not descendant of Regressor&#39;</span><span class="p">)</span>
         <span class="n">SklearnBase</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">clf</span><span class="o">=</span><span class="n">clf</span><span class="p">)</span>
         <span class="n">Regressor</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">)</span>
 
@@ -277,7 +277,7 @@
         <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span> <span class="o">=</span> <span class="n">check_inputs</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="n">sample_weight</span><span class="p">,</span> <span class="n">allow_none_weights</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="n">sample_weight</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
-    <span class="n">fit</span><span class="o">.</span><span class="n">__doc__</span> <span class="o">=</span> <span class="n">SklearnBase</span><span class="o">.</span><span class="n">_fit</span><span class="o">.</span><span class="n">__doc__</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">estimator</span><span class="o">=</span><span class="s">&#39;classifier&#39;</span><span class="p">)</span>
+    <span class="n">fit</span><span class="o">.</span><span class="n">__doc__</span> <span class="o">=</span> <span class="n">SklearnBase</span><span class="o">.</span><span class="n">_fit</span><span class="o">.</span><span class="n">__doc__</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">estimator</span><span class="o">=</span><span class="s1">&#39;classifier&#39;</span><span class="p">)</span>
 
 <div class="viewcode-block" id="SklearnRegressor.predict"><a class="viewcode-back" href="../../../estimators.html#rep.estimators.sklearn.SklearnRegressor.predict">[docs]</a>    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">clf</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_features</span><span class="p">(</span><span class="n">X</span><span class="p">))</span></div>
@@ -327,7 +327,7 @@
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'../../../',
-            VERSION:'0.6.6',
+            VERSION:'0.6.7',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true

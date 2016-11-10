@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Utilities &mdash; REP (Reproducible Experiment Platform) 0.6.6 documentation</title>
+  <title>Utilities &mdash; REP (Reproducible Experiment Platform) 0.6.7 documentation</title>
   
 
   
@@ -30,7 +30,7 @@
   
 
   
-    <link rel="top" title="REP (Reproducible Experiment Platform) 0.6.6 documentation" href="index.html"/>
+    <link rel="top" title="REP (Reproducible Experiment Platform) 0.6.7 documentation" href="index.html"/>
         <link rel="next" title="REProducibility" href="reproducibility.html"/>
         <link rel="prev" title="Data" href="data.html"/> 
 
@@ -60,7 +60,7 @@
             
             
               <div class="version">
-                0.6.6
+                0.6.7
               </div>
             
           
@@ -218,7 +218,7 @@ transforms it to uniform distribution from [0, 1].</p>
 </tbody>
 </table>
 <p>Example of usage:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">normalizer</span> <span class="o">=</span> <span class="n">Flattener</span><span class="p">(</span><span class="n">signal</span><span class="p">)</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">normalizer</span> <span class="o">=</span> <span class="n">Flattener</span><span class="p">(</span><span class="n">signal</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">hist</span><span class="p">(</span><span class="n">normalizer</span><span class="p">(</span><span class="n">background</span><span class="p">))</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">hist</span><span class="p">(</span><span class="n">normalizer</span><span class="p">(</span><span class="n">signal</span><span class="p">))</span>
 </pre></div>
@@ -230,10 +230,10 @@ transforms it to uniform distribution from [0, 1].</p>
 <em class="property">class </em><code class="descclassname">rep.utils.</code><code class="descname">Stopwatch</code><a class="reference internal" href="_modules/rep/utils.html#Stopwatch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.utils.Stopwatch" title="Permalink to this definition">¶</a></dt>
 <dd><p>Simple tool to measure time.
 If your internet connection is reliable, use %time magic.</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">with</span> <span class="n">Stopwatch</span><span class="p">()</span> <span class="k">as</span> <span class="n">timer</span><span class="p">:</span>
-<span class="gp">&gt;&gt;&gt; </span>    <span class="c"># do something here</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">with</span> <span class="n">Stopwatch</span><span class="p">()</span> <span class="k">as</span> <span class="n">timer</span><span class="p">:</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="c1"># do something here</span>
 <span class="gp">&gt;&gt;&gt; </span>    <span class="n">classifier</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="c"># print how much time was spent</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># print how much time was spent</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">timer</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -442,6 +442,12 @@ permutation sorts the first passed array</p>
 </dd></dl>
 
 <dl class="function">
+<dt id="rep.utils.take_last">
+<code class="descclassname">rep.utils.</code><code class="descname">take_last</code><span class="sig-paren">(</span><em>sequence</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/utils.html#take_last"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.utils.take_last" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the last element in sequence or raises an error</p>
+</dd></dl>
+
+<dl class="function">
 <dt id="rep.utils.train_test_split">
 <code class="descclassname">rep.utils.</code><code class="descname">train_test_split</code><span class="sig-paren">(</span><em>*arrays</em>, <em>**kw_args</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rep/utils.html#train_test_split"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rep.utils.train_test_split" title="Permalink to this definition">¶</a></dt>
 <dd><p>Does the same thing as sklearn.cross_validation.train_test_split.
@@ -507,7 +513,7 @@ but it is inefficient and performs complete sorting.</p>
 </tbody>
 </table>
 <p>Example:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">weighted_quantile</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.5</span><span class="p">])</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">weighted_quantile</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.5</span><span class="p">])</span>
 <span class="go">Out: array([ 3.])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">weighted_quantile</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.5</span><span class="p">],</span> <span class="n">sample_weight</span><span class="o">=</span><span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
 <span class="go">Out: array([ 2.])</span>
@@ -558,7 +564,7 @@ but it is inefficient and performs complete sorting.</p>
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'./',
-            VERSION:'0.6.6',
+            VERSION:'0.6.7',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true

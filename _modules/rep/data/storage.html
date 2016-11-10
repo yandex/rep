@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>rep.data.storage &mdash; REP (Reproducible Experiment Platform) 0.6.6 documentation</title>
+  <title>rep.data.storage &mdash; REP (Reproducible Experiment Platform) 0.6.7 documentation</title>
   
 
   
@@ -30,7 +30,7 @@
   
 
   
-    <link rel="top" title="REP (Reproducible Experiment Platform) 0.6.6 documentation" href="../../../index.html"/>
+    <link rel="top" title="REP (Reproducible Experiment Platform) 0.6.7 documentation" href="../../../index.html"/>
         <link rel="up" title="Module code" href="../../index.html"/> 
 
   
@@ -59,7 +59,7 @@
             
             
               <div class="version">
-                0.6.6
+                0.6.7
               </div>
             
           
@@ -136,7 +136,7 @@
            <div itemprop="articleBody">
             
   <h1>Source code for rep.data.storage</h1><div class="highlight"><pre>
-<span class="sd">&quot;&quot;&quot;</span>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">This is a wrapper for `pandas.DataFrame`, which allows you to define dataset (data, labels/values, sample weights) for an estimator in a simple way.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">division</span><span class="p">,</span> <span class="n">print_function</span><span class="p">,</span> <span class="n">absolute_import</span>
@@ -150,7 +150,7 @@
 <span class="kn">from</span> <span class="nn">..utils</span> <span class="kn">import</span> <span class="n">get_columns_dict</span><span class="p">,</span> <span class="n">get_columns_in_df</span>
 
 
-<span class="c"># generating random seeds in the interval [0, RANDINT)</span>
+<span class="c1"># generating random seeds in the interval [0, RANDINT)</span>
 <span class="n">RANDINT</span> <span class="o">=</span> <span class="mi">10000000</span>
 
 
@@ -173,9 +173,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">data</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">target</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_key</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">target</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sample_weight</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_key</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">sample_weight</span><span class="p">,</span> <span class="n">allow_nones</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
-        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="p">),</span> <span class="s">&#39;ERROR: Lengths are different for data and target&#39;</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="p">),</span> <span class="s1">&#39;ERROR: Lengths are different for data and target&#39;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sample_weight</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
-            <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sample_weight</span><span class="p">),</span> <span class="s">&#39;ERROR: Lengths are different for data and sample_weight&#39;</span>
+            <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sample_weight</span><span class="p">),</span> <span class="s1">&#39;ERROR: Lengths are different for data and sample_weight&#39;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_random_state</span> <span class="o">=</span> <span class="n">check_random_state</span><span class="p">(</span><span class="n">random_state</span><span class="p">)</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="n">RANDINT</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">shuffle</span> <span class="o">=</span> <span class="n">shuffle</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_indices</span> <span class="o">=</span> <span class="bp">None</span>
@@ -191,7 +191,7 @@
 <span class="sd">        :return: data corresponding to the key</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">ds</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
-            <span class="c"># assert key in set(ds.columns), self._print_err(&#39;ERROR:&#39;, &#39;%s is absent in data storage&#39; % key)</span>
+            <span class="c1"># assert key in set(ds.columns), self._print_err(&#39;ERROR:&#39;, &#39;%s is absent in data storage&#39; % key)</span>
             <span class="n">name</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">get_columns_dict</span><span class="p">([</span><span class="n">key</span><span class="p">])</span><span class="o">.</span><span class="n">keys</span><span class="p">())[</span><span class="mi">0</span><span class="p">]</span>
             <span class="k">return</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">get_columns_in_df</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="p">[</span><span class="n">key</span><span class="p">])[</span><span class="n">name</span><span class="p">])</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">numbers</span><span class="o">.</span><span class="n">Number</span><span class="p">):</span>
@@ -288,10 +288,10 @@
             <span class="k">return</span> <span class="n">numpy</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">type</span><span class="p">(</span><span class="n">expression</span><span class="p">))</span> <span class="o">+</span> <span class="n">expression</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">expression</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="k">return</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="n">expression</span><span class="p">))</span>
-        <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">expression</span><span class="p">,</span> <span class="s">&#39;__call__&#39;</span><span class="p">):</span>
+        <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">expression</span><span class="p">,</span> <span class="s1">&#39;__call__&#39;</span><span class="p">):</span>
             <span class="k">return</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">expression</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">()))</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">expression</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span> <span class="s">&#39;Different length&#39;</span>
+            <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">expression</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span> <span class="s1">&#39;Different length&#39;</span>
             <span class="k">return</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">expression</span><span class="p">)</span></div></div>
 </pre></div>
 
@@ -326,7 +326,7 @@
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'../../../',
-            VERSION:'0.6.6',
+            VERSION:'0.6.7',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true

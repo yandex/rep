@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>rep.plotting &mdash; REP (Reproducible Experiment Platform) 0.6.6 documentation</title>
+  <title>rep.plotting &mdash; REP (Reproducible Experiment Platform) 0.6.7 documentation</title>
   
 
   
@@ -30,7 +30,7 @@
   
 
   
-    <link rel="top" title="REP (Reproducible Experiment Platform) 0.6.6 documentation" href="../../index.html"/>
+    <link rel="top" title="REP (Reproducible Experiment Platform) 0.6.7 documentation" href="../../index.html"/>
         <link rel="up" title="Module code" href="../index.html"/> 
 
   
@@ -59,7 +59,7 @@
             
             
               <div class="version">
-                0.6.6
+                0.6.7
               </div>
             
           
@@ -136,7 +136,7 @@
            <div itemprop="articleBody">
             
   <h1>Source code for rep.plotting</h1><div class="highlight"><pre>
-<span class="sd">&quot;&quot;&quot;</span>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">There are different plotting backends supported:</span>
 
 <span class="sd">    * *matplotlib* (default, de-facto standard plotting library in python),</span>
@@ -154,13 +154,13 @@
 <span class="kn">import</span> <span class="nn">tempfile</span>
 <span class="kn">from</span> <span class="nn">IPython.core</span> <span class="kn">import</span> <span class="n">display</span>
 
-<span class="n">COLOR_ARRAY</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;red&#39;</span><span class="p">,</span> <span class="s">&#39;blue&#39;</span><span class="p">,</span> <span class="s">&#39;green&#39;</span><span class="p">,</span> <span class="s">&#39;cyan&#39;</span><span class="p">,</span> <span class="s">&#39;MediumVioletRed&#39;</span><span class="p">,</span> <span class="s">&#39;k&#39;</span><span class="p">,</span> <span class="s">&#39;navy&#39;</span><span class="p">,</span> <span class="s">&#39;lime&#39;</span><span class="p">,</span> <span class="s">&#39;CornflowerBlue&#39;</span><span class="p">,</span>
-               <span class="s">&quot;coral&quot;</span><span class="p">,</span> <span class="s">&#39;DeepPink&#39;</span><span class="p">,</span> <span class="s">&#39;LightBlue&#39;</span><span class="p">,</span> <span class="s">&#39;yellow&#39;</span><span class="p">,</span> <span class="s">&#39;Purple&#39;</span><span class="p">,</span> <span class="s">&#39;YellowGreen&#39;</span><span class="p">,</span> <span class="s">&#39;magenta&#39;</span><span class="p">]</span>
-<span class="n">COLOR_ARRAY_BOKEH</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;red&#39;</span><span class="p">,</span> <span class="s">&#39;blue&#39;</span><span class="p">,</span> <span class="s">&#39;green&#39;</span><span class="p">,</span> <span class="s">&#39;cyan&#39;</span><span class="p">]</span>
+<span class="n">COLOR_ARRAY</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;red&#39;</span><span class="p">,</span> <span class="s1">&#39;blue&#39;</span><span class="p">,</span> <span class="s1">&#39;green&#39;</span><span class="p">,</span> <span class="s1">&#39;cyan&#39;</span><span class="p">,</span> <span class="s1">&#39;MediumVioletRed&#39;</span><span class="p">,</span> <span class="s1">&#39;k&#39;</span><span class="p">,</span> <span class="s1">&#39;navy&#39;</span><span class="p">,</span> <span class="s1">&#39;lime&#39;</span><span class="p">,</span> <span class="s1">&#39;CornflowerBlue&#39;</span><span class="p">,</span>
+               <span class="s2">&quot;coral&quot;</span><span class="p">,</span> <span class="s1">&#39;DeepPink&#39;</span><span class="p">,</span> <span class="s1">&#39;LightBlue&#39;</span><span class="p">,</span> <span class="s1">&#39;yellow&#39;</span><span class="p">,</span> <span class="s1">&#39;Purple&#39;</span><span class="p">,</span> <span class="s1">&#39;YellowGreen&#39;</span><span class="p">,</span> <span class="s1">&#39;magenta&#39;</span><span class="p">]</span>
+<span class="n">COLOR_ARRAY_BOKEH</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;red&#39;</span><span class="p">,</span> <span class="s1">&#39;blue&#39;</span><span class="p">,</span> <span class="s1">&#39;green&#39;</span><span class="p">,</span> <span class="s1">&#39;cyan&#39;</span><span class="p">]</span>
 <span class="n">COLOR_ARRAY_TMVA</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
 <span class="n">BOKEH_CMAP</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="s">&#39;#75968f&#39;</span><span class="p">,</span> <span class="s">&#39;#a5bab7&#39;</span><span class="p">,</span> <span class="s">&#39;#c9d9d3&#39;</span><span class="p">,</span> <span class="s">&#39;#e2e2e2&#39;</span><span class="p">,</span> <span class="s">&#39;#dfccce&#39;</span><span class="p">,</span>
-    <span class="s">&#39;#ddb7b1&#39;</span><span class="p">,</span> <span class="s">&#39;#cc7878&#39;</span><span class="p">,</span> <span class="s">&#39;#933b41&#39;</span><span class="p">,</span> <span class="s">&#39;#550b1d&#39;</span>
+    <span class="s1">&#39;#75968f&#39;</span><span class="p">,</span> <span class="s1">&#39;#a5bab7&#39;</span><span class="p">,</span> <span class="s1">&#39;#c9d9d3&#39;</span><span class="p">,</span> <span class="s1">&#39;#e2e2e2&#39;</span><span class="p">,</span> <span class="s1">&#39;#dfccce&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;#ddb7b1&#39;</span><span class="p">,</span> <span class="s1">&#39;#cc7878&#39;</span><span class="p">,</span> <span class="s1">&#39;#933b41&#39;</span><span class="p">,</span> <span class="s1">&#39;#550b1d&#39;</span>
 <span class="p">]</span>
 
 <span class="n">_COLOR_CYCLE</span> <span class="o">=</span> <span class="n">itertools</span><span class="o">.</span><span class="n">cycle</span><span class="p">(</span><span class="n">COLOR_ARRAY</span><span class="p">)</span>
@@ -168,7 +168,7 @@
 <span class="n">_COLOR_CYCLE_TMVA</span> <span class="o">=</span> <span class="n">itertools</span><span class="o">.</span><span class="n">cycle</span><span class="p">(</span><span class="n">COLOR_ARRAY_TMVA</span><span class="p">)</span>
 <span class="n">_BOKEH_OUTPUT_NOTEBOOK_ACTIVATED</span> <span class="o">=</span> <span class="bp">False</span>
 
-<span class="n">__author__</span> <span class="o">=</span> <span class="s">&#39;Tatiana Likhomanenko&#39;</span>
+<span class="n">__author__</span> <span class="o">=</span> <span class="s1">&#39;Tatiana Likhomanenko&#39;</span>
 
 
 <div class="viewcode-block" id="AbstractPlot"><a class="viewcode-back" href="../../plotting.html#rep.plotting.AbstractPlot">[docs]</a><span class="k">class</span> <span class="nc">AbstractPlot</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
@@ -182,9 +182,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">TMVA_RESIZE</span> <span class="o">=</span> <span class="mi">80</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">xlim</span> <span class="o">=</span> <span class="bp">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ylim</span> <span class="o">=</span> <span class="bp">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">xlabel</span> <span class="o">=</span> <span class="s">&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">ylabel</span> <span class="o">=</span> <span class="s">&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">title</span> <span class="o">=</span> <span class="s">&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">xlabel</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ylabel</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">title</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">figsize</span> <span class="o">=</span> <span class="p">(</span><span class="mi">13</span><span class="p">,</span> <span class="mi">7</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">fontsize</span> <span class="o">=</span> <span class="mi">14</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">new_plot</span> <span class="o">=</span> <span class="bp">False</span>
@@ -206,7 +206,7 @@
     <span class="k">def</span> <span class="nf">_repr_html_</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Representation for IPython&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
-        <span class="k">return</span> <span class="s">&quot;&quot;</span>
+        <span class="k">return</span> <span class="s2">&quot;&quot;</span>
 
 <div class="viewcode-block" id="AbstractPlot.plot"><a class="viewcode-back" href="../../plotting.html#rep.plotting.AbstractPlot.plot">[docs]</a>    <span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_plot</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">xlim</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">ylim</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
              <span class="n">xlabel</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">show_legend</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">grid</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
@@ -253,7 +253,7 @@
         <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="n">xlabel</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">fontsize</span><span class="p">)</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="n">ylabel</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">fontsize</span><span class="p">)</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="n">title</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">fontsize</span><span class="p">)</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s">&#39;both&#39;</span><span class="p">,</span> <span class="n">labelsize</span><span class="o">=</span><span class="n">fontsize</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s1">&#39;both&#39;</span><span class="p">,</span> <span class="n">labelsize</span><span class="o">=</span><span class="n">fontsize</span><span class="p">)</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">grid</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">xlim</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
@@ -265,7 +265,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_plot</span><span class="p">()</span>
 
         <span class="k">if</span> <span class="n">show_legend</span><span class="p">:</span>
-            <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s">&#39;best&#39;</span><span class="p">,</span> <span class="n">scatterpoints</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span></div>
+            <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s1">&#39;best&#39;</span><span class="p">,</span> <span class="n">scatterpoints</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="AbstractPlot.plot_bokeh"><a class="viewcode-back" href="../../plotting.html#rep.plotting.AbstractPlot.plot_bokeh">[docs]</a>    <span class="k">def</span> <span class="nf">plot_bokeh</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xlim</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">ylim</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
                    <span class="n">xlabel</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">show_legend</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span></div>
@@ -318,10 +318,10 @@
             <span class="n">current_plot</span><span class="o">.</span><span class="n">x_range</span> <span class="o">=</span> <span class="n">Range1d</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="n">xlim</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">end</span><span class="o">=</span><span class="n">xlim</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
         <span class="k">if</span> <span class="n">ylim</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
             <span class="n">current_plot</span><span class="o">.</span><span class="n">y_range</span> <span class="o">=</span> <span class="n">Range1d</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="n">ylim</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">end</span><span class="o">=</span><span class="n">ylim</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
-        <span class="n">current_plot</span><span class="o">.</span><span class="n">title_text_font_size</span> <span class="o">=</span> <span class="n">value</span><span class="p">(</span><span class="s">&quot;{}pt&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">fontsize</span><span class="p">))</span>
+        <span class="n">current_plot</span><span class="o">.</span><span class="n">title_text_font_size</span> <span class="o">=</span> <span class="n">value</span><span class="p">(</span><span class="s2">&quot;{}pt&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">fontsize</span><span class="p">))</span>
         <span class="n">current_plot</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">axis_label</span> <span class="o">=</span> <span class="n">xlabel</span>
         <span class="n">current_plot</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">axis_label</span> <span class="o">=</span> <span class="n">ylabel</span>
-        <span class="n">current_plot</span><span class="o">.</span><span class="n">legend</span><span class="o">.</span><span class="n">orientation</span> <span class="o">=</span> <span class="s">&#39;top_right&#39;</span>
+        <span class="n">current_plot</span><span class="o">.</span><span class="n">legend</span><span class="o">.</span><span class="n">orientation</span> <span class="o">=</span> <span class="s1">&#39;top_right&#39;</span>
 
         <span class="n">current_plot</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_plot_bokeh</span><span class="p">(</span><span class="n">current_plot</span><span class="p">,</span> <span class="n">show_legend</span><span class="p">)</span>
         <span class="n">bkh</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">current_plot</span><span class="p">)</span>
@@ -364,7 +364,7 @@
             <span class="n">_COLOR_CYCLE_TMVA</span> <span class="o">=</span> <span class="n">itertools</span><span class="o">.</span><span class="n">cycle</span><span class="p">(</span><span class="n">COLOR_ARRAY_TMVA</span><span class="p">)</span>
             <span class="n">t</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="n">low</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">high</span><span class="o">=</span><span class="mi">100000</span><span class="p">)</span>
             <span class="n">figsize</span> <span class="o">=</span> <span class="p">(</span><span class="n">figsize</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">TMVA_RESIZE</span><span class="p">,</span> <span class="n">figsize</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">TMVA_RESIZE</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">canvas</span> <span class="o">=</span> <span class="n">canvas</span><span class="p">(</span><span class="s">&quot;canvas{}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">t</span><span class="p">),</span> <span class="n">figsize</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">canvas</span> <span class="o">=</span> <span class="n">canvas</span><span class="p">(</span><span class="s2">&quot;canvas{}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">t</span><span class="p">),</span> <span class="n">figsize</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">style_file</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
             <span class="n">ROOT</span><span class="o">.</span><span class="n">gROOT</span><span class="o">.</span><span class="n">LoadMacro</span><span class="p">(</span><span class="n">style_file</span><span class="p">)</span>
@@ -427,10 +427,10 @@
                 <span class="n">cur_plot</span><span class="o">.</span><span class="n">x_range</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">Range1d</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="n">plotter</span><span class="o">.</span><span class="n">xlim</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">end</span><span class="o">=</span><span class="n">plotter</span><span class="o">.</span><span class="n">xlim</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
             <span class="k">if</span> <span class="n">plotter</span><span class="o">.</span><span class="n">ylim</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
                 <span class="n">cur_plot</span><span class="o">.</span><span class="n">y_range</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">Range1d</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="n">plotter</span><span class="o">.</span><span class="n">ylim</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">end</span><span class="o">=</span><span class="n">plotter</span><span class="o">.</span><span class="n">ylim</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
-            <span class="n">cur_plot</span><span class="o">.</span><span class="n">title_text_font_size</span> <span class="o">=</span> <span class="n">value</span><span class="p">(</span><span class="s">&quot;{}pt&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">plotter</span><span class="o">.</span><span class="n">fontsize</span><span class="p">))</span>
+            <span class="n">cur_plot</span><span class="o">.</span><span class="n">title_text_font_size</span> <span class="o">=</span> <span class="n">value</span><span class="p">(</span><span class="s2">&quot;{}pt&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">plotter</span><span class="o">.</span><span class="n">fontsize</span><span class="p">))</span>
             <span class="n">cur_plot</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">axis_label</span> <span class="o">=</span> <span class="n">plotter</span><span class="o">.</span><span class="n">xlabel</span>
             <span class="n">cur_plot</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">axis_label</span> <span class="o">=</span> <span class="n">plotter</span><span class="o">.</span><span class="n">ylabel</span>
-            <span class="n">cur_plot</span><span class="o">.</span><span class="n">legend</span><span class="o">.</span><span class="n">orientation</span> <span class="o">=</span> <span class="s">&#39;top_right&#39;</span>
+            <span class="n">cur_plot</span><span class="o">.</span><span class="n">legend</span><span class="o">.</span><span class="n">orientation</span> <span class="o">=</span> <span class="s1">&#39;top_right&#39;</span>
             <span class="n">cur_plot</span> <span class="o">=</span> <span class="n">plotter</span><span class="o">.</span><span class="n">_plot_bokeh</span><span class="p">(</span><span class="n">cur_plot</span><span class="p">,</span> <span class="n">show_legend</span><span class="o">=</span><span class="n">show_legend</span><span class="p">)</span>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">row_lst</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
                 <span class="n">lst</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">row_lst</span><span class="p">)</span>
@@ -442,7 +442,7 @@
         <span class="k">return</span> <span class="n">grid</span>
 
     <span class="k">def</span> <span class="nf">_plot_tmva</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s">&quot;Not supported for TMVA&quot;</span><span class="p">)</span></div>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Not supported for TMVA&quot;</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="HStackPlot"><a class="viewcode-back" href="../../plotting.html#rep.plotting.HStackPlot">[docs]</a><span class="k">class</span> <span class="nc">HStackPlot</span><span class="p">(</span><span class="n">AbstractPlot</span><span class="p">):</span>
@@ -465,7 +465,7 @@
             <span class="n">plotter</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">fontsize_</span><span class="p">,</span> <span class="n">show_legend</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">show_legend_</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_plot_tmva</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s">&quot;Not supported for TMVA&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Not supported for TMVA&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_plot_bokeh</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">current_plot</span><span class="p">,</span> <span class="n">show_legend</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
         <span class="n">obj</span> <span class="o">=</span> <span class="n">GridPlot</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">plots</span><span class="p">),</span> <span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">plots</span><span class="p">)</span>
@@ -488,7 +488,7 @@
             <span class="n">plotter</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">fontsize_</span><span class="p">,</span> <span class="n">show_legend</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">show_legend_</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_plot_tmva</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s">&quot;Not supported for TMVA&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Not supported for TMVA&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_plot_bokeh</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">current_plot</span><span class="p">,</span> <span class="n">show_legend</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
         <span class="n">obj</span> <span class="o">=</span> <span class="n">GridPlot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">plots</span><span class="p">)</span>
@@ -520,8 +520,8 @@
                     <span class="n">y_err_mod</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">y</span> <span class="o">+</span> <span class="n">y_err</span><span class="p">)</span> <span class="o">-</span> <span class="n">y_mod</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">y_mod</span> <span class="o">=</span> <span class="n">y</span>
-            <span class="n">err_bar</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">errorbar</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y_mod</span><span class="p">,</span> <span class="n">yerr</span><span class="o">=</span><span class="n">y_err_mod</span><span class="p">,</span> <span class="n">xerr</span><span class="o">=</span><span class="n">x_err</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s">&#39;o&#39;</span><span class="p">,</span> <span class="n">ms</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
-            <span class="n">err_bar</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_label</span><span class="p">(</span><span class="s">&#39;_nolegend_&#39;</span><span class="p">)</span>
+            <span class="n">err_bar</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">errorbar</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y_mod</span><span class="p">,</span> <span class="n">yerr</span><span class="o">=</span><span class="n">y_err_mod</span><span class="p">,</span> <span class="n">xerr</span><span class="o">=</span><span class="n">x_err</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s1">&#39;o&#39;</span><span class="p">,</span> <span class="n">ms</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
+            <span class="n">err_bar</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_label</span><span class="p">(</span><span class="s1">&#39;_nolegend_&#39;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_plot_tmva</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="kn">import</span> <span class="nn">ROOT</span>
@@ -532,7 +532,7 @@
             <span class="n">color</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">_COLOR_CYCLE_TMVA</span><span class="p">)</span>
             <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">yerr</span><span class="p">,</span> <span class="n">xerr</span> <span class="o">=</span> <span class="n">val</span>
             <span class="n">gr</span> <span class="o">=</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">TGraphErrors</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">y</span><span class="p">),</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">xerr</span><span class="p">),</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">yerr</span><span class="p">))</span>
-            <span class="n">gr</span><span class="o">.</span><span class="n">SetDrawOption</span><span class="p">(</span><span class="s">&quot;AP&quot;</span><span class="p">)</span>
+            <span class="n">gr</span><span class="o">.</span><span class="n">SetDrawOption</span><span class="p">(</span><span class="s2">&quot;AP&quot;</span><span class="p">)</span>
             <span class="n">gr</span><span class="o">.</span><span class="n">SetMarkerColor</span><span class="p">(</span><span class="n">color</span><span class="p">)</span>
             <span class="n">gr</span><span class="o">.</span><span class="n">SetMarkerStyle</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
             <span class="n">gr</span><span class="o">.</span><span class="n">SetFillStyle</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
@@ -540,11 +540,11 @@
             <span class="n">gr</span><span class="o">.</span><span class="n">SetLineWidth</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
             <span class="n">multigraph</span><span class="o">.</span><span class="n">Add</span><span class="p">(</span><span class="n">gr</span><span class="p">)</span>
             <span class="n">legend</span><span class="o">.</span><span class="n">AddEntry</span><span class="p">(</span><span class="n">gr</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
-        <span class="n">multigraph</span><span class="o">.</span><span class="n">Draw</span><span class="p">(</span><span class="s">&quot;AP&quot;</span><span class="p">)</span>
+        <span class="n">multigraph</span><span class="o">.</span><span class="n">Draw</span><span class="p">(</span><span class="s2">&quot;AP&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">multigraph</span><span class="p">,</span> <span class="n">legend</span>
 
     <span class="k">def</span> <span class="nf">_plot_bokeh</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">current_plot</span><span class="p">,</span> <span class="n">show_legend</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s">&quot;Not supported by bokeh&quot;</span><span class="p">)</span></div>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Not supported by bokeh&quot;</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="FunctionsPlot"><a class="viewcode-back" href="../../plotting.html#rep.plotting.FunctionsPlot">[docs]</a><span class="k">class</span> <span class="nc">FunctionsPlot</span><span class="p">(</span><span class="n">AbstractPlot</span><span class="p">):</span>
@@ -585,18 +585,18 @@
             <span class="n">gr</span><span class="o">.</span><span class="n">SetTitle</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
             <span class="n">gr</span><span class="o">.</span><span class="n">SetMarkerColor</span><span class="p">(</span><span class="n">color</span><span class="p">)</span>
             <span class="n">gr</span><span class="o">.</span><span class="n">SetMarkerStyle</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
-            <span class="n">gr</span><span class="o">.</span><span class="n">SetDrawOption</span><span class="p">(</span><span class="s">&quot;APL&quot;</span><span class="p">)</span>
+            <span class="n">gr</span><span class="o">.</span><span class="n">SetDrawOption</span><span class="p">(</span><span class="s2">&quot;APL&quot;</span><span class="p">)</span>
             <span class="n">gr</span><span class="o">.</span><span class="n">SetLineColor</span><span class="p">(</span><span class="n">color</span><span class="p">)</span>
             <span class="n">gr</span><span class="o">.</span><span class="n">SetLineWidth</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
             <span class="n">gr</span><span class="o">.</span><span class="n">SetFillStyle</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
             <span class="n">multigraph</span><span class="o">.</span><span class="n">Add</span><span class="p">(</span><span class="n">gr</span><span class="p">)</span>
-            <span class="n">legend</span><span class="o">.</span><span class="n">AddEntry</span><span class="p">(</span><span class="n">gr</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="s">&quot;L&quot;</span><span class="p">)</span>
-        <span class="n">multigraph</span><span class="o">.</span><span class="n">Draw</span><span class="p">(</span><span class="s">&quot;AC&quot;</span><span class="p">)</span>
+            <span class="n">legend</span><span class="o">.</span><span class="n">AddEntry</span><span class="p">(</span><span class="n">gr</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="s2">&quot;L&quot;</span><span class="p">)</span>
+        <span class="n">multigraph</span><span class="o">.</span><span class="n">Draw</span><span class="p">(</span><span class="s2">&quot;AC&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">multigraph</span><span class="p">,</span> <span class="n">legend</span></div>
 
 
 <div class="viewcode-block" id="ColorMap"><a class="viewcode-back" href="../../plotting.html#rep.plotting.ColorMap">[docs]</a><span class="k">class</span> <span class="nc">ColorMap</span><span class="p">(</span><span class="n">AbstractPlot</span><span class="p">):</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">matrix</span><span class="p">,</span> <span class="n">labels</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s">&#39;jet&#39;</span><span class="p">,</span> <span class="n">vmin</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">matrix</span><span class="p">,</span> <span class="n">labels</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;jet&#39;</span><span class="p">,</span> <span class="n">vmin</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Implements color map plots</span>
 
@@ -624,7 +624,7 @@
             <span class="n">plt</span><span class="o">.</span><span class="n">yticks</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">labels</span><span class="p">)</span> <span class="o">+</span> <span class="mf">0.5</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">labels</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">fontsize</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_plot_tmva</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s">&quot;Not supported for TMVA&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Not supported for TMVA&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_plot_bokeh</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">current_plot</span><span class="p">,</span> <span class="n">show_legend</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
         <span class="kn">from</span> <span class="nn">bokeh.models.tools</span> <span class="kn">import</span> <span class="n">HoverTool</span>
@@ -646,17 +646,17 @@
                 <span class="n">value</span><span class="o">=</span><span class="n">value_lst</span><span class="p">,</span>
             <span class="p">)</span>
         <span class="p">)</span>
-        <span class="c"># current_plot._below = []</span>
+        <span class="c1"># current_plot._below = []</span>
         <span class="n">current_plot</span><span class="o">.</span><span class="n">x_range</span> <span class="o">=</span> <span class="n">FactorRange</span><span class="p">(</span><span class="n">factors</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">labels</span><span class="p">)</span>
         <span class="n">current_plot</span><span class="o">.</span><span class="n">y_range</span> <span class="o">=</span> <span class="n">FactorRange</span><span class="p">(</span><span class="n">factors</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">labels</span><span class="p">)</span>
-        <span class="c"># current_plot._left = []</span>
+        <span class="c1"># current_plot._left = []</span>
 
-        <span class="c"># current_plot.extra_y_ranges = {&quot;foo&quot;: bkh.FactorRange(factors=self.labels)}</span>
-        <span class="c"># current_plot.add_layout(CategoricalAxis(y_range_name=&quot;foo&quot;), place=&#39;left&#39;)</span>
-        <span class="c"># current_plot.extra_x_ranges = {&quot;foo&quot;: bkh.FactorRange(factors=self.labels)}</span>
-        <span class="c"># current_plot.add_layout(CategoricalAxis(x_range_name=&quot;foo&quot;), place=&#39;top&#39;)</span>
+        <span class="c1"># current_plot.extra_y_ranges = {&quot;foo&quot;: bkh.FactorRange(factors=self.labels)}</span>
+        <span class="c1"># current_plot.add_layout(CategoricalAxis(y_range_name=&quot;foo&quot;), place=&#39;left&#39;)</span>
+        <span class="c1"># current_plot.extra_x_ranges = {&quot;foo&quot;: bkh.FactorRange(factors=self.labels)}</span>
+        <span class="c1"># current_plot.add_layout(CategoricalAxis(x_range_name=&quot;foo&quot;), place=&#39;top&#39;)</span>
 
-        <span class="n">current_plot</span><span class="o">.</span><span class="n">rect</span><span class="p">(</span><span class="s">&#39;x&#39;</span><span class="p">,</span> <span class="s">&#39;y&#39;</span><span class="p">,</span> <span class="mf">0.98</span><span class="p">,</span> <span class="mf">0.98</span><span class="p">,</span> <span class="n">source</span><span class="o">=</span><span class="n">source</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s">&#39;color&#39;</span><span class="p">,</span> <span class="n">line_color</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
+        <span class="n">current_plot</span><span class="o">.</span><span class="n">rect</span><span class="p">(</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="mf">0.98</span><span class="p">,</span> <span class="mf">0.98</span><span class="p">,</span> <span class="n">source</span><span class="o">=</span><span class="n">source</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;color&#39;</span><span class="p">,</span> <span class="n">line_color</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
         <span class="n">current_plot</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">grid_line_color</span> <span class="o">=</span> <span class="bp">None</span>
         <span class="n">current_plot</span><span class="o">.</span><span class="n">axis</span><span class="o">.</span><span class="n">axis_line_color</span> <span class="o">=</span> <span class="bp">None</span>
         <span class="n">current_plot</span><span class="o">.</span><span class="n">axis</span><span class="o">.</span><span class="n">major_tick_line_color</span> <span class="o">=</span> <span class="bp">None</span>
@@ -664,8 +664,8 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="n">hover</span><span class="p">:</span>
             <span class="n">hover</span> <span class="o">=</span> <span class="n">HoverTool</span><span class="p">(</span><span class="n">plot</span><span class="o">=</span><span class="n">current_plot</span><span class="p">)</span>
         <span class="n">hover</span><span class="o">.</span><span class="n">tooltips</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">([</span>
-            <span class="p">(</span><span class="s">&#39;labels&#39;</span><span class="p">,</span> <span class="s">&#39;@x @y&#39;</span><span class="p">),</span>
-            <span class="p">(</span><span class="s">&#39;value&#39;</span><span class="p">,</span> <span class="s">&#39;@value&#39;</span><span class="p">)</span>
+            <span class="p">(</span><span class="s1">&#39;labels&#39;</span><span class="p">,</span> <span class="s1">&#39;@x @y&#39;</span><span class="p">),</span>
+            <span class="p">(</span><span class="s1">&#39;value&#39;</span><span class="p">,</span> <span class="s1">&#39;@value&#39;</span><span class="p">)</span>
         <span class="p">])</span>
         <span class="n">current_plot</span><span class="o">.</span><span class="n">tools</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">hover</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">current_plot</span></div>
@@ -695,7 +695,7 @@
                         <span class="n">alpha</span><span class="o">=</span><span class="n">alpha_normed</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_plot_tmva</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s">&quot;Not supported for TMVA&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Not supported for TMVA&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_plot_bokeh</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">current_plot</span><span class="p">,</span> <span class="n">show_legend</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">scatter</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">scatters</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>
@@ -748,19 +748,19 @@
                 <span class="n">weight_bin</span> <span class="o">=</span> <span class="n">weight</span><span class="p">[(</span><span class="n">prediction</span> <span class="o">&gt;</span> <span class="n">bin_edges</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">*</span> <span class="p">(</span><span class="n">prediction</span> <span class="o">&lt;=</span> <span class="n">bin_edges</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">])]</span>
                 <span class="n">yerr</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="nb">sum</span><span class="p">(</span><span class="n">weight_bin</span> <span class="o">*</span> <span class="n">weight_bin</span><span class="p">))</span> <span class="o">*</span> <span class="n">norm</span><span class="p">)</span>
 
-            <span class="k">if</span> <span class="n">style</span> <span class="o">==</span> <span class="s">&#39;filled&#39;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">style</span> <span class="o">==</span> <span class="s1">&#39;filled&#39;</span><span class="p">:</span>
                 <span class="n">plt</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">bin_centers</span> <span class="o">-</span> <span class="n">bin_widths</span> <span class="o">/</span> <span class="mf">2.</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">histo</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">*</span> <span class="n">norm</span><span class="p">,</span> <span class="n">facecolor</span><span class="o">=</span><span class="n">color</span><span class="p">,</span>
                         <span class="n">linewidth</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="n">bin_widths</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">plt</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">bin_centers</span> <span class="o">-</span> <span class="n">bin_widths</span> <span class="o">/</span> <span class="mf">2.</span><span class="p">,</span> <span class="n">norm</span> <span class="o">*</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">histo</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
                         <span class="n">edgecolor</span><span class="o">=</span><span class="n">color</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span> <span class="n">ecolor</span><span class="o">=</span><span class="n">color</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
-                        <span class="n">width</span><span class="o">=</span><span class="n">bin_widths</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">hatch</span><span class="o">=</span><span class="s">&quot;/&quot;</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+                        <span class="n">width</span><span class="o">=</span><span class="n">bin_widths</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">hatch</span><span class="o">=</span><span class="s2">&quot;/&quot;</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_plot_tmva</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s">&quot;Not supported for TMVA&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Not supported for TMVA&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_plot_bokeh</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">current_plot</span><span class="p">,</span> <span class="n">show_legend</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s">&quot;Not supported by bokeh&quot;</span><span class="p">)</span></div>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Not supported by bokeh&quot;</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="BarComparePlot"><a class="viewcode-back" href="../../plotting.html#rep.plotting.BarComparePlot">[docs]</a><span class="k">class</span> <span class="nc">BarComparePlot</span><span class="p">(</span><span class="n">AbstractPlot</span><span class="p">):</span>
@@ -797,7 +797,7 @@
         <span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">(</span><span class="n">length</span> <span class="o">*</span> <span class="n">numpy</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">inds</span><span class="p">)),</span> <span class="n">xticks_labels</span><span class="p">,</span> <span class="n">rotation</span><span class="o">=</span><span class="mi">90</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_plot_tmva</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s">&quot;Not supported for TMVA&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Not supported for TMVA&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_plot_bokeh</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">current_plot</span><span class="p">,</span> <span class="n">show_legend</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
         <span class="n">length</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">step</span>
@@ -806,7 +806,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">inds</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">keys</span><span class="p">())[</span><span class="mi">0</span><span class="p">]])))</span>
 
-        <span class="c"># xticks_labels = numpy.array(list(self.data[list(self.data.keys())[0]].keys()))[inds]</span>
+        <span class="c1"># xticks_labels = numpy.array(list(self.data[list(self.data.keys())[0]].keys()))[inds]</span>
 
         <span class="k">for</span> <span class="n">move</span><span class="p">,</span> <span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="n">sample</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>
             <span class="n">color</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">_COLOR_CYCLE_BOKEH</span><span class="p">)</span>
@@ -822,7 +822,7 @@
 
 
 <div class="viewcode-block" id="Function2D_Plot"><a class="viewcode-back" href="../../plotting.html#rep.plotting.Function2D_Plot">[docs]</a><span class="k">class</span> <span class="nc">Function2D_Plot</span><span class="p">(</span><span class="n">AbstractPlot</span><span class="p">):</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">function</span><span class="p">,</span> <span class="n">xlim</span><span class="p">,</span> <span class="n">ylim</span><span class="p">,</span> <span class="n">xsteps</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">ysteps</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s">&#39;Blues&#39;</span><span class="p">,</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">function</span><span class="p">,</span> <span class="n">xlim</span><span class="p">,</span> <span class="n">ylim</span><span class="p">,</span> <span class="n">xsteps</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">ysteps</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;Blues&#39;</span><span class="p">,</span>
                  <span class="n">vmin</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Implements 2d-functions plots</span>
@@ -851,17 +851,17 @@
     <span class="k">def</span> <span class="nf">_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">colormap</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">pcolor</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">z</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">cmap</span><span class="p">,</span> <span class="n">vmin</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">vmin</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">vmax</span><span class="p">)</span>
         <span class="n">cb</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">colormap</span><span class="p">)</span>
-        <span class="n">cb</span><span class="o">.</span><span class="n">set_label</span><span class="p">(</span><span class="s">&#39;value&#39;</span><span class="p">)</span>
+        <span class="n">cb</span><span class="o">.</span><span class="n">set_label</span><span class="p">(</span><span class="s1">&#39;value&#39;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_plot_tmva</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s">&quot;Not supported for TMVA&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Not supported for TMVA&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_plot_bokeh</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">current_plot</span><span class="p">,</span> <span class="n">show_legend</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s">&quot;Not supported for bokeh&quot;</span><span class="p">)</span></div>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Not supported for bokeh&quot;</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Histogram2D_Plot"><a class="viewcode-back" href="../../plotting.html#rep.plotting.Histogram2D_Plot">[docs]</a><span class="k">class</span> <span class="nc">Histogram2D_Plot</span><span class="p">(</span><span class="n">AbstractPlot</span><span class="p">):</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s">&#39;Blues&#39;</span><span class="p">,</span> <span class="n">cmin</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">cmax</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="nb">range</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">normed</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;Blues&#39;</span><span class="p">,</span> <span class="n">cmin</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">cmax</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="nb">range</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">normed</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Implements correlations plots</span>
 
@@ -890,13 +890,13 @@
         <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">colormap</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">hist2d</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">binsX</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">binsY</span><span class="p">),</span> <span class="nb">range</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">range</span><span class="p">,</span> <span class="n">normed</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">normed</span><span class="p">,</span>
                                        <span class="n">cmin</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">vmin</span><span class="p">,</span> <span class="n">cmax</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">vmax</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">cmap</span><span class="p">)</span>
         <span class="n">cb</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">colormap</span><span class="p">)</span>
-        <span class="n">cb</span><span class="o">.</span><span class="n">set_label</span><span class="p">(</span><span class="s">&#39;value&#39;</span><span class="p">)</span>
+        <span class="n">cb</span><span class="o">.</span><span class="n">set_label</span><span class="p">(</span><span class="s1">&#39;value&#39;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_plot_tmva</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s">&quot;Not supported for TMVA&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Not supported for TMVA&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_plot_bokeh</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">current_plot</span><span class="p">,</span> <span class="n">show_legend</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s">&quot;Not supported by bokeh&quot;</span><span class="p">)</span></div>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Not supported by bokeh&quot;</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="CorrelationPlot"><a class="viewcode-back" href="../../plotting.html#rep.plotting.CorrelationPlot">[docs]</a><span class="k">class</span> <span class="nc">CorrelationPlot</span><span class="p">(</span><span class="n">AbstractPlot</span><span class="p">):</span>
@@ -929,10 +929,10 @@
         <span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="n">ex</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">ex</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
 
     <span class="k">def</span> <span class="nf">_plot_tmva</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s">&quot;Not supported for TMVA&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Not supported for TMVA&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_plot_bokeh</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">current_plot</span><span class="p">,</span> <span class="n">show_legend</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s">&quot;Not supported by bokeh&quot;</span><span class="p">)</span></div>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Not supported by bokeh&quot;</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="CorrelationMapPlot"><a class="viewcode-back" href="../../plotting.html#rep.plotting.CorrelationMapPlot">[docs]</a><span class="k">class</span> <span class="nc">CorrelationMapPlot</span><span class="p">(</span><span class="n">AbstractPlot</span><span class="p">):</span>
@@ -961,17 +961,17 @@
             <span class="n">y_center</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">y_pop</span><span class="p">)</span>
             <span class="n">y_std</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">y_pop</span><span class="p">)</span>
 
-        <span class="n">plt</span><span class="o">.</span><span class="n">hexbin</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="s">&#39;log&#39;</span><span class="p">)</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">errorbar</span><span class="p">(</span><span class="n">x_center</span><span class="p">,</span> <span class="n">y_center</span><span class="p">,</span> <span class="n">y_std</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s">&#39;r-&#39;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">hexbin</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="s1">&#39;log&#39;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">errorbar</span><span class="p">(</span><span class="n">x_center</span><span class="p">,</span> <span class="n">y_center</span><span class="p">,</span> <span class="n">y_std</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s1">&#39;r-&#39;</span><span class="p">)</span>
         <span class="n">cb</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">()</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="n">ex</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">ex</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
-        <span class="n">cb</span><span class="o">.</span><span class="n">set_label</span><span class="p">(</span><span class="s">&#39;log10(N)&#39;</span><span class="p">)</span>
+        <span class="n">cb</span><span class="o">.</span><span class="n">set_label</span><span class="p">(</span><span class="s1">&#39;log10(N)&#39;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_plot_tmva</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s">&quot;Not supported for TMVA&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Not supported for TMVA&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_plot_bokeh</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">current_plot</span><span class="p">,</span> <span class="n">show_legend</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s">&quot;Not supported by bokeh&quot;</span><span class="p">)</span></div>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Not supported by bokeh&quot;</span><span class="p">)</span></div>
 
 
 <span class="sd">&quot;&quot;&quot;</span>
@@ -992,13 +992,13 @@
 <span class="sd">&quot;&quot;&quot;</span>
 
 
-<div class="viewcode-block" id="canvas"><a class="viewcode-back" href="../../plotting.html#rep.plotting.canvas">[docs]</a><span class="k">def</span> <span class="nf">canvas</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&quot;canvas1&quot;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="mi">800</span><span class="p">,</span> <span class="mi">600</span><span class="p">)):</span>
+<div class="viewcode-block" id="canvas"><a class="viewcode-back" href="../../plotting.html#rep.plotting.canvas">[docs]</a><span class="k">def</span> <span class="nf">canvas</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;canvas1&quot;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="mi">800</span><span class="p">,</span> <span class="mi">600</span><span class="p">)):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Helper method for creating canvas</span>
 <span class="sd">    If canvas with this name already exists, it will be returned</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="kn">import</span> <span class="nn">ROOT</span>
-    <span class="c"># Check if canvas already exists</span>
+    <span class="c1"># Check if canvas already exists</span>
     <span class="n">canvas</span> <span class="o">=</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">gROOT</span><span class="o">.</span><span class="n">FindObject</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">canvas</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">canvas</span>
@@ -1008,9 +1008,9 @@
 
 
 <span class="k">def</span> <span class="nf">_display_canvas</span><span class="p">(</span><span class="n">canvas</span><span class="p">):</span>
-    <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">NamedTemporaryFile</span><span class="p">(</span><span class="n">suffix</span><span class="o">=</span><span class="s">&quot;.png&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file_png</span><span class="p">:</span>
+    <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">NamedTemporaryFile</span><span class="p">(</span><span class="n">suffix</span><span class="o">=</span><span class="s2">&quot;.png&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file_png</span><span class="p">:</span>
         <span class="n">canvas</span><span class="o">.</span><span class="n">SaveAs</span><span class="p">(</span><span class="n">file_png</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
-        <span class="n">ip_img</span> <span class="o">=</span> <span class="n">display</span><span class="o">.</span><span class="n">Image</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="n">file_png</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">format</span><span class="o">=</span><span class="s">&#39;png&#39;</span><span class="p">,</span> <span class="n">embed</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+        <span class="n">ip_img</span> <span class="o">=</span> <span class="n">display</span><span class="o">.</span><span class="n">Image</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="n">file_png</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">format</span><span class="o">=</span><span class="s1">&#39;png&#39;</span><span class="p">,</span> <span class="n">embed</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">ip_img</span><span class="o">.</span><span class="n">_repr_png_</span><span class="p">()</span>
 
 
@@ -1018,8 +1018,8 @@
     <span class="kn">import</span> <span class="nn">ROOT</span>
     <span class="n">ROOT</span><span class="o">.</span><span class="n">gROOT</span><span class="o">.</span><span class="n">SetBatch</span><span class="p">()</span>
 
-    <span class="c"># register display function with PNG formatter:</span>
-    <span class="n">png_formatter</span> <span class="o">=</span> <span class="n">get_ipython</span><span class="p">()</span><span class="o">.</span><span class="n">display_formatter</span><span class="o">.</span><span class="n">formatters</span><span class="p">[</span><span class="s">&#39;image/png&#39;</span><span class="p">]</span>
+    <span class="c1"># register display function with PNG formatter:</span>
+    <span class="n">png_formatter</span> <span class="o">=</span> <span class="n">get_ipython</span><span class="p">()</span><span class="o">.</span><span class="n">display_formatter</span><span class="o">.</span><span class="n">formatters</span><span class="p">[</span><span class="s1">&#39;image/png&#39;</span><span class="p">]</span>
     <span class="n">png_formatter</span><span class="o">.</span><span class="n">for_type</span><span class="p">(</span><span class="n">ROOT</span><span class="o">.</span><span class="n">TCanvas</span><span class="p">,</span> <span class="n">_display_canvas</span><span class="p">)</span>
 <span class="k">except</span><span class="p">:</span>
     <span class="k">pass</span>
@@ -1056,7 +1056,7 @@
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'../../',
-            VERSION:'0.6.6',
+            VERSION:'0.6.7',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true

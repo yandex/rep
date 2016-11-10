@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>rep.estimators.neurolab &mdash; REP (Reproducible Experiment Platform) 0.6.6 documentation</title>
+  <title>rep.estimators.neurolab &mdash; REP (Reproducible Experiment Platform) 0.6.7 documentation</title>
   
 
   
@@ -30,7 +30,7 @@
   
 
   
-    <link rel="top" title="REP (Reproducible Experiment Platform) 0.6.6 documentation" href="../../../index.html"/>
+    <link rel="top" title="REP (Reproducible Experiment Platform) 0.6.7 documentation" href="../../../index.html"/>
         <link rel="up" title="Module code" href="../../index.html"/> 
 
   
@@ -59,7 +59,7 @@
             
             
               <div class="version">
-                0.6.6
+                0.6.7
               </div>
             
           
@@ -136,7 +136,7 @@
            <div itemprop="articleBody">
             
   <h1>Source code for rep.estimators.neurolab</h1><div class="highlight"><pre>
-<span class="sd">&quot;&quot;&quot;</span>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">These classes are wrappers for the `Neurolab library &lt;https://pythonhosted.org/neurolab/lib.html&gt;`_ --- a neural network python library.</span>
 
 <span class="sd">.. warning:: To make neurolab reproducible we change global random seed</span>
@@ -145,19 +145,19 @@
 
 <span class="sd">        numpy.random.seed(42)</span>
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="c"># Copyright 2014-2015 Yandex LLC and contributors &lt;https://yandex.com/&gt;</span>
-<span class="c">#</span>
-<span class="c"># Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
-<span class="c"># you may not use this file except in compliance with the License.</span>
-<span class="c"># You may obtain a copy of the License at</span>
-<span class="c">#</span>
-<span class="c"># &lt;http://www.apache.org/licenses/LICENSE-2.0&gt;</span>
-<span class="c">#</span>
-<span class="c"># Unless required by applicable law or agreed to in writing, software</span>
-<span class="c"># distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
-<span class="c"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
-<span class="c"># See the License for the specific language governing permissions and</span>
-<span class="c"># limitations under the License.</span>
+<span class="c1"># Copyright 2014-2015 Yandex LLC and contributors &lt;https://yandex.com/&gt;</span>
+<span class="c1">#</span>
+<span class="c1"># Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="c1"># you may not use this file except in compliance with the License.</span>
+<span class="c1"># You may obtain a copy of the License at</span>
+<span class="c1">#</span>
+<span class="c1"># &lt;http://www.apache.org/licenses/LICENSE-2.0&gt;</span>
+<span class="c1">#</span>
+<span class="c1"># Unless required by applicable law or agreed to in writing, software</span>
+<span class="c1"># distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c1"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="c1"># See the License for the specific language governing permissions and</span>
+<span class="c1"># limitations under the License.</span>
 
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">division</span><span class="p">,</span> <span class="n">print_function</span><span class="p">,</span> <span class="n">absolute_import</span>
 <span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABCMeta</span>
@@ -171,25 +171,25 @@
 <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">check_inputs</span><span class="p">,</span> <span class="n">check_scaler</span><span class="p">,</span> <span class="n">one_hot_transform</span><span class="p">,</span> <span class="n">remove_first_line</span>
 
 
-<span class="n">__author__</span> <span class="o">=</span> <span class="s">&#39;Vlad Sterzhanov, Alex Rogozhnikov, Tatiana Likhomanenko&#39;</span>
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;NeurolabClassifier&#39;</span><span class="p">,</span> <span class="s">&#39;NeurolabRegressor&#39;</span><span class="p">]</span>
+<span class="n">__author__</span> <span class="o">=</span> <span class="s1">&#39;Vlad Sterzhanov, Alex Rogozhnikov, Tatiana Likhomanenko&#39;</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;NeurolabClassifier&#39;</span><span class="p">,</span> <span class="s1">&#39;NeurolabRegressor&#39;</span><span class="p">]</span>
 
-<span class="n">NET_TYPES</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;feed-forward&#39;</span><span class="p">:</span> <span class="n">nl</span><span class="o">.</span><span class="n">net</span><span class="o">.</span><span class="n">newff</span><span class="p">,</span>
-             <span class="s">&#39;competing-layer&#39;</span><span class="p">:</span> <span class="n">nl</span><span class="o">.</span><span class="n">net</span><span class="o">.</span><span class="n">newc</span><span class="p">,</span>
-             <span class="s">&#39;learning-vector&#39;</span><span class="p">:</span> <span class="n">nl</span><span class="o">.</span><span class="n">net</span><span class="o">.</span><span class="n">newlvq</span><span class="p">,</span>
-             <span class="s">&#39;elman-recurrent&#39;</span><span class="p">:</span> <span class="n">nl</span><span class="o">.</span><span class="n">net</span><span class="o">.</span><span class="n">newelm</span><span class="p">,</span>
-             <span class="s">&#39;hemming-recurrent&#39;</span><span class="p">:</span> <span class="n">nl</span><span class="o">.</span><span class="n">net</span><span class="o">.</span><span class="n">newhem</span><span class="p">,</span>
-             <span class="s">&#39;hopfield-recurrent&#39;</span><span class="p">:</span> <span class="n">nl</span><span class="o">.</span><span class="n">net</span><span class="o">.</span><span class="n">newhop</span>
+<span class="n">NET_TYPES</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;feed-forward&#39;</span><span class="p">:</span> <span class="n">nl</span><span class="o">.</span><span class="n">net</span><span class="o">.</span><span class="n">newff</span><span class="p">,</span>
+             <span class="s1">&#39;competing-layer&#39;</span><span class="p">:</span> <span class="n">nl</span><span class="o">.</span><span class="n">net</span><span class="o">.</span><span class="n">newc</span><span class="p">,</span>
+             <span class="s1">&#39;learning-vector&#39;</span><span class="p">:</span> <span class="n">nl</span><span class="o">.</span><span class="n">net</span><span class="o">.</span><span class="n">newlvq</span><span class="p">,</span>
+             <span class="s1">&#39;elman-recurrent&#39;</span><span class="p">:</span> <span class="n">nl</span><span class="o">.</span><span class="n">net</span><span class="o">.</span><span class="n">newelm</span><span class="p">,</span>
+             <span class="s1">&#39;hemming-recurrent&#39;</span><span class="p">:</span> <span class="n">nl</span><span class="o">.</span><span class="n">net</span><span class="o">.</span><span class="n">newhem</span><span class="p">,</span>
+             <span class="s1">&#39;hopfield-recurrent&#39;</span><span class="p">:</span> <span class="n">nl</span><span class="o">.</span><span class="n">net</span><span class="o">.</span><span class="n">newhop</span>
              <span class="p">}</span>
 
-<span class="n">NET_PARAMS</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;minmax&#39;</span><span class="p">,</span> <span class="s">&#39;cn&#39;</span><span class="p">,</span> <span class="s">&#39;layers&#39;</span><span class="p">,</span> <span class="s">&#39;transf&#39;</span><span class="p">,</span> <span class="s">&#39;target&#39;</span><span class="p">,</span>
-              <span class="s">&#39;max_init&#39;</span><span class="p">,</span> <span class="s">&#39;max_iter&#39;</span><span class="p">,</span> <span class="s">&#39;delta&#39;</span><span class="p">,</span> <span class="s">&#39;cn0&#39;</span><span class="p">,</span> <span class="s">&#39;pc&#39;</span><span class="p">)</span>
+<span class="n">NET_PARAMS</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;minmax&#39;</span><span class="p">,</span> <span class="s1">&#39;cn&#39;</span><span class="p">,</span> <span class="s1">&#39;layers&#39;</span><span class="p">,</span> <span class="s1">&#39;transf&#39;</span><span class="p">,</span> <span class="s1">&#39;target&#39;</span><span class="p">,</span>
+              <span class="s1">&#39;max_init&#39;</span><span class="p">,</span> <span class="s1">&#39;max_iter&#39;</span><span class="p">,</span> <span class="s1">&#39;delta&#39;</span><span class="p">,</span> <span class="s1">&#39;cn0&#39;</span><span class="p">,</span> <span class="s1">&#39;pc&#39;</span><span class="p">)</span>
 
-<span class="n">BASIC_PARAMS</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;layers&#39;</span><span class="p">,</span> <span class="s">&#39;net_type&#39;</span><span class="p">,</span> <span class="s">&#39;trainf&#39;</span><span class="p">,</span> <span class="s">&#39;initf&#39;</span><span class="p">,</span> <span class="s">&#39;scaler&#39;</span><span class="p">,</span> <span class="s">&#39;random_state&#39;</span><span class="p">)</span>
+<span class="n">BASIC_PARAMS</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;layers&#39;</span><span class="p">,</span> <span class="s1">&#39;net_type&#39;</span><span class="p">,</span> <span class="s1">&#39;trainf&#39;</span><span class="p">,</span> <span class="s1">&#39;initf&#39;</span><span class="p">,</span> <span class="s1">&#39;scaler&#39;</span><span class="p">,</span> <span class="s1">&#39;random_state&#39;</span><span class="p">)</span>
 
-<span class="c"># Instead of a single layer use feed-forward.</span>
-<span class="n">CANT_CLASSIFY</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;hopfield-recurrent&#39;</span><span class="p">,</span> <span class="s">&#39;competing-layer&#39;</span><span class="p">,</span> <span class="s">&#39;hemming-recurrent&#39;</span><span class="p">)</span>
-<span class="n">CANT_DO_REGRESSION</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;hopfield-recurrent&#39;</span><span class="p">,</span> <span class="p">)</span>
+<span class="c1"># Instead of a single layer use feed-forward.</span>
+<span class="n">CANT_CLASSIFY</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;hopfield-recurrent&#39;</span><span class="p">,</span> <span class="s1">&#39;competing-layer&#39;</span><span class="p">,</span> <span class="s1">&#39;hemming-recurrent&#39;</span><span class="p">)</span>
+<span class="n">CANT_DO_REGRESSION</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;hopfield-recurrent&#39;</span><span class="p">,</span> <span class="p">)</span>
 
 
 <span class="k">class</span> <span class="nc">NeurolabBase</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
@@ -222,10 +222,10 @@
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                  <span class="n">features</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
                  <span class="n">layers</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,),</span>
-                 <span class="n">net_type</span><span class="o">=</span><span class="s">&#39;feed-forward&#39;</span><span class="p">,</span>
+                 <span class="n">net_type</span><span class="o">=</span><span class="s1">&#39;feed-forward&#39;</span><span class="p">,</span>
                  <span class="n">initf</span><span class="o">=</span><span class="n">nl</span><span class="o">.</span><span class="n">init</span><span class="o">.</span><span class="n">init_rand</span><span class="p">,</span>
                  <span class="n">trainf</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
-                 <span class="n">scaler</span><span class="o">=</span><span class="s">&#39;standard&#39;</span><span class="p">,</span>
+                 <span class="n">scaler</span><span class="o">=</span><span class="s1">&#39;standard&#39;</span><span class="p">,</span>
                  <span class="n">random_state</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
                  <span class="o">**</span><span class="n">other_params</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">features</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">features</span><span class="p">)</span> <span class="k">if</span> <span class="n">features</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="k">else</span> <span class="n">features</span>
@@ -256,15 +256,15 @@
 <span class="sd">        :param dict params: parameters to be set in the model</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">params</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="k">if</span> <span class="n">name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&quot;scaler__&quot;</span><span class="p">):</span>
-                <span class="k">assert</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">scaler</span><span class="p">,</span> <span class="s">&#39;set_params&#39;</span><span class="p">),</span> \
-                    <span class="s">&quot;Trying to set {} without scaler&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">scaler</span><span class="o">.</span><span class="n">set_params</span><span class="p">(</span><span class="o">**</span><span class="p">{</span><span class="n">name</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="s">&quot;scaler__&quot;</span><span class="p">):]:</span> <span class="n">value</span><span class="p">})</span>
-            <span class="k">elif</span> <span class="n">name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;layers__&#39;</span><span class="p">):</span>
-                <span class="n">index</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">name</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="s">&#39;layers__&#39;</span><span class="p">):])</span>
+            <span class="k">if</span> <span class="n">name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;scaler__&quot;</span><span class="p">):</span>
+                <span class="k">assert</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">scaler</span><span class="p">,</span> <span class="s1">&#39;set_params&#39;</span><span class="p">),</span> \
+                    <span class="s2">&quot;Trying to set {} without scaler&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">scaler</span><span class="o">.</span><span class="n">set_params</span><span class="p">(</span><span class="o">**</span><span class="p">{</span><span class="n">name</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="s2">&quot;scaler__&quot;</span><span class="p">):]:</span> <span class="n">value</span><span class="p">})</span>
+            <span class="k">elif</span> <span class="n">name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;layers__&#39;</span><span class="p">):</span>
+                <span class="n">index</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">name</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="s1">&#39;layers__&#39;</span><span class="p">):])</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
-            <span class="k">elif</span> <span class="n">name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;initf__&#39;</span><span class="p">):</span>
-                <span class="n">index</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">name</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="s">&#39;initf__&#39;</span><span class="p">):])</span>
+            <span class="k">elif</span> <span class="n">name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;initf__&#39;</span><span class="p">):</span>
+                <span class="n">index</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">name</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="s1">&#39;initf__&#39;</span><span class="p">):])</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">initf</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
             <span class="k">elif</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">NET_PARAMS</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">net_params</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
@@ -294,7 +294,7 @@
 <span class="sd">        :param y_original: array-like target, which originally was passed to `fit`.</span>
 <span class="sd">        :return: self</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c"># magic reproducibilizer</span>
+        <span class="c1"># magic reproducibilizer</span>
         <span class="n">numpy</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_fitted</span><span class="p">():</span>
@@ -302,14 +302,14 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">x_train</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_transform_data</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y_original</span><span class="p">,</span> <span class="n">fit</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 
-            <span class="c"># Prepare parameters depending on the network purpose (classification / regression)</span>
+            <span class="c1"># Prepare parameters depending on the network purpose (classification / regression)</span>
             <span class="n">net_params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prepare_params</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">net_params</span><span class="p">,</span> <span class="n">x_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">)</span>
 
             <span class="n">initializer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_initializer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">net_type</span><span class="p">)</span>
             <span class="n">net</span> <span class="o">=</span> <span class="n">initializer</span><span class="p">(</span><span class="o">**</span><span class="n">net_params</span><span class="p">)</span>
 
-            <span class="c"># To allow similar initf function on all layers</span>
-            <span class="n">initf_iterable</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">initf</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">initf</span><span class="p">,</span> <span class="s">&#39;__iter__&#39;</span><span class="p">)</span> <span class="k">else</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">initf</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">net</span><span class="o">.</span><span class="n">layers</span><span class="p">)</span>
+            <span class="c1"># To allow similar initf function on all layers</span>
+            <span class="n">initf_iterable</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">initf</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">initf</span><span class="p">,</span> <span class="s1">&#39;__iter__&#39;</span><span class="p">)</span> <span class="k">else</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">initf</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">net</span><span class="o">.</span><span class="n">layers</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">layer</span><span class="p">,</span> <span class="n">init_function</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">net</span><span class="o">.</span><span class="n">layers</span><span class="p">,</span> <span class="n">initf_iterable</span><span class="p">):</span>
                 <span class="n">layer</span><span class="o">.</span><span class="n">initf</span> <span class="o">=</span> <span class="n">init_function</span>
                 <span class="n">net</span><span class="o">.</span><span class="n">init</span><span class="p">()</span>
@@ -329,7 +329,7 @@
 <span class="sd">        :param pandas.DataFrame X: data to be predicted</span>
 <span class="sd">        :return: array-like predictions [n_samples, n_targets]</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">net</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">,</span> <span class="s">&#39;Model is not fitted, prediction is denied&#39;</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">net</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">,</span> <span class="s1">&#39;Model is not fitted, prediction is denied&#39;</span>
         <span class="n">transformed_x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_transform_data</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">fit</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">net</span><span class="o">.</span><span class="n">sim</span><span class="p">(</span><span class="n">transformed_x</span><span class="p">)</span>
 
@@ -343,17 +343,17 @@
 <span class="sd">        :return: array-like transformed data</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">X</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_features</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
-        <span class="c"># The following line fights the bug in sklearn &lt; 0.16,</span>
-        <span class="c"># most of the transformers there modify X if it is pandas.DataFrame.</span>
+        <span class="c1"># The following line fights the bug in sklearn &lt; 0.16,</span>
+        <span class="c1"># most of the transformers there modify X if it is pandas.DataFrame.</span>
         <span class="n">X</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">fit</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">scaler</span> <span class="o">=</span> <span class="n">check_scaler</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">scaler</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">scaler</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
         <span class="n">X</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">scaler</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
 
-        <span class="c"># HACK: neurolab requires all features (even those of predicted objects) to be in [min, max]</span>
-        <span class="c"># so this dark magic appeared, seems to work ok for the most reasonable use-cases,</span>
-        <span class="c"># while allowing arbitrary inputs.</span>
+        <span class="c1"># HACK: neurolab requires all features (even those of predicted objects) to be in [min, max]</span>
+        <span class="c1"># so this dark magic appeared, seems to work ok for the most reasonable use-cases,</span>
+        <span class="c1"># while allowing arbitrary inputs.</span>
         <span class="k">return</span> <span class="n">scipy</span><span class="o">.</span><span class="n">special</span><span class="o">.</span><span class="n">expit</span><span class="p">(</span><span class="n">X</span> <span class="o">/</span> <span class="mi">3</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_prepare_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">net_params</span><span class="p">,</span> <span class="n">x_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">):</span>
@@ -366,26 +366,26 @@
 <span class="sd">        :return: prepared parameters in the neurolab interface</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">net_params</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">net_params</span><span class="p">)</span>
-        <span class="c"># Network expects features to be [0, 1]-scaled</span>
-        <span class="n">net_params</span><span class="p">[</span><span class="s">&#39;minmax&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]]</span> <span class="o">*</span> <span class="p">(</span><span class="n">x_train</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="c1"># Network expects features to be [0, 1]-scaled</span>
+        <span class="n">net_params</span><span class="p">[</span><span class="s1">&#39;minmax&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]]</span> <span class="o">*</span> <span class="p">(</span><span class="n">x_train</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
 
-        <span class="c"># To unify the layer-description argument with other supported networks</span>
-        <span class="k">if</span> <span class="s">&#39;size&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">net_params</span><span class="p">:</span>
-            <span class="n">net_params</span><span class="p">[</span><span class="s">&#39;size&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">layers</span>
+        <span class="c1"># To unify the layer-description argument with other supported networks</span>
+        <span class="k">if</span> <span class="s1">&#39;size&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">net_params</span><span class="p">:</span>
+            <span class="n">net_params</span><span class="p">[</span><span class="s1">&#39;size&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">layers</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">layers</span> <span class="o">!=</span> <span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="p">):</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&#39;For neurolab please use either `layers` or `sizes`, not both&#39;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;For neurolab please use either `layers` or `sizes`, not both&#39;</span><span class="p">)</span>
 
-        <span class="c"># Set output layer size</span>
-        <span class="n">net_params</span><span class="p">[</span><span class="s">&#39;size&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">net_params</span><span class="p">[</span><span class="s">&#39;size&#39;</span><span class="p">])</span> <span class="o">+</span> <span class="p">[</span><span class="n">y_train</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span>
+        <span class="c1"># Set output layer size</span>
+        <span class="n">net_params</span><span class="p">[</span><span class="s1">&#39;size&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">net_params</span><span class="p">[</span><span class="s1">&#39;size&#39;</span><span class="p">])</span> <span class="o">+</span> <span class="p">[</span><span class="n">y_train</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span>
 
-        <span class="c"># Default parameters for the transfer functions in the networks</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">net_type</span> <span class="o">!=</span> <span class="s">&#39;learning-vector&#39;</span><span class="p">:</span>
-            <span class="k">if</span> <span class="s">&#39;transf&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">net_params</span><span class="p">:</span>
-                <span class="n">net_params</span><span class="p">[</span><span class="s">&#39;transf&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">nl</span><span class="o">.</span><span class="n">trans</span><span class="o">.</span><span class="n">TanSig</span><span class="p">()]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">net_params</span><span class="p">[</span><span class="s">&#39;size&#39;</span><span class="p">])</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">net_params</span><span class="p">[</span><span class="s">&#39;transf&#39;</span><span class="p">],</span> <span class="s">&#39;__iter__&#39;</span><span class="p">):</span>
-                <span class="n">net_params</span><span class="p">[</span><span class="s">&#39;transf&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">net_params</span><span class="p">[</span><span class="s">&#39;transf&#39;</span><span class="p">]]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">net_params</span><span class="p">[</span><span class="s">&#39;size&#39;</span><span class="p">])</span>
-            <span class="n">net_params</span><span class="p">[</span><span class="s">&#39;transf&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">net_params</span><span class="p">[</span><span class="s">&#39;transf&#39;</span><span class="p">])</span>
+        <span class="c1"># Default parameters for the transfer functions in the networks</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">net_type</span> <span class="o">!=</span> <span class="s1">&#39;learning-vector&#39;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s1">&#39;transf&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">net_params</span><span class="p">:</span>
+                <span class="n">net_params</span><span class="p">[</span><span class="s1">&#39;transf&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">nl</span><span class="o">.</span><span class="n">trans</span><span class="o">.</span><span class="n">TanSig</span><span class="p">()]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">net_params</span><span class="p">[</span><span class="s1">&#39;size&#39;</span><span class="p">])</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">net_params</span><span class="p">[</span><span class="s1">&#39;transf&#39;</span><span class="p">],</span> <span class="s1">&#39;__iter__&#39;</span><span class="p">):</span>
+                <span class="n">net_params</span><span class="p">[</span><span class="s1">&#39;transf&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">net_params</span><span class="p">[</span><span class="s1">&#39;transf&#39;</span><span class="p">]]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">net_params</span><span class="p">[</span><span class="s1">&#39;size&#39;</span><span class="p">])</span>
+            <span class="n">net_params</span><span class="p">[</span><span class="s1">&#39;transf&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">net_params</span><span class="p">[</span><span class="s1">&#39;transf&#39;</span><span class="p">])</span>
 
         <span class="k">return</span> <span class="n">net_params</span>
 
@@ -398,12 +398,12 @@
 <span class="sd">        :return: a neurolab object corresponding to the net type</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">net_type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">NET_TYPES</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s">&quot;Got unexpected network type: &#39;{}&#39;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">net_type</span><span class="p">))</span>
+            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s2">&quot;Got unexpected network type: &#39;{}&#39;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">net_type</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">NET_TYPES</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">net_type</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="NeurolabClassifier"><a class="viewcode-back" href="../../../estimators.html#rep.estimators.neurolab.NeurolabClassifier">[docs]</a><span class="k">class</span> <span class="nc">NeurolabClassifier</span><span class="p">(</span><span class="n">NeurolabBase</span><span class="p">,</span> <span class="n">Classifier</span><span class="p">):</span>
-    <span class="n">__doc__</span> <span class="o">=</span> <span class="s">&quot;Implements a classification model from the Neurolab library. </span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">+</span> <span class="n">remove_first_line</span><span class="p">(</span><span class="n">NeurolabBase</span><span class="o">.</span><span class="n">__doc__</span><span class="p">)</span>
+    <span class="n">__doc__</span> <span class="o">=</span> <span class="s2">&quot;Implements a classification model from the Neurolab library. </span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="n">remove_first_line</span><span class="p">(</span><span class="n">NeurolabBase</span><span class="o">.</span><span class="n">__doc__</span><span class="p">)</span>
 
 <div class="viewcode-block" id="NeurolabClassifier.fit"><a class="viewcode-back" href="../../../estimators.html#rep.estimators.neurolab.NeurolabClassifier.fit">[docs]</a>    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -413,7 +413,7 @@
 <span class="sd">        :param y: labels of samples --- array-like of shape [n_samples]</span>
 <span class="sd">        :return: self</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c"># erasing results of the previous training</span>
+        <span class="c1"># erasing results of the previous training</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">net</span> <span class="o">=</span> <span class="bp">None</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">partial_fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span></div>
 
@@ -425,7 +425,7 @@
 <span class="sd">        :param y: labels of samples, array-like of shape [n_samples]</span>
 <span class="sd">        :return: self</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">net_type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">CANT_CLASSIFY</span><span class="p">,</span> <span class="s">&#39;Network type does not support classification&#39;</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">net_type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">CANT_CLASSIFY</span><span class="p">,</span> <span class="s1">&#39;Network type does not support classification&#39;</span>
         <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">check_inputs</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_fitted</span><span class="p">():</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_set_classes</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
@@ -441,19 +441,19 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        .. warning:: This is not supported in the Neurolab (**AttributeError** will be thrown)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s">&quot;&#39;staged_predict_proba&#39; is not supported by the Neurolab networks&quot;</span><span class="p">)</span></div>
+        <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s2">&quot;&#39;staged_predict_proba&#39; is not supported by the Neurolab networks&quot;</span><span class="p">)</span></div>
 
     <span class="k">def</span> <span class="nf">_prepare_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">x_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">):</span>
         <span class="n">net_params</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">NeurolabClassifier</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">_prepare_params</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">x_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">)</span>
-        <span class="c"># Classification networks should have SoftMax as the transfer function on output layer</span>
-        <span class="n">net_params</span><span class="p">[</span><span class="s">&#39;transf&#39;</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">nl</span><span class="o">.</span><span class="n">trans</span><span class="o">.</span><span class="n">SoftMax</span><span class="p">()</span>
+        <span class="c1"># Classification networks should have SoftMax as the transfer function on output layer</span>
+        <span class="n">net_params</span><span class="p">[</span><span class="s1">&#39;transf&#39;</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">nl</span><span class="o">.</span><span class="n">trans</span><span class="o">.</span><span class="n">SoftMax</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">net_params</span>
 
     <span class="n">_prepare_params</span><span class="o">.</span><span class="n">__doc__</span> <span class="o">=</span> <span class="n">NeurolabBase</span><span class="o">.</span><span class="n">_prepare_params</span><span class="o">.</span><span class="n">__doc__</span></div>
 
 
 <div class="viewcode-block" id="NeurolabRegressor"><a class="viewcode-back" href="../../../estimators.html#rep.estimators.neurolab.NeurolabRegressor">[docs]</a><span class="k">class</span> <span class="nc">NeurolabRegressor</span><span class="p">(</span><span class="n">NeurolabBase</span><span class="p">,</span> <span class="n">Regressor</span><span class="p">):</span>
-    <span class="n">__doc__</span> <span class="o">=</span> <span class="s">&quot;Implements a regression model from the Neurolab library. </span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">+</span> <span class="n">remove_first_line</span><span class="p">(</span><span class="n">NeurolabBase</span><span class="o">.</span><span class="n">__doc__</span><span class="p">)</span>
+    <span class="n">__doc__</span> <span class="o">=</span> <span class="s2">&quot;Implements a regression model from the Neurolab library. </span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="n">remove_first_line</span><span class="p">(</span><span class="n">NeurolabBase</span><span class="o">.</span><span class="n">__doc__</span><span class="p">)</span>
 
 <div class="viewcode-block" id="NeurolabRegressor.fit"><a class="viewcode-back" href="../../../estimators.html#rep.estimators.neurolab.NeurolabRegressor.fit">[docs]</a>    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -463,7 +463,7 @@
 <span class="sd">        :param y: values for samples --- array-like of shape [n_samples]</span>
 <span class="sd">        :return: self</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c"># erasing results of previous training</span>
+        <span class="c1"># erasing results of previous training</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">net</span> <span class="o">=</span> <span class="bp">None</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">partial_fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span></div>
 
@@ -476,7 +476,7 @@
 <span class="sd">        :return: self</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">net_type</span> <span class="ow">in</span> <span class="n">CANT_DO_REGRESSION</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s">&#39;Network type does not support regression&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s1">&#39;Network type does not support regression&#39;</span><span class="p">)</span>
         <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">check_inputs</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="n">allow_multiple_targets</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
         <span class="n">y_train</span> <span class="o">=</span> <span class="n">y</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">y</span><span class="p">),</span> <span class="mi">1</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">y</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="n">y</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_partial_fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">y_train</span><span class="p">)</span></div>
@@ -491,11 +491,11 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        .. warning:: This is not supported in the Neurolab (**AttributeError** will be thrown)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s">&quot;&#39;staged_predict&#39; is not supported by the Neurolab networks&quot;</span><span class="p">)</span></div>
+        <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s2">&quot;&#39;staged_predict&#39; is not supported by the Neurolab networks&quot;</span><span class="p">)</span></div>
 
     <span class="k">def</span> <span class="nf">_prepare_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">x_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">):</span>
         <span class="n">net_params</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">NeurolabRegressor</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">_prepare_params</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">x_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">)</span>
-        <span class="n">net_params</span><span class="p">[</span><span class="s">&#39;transf&#39;</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">nl</span><span class="o">.</span><span class="n">trans</span><span class="o">.</span><span class="n">PureLin</span><span class="p">()</span>
+        <span class="n">net_params</span><span class="p">[</span><span class="s1">&#39;transf&#39;</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">nl</span><span class="o">.</span><span class="n">trans</span><span class="o">.</span><span class="n">PureLin</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">net_params</span>
 
     <span class="n">_prepare_params</span><span class="o">.</span><span class="n">__doc__</span> <span class="o">=</span> <span class="n">NeurolabBase</span><span class="o">.</span><span class="n">_prepare_params</span><span class="o">.</span><span class="n">__doc__</span></div>
@@ -532,7 +532,7 @@
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'../../../',
-            VERSION:'0.6.6',
+            VERSION:'0.6.7',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true

@@ -1,0 +1,660 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>rep.estimators.matrixnet &mdash; REP (Reproducible Experiment Platform) 0.6.7 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="REP (Reproducible Experiment Platform) 0.6.7 documentation" href="../../../index.html"/>
+        <link rel="up" title="Module code" href="../../index.html"/> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> REP (Reproducible Experiment Platform)
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.6.7
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../estimators.html">Estimators (classification and regression)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../metaml.html">Meta Machine Learning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../report.html">Report for models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../metrics.html">Metrics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../plotting.html">Plotting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../parallel.html">Parallel computing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../data.html">Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../utils.html">Utilities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reproducibility.html">REProducibility</a></li>
+<li class="toctree-l1"><a class="reference external" href="http://nbviewer.ipython.org/github/yandex/rep/tree/master/howto/">Howto notebooks</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../../index.html">REP (Reproducible Experiment Platform)</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+      
+    <li>rep.estimators.matrixnet</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for rep.estimators.matrixnet</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">:class:`MatrixNetClassifier` and :class:`MatrixNetRegressor` are wrappers for MatrixNet web service - proprietary BDT</span>
+<span class="sd">developed at Yandex. Think about this as a specific Boosted Decision Tree algorithm which is available as a service.</span>
+<span class="sd">At this moment MatrixMet is available only for **CERN users**.</span>
+
+<span class="sd">To use MatrixNet, first acquire token::</span>
+<span class="sd"> * Go to https://yandex-apps.cern.ch/ (login with your CERN-account)</span>
+<span class="sd"> * Click `Add token` at the left panel</span>
+<span class="sd"> * Choose service `MatrixNet` and click `Create token`</span>
+<span class="sd"> * Create `~/.rep-matrixnet.config.json` file with the following content</span>
+<span class="sd">   (custom path to the config file can be specified when creating a wrapper object)::</span>
+
+<span class="sd">        {</span>
+<span class="sd">            &quot;url&quot;: &quot;https://ml.cern.yandex.net/v1&quot;,</span>
+
+<span class="sd">            &quot;token&quot;: &quot;&lt;your_token&gt;&quot;</span>
+<span class="sd">        }</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">division</span><span class="p">,</span> <span class="n">print_function</span><span class="p">,</span> <span class="n">absolute_import</span>
+
+<span class="kn">import</span> <span class="nn">contextlib</span>
+<span class="kn">import</span> <span class="nn">hashlib</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">numbers</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">shutil</span>
+<span class="kn">import</span> <span class="nn">tempfile</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABCMeta</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span>
+<span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">deepcopy</span>
+<span class="kn">from</span> <span class="nn">logging</span> <span class="kn">import</span> <span class="n">getLogger</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span>
+<span class="kn">import</span> <span class="nn">pandas</span>
+<span class="kn">from</span> <span class="nn">six</span> <span class="kn">import</span> <span class="n">BytesIO</span>
+<span class="kn">from</span> <span class="nn">sklearn.utils</span> <span class="kn">import</span> <span class="n">check_random_state</span>
+
+<span class="kn">from</span> <span class="nn">._matrixnetapplier</span> <span class="kn">import</span> <span class="n">MatrixNetApplier</span>
+<span class="kn">from</span> <span class="nn">._mnkit</span> <span class="kn">import</span> <span class="n">MatrixNetClient</span>
+<span class="kn">from</span> <span class="nn">.interface</span> <span class="kn">import</span> <span class="n">Classifier</span><span class="p">,</span> <span class="n">Regressor</span>
+<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">check_inputs</span><span class="p">,</span> <span class="n">score_to_proba</span><span class="p">,</span> <span class="n">remove_first_line</span>
+<span class="kn">from</span> <span class="nn">..utils</span> <span class="kn">import</span> <span class="n">take_last</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s1">&#39;Tatiana Likhomanenko, Alex Rogozhnikov&#39;</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;MatrixNetBase&#39;</span><span class="p">,</span> <span class="s1">&#39;MatrixNetClassifier&#39;</span><span class="p">,</span> <span class="s1">&#39;MatrixNetRegressor&#39;</span><span class="p">]</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">getLogger</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span>
+
+<span class="n">CHUNKSIZE</span> <span class="o">=</span> <span class="mi">1000</span>
+<span class="n">SYNC_SLEEP_TIME</span> <span class="o">=</span> <span class="mi">10</span>
+<span class="n">DEFAULT_CONFIG_PATH</span> <span class="o">=</span> <span class="s2">&quot;$HOME/.rep-matrixnet.config.json&quot;</span>
+
+
+<span class="nd">@contextlib.contextmanager</span>
+<span class="k">def</span> <span class="nf">make_temp_directory</span><span class="p">():</span>
+    <span class="n">temp_dir</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">mkdtemp</span><span class="p">()</span>
+    <span class="k">yield</span> <span class="n">temp_dir</span>
+    <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="n">temp_dir</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="MatrixNetBase"><a class="viewcode-back" href="../../../estimators.html#rep.estimators.matrixnet.MatrixNetBase">[docs]</a><span class="k">class</span> <span class="nc">MatrixNetBase</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Base class for MatrixNetClassifier and MatrixNetRegressor.</span>
+
+<span class="sd">    This is a wrapper around **MatrixNet (specific BDT)** technology developed at **Yandex**,</span>
+<span class="sd">    which is available for CERN people using authorization.</span>
+<span class="sd">    Trained estimator is downloaded and stored at your computer, so you can use it at any time.</span>
+
+<span class="sd">    :param features: features used in training</span>
+<span class="sd">    :type features: list[str] or None</span>
+<span class="sd">    :param str api_config_file: path to the file with remote api configuration in the json format::</span>
+
+<span class="sd">                {&quot;url&quot;: &quot;https://ml.cern.yandex.net/v1&quot;, &quot;token&quot;: &quot;&lt;your_token&gt;&quot;}</span>
+
+<span class="sd">    :param int iterations: number of constructed trees (default=100)</span>
+<span class="sd">    :param float regularization: regularization number (default=0.01)</span>
+<span class="sd">    :param intervals: number of bins for features discretization or dict with borders</span>
+<span class="sd">     list for each feature for its discretization (default=8)</span>
+<span class="sd">    :type intervals: int or dict(str, list)</span>
+<span class="sd">    :param int max_features_per_iteration: depth (default=6, supports 1 &lt;= .. &lt;= 6)</span>
+<span class="sd">    :param float features_sample_rate_per_iteration: training features sampling (default=1.0)</span>
+<span class="sd">    :param float training_fraction: training rows bagging (default=0.5)</span>
+<span class="sd">    :param auto_stop: error value for training pre-stopping</span>
+<span class="sd">    :type auto_stop: None or float</span>
+<span class="sd">    :param bool sync: synchronous or asynchronous training on the server</span>
+<span class="sd">    :param random_state: state for a pseudo random generator</span>
+<span class="sd">    :type random_state: None or int or RandomState</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">__metaclass__</span> <span class="o">=</span> <span class="n">ABCMeta</span>
+    <span class="n">_model_type</span> <span class="o">=</span> <span class="bp">None</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">api_config_file</span><span class="o">=</span><span class="n">DEFAULT_CONFIG_PATH</span><span class="p">,</span>
+                 <span class="n">iterations</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">regularization</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> <span class="n">intervals</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span>
+                 <span class="n">max_features_per_iteration</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">features_sample_rate_per_iteration</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+                 <span class="n">training_fraction</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">auto_stop</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">sync</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">api_config_file</span> <span class="o">=</span> <span class="n">api_config_file</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">iterations</span> <span class="o">=</span> <span class="n">iterations</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">regularization</span> <span class="o">=</span> <span class="n">regularization</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">intervals</span> <span class="o">=</span> <span class="n">intervals</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">auto_stop</span> <span class="o">=</span> <span class="n">auto_stop</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_features_per_iteration</span> <span class="o">=</span> <span class="n">max_features_per_iteration</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">features_sample_rate_per_iteration</span> <span class="o">=</span> <span class="n">features_sample_rate_per_iteration</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">training_fraction</span> <span class="o">=</span> <span class="n">training_fraction</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sync</span> <span class="o">=</span> <span class="n">sync</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">random_state</span> <span class="o">=</span> <span class="n">random_state</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_initialisation_before_fit</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_initialisation_before_fit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">formula_mx</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mn_cls</span> <span class="o">=</span> <span class="bp">None</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_api</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_feature_importances</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pool_hash</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_fit_status</span> <span class="o">=</span> <span class="bp">False</span>
+
+    <span class="k">def</span> <span class="nf">_configure_api</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config_file_path</span><span class="p">):</span>
+        <span class="n">config_file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">expandvars</span><span class="p">(</span><span class="n">config_file_path</span><span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">config_file_path</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">conf_file</span><span class="p">:</span>
+            <span class="n">config</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">conf_file</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_api</span> <span class="o">=</span> <span class="n">MatrixNetClient</span><span class="p">(</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;url&#39;</span><span class="p">],</span> <span class="n">token</span><span class="o">=</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;token&#39;</span><span class="p">])</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mn_cls</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">mn_cls</span><span class="o">.</span><span class="n">requests_kwargs</span><span class="p">[</span><span class="s1">&#39;headers&#39;</span><span class="p">][</span><span class="s1">&#39;X-Yacern-Token&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_api</span><span class="o">.</span><span class="n">auth_token</span>
+
+    <span class="k">def</span> <span class="nf">__getstate__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__dict__</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s1">&#39;_api&#39;</span> <span class="ow">in</span> <span class="n">result</span><span class="p">:</span>
+            <span class="k">del</span> <span class="n">result</span><span class="p">[</span><span class="s1">&#39;_api&#39;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">result</span><span class="p">[</span><span class="s1">&#39;mn_cls&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">result</span><span class="p">[</span><span class="s1">&#39;mn_cls&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">requests_kwargs</span><span class="p">[</span><span class="s1">&#39;headers&#39;</span><span class="p">][</span><span class="s1">&#39;X-Yacern-Token&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">result</span>
+
+    <span class="k">def</span> <span class="nf">__convert_borders</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">borders</span><span class="p">,</span> <span class="n">features</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        convert borders for features into correct format to send to the server</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">converted_borders</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">feature</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">features</span><span class="p">):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">feature</span> <span class="ow">in</span> <span class="n">borders</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="k">for</span> <span class="n">border</span> <span class="ow">in</span> <span class="n">borders</span><span class="p">[</span><span class="n">feature</span><span class="p">]:</span>
+                <span class="n">converted_borders</span> <span class="o">+=</span> <span class="s2">&quot;{}</span><span class="se">\t</span><span class="s2">{}</span><span class="se">\t</span><span class="s2">0</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">border</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">converted_borders</span>
+
+    <span class="k">def</span> <span class="nf">_md5</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        compute md5 hash for file</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">md5</span> <span class="o">=</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">md5</span><span class="p">()</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file_d</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">chunk</span> <span class="ow">in</span> <span class="nb">iter</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="n">file_d</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">128</span> <span class="o">*</span> <span class="n">md5</span><span class="o">.</span><span class="n">block_size</span><span class="p">),</span> <span class="n">b</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
+                <span class="n">md5</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">chunk</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">md5</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_save_df_to_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">sample_weight</span><span class="p">,</span> <span class="n">outfile</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        save DataFrame to send to server</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">header</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="n">mode</span> <span class="o">=</span> <span class="s1">&#39;w&#39;</span>
+        <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">),</span> <span class="n">CHUNKSIZE</span><span class="p">):</span>
+            <span class="n">df_ef</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">row</span><span class="p">:</span> <span class="n">row</span> <span class="o">+</span> <span class="n">CHUNKSIZE</span><span class="p">,</span> <span class="p">:]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">df_ef</span><span class="p">[</span><span class="s1">&#39;is_signal&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">labels</span><span class="p">[</span><span class="n">row</span><span class="p">:</span> <span class="n">row</span> <span class="o">+</span> <span class="n">CHUNKSIZE</span><span class="p">]</span>
+            <span class="n">df_ef</span><span class="p">[</span><span class="s1">&#39;weight&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">sample_weight</span><span class="p">[</span><span class="n">row</span><span class="p">:</span> <span class="n">row</span> <span class="o">+</span> <span class="n">CHUNKSIZE</span><span class="p">]</span>
+            <span class="n">df_ef</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">outfile</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="n">header</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="n">mode</span><span class="p">)</span>
+            <span class="n">header</span> <span class="o">=</span> <span class="bp">False</span>
+            <span class="n">mode</span> <span class="o">=</span> <span class="s1">&#39;a&#39;</span>
+
+    <span class="k">def</span> <span class="nf">_upload_training_to_bucket</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="p">):</span>
+        <span class="k">with</span> <span class="n">make_temp_directory</span><span class="p">()</span> <span class="k">as</span> <span class="n">temp_dir</span><span class="p">:</span>
+            <span class="n">data_local</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">temp_dir</span><span class="p">,</span> <span class="s1">&#39;data.csv&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_save_df_to_file</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="p">,</span> <span class="n">data_local</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_pool_hash</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_md5</span><span class="p">(</span><span class="n">data_local</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_configure_api</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">api_config_file</span><span class="p">)</span>
+            <span class="n">mn_bucket</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_api</span><span class="o">.</span><span class="n">bucket</span><span class="p">(</span><span class="n">bucket_id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_pool_hash</span><span class="p">)</span>
+            <span class="k">if</span> <span class="s1">&#39;data.csv&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="nb">set</span><span class="p">(</span><span class="n">mn_bucket</span><span class="o">.</span><span class="n">ls</span><span class="p">()):</span>
+                <span class="n">mn_bucket</span><span class="o">.</span><span class="n">upload</span><span class="p">(</span><span class="n">data_local</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">mn_bucket</span>
+
+    <span class="k">def</span> <span class="nf">_train_formula</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mn_bucket</span><span class="p">,</span> <span class="n">features</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        prepare parameters and call _train_sync</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">random_state</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">seed</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">random_state</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="n">seed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">random_state</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">seed</span> <span class="o">=</span> <span class="n">check_random_state</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">random_state</span><span class="p">)</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">10000</span><span class="p">)</span>
+
+        <span class="n">mn_options</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;iterations&#39;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">iterations</span><span class="p">),</span>
+                      <span class="s1">&#39;regularization&#39;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">regularization</span><span class="p">),</span>
+                      <span class="s1">&#39;max_features_per_iteration&#39;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">max_features_per_iteration</span><span class="p">),</span>
+                      <span class="s1">&#39;features_sample_rate_per_iteration&#39;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">features_sample_rate_per_iteration</span><span class="p">),</span>
+                      <span class="s1">&#39;training_fraction&#39;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">training_fraction</span><span class="p">),</span>
+                      <span class="s1">&#39;seed&#39;</span><span class="p">:</span> <span class="bp">None</span><span class="p">,</span>
+                      <span class="s1">&#39;intervals&#39;</span><span class="p">:</span> <span class="bp">None</span><span class="p">,</span>
+                      <span class="s1">&#39;auto_stop&#39;</span><span class="p">:</span> <span class="bp">None</span><span class="p">,</span>
+                      <span class="s1">&#39;train_type&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model_type</span><span class="p">}</span>
+
+        <span class="k">if</span> <span class="n">seed</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">mn_options</span><span class="p">[</span><span class="s1">&#39;seed&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">intervals</span><span class="p">,</span> <span class="n">numbers</span><span class="o">.</span><span class="n">Number</span><span class="p">):</span>
+            <span class="n">mn_options</span><span class="p">[</span><span class="s1">&#39;intervals&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">intervals</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">intervals</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">==</span> <span class="nb">set</span><span class="p">(</span><span class="n">features</span><span class="p">),</span> <span class="s1">&#39;intervals must contains borders for all features&#39;</span>
+            <span class="k">with</span> <span class="n">make_temp_directory</span><span class="p">()</span> <span class="k">as</span> <span class="n">temp_dir</span><span class="p">:</span>
+                <span class="n">borders_local</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">temp_dir</span><span class="p">,</span> <span class="s1">&#39;borders&#39;</span><span class="p">)</span>
+                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">borders_local</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file_b</span><span class="p">:</span>
+                    <span class="n">file_b</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__convert_borders</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">intervals</span><span class="p">,</span> <span class="n">features</span><span class="p">))</span>
+
+                <span class="n">suffix</span> <span class="o">=</span> <span class="s1">&#39;.{}.baseline&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_md5</span><span class="p">(</span><span class="n">borders_local</span><span class="p">))</span>
+                <span class="n">borders_name</span> <span class="o">=</span> <span class="n">borders_local</span> <span class="o">+</span> <span class="n">suffix</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">borders_local</span><span class="p">,</span> <span class="n">borders_name</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">borders_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="nb">set</span><span class="p">(</span><span class="n">mn_bucket</span><span class="o">.</span><span class="n">ls</span><span class="p">()):</span>
+                    <span class="n">mn_bucket</span><span class="o">.</span><span class="n">upload</span><span class="p">(</span><span class="n">borders_name</span><span class="p">)</span>
+
+            <span class="n">mn_options</span><span class="p">[</span><span class="s1">&#39;intervals&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;borders&#39;</span> <span class="o">+</span> <span class="n">suffix</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">auto_stop</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">mn_options</span><span class="p">[</span><span class="s1">&#39;auto_stop&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">auto_stop</span><span class="p">)</span>
+
+        <span class="n">descriptor</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;mn_parameters&#39;</span><span class="p">:</span> <span class="n">mn_options</span><span class="p">,</span>
+            <span class="s1">&#39;mn_version&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+            <span class="s1">&#39;fields&#39;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="n">features</span><span class="p">),</span>
+            <span class="s1">&#39;extra&#39;</span><span class="p">:</span> <span class="p">{},</span>
+        <span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_configure_api</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">api_config_file</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mn_cls</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_api</span><span class="o">.</span><span class="n">classifier</span><span class="p">(</span>
+            <span class="n">parameters</span><span class="o">=</span><span class="n">descriptor</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;REP-submitted classifier&quot;</span><span class="p">,</span>
+            <span class="n">bucket_id</span><span class="o">=</span><span class="n">mn_bucket</span><span class="o">.</span><span class="n">bucket_id</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mn_cls</span><span class="o">.</span><span class="n">upload</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_fit_status</span> <span class="o">=</span> <span class="bp">True</span>
+
+<div class="viewcode-block" id="MatrixNetBase.training_status"><a class="viewcode-back" href="../../../estimators.html#rep.estimators.matrixnet.MatrixNetBase.training_status">[docs]</a>    <span class="k">def</span> <span class="nf">training_status</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Check if training has finished on the server</span>
+
+<span class="sd">        :rtype: bool</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_configure_api</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">api_config_file</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fit_status</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">mn_cls</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">,</span> <span class="s1">&#39;Call fit before&#39;</span>
+        <span class="k">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mn_cls</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">mn_cls</span><span class="o">.</span><span class="n">get_status</span><span class="p">()</span> <span class="o">!=</span> <span class="s1">&#39;failed&#39;</span><span class="p">,</span> <span class="s1">&#39;Estimator is failed, run resubmit function, job id {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mn_cls</span><span class="o">.</span><span class="n">classifier_id</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mn_cls</span><span class="o">.</span><span class="n">get_status</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;completed&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_download_formula</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_download_features</span><span class="p">()</span>
+            <span class="k">return</span> <span class="bp">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">False</span></div>
+
+<div class="viewcode-block" id="MatrixNetBase.synchronize"><a class="viewcode-back" href="../../../estimators.html#rep.estimators.matrixnet.MatrixNetBase.synchronize">[docs]</a>    <span class="k">def</span> <span class="nf">synchronize</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Synchronise asynchronic training: wait while training process will be finished on the server</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fit_status</span><span class="p">,</span> <span class="s1">&#39;Do fit, model is not trained&#39;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">formula_mx</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_feature_importances</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="k">while</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">training_status</span><span class="p">():</span>
+            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">SYNC_SLEEP_TIME</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">formula_mx</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_feature_importances</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">),</span> \
+            <span class="s2">&quot;Classifier wasn&#39;t fitted, please call `fit` first&quot;</span></div>
+
+    <span class="k">def</span> <span class="nf">_download_formula</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Download formula from the server</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">formula_mx</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">NamedTemporaryFile</span><span class="p">()</span> <span class="k">as</span> <span class="n">outfile</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_configure_api</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">api_config_file</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mn_cls</span><span class="o">.</span><span class="n">save_formula</span><span class="p">(</span><span class="n">outfile</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">outfile</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">formula_file</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">formula_mx</span> <span class="o">=</span> <span class="n">formula_file</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+                <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">formula_mx</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;Formula is empty&quot;</span>
+
+    <span class="k">def</span> <span class="nf">_download_features</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_feature_importances</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">NamedTemporaryFile</span><span class="p">()</span> <span class="k">as</span> <span class="n">outfile</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mn_cls</span><span class="o">.</span><span class="n">save_stats</span><span class="p">(</span><span class="n">outfile</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+            <span class="n">stats</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">outfile</span><span class="o">.</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">())[</span><span class="s1">&#39;factors&#39;</span><span class="p">]</span>
+            <span class="n">importances</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
+            <span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;effect&quot;</span><span class="p">,</span> <span class="s2">&quot;info&quot;</span><span class="p">,</span> <span class="s2">&quot;efficiency&quot;</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">stats</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">columns</span><span class="p">:</span>
+                    <span class="n">importances</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">key</span><span class="p">])</span>
+
+            <span class="n">df</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">importances</span><span class="p">)</span>
+            <span class="n">df_result</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;effect&#39;</span><span class="p">:</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;effect&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">/</span> <span class="nb">max</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;effect&#39;</span><span class="p">]),</span>
+                         <span class="s1">&#39;information&#39;</span><span class="p">:</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;info&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">/</span> <span class="nb">max</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;info&#39;</span><span class="p">]),</span>
+                         <span class="s1">&#39;efficiency&#39;</span><span class="p">:</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;efficiency&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">/</span> <span class="nb">max</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;efficiency&#39;</span><span class="p">])}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_feature_importances</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">df_result</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+
+<div class="viewcode-block" id="MatrixNetBase.get_feature_importances"><a class="viewcode-back" href="../../../estimators.html#rep.estimators.matrixnet.MatrixNetBase.get_feature_importances">[docs]</a>    <span class="k">def</span> <span class="nf">get_feature_importances</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get features importance: `effect`, `efficiency`, `information` characteristics</span>
+
+<span class="sd">        :rtype: pandas.DataFrame with `index=self.features`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">synchronize</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_feature_importances</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">feature_importances_</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Sklearn-way of returning feature importance.</span>
+<span class="sd">        This returned as numpy.array, &#39;effect&#39; column is used among MatrixNet importances.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_feature_importances</span><span class="p">()[</span><span class="s1">&#39;effect&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">ix</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">features</span><span class="p">])</span>
+
+<div class="viewcode-block" id="MatrixNetBase.get_iterations"><a class="viewcode-back" href="../../../estimators.html#rep.estimators.matrixnet.MatrixNetBase.get_iterations">[docs]</a>    <span class="k">def</span> <span class="nf">get_iterations</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return number of already constructed trees during training</span>
+
+<span class="sd">        :return: int or None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_configure_api</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">api_config_file</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mn_cls</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">mn_cls</span><span class="o">.</span><span class="n">get_iterations</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">None</span></div>
+
+<div class="viewcode-block" id="MatrixNetBase.resubmit"><a class="viewcode-back" href="../../../estimators.html#rep.estimators.matrixnet.MatrixNetBase.resubmit">[docs]</a>    <span class="k">def</span> <span class="nf">resubmit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Resubmit training process on the server in case of failing job.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mn_cls</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_configure_api</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">api_config_file</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mn_cls</span><span class="o">.</span><span class="n">resubmit</span><span class="p">()</span></div></div>
+
+
+<div class="viewcode-block" id="MatrixNetClassifier"><a class="viewcode-back" href="../../../estimators.html#rep.estimators.matrixnet.MatrixNetClassifier">[docs]</a><span class="k">class</span> <span class="nc">MatrixNetClassifier</span><span class="p">(</span><span class="n">MatrixNetBase</span><span class="p">,</span> <span class="n">Classifier</span><span class="p">):</span>
+    <span class="n">__doc__</span> <span class="o">=</span> <span class="s1">&#39;MatrixNet classification model. </span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="n">remove_first_line</span><span class="p">(</span><span class="n">MatrixNetBase</span><span class="o">.</span><span class="n">__doc__</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">api_config_file</span><span class="o">=</span><span class="n">DEFAULT_CONFIG_PATH</span><span class="p">,</span>
+                 <span class="n">iterations</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">regularization</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> <span class="n">intervals</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span>
+                 <span class="n">max_features_per_iteration</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">features_sample_rate_per_iteration</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+                 <span class="n">training_fraction</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">auto_stop</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">sync</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">):</span>
+        <span class="n">MatrixNetBase</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">api_config_file</span><span class="o">=</span><span class="n">api_config_file</span><span class="p">,</span>
+                               <span class="n">iterations</span><span class="o">=</span><span class="n">iterations</span><span class="p">,</span> <span class="n">regularization</span><span class="o">=</span><span class="n">regularization</span><span class="p">,</span> <span class="n">intervals</span><span class="o">=</span><span class="n">intervals</span><span class="p">,</span>
+                               <span class="n">max_features_per_iteration</span><span class="o">=</span><span class="n">max_features_per_iteration</span><span class="p">,</span>
+                               <span class="n">features_sample_rate_per_iteration</span><span class="o">=</span><span class="n">features_sample_rate_per_iteration</span><span class="p">,</span>
+                               <span class="n">training_fraction</span><span class="o">=</span><span class="n">training_fraction</span><span class="p">,</span> <span class="n">auto_stop</span><span class="o">=</span><span class="n">auto_stop</span><span class="p">,</span>
+                               <span class="n">sync</span><span class="o">=</span><span class="n">sync</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="n">random_state</span><span class="p">)</span>
+        <span class="n">Classifier</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_model_type</span> <span class="o">=</span> <span class="s1">&#39;classification&#39;</span>
+
+    <span class="k">def</span> <span class="nf">_set_classes_special</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_classes</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_classes_</span> <span class="o">==</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;Support only 2 classes (data contain {})&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_classes_</span><span class="p">)</span>
+
+<div class="viewcode-block" id="MatrixNetClassifier.fit"><a class="viewcode-back" href="../../../estimators.html#rep.estimators.matrixnet.MatrixNetClassifier.fit">[docs]</a>    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_initialisation_before_fit</span><span class="p">()</span>
+        <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span> <span class="o">=</span> <span class="n">check_inputs</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="n">sample_weight</span><span class="p">,</span> <span class="n">allow_none_weights</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_classes_special</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+        <span class="n">X</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_features</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+        <span class="n">mn_bucket</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_upload_training_to_bucket</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_train_formula</span><span class="p">(</span><span class="n">mn_bucket</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">columns</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sync</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">synchronize</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+    <span class="n">fit</span><span class="o">.</span><span class="n">__doc__</span> <span class="o">=</span> <span class="n">Classifier</span><span class="o">.</span><span class="n">fit</span><span class="o">.</span><span class="n">__doc__</span>
+
+<div class="viewcode-block" id="MatrixNetClassifier.predict_proba"><a class="viewcode-back" href="../../../estimators.html#rep.estimators.matrixnet.MatrixNetClassifier.predict_proba">[docs]</a>    <span class="k">def</span> <span class="nf">predict_proba</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">take_last</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">staged_predict_proba</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="mi">100000</span><span class="p">))</span></div>
+
+    <span class="n">predict_proba</span><span class="o">.</span><span class="n">__doc__</span> <span class="o">=</span> <span class="n">Classifier</span><span class="o">.</span><span class="n">predict_proba</span><span class="o">.</span><span class="n">__doc__</span>
+
+<div class="viewcode-block" id="MatrixNetClassifier.staged_predict_proba"><a class="viewcode-back" href="../../../estimators.html#rep.estimators.matrixnet.MatrixNetClassifier.staged_predict_proba">[docs]</a>    <span class="k">def</span> <span class="nf">staged_predict_proba</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Predict probabilities for data for each class label on each stage.</span>
+
+<span class="sd">        :param pandas.DataFrame X: data of shape [n_samples, n_features]</span>
+<span class="sd">        :param int step: step for returned iterations (10 by default).</span>
+
+<span class="sd">        :return: iterator</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">synchronize</span><span class="p">()</span>
+
+        <span class="n">X</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_features</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+
+        <span class="n">data</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="n">mx</span> <span class="o">=</span> <span class="n">MatrixNetApplier</span><span class="p">(</span><span class="n">BytesIO</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">formula_mx</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">stage</span><span class="p">,</span> <span class="n">prediction</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">mx</span><span class="o">.</span><span class="n">staged_apply</span><span class="p">(</span><span class="n">data</span><span class="p">)):</span>
+            <span class="k">if</span> <span class="n">stage</span> <span class="o">%</span> <span class="n">step</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">yield</span> <span class="n">score_to_proba</span><span class="p">(</span><span class="n">prediction</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">stage</span> <span class="o">%</span> <span class="n">step</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">yield</span> <span class="n">score_to_proba</span><span class="p">(</span><span class="n">prediction</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="MatrixNetRegressor"><a class="viewcode-back" href="../../../estimators.html#rep.estimators.matrixnet.MatrixNetRegressor">[docs]</a><span class="k">class</span> <span class="nc">MatrixNetRegressor</span><span class="p">(</span><span class="n">MatrixNetBase</span><span class="p">,</span> <span class="n">Regressor</span><span class="p">):</span>
+    <span class="n">__doc__</span> <span class="o">=</span> <span class="s1">&#39;MatrixNet for regression model. </span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="n">remove_first_line</span><span class="p">(</span><span class="n">MatrixNetBase</span><span class="o">.</span><span class="n">__doc__</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">api_config_file</span><span class="o">=</span><span class="n">DEFAULT_CONFIG_PATH</span><span class="p">,</span>
+                 <span class="n">iterations</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">regularization</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> <span class="n">intervals</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span>
+                 <span class="n">max_features_per_iteration</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">features_sample_rate_per_iteration</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+                 <span class="n">training_fraction</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">auto_stop</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">sync</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">):</span>
+        <span class="n">MatrixNetBase</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">api_config_file</span><span class="o">=</span><span class="n">api_config_file</span><span class="p">,</span>
+                               <span class="n">iterations</span><span class="o">=</span><span class="n">iterations</span><span class="p">,</span> <span class="n">regularization</span><span class="o">=</span><span class="n">regularization</span><span class="p">,</span> <span class="n">intervals</span><span class="o">=</span><span class="n">intervals</span><span class="p">,</span>
+                               <span class="n">max_features_per_iteration</span><span class="o">=</span><span class="n">max_features_per_iteration</span><span class="p">,</span>
+                               <span class="n">features_sample_rate_per_iteration</span><span class="o">=</span><span class="n">features_sample_rate_per_iteration</span><span class="p">,</span>
+                               <span class="n">training_fraction</span><span class="o">=</span><span class="n">training_fraction</span><span class="p">,</span> <span class="n">auto_stop</span><span class="o">=</span><span class="n">auto_stop</span><span class="p">,</span> <span class="n">sync</span><span class="o">=</span><span class="n">sync</span><span class="p">,</span>
+                               <span class="n">random_state</span><span class="o">=</span><span class="n">random_state</span><span class="p">)</span>
+        <span class="n">Regressor</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_model_type</span> <span class="o">=</span> <span class="s1">&#39;regression&#39;</span>
+
+<div class="viewcode-block" id="MatrixNetRegressor.fit"><a class="viewcode-back" href="../../../estimators.html#rep.estimators.matrixnet.MatrixNetRegressor.fit">[docs]</a>    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_initialisation_before_fit</span><span class="p">()</span>
+        <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span> <span class="o">=</span> <span class="n">check_inputs</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="n">sample_weight</span><span class="p">,</span> <span class="n">allow_none_weights</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+
+        <span class="n">X</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_features</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+        <span class="n">mn_bucket</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_upload_training_to_bucket</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_train_formula</span><span class="p">(</span><span class="n">mn_bucket</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">columns</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sync</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">synchronize</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+    <span class="n">fit</span><span class="o">.</span><span class="n">__doc__</span> <span class="o">=</span> <span class="n">Classifier</span><span class="o">.</span><span class="n">fit</span><span class="o">.</span><span class="n">__doc__</span>
+
+<div class="viewcode-block" id="MatrixNetRegressor.predict"><a class="viewcode-back" href="../../../estimators.html#rep.estimators.matrixnet.MatrixNetRegressor.predict">[docs]</a>    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">take_last</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">staged_predict</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="mi">100000</span><span class="p">))</span></div>
+
+    <span class="n">predict</span><span class="o">.</span><span class="n">__doc__</span> <span class="o">=</span> <span class="n">Classifier</span><span class="o">.</span><span class="n">predict</span><span class="o">.</span><span class="n">__doc__</span>
+
+<div class="viewcode-block" id="MatrixNetRegressor.staged_predict"><a class="viewcode-back" href="../../../estimators.html#rep.estimators.matrixnet.MatrixNetRegressor.staged_predict">[docs]</a>    <span class="k">def</span> <span class="nf">staged_predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Predict probabilities for data for each class label on each stage.</span>
+
+<span class="sd">        :param pandas.DataFrame X: data of shape [n_samples, n_features]</span>
+<span class="sd">        :param int step: step for returned iterations (10 by default).</span>
+
+<span class="sd">        :return: iterator</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">synchronize</span><span class="p">()</span>
+
+        <span class="n">X</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_features</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+
+        <span class="n">data</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="n">mx</span> <span class="o">=</span> <span class="n">MatrixNetApplier</span><span class="p">(</span><span class="n">BytesIO</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">formula_mx</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">stage</span><span class="p">,</span> <span class="n">prediction</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">mx</span><span class="o">.</span><span class="n">staged_apply</span><span class="p">(</span><span class="n">data</span><span class="p">)):</span>
+            <span class="k">if</span> <span class="n">stage</span> <span class="o">%</span> <span class="n">step</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">yield</span> <span class="n">prediction</span>
+        <span class="k">if</span> <span class="n">stage</span> <span class="o">%</span> <span class="n">step</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">yield</span> <span class="n">prediction</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2014-2015, Yandex.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../',
+            VERSION:'0.6.7',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

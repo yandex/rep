@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>rep.report.metrics &mdash; REP (Reproducible Experiment Platform) 0.6.6 documentation</title>
+  <title>rep.report.metrics &mdash; REP (Reproducible Experiment Platform) 0.6.7 documentation</title>
   
 
   
@@ -30,7 +30,7 @@
   
 
   
-    <link rel="top" title="REP (Reproducible Experiment Platform) 0.6.6 documentation" href="../../../index.html"/>
+    <link rel="top" title="REP (Reproducible Experiment Platform) 0.6.7 documentation" href="../../../index.html"/>
         <link rel="up" title="Module code" href="../../index.html"/> 
 
   
@@ -59,7 +59,7 @@
             
             
               <div class="version">
-                0.6.6
+                0.6.7
               </div>
             
           
@@ -136,7 +136,7 @@
            <div itemprop="articleBody">
             
   <h1>Source code for rep.report.metrics</h1><div class="highlight"><pre>
-<span class="sd">&quot;&quot;&quot;</span>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">Metric-object API</span>
 <span class="sd">-----------------</span>
@@ -266,7 +266,7 @@
 <span class="kn">from</span> <span class="nn">..utils</span> <span class="kn">import</span> <span class="n">check_sample_weight</span><span class="p">,</span> <span class="n">weighted_quantile</span>
 <span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">product</span>
 
-<span class="n">__author__</span> <span class="o">=</span> <span class="s">&#39;Alex Rogozhnikov&#39;</span>
+<span class="n">__author__</span> <span class="o">=</span> <span class="s1">&#39;Alex Rogozhnikov&#39;</span>
 
 
 <div class="viewcode-block" id="MetricMixin"><a class="viewcode-back" href="../../../metrics.html#rep.report.metrics.MetricMixin">[docs]</a><span class="k">class</span> <span class="nc">MetricMixin</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
@@ -284,7 +284,7 @@
 
 <span class="sd">        :return: X, y, sample_weight, indices</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">X</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">y</span><span class="p">),</span> <span class="s">&#39;Lengths are different!&#39;</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">X</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">y</span><span class="p">),</span> <span class="s1">&#39;Lengths are different!&#39;</span>
         <span class="n">sample_weight</span> <span class="o">=</span> <span class="n">check_sample_weight</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="n">sample_weight</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">classes_</span><span class="p">,</span> <span class="n">indices</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">return_inverse</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">probabilities_shape</span> <span class="o">=</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">y</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classes_</span><span class="p">))</span>
@@ -325,13 +325,13 @@
 <span class="sd">        :return: self</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sample_weight</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prepare</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="n">sample_weight</span><span class="p">)</span>
-        <span class="c"># computing index of positive label</span>
+        <span class="c1"># computing index of positive label</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">positive_index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">classes_</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">positive_label</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">true_class</span> <span class="o">=</span> <span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">y</span><span class="p">)</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">positive_label</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span>
 
     <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">proba</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-        <span class="k">assert</span> <span class="n">numpy</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classes_</span> <span class="o">&lt;</span> <span class="n">proba</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="s">&#39;passed probabilities not for all classes&#39;</span>
+        <span class="k">assert</span> <span class="n">numpy</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classes_</span> <span class="o">&lt;</span> <span class="n">proba</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="s1">&#39;passed probabilities not for all classes&#39;</span>
         <span class="k">return</span> <span class="n">roc_auc_score</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">true_class</span><span class="p">,</span> <span class="n">proba</span><span class="p">[:,</span> <span class="bp">self</span><span class="o">.</span><span class="n">positive_index</span><span class="p">],</span>
                              <span class="n">sample_weight</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">sample_weight</span><span class="p">)</span></div>
 
@@ -368,8 +368,8 @@
         <span class="k">return</span> <span class="bp">self</span>
 
     <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">proba</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-        <span class="c"># assert proba.shape == self.probabilities_shape, &#39;Wrong shape of probabilities&#39;</span>
-        <span class="k">assert</span> <span class="n">numpy</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classes_</span> <span class="o">&lt;</span> <span class="n">proba</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="s">&#39;number of classes in predictions is greater than expected&#39;</span>
+        <span class="c1"># assert proba.shape == self.probabilities_shape, &#39;Wrong shape of probabilities&#39;</span>
+        <span class="k">assert</span> <span class="n">numpy</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classes_</span> <span class="o">&lt;</span> <span class="n">proba</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="s1">&#39;number of classes in predictions is greater than expected&#39;</span>
         <span class="n">correct_probabilities</span> <span class="o">=</span> <span class="n">proba</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">samples_indices</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">class_indices</span><span class="p">]</span>
         <span class="k">return</span> <span class="o">-</span> <span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">correct_probabilities</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">regularization</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">sample_weight</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span></div>
 
@@ -397,7 +397,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">sample_weight</span> <span class="o">=</span> <span class="n">check_sample_weight</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="n">sample_weight</span><span class="p">)</span>
         <span class="n">sample_weight</span> <span class="o">=</span> <span class="n">sample_weight</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-        <span class="k">assert</span> <span class="n">numpy</span><span class="o">.</span><span class="n">in1d</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span><span class="o">.</span><span class="n">all</span><span class="p">(),</span> <span class="s">&#39;labels passed should be 0 and 1&#39;</span>
+        <span class="k">assert</span> <span class="n">numpy</span><span class="o">.</span><span class="n">in1d</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span><span class="o">.</span><span class="n">all</span><span class="p">(),</span> <span class="s1">&#39;labels passed should be 0 and 1&#39;</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sb_ratio</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
             <span class="n">sample_weight_s</span> <span class="o">=</span> <span class="n">sample_weight</span><span class="p">[</span><span class="n">y_true</span> <span class="o">==</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
@@ -476,11 +476,11 @@
         <span class="n">ordered_proba</span><span class="p">,</span> <span class="n">metrics_val</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">compute</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">proba</span><span class="p">,</span> <span class="n">sample_weight</span><span class="p">)</span>
         <span class="n">ind</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">metrics_val</span><span class="p">)</span>
 
-        <span class="k">print</span><span class="p">(</span><span class="s">&#39;Optimal cut=</span><span class="si">%1.4f</span><span class="s">, quality=</span><span class="si">%1.4f</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">ordered_proba</span><span class="p">[</span><span class="n">ind</span><span class="p">],</span> <span class="n">metrics_val</span><span class="p">[</span><span class="n">ind</span><span class="p">]))</span>
+        <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Optimal cut=</span><span class="si">%1.4f</span><span class="s1">, quality=</span><span class="si">%1.4f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">ordered_proba</span><span class="p">[</span><span class="n">ind</span><span class="p">],</span> <span class="n">metrics_val</span><span class="p">[</span><span class="n">ind</span><span class="p">]))</span>
 
         <span class="n">plot_fig</span> <span class="o">=</span> <span class="n">plotting</span><span class="o">.</span><span class="n">FunctionsPlot</span><span class="p">({</span><span class="bp">self</span><span class="o">.</span><span class="n">metric</span><span class="o">.</span><span class="n">__name__</span><span class="p">:</span> <span class="p">(</span><span class="n">ordered_proba</span><span class="p">,</span> <span class="n">metrics_val</span><span class="p">)})</span>
-        <span class="n">plot_fig</span><span class="o">.</span><span class="n">xlabel</span> <span class="o">=</span> <span class="s">&#39;cut&#39;</span>
-        <span class="n">plot_fig</span><span class="o">.</span><span class="n">ylabel</span> <span class="o">=</span> <span class="s">&#39;metrics &#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">metric</span><span class="o">.</span><span class="n">__name__</span>
+        <span class="n">plot_fig</span><span class="o">.</span><span class="n">xlabel</span> <span class="o">=</span> <span class="s1">&#39;cut&#39;</span>
+        <span class="n">plot_fig</span><span class="o">.</span><span class="n">ylabel</span> <span class="o">=</span> <span class="s1">&#39;metrics &#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">metric</span><span class="o">.</span><span class="n">__name__</span>
         <span class="k">return</span> <span class="n">plot_fig</span>
 
     <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">y_true</span><span class="p">,</span> <span class="n">proba</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
@@ -679,7 +679,7 @@
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'../../../',
-            VERSION:'0.6.6',
+            VERSION:'0.6.7',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true

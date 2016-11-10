@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>rep.estimators.interface &mdash; REP (Reproducible Experiment Platform) 0.6.6 documentation</title>
+  <title>rep.estimators.interface &mdash; REP (Reproducible Experiment Platform) 0.6.7 documentation</title>
   
 
   
@@ -30,7 +30,7 @@
   
 
   
-    <link rel="top" title="REP (Reproducible Experiment Platform) 0.6.6 documentation" href="../../../index.html"/>
+    <link rel="top" title="REP (Reproducible Experiment Platform) 0.6.7 documentation" href="../../../index.html"/>
         <link rel="up" title="Module code" href="../../index.html"/> 
 
   
@@ -59,7 +59,7 @@
             
             
               <div class="version">
-                0.6.6
+                0.6.7
               </div>
             
           
@@ -136,7 +136,7 @@
            <div itemprop="articleBody">
             
   <h1>Source code for rep.estimators.interface</h1><div class="highlight"><pre>
-<span class="sd">&quot;&quot;&quot;</span>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">**REP** wrappers are derived from :class:`Classifier` and :class:`Regressor`</span>
 <span class="sd">depending on the problem of interest.</span>
 
@@ -152,7 +152,7 @@
 
 <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">_get_features</span>
 
-<span class="n">__author__</span> <span class="o">=</span> <span class="s">&#39;Tatiana Likhomanenko, Alex Rogozhnikov&#39;</span>
+<span class="n">__author__</span> <span class="o">=</span> <span class="s1">&#39;Tatiana Likhomanenko, Alex Rogozhnikov&#39;</span>
 
 <span class="n">_docs</span> <span class="o">=</span> \
     <span class="sd">&quot;&quot;&quot;</span>
@@ -173,7 +173,7 @@
 
 
 <div class="viewcode-block" id="Classifier"><a class="viewcode-back" href="../../../estimators.html#rep.estimators.interface.Classifier">[docs]</a><span class="k">class</span> <span class="nc">Classifier</span><span class="p">(</span><span class="n">BaseEstimator</span><span class="p">,</span> <span class="n">ClassifierMixin</span><span class="p">):</span>
-    <span class="n">__doc__</span> <span class="o">=</span> <span class="n">_docs</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s">&#39;classification&#39;</span><span class="p">)</span> <span class="o">+</span> \
+    <span class="n">__doc__</span> <span class="o">=</span> <span class="n">_docs</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39;classification&#39;</span><span class="p">)</span> <span class="o">+</span> \
               <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        * Classes values must be from 0 to n_classes-1!</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -195,9 +195,9 @@
     <span class="k">def</span> <span class="nf">_set_classes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">classes_</span><span class="p">,</span> <span class="n">indices</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">return_index</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">n_classes_</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classes_</span><span class="p">)</span>
-        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_classes_</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">,</span> <span class="s">&quot;Number of labels must be &gt;= 2 (data contain {})&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_classes_</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_classes_</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;Number of labels must be &gt;= 2 (data contain {})&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_classes_</span><span class="p">)</span>
         <span class="k">assert</span> <span class="n">numpy</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classes_</span> <span class="o">==</span> <span class="n">numpy</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_classes_</span><span class="p">)),</span> \
-            <span class="s">&#39;Labels must be from 0..n_classes-1, instead of {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classes_</span><span class="p">)</span>
+            <span class="s1">&#39;Labels must be from 0..n_classes-1, instead of {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classes_</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">indices</span>
 
     <span class="nd">@abstractmethod</span>
@@ -250,9 +250,9 @@
 <span class="sd">        :rtype: pandas.DataFrame with `index=self.features`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s">&quot;effect&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">feature_importances_</span><span class="p">},</span> <span class="n">index</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">features</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">&quot;effect&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">feature_importances_</span><span class="p">},</span> <span class="n">index</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">features</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s">&quot;Haven&#39;t feature_importances_ property&quot;</span><span class="p">)</span></div>
+            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s2">&quot;Haven&#39;t feature_importances_ property&quot;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Classifier.fit_lds"><a class="viewcode-back" href="../../../estimators.html#rep.estimators.interface.Classifier.fit_lds">[docs]</a>    <span class="k">def</span> <span class="nf">fit_lds</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lds</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -272,7 +272,7 @@
 <span class="sd">        :return: ClassificationReport</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="kn">from</span> <span class="nn">..report</span> <span class="kn">import</span> <span class="n">ClassificationReport</span>
-        <span class="k">return</span> <span class="n">ClassificationReport</span><span class="p">(</span><span class="n">classifiers</span><span class="o">=</span><span class="p">{</span><span class="s">&#39;clf&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="p">},</span> <span class="n">lds</span><span class="o">=</span><span class="n">lds</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">ClassificationReport</span><span class="p">(</span><span class="n">classifiers</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;clf&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="p">},</span> <span class="n">lds</span><span class="o">=</span><span class="n">lds</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Classifier.test_on"><a class="viewcode-back" href="../../../estimators.html#rep.estimators.interface.Classifier.test_on">[docs]</a>    <span class="k">def</span> <span class="nf">test_on</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -290,7 +290,7 @@
 
 
 <div class="viewcode-block" id="Regressor"><a class="viewcode-back" href="../../../estimators.html#rep.estimators.interface.Regressor">[docs]</a><span class="k">class</span> <span class="nc">Regressor</span><span class="p">(</span><span class="n">BaseEstimator</span><span class="p">,</span> <span class="n">RegressorMixin</span><span class="p">):</span>
-    <span class="n">__doc__</span> <span class="o">=</span> <span class="n">_docs</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s">&#39;regression&#39;</span><span class="p">)</span>
+    <span class="n">__doc__</span> <span class="o">=</span> <span class="n">_docs</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39;regression&#39;</span><span class="p">)</span>
     <span class="n">__metaclass__</span> <span class="o">=</span> <span class="n">ABCMeta</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
@@ -359,9 +359,9 @@
 <span class="sd">        :rtype: pandas.DataFrame with `index=self.features`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s">&quot;effect&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">feature_importances_</span><span class="p">},</span> <span class="n">index</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">features</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">&quot;effect&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">feature_importances_</span><span class="p">},</span> <span class="n">index</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">features</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s">&quot;Classifier doesn&#39;t provide feature_importances_ property&quot;</span><span class="p">)</span></div>
+            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s2">&quot;Classifier doesn&#39;t provide feature_importances_ property&quot;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Regressor.test_on_lds"><a class="viewcode-back" href="../../../estimators.html#rep.estimators.interface.Regressor.test_on_lds">[docs]</a>    <span class="k">def</span> <span class="nf">test_on_lds</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lds</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -371,7 +371,7 @@
 <span class="sd">        :return: RegressionReport</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="kn">from</span> <span class="nn">..report</span> <span class="kn">import</span> <span class="n">RegressionReport</span>
-        <span class="k">return</span> <span class="n">RegressionReport</span><span class="p">(</span><span class="n">regressors</span><span class="o">=</span><span class="p">{</span><span class="s">&#39;clf&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="p">},</span> <span class="n">lds</span><span class="o">=</span><span class="n">lds</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">RegressionReport</span><span class="p">(</span><span class="n">regressors</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;clf&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="p">},</span> <span class="n">lds</span><span class="o">=</span><span class="n">lds</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Regressor.test_on"><a class="viewcode-back" href="../../../estimators.html#rep.estimators.interface.Regressor.test_on">[docs]</a>    <span class="k">def</span> <span class="nf">test_on</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -419,7 +419,7 @@
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'../../../',
-            VERSION:'0.6.6',
+            VERSION:'0.6.7',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true

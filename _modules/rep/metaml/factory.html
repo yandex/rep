@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>rep.metaml.factory &mdash; REP (Reproducible Experiment Platform) 0.6.6 documentation</title>
+  <title>rep.metaml.factory &mdash; REP (Reproducible Experiment Platform) 0.6.7 documentation</title>
   
 
   
@@ -30,7 +30,7 @@
   
 
   
-    <link rel="top" title="REP (Reproducible Experiment Platform) 0.6.6 documentation" href="../../../index.html"/>
+    <link rel="top" title="REP (Reproducible Experiment Platform) 0.6.7 documentation" href="../../../index.html"/>
         <link rel="up" title="Module code" href="../../index.html"/> 
 
   
@@ -59,7 +59,7 @@
             
             
               <div class="version">
-                0.6.6
+                0.6.7
               </div>
             
           
@@ -136,7 +136,7 @@
            <div itemprop="articleBody">
             
   <h1>Source code for rep.metaml.factory</h1><div class="highlight"><pre>
-<span class="sd">&quot;&quot;&quot;</span>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">**Factory** provides convenient way to train several classifiers on the same dataset.</span>
 <span class="sd">These classifiers can be trained one-by-one in a single thread, or simultaneously</span>
 <span class="sd">with IPython cluster or in several threads.</span>
@@ -155,9 +155,9 @@
 <span class="kn">from</span> <span class="nn">..estimators.sklearn</span> <span class="kn">import</span> <span class="n">SklearnClassifier</span><span class="p">,</span> <span class="n">SklearnRegressor</span>
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">utils</span>
 
-<span class="n">__author__</span> <span class="o">=</span> <span class="s">&#39;Tatiana Likhomanenko&#39;</span>
+<span class="n">__author__</span> <span class="o">=</span> <span class="s1">&#39;Tatiana Likhomanenko&#39;</span>
 
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;ClassifiersFactory&#39;</span><span class="p">,</span> <span class="s">&#39;RegressorsFactory&#39;</span><span class="p">]</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;ClassifiersFactory&#39;</span><span class="p">,</span> <span class="s1">&#39;RegressorsFactory&#39;</span><span class="p">]</span>
 
 
 <span class="k">class</span> <span class="nc">AbstractFactory</span><span class="p">(</span><span class="n">OrderedDict</span><span class="p">):</span>
@@ -187,21 +187,21 @@
         <span class="k">if</span> <span class="n">features</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">estimator</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                 <span class="k">if</span> <span class="n">estimator</span><span class="o">.</span><span class="n">features</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
-                    <span class="k">print</span><span class="p">(</span><span class="s">&#39;Overwriting features of estimator &#39;</span> <span class="o">+</span> <span class="n">name</span><span class="p">)</span>
+                    <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Overwriting features of estimator &#39;</span> <span class="o">+</span> <span class="n">name</span><span class="p">)</span>
                 <span class="bp">self</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">set_params</span><span class="p">(</span><span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">)</span>
 
         <span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
         <span class="n">result</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">map_on_cluster</span><span class="p">(</span><span class="n">parallel_profile</span><span class="p">,</span> <span class="n">train_estimator</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">keys</span><span class="p">()),</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">()),</span>
                                       <span class="p">[</span><span class="n">X</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span> <span class="p">[</span><span class="n">y</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span> <span class="p">[</span><span class="n">sample_weight</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
         <span class="k">for</span> <span class="n">status</span><span class="p">,</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">result</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">status</span> <span class="o">==</span> <span class="s">&#39;success&#39;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">status</span> <span class="o">==</span> <span class="s1">&#39;success&#39;</span><span class="p">:</span>
                 <span class="n">name</span><span class="p">,</span> <span class="n">estimator</span><span class="p">,</span> <span class="n">spent_time</span> <span class="o">=</span> <span class="n">data</span>
                 <span class="bp">self</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">estimator</span>
-                <span class="k">print</span><span class="p">(</span><span class="s">&#39;model {:12} was trained in {:.2f} seconds&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">spent_time</span><span class="p">))</span>
+                <span class="k">print</span><span class="p">(</span><span class="s1">&#39;model {:12} was trained in {:.2f} seconds&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">spent_time</span><span class="p">))</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="k">print</span><span class="p">(</span><span class="s">&#39;Problem while training on the node, report:</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+                <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Problem while training on the node, report:</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
 
-        <span class="k">print</span><span class="p">(</span><span class="s">&quot;Totally spent {:.2f} seconds on training&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start_time</span><span class="p">))</span>
+        <span class="k">print</span><span class="p">(</span><span class="s2">&quot;Totally spent {:.2f} seconds on training&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start_time</span><span class="p">))</span>
         <span class="k">return</span> <span class="bp">self</span>
 
     <span class="k">def</span> <span class="nf">fit_lds</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lds</span><span class="p">,</span> <span class="n">parallel_profile</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
@@ -283,7 +283,7 @@
             <span class="bp">self</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">SklearnClassifier</span><span class="p">(</span><span class="n">classifier</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
-                <span class="s">&#39;Supports only instances of sklearn.base.BaseEstimator or rep.estimators.interface.Classifier&#39;</span><span class="p">)</span></div>
+                <span class="s1">&#39;Supports only instances of sklearn.base.BaseEstimator or rep.estimators.interface.Classifier&#39;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="ClassifiersFactory.predict"><a class="viewcode-back" href="../../../metaml.html#rep.metaml.factory.ClassifiersFactory.predict">[docs]</a>    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">parallel_profile</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -295,7 +295,7 @@
 
 <span class="sd">        :rtype: OrderedDict[numpy.array of shape [n_samples] with integer labels]</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_predict_method</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">parallel_profile</span><span class="o">=</span><span class="n">parallel_profile</span><span class="p">,</span> <span class="n">prediction_type</span><span class="o">=</span><span class="s">&#39;classification&#39;</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_predict_method</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">parallel_profile</span><span class="o">=</span><span class="n">parallel_profile</span><span class="p">,</span> <span class="n">prediction_type</span><span class="o">=</span><span class="s1">&#39;classification&#39;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="ClassifiersFactory.predict_proba"><a class="viewcode-back" href="../../../metaml.html#rep.metaml.factory.ClassifiersFactory.predict_proba">[docs]</a>    <span class="k">def</span> <span class="nf">predict_proba</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">parallel_profile</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -307,9 +307,9 @@
 
 <span class="sd">        :rtype: OrderedDict[numpy.array of shape [n_samples] with float predictions]</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_predict_method</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">parallel_profile</span><span class="o">=</span><span class="n">parallel_profile</span><span class="p">,</span> <span class="n">prediction_type</span><span class="o">=</span><span class="s">&#39;classification-proba&#39;</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_predict_method</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">parallel_profile</span><span class="o">=</span><span class="n">parallel_profile</span><span class="p">,</span> <span class="n">prediction_type</span><span class="o">=</span><span class="s1">&#39;classification-proba&#39;</span><span class="p">)</span></div>
 
-    <span class="k">def</span> <span class="nf">_predict_method</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">parallel_profile</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">prediction_type</span><span class="o">=</span><span class="s">&#39;classification&#39;</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_predict_method</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">parallel_profile</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">prediction_type</span><span class="o">=</span><span class="s1">&#39;classification&#39;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Predict probabilities for all events in dataset.</span>
 
@@ -327,14 +327,14 @@
                                       <span class="p">[</span><span class="n">prediction_type</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
 
         <span class="k">for</span> <span class="n">status</span><span class="p">,</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">result</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">status</span> <span class="o">==</span> <span class="s">&#39;success&#39;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">status</span> <span class="o">==</span> <span class="s1">&#39;success&#39;</span><span class="p">:</span>
                 <span class="n">name</span><span class="p">,</span> <span class="n">prob</span><span class="p">,</span> <span class="n">spent_time</span> <span class="o">=</span> <span class="n">data</span>
                 <span class="n">predictions</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">prob</span>
-                <span class="k">print</span><span class="p">(</span><span class="s">&#39;data was predicted by {:12} in {:.2f} seconds&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">spent_time</span><span class="p">))</span>
+                <span class="k">print</span><span class="p">(</span><span class="s1">&#39;data was predicted by {:12} in {:.2f} seconds&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">spent_time</span><span class="p">))</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="k">print</span><span class="p">(</span><span class="s">&#39;Problem while predicting on the node, report:</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+                <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Problem while predicting on the node, report:</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
 
-        <span class="k">print</span><span class="p">(</span><span class="s">&quot;Totally spent {:.2f} seconds on prediction&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start_time</span><span class="p">))</span>
+        <span class="k">print</span><span class="p">(</span><span class="s2">&quot;Totally spent {:.2f} seconds on prediction&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start_time</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">predictions</span>
 
 <div class="viewcode-block" id="ClassifiersFactory.staged_predict_proba"><a class="viewcode-back" href="../../../metaml.html#rep.metaml.factory.ClassifiersFactory.staged_predict_proba">[docs]</a>    <span class="k">def</span> <span class="nf">staged_predict_proba</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
@@ -387,7 +387,7 @@
             <span class="bp">self</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">SklearnRegressor</span><span class="p">(</span><span class="n">regressor</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
-                <span class="s">&#39;Supports only instances of sklearn.base.BaseEstimator or rep.estimators.interface.Regressor&#39;</span><span class="p">)</span></div>
+                <span class="s1">&#39;Supports only instances of sklearn.base.BaseEstimator or rep.estimators.interface.Regressor&#39;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="RegressorsFactory.predict"><a class="viewcode-back" href="../../../metaml.html#rep.metaml.factory.RegressorsFactory.predict">[docs]</a>    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">parallel_profile</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -403,17 +403,17 @@
 
         <span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
         <span class="n">result</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">map_on_cluster</span><span class="p">(</span><span class="n">parallel_profile</span><span class="p">,</span> <span class="n">predict_estimator</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">keys</span><span class="p">()),</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">()),</span> <span class="p">[</span><span class="n">X</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span>
-                                      <span class="p">[</span><span class="s">&#39;regression&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
+                                      <span class="p">[</span><span class="s1">&#39;regression&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
 
         <span class="k">for</span> <span class="n">status</span><span class="p">,</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">result</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">status</span> <span class="o">==</span> <span class="s">&#39;success&#39;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">status</span> <span class="o">==</span> <span class="s1">&#39;success&#39;</span><span class="p">:</span>
                 <span class="n">name</span><span class="p">,</span> <span class="n">values</span><span class="p">,</span> <span class="n">spent_time</span> <span class="o">=</span> <span class="n">data</span>
                 <span class="n">predictions</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">values</span>
-                <span class="k">print</span><span class="p">(</span><span class="s">&#39;data was predicted by {:12} in {:.2f} seconds&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">spent_time</span><span class="p">))</span>
+                <span class="k">print</span><span class="p">(</span><span class="s1">&#39;data was predicted by {:12} in {:.2f} seconds&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">spent_time</span><span class="p">))</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="k">print</span><span class="p">(</span><span class="s">&#39;Problem while predicting on the node, report:</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+                <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Problem while predicting on the node, report:</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
 
-        <span class="k">print</span><span class="p">(</span><span class="s">&quot;Totally spent {:.2f} seconds on prediction&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start_time</span><span class="p">))</span>
+        <span class="k">print</span><span class="p">(</span><span class="s2">&quot;Totally spent {:.2f} seconds on prediction&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start_time</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">predictions</span></div>
 
 <div class="viewcode-block" id="RegressorsFactory.staged_predict"><a class="viewcode-back" href="../../../metaml.html#rep.metaml.factory.RegressorsFactory.staged_predict">[docs]</a>    <span class="k">def</span> <span class="nf">staged_predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
@@ -463,17 +463,17 @@
             <span class="n">estimator</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">estimator</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="n">sample_weight</span><span class="p">)</span>
-        <span class="k">return</span> <span class="s">&#39;success&#39;</span><span class="p">,</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">estimator</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start</span><span class="p">)</span>
+        <span class="k">return</span> <span class="s1">&#39;success&#39;</span><span class="p">,</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">estimator</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start</span><span class="p">)</span>
     <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
         <span class="kn">import</span> <span class="nn">socket</span>
         <span class="kn">import</span> <span class="nn">os</span>
 
         <span class="n">pid</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getpid</span><span class="p">()</span>
         <span class="n">hostname</span> <span class="o">=</span> <span class="n">socket</span><span class="o">.</span><span class="n">gethostname</span><span class="p">()</span>
-        <span class="k">return</span> <span class="s">&#39;fail&#39;</span><span class="p">,</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">pid</span><span class="p">,</span> <span class="n">hostname</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+        <span class="k">return</span> <span class="s1">&#39;fail&#39;</span><span class="p">,</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">pid</span><span class="p">,</span> <span class="n">hostname</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">predict_estimator</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">estimator</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">prediction_type</span><span class="o">=</span><span class="s">&#39;classification&#39;</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">predict_estimator</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">estimator</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">prediction_type</span><span class="o">=</span><span class="s1">&#39;classification&#39;</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Supplementary function.</span>
 <span class="sd">    Builds predictions for one estimator on a separate node (or in a separate thread)</span>
@@ -490,21 +490,21 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
-        <span class="k">if</span> <span class="n">prediction_type</span> <span class="o">==</span> <span class="s">&#39;classification&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">prediction_type</span> <span class="o">==</span> <span class="s1">&#39;classification&#39;</span><span class="p">:</span>
             <span class="n">prediction</span> <span class="o">=</span> <span class="n">estimator</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">prediction_type</span> <span class="o">==</span> <span class="s">&#39;classification-proba&#39;</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="n">prediction_type</span> <span class="o">==</span> <span class="s1">&#39;classification-proba&#39;</span><span class="p">:</span>
             <span class="n">prediction</span> <span class="o">=</span> <span class="n">estimator</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">prediction_type</span> <span class="o">==</span> <span class="s">&#39;regression&#39;</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="n">prediction_type</span> <span class="o">==</span> <span class="s1">&#39;regression&#39;</span><span class="p">:</span>
             <span class="n">prediction</span> <span class="o">=</span> <span class="n">estimator</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s">&quot;Unknown problem type: {}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">prediction_type</span><span class="p">))</span>
-        <span class="k">return</span> <span class="s">&#39;success&#39;</span><span class="p">,</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">prediction</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Unknown problem type: {}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">prediction_type</span><span class="p">))</span>
+        <span class="k">return</span> <span class="s1">&#39;success&#39;</span><span class="p">,</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">prediction</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start</span><span class="p">)</span>
     <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
         <span class="kn">import</span> <span class="nn">socket</span>
         <span class="kn">import</span> <span class="nn">os</span>
         <span class="n">pid</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getpid</span><span class="p">()</span>
         <span class="n">hostname</span> <span class="o">=</span> <span class="n">socket</span><span class="o">.</span><span class="n">gethostname</span><span class="p">()</span>
-        <span class="k">return</span> <span class="s">&#39;fail&#39;</span><span class="p">,</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">pid</span><span class="p">,</span> <span class="n">hostname</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+        <span class="k">return</span> <span class="s1">&#39;fail&#39;</span><span class="p">,</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">pid</span><span class="p">,</span> <span class="n">hostname</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
 </pre></div>
 
            </div>
@@ -538,7 +538,7 @@
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'../../../',
-            VERSION:'0.6.6',
+            VERSION:'0.6.7',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true

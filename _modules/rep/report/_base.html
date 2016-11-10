@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>rep.report._base &mdash; REP (Reproducible Experiment Platform) 0.6.6 documentation</title>
+  <title>rep.report._base &mdash; REP (Reproducible Experiment Platform) 0.6.7 documentation</title>
   
 
   
@@ -30,7 +30,7 @@
   
 
   
-    <link rel="top" title="REP (Reproducible Experiment Platform) 0.6.6 documentation" href="../../../index.html"/>
+    <link rel="top" title="REP (Reproducible Experiment Platform) 0.6.7 documentation" href="../../../index.html"/>
         <link rel="up" title="Module code" href="../../index.html"/> 
 
   
@@ -59,7 +59,7 @@
             
             
               <div class="version">
-                0.6.6
+                0.6.7
               </div>
             
           
@@ -136,7 +136,7 @@
            <div itemprop="articleBody">
             
   <h1>Source code for rep.report._base</h1><div class="highlight"><pre>
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">division</span><span class="p">,</span> <span class="n">print_function</span><span class="p">,</span> <span class="n">absolute_import</span>
+<span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">division</span><span class="p">,</span> <span class="n">print_function</span><span class="p">,</span> <span class="n">absolute_import</span>
 <span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABCMeta</span><span class="p">,</span> <span class="n">abstractmethod</span>
 <span class="kn">import</span> <span class="nn">numpy</span>
 <span class="kn">import</span> <span class="nn">pandas</span>
@@ -145,7 +145,7 @@
 <span class="kn">from</span> <span class="nn">..</span> <span class="kn">import</span> <span class="n">plotting</span>
 <span class="kn">from</span> <span class="nn">..</span> <span class="kn">import</span> <span class="n">utils</span>
 
-<span class="n">__author__</span> <span class="o">=</span> <span class="s">&#39;Alex Rogozhnikov, Tatiana Likhomanenko&#39;</span>
+<span class="n">__author__</span> <span class="o">=</span> <span class="s1">&#39;Alex Rogozhnikov, Tatiana Likhomanenko&#39;</span>
 
 
 <span class="k">class</span> <span class="nc">AbstractReport</span><span class="p">:</span>
@@ -191,7 +191,7 @@
     <span class="k">def</span> <span class="nf">_get_features</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">lds</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">features_correlation_matrix</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">tick_labels</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">vmin</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s">&#39;Reds&#39;</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">features_correlation_matrix</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">tick_labels</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">vmin</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;Reds&#39;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Correlation between features</span>
 
@@ -212,17 +212,17 @@
         <span class="k">if</span> <span class="n">tick_labels</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
             <span class="n">tick_labels</span> <span class="o">=</span> <span class="n">features_names</span>
 
-        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">tick_labels</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">features_names</span><span class="p">),</span> <span class="s">&#39;Tick labels and features have different length&#39;</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">tick_labels</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">features_names</span><span class="p">),</span> <span class="s1">&#39;Tick labels and features have different length&#39;</span>
         <span class="n">plot_corr</span> <span class="o">=</span> <span class="n">plotting</span><span class="o">.</span><span class="n">ColorMap</span><span class="p">(</span>
             <span class="n">utils</span><span class="o">.</span><span class="n">calc_feature_correlation_matrix</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">features_names</span><span class="p">]),</span>
             <span class="n">labels</span><span class="o">=</span><span class="n">tick_labels</span><span class="p">,</span> <span class="n">vmin</span><span class="o">=</span><span class="n">vmin</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="n">vmax</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">)</span>
-        <span class="n">plot_corr</span><span class="o">.</span><span class="n">title</span> <span class="o">=</span> <span class="s">&#39;Correlation&#39;</span>
+        <span class="n">plot_corr</span><span class="o">.</span><span class="n">title</span> <span class="o">=</span> <span class="s1">&#39;Correlation&#39;</span>
         <span class="n">plot_corr</span><span class="o">.</span><span class="n">fontsize</span> <span class="o">=</span> <span class="mi">10</span>
         <span class="n">plot_corr</span><span class="o">.</span><span class="n">figsize</span> <span class="o">=</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">features</span><span class="p">)</span> <span class="o">//</span> <span class="mi">5</span> <span class="o">+</span> <span class="mi">2</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">features</span><span class="p">)</span> <span class="o">//</span> <span class="mi">5</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">plot_corr</span>
 
-    <span class="k">def</span> <span class="nf">learning_curve</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">metric</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">steps</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">metric_label</span><span class="o">=</span><span class="s">&#39;metric&#39;</span><span class="p">,</span> <span class="n">predict_only_masked</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">learning_curve</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">metric</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">steps</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">metric_label</span><span class="o">=</span><span class="s1">&#39;metric&#39;</span><span class="p">,</span> <span class="n">predict_only_masked</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get learning curves</span>
 
@@ -241,7 +241,7 @@
         <span class="n">mask</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">weight</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_apply_mask</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_features</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">weight</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">metric</span><span class="p">,</span> <span class="nb">type</span><span class="p">):</span>
-            <span class="k">print</span><span class="p">(</span><span class="n">metric_label</span><span class="p">,</span> <span class="s">&#39; is a type, not instance. Forgot to initialize?&#39;</span><span class="p">)</span>
+            <span class="k">print</span><span class="p">(</span><span class="n">metric_label</span><span class="p">,</span> <span class="s1">&#39; is a type, not instance. Forgot to initialize?&#39;</span><span class="p">)</span>
 
         <span class="n">metric_func</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">metric</span><span class="p">)</span>
         <span class="n">utils</span><span class="o">.</span><span class="n">fit_metric</span><span class="p">(</span><span class="n">metric_func</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="n">weight</span><span class="p">)</span>
@@ -256,16 +256,16 @@
                 <span class="n">quality</span><span class="p">[</span><span class="n">estimator_name</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_learning_curve_additional</span><span class="p">(</span><span class="n">estimator_name</span><span class="p">,</span> <span class="n">metric_func</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">mask</span><span class="p">,</span>
                                                                           <span class="n">predict_only_masked</span><span class="o">=</span><span class="n">predict_only_masked</span><span class="p">)</span>
             <span class="k">except</span> <span class="p">(</span><span class="ne">AttributeError</span><span class="p">,</span> <span class="ne">NotImplementedError</span><span class="p">):</span>
-                <span class="k">print</span><span class="p">(</span><span class="s">&quot;Estimator {} doesn&#39;t support stage predictions&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">estimator_name</span><span class="p">))</span>
+                <span class="k">print</span><span class="p">(</span><span class="s2">&quot;Estimator {} doesn&#39;t support stage predictions&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">estimator_name</span><span class="p">))</span>
         <span class="n">plot_fig</span> <span class="o">=</span> <span class="n">plotting</span><span class="o">.</span><span class="n">FunctionsPlot</span><span class="p">(</span><span class="n">quality</span><span class="p">)</span>
-        <span class="n">plot_fig</span><span class="o">.</span><span class="n">xlabel</span> <span class="o">=</span> <span class="s">&#39;stage&#39;</span>
-        <span class="n">plot_fig</span><span class="o">.</span><span class="n">ylabel</span> <span class="o">=</span> <span class="s">&#39;{}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">metric_label</span><span class="p">)</span>
-        <span class="n">plot_fig</span><span class="o">.</span><span class="n">title</span> <span class="o">=</span> <span class="s">&#39;Learning curves&#39;</span>
+        <span class="n">plot_fig</span><span class="o">.</span><span class="n">xlabel</span> <span class="o">=</span> <span class="s1">&#39;stage&#39;</span>
+        <span class="n">plot_fig</span><span class="o">.</span><span class="n">ylabel</span> <span class="o">=</span> <span class="s1">&#39;{}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">metric_label</span><span class="p">)</span>
+        <span class="n">plot_fig</span><span class="o">.</span><span class="n">title</span> <span class="o">=</span> <span class="s1">&#39;Learning curves&#39;</span>
         <span class="k">return</span> <span class="n">plot_fig</span>
 
     <span class="k">def</span> <span class="nf">_learning_curve_additional</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">metric_func</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">mask</span><span class="p">,</span> <span class="n">predict_only_masked</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; returns tuple (x_values, quality_values), which describe the learning curve &quot;&quot;&quot;</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s">&#39;Should be implemented in descendants&#39;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s1">&#39;Should be implemented in descendants&#39;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">feature_importance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">grid_columns</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -279,12 +279,12 @@
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">df</span> <span class="o">=</span> <span class="n">estimator</span><span class="o">.</span><span class="n">get_feature_importances</span><span class="p">()</span>
                 <span class="n">df</span> <span class="o">=</span> <span class="p">{</span><span class="n">column</span><span class="p">:</span> <span class="nb">dict</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">column</span><span class="p">])</span> <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">}</span>
-                <span class="n">plot</span> <span class="o">=</span> <span class="n">plotting</span><span class="o">.</span><span class="n">BarComparePlot</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">sortby</span><span class="o">=</span><span class="s">&#39;effect&#39;</span><span class="p">)</span>
-                <span class="n">plot</span><span class="o">.</span><span class="n">title</span> <span class="o">=</span> <span class="s">&#39;Feature importance for </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">name</span>
+                <span class="n">plot</span> <span class="o">=</span> <span class="n">plotting</span><span class="o">.</span><span class="n">BarComparePlot</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">sortby</span><span class="o">=</span><span class="s1">&#39;effect&#39;</span><span class="p">)</span>
+                <span class="n">plot</span><span class="o">.</span><span class="n">title</span> <span class="o">=</span> <span class="s1">&#39;Feature importance for </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">name</span>
                 <span class="n">plot</span><span class="o">.</span><span class="n">fontsize</span> <span class="o">=</span> <span class="mi">10</span>
                 <span class="n">importance_plots</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">plot</span><span class="p">)</span>
             <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
-                <span class="k">print</span><span class="p">(</span><span class="s">&quot;Estimator {} doesn&#39;t support feature importances&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">))</span>
+                <span class="k">print</span><span class="p">(</span><span class="s2">&quot;Estimator {} doesn&#39;t support feature importances&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">plotting</span><span class="o">.</span><span class="n">GridPlot</span><span class="p">(</span><span class="n">grid_columns</span><span class="p">,</span> <span class="o">*</span><span class="n">importance_plots</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_feature_importance_shuffling</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">metric</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">grid_columns</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
@@ -315,7 +315,7 @@
                 <span class="n">result</span><span class="p">[</span><span class="n">feature</span><span class="p">]</span> <span class="o">=</span> <span class="n">metric_copy</span><span class="p">(</span><span class="n">labels</span><span class="p">,</span> <span class="n">predictions</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="n">weights</span><span class="p">)</span>
 
             <span class="n">plot_fig</span> <span class="o">=</span> <span class="n">plotting</span><span class="o">.</span><span class="n">BarComparePlot</span><span class="p">({</span><span class="n">name</span><span class="p">:</span> <span class="n">result</span><span class="p">},</span> <span class="n">sortby</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
-            <span class="n">plot_fig</span><span class="o">.</span><span class="n">title</span> <span class="o">=</span> <span class="s">&#39;Feature importance for </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">name</span>
+            <span class="n">plot_fig</span><span class="o">.</span><span class="n">title</span> <span class="o">=</span> <span class="s1">&#39;Feature importance for </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">name</span>
             <span class="n">plot_fig</span><span class="o">.</span><span class="n">fontsize</span> <span class="o">=</span> <span class="mi">10</span>
             <span class="n">importances_plots</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">plot_fig</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">plotting</span><span class="o">.</span><span class="n">GridPlot</span><span class="p">(</span><span class="n">grid_columns</span><span class="p">,</span> <span class="o">*</span><span class="n">importances_plots</span><span class="p">)</span>
@@ -336,7 +336,7 @@
         <span class="n">mask</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">weight</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_apply_mask</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_features</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">weight</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">metric</span><span class="p">,</span> <span class="nb">type</span><span class="p">):</span>
-            <span class="k">print</span><span class="p">(</span><span class="s">&#39;Metric is a type, not instance. Forgot to initialize?&#39;</span><span class="p">)</span>
+            <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Metric is a type, not instance. Forgot to initialize?&#39;</span><span class="p">)</span>
         <span class="n">metric_func</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">metric</span><span class="p">)</span>
         <span class="n">utils</span><span class="o">.</span><span class="n">fit_metric</span><span class="p">(</span><span class="n">metric_func</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="n">weight</span><span class="p">)</span>
 
@@ -377,7 +377,7 @@
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'../../../',
-            VERSION:'0.6.6',
+            VERSION:'0.6.7',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true

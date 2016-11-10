@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>rep.metaml.stacking &mdash; REP (Reproducible Experiment Platform) 0.6.6 documentation</title>
+  <title>rep.metaml.stacking &mdash; REP (Reproducible Experiment Platform) 0.6.7 documentation</title>
   
 
   
@@ -30,7 +30,7 @@
   
 
   
-    <link rel="top" title="REP (Reproducible Experiment Platform) 0.6.6 documentation" href="../../../index.html"/>
+    <link rel="top" title="REP (Reproducible Experiment Platform) 0.6.7 documentation" href="../../../index.html"/>
         <link rel="up" title="Module code" href="../../index.html"/> 
 
   
@@ -59,7 +59,7 @@
             
             
               <div class="version">
-                0.6.6
+                0.6.7
               </div>
             
           
@@ -136,7 +136,7 @@
            <div itemprop="articleBody">
             
   <h1>Source code for rep.metaml.stacking</h1><div class="highlight"><pre>
-<span class="sd">&quot;&quot;&quot;</span>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">:class:`FeatureSplitter`  defined in this module.</span>
 
 <span class="sd">This meta-algorithm is handy to train different models for subsets of the data</span>
@@ -152,7 +152,7 @@
 <span class="kn">from</span> <span class="nn">..estimators.utils</span> <span class="kn">import</span> <span class="n">check_inputs</span><span class="p">,</span> <span class="n">_get_features</span>
 
 
-<span class="n">__author__</span> <span class="o">=</span> <span class="s">&#39;Alex Rogozhnikov&#39;</span>
+<span class="n">__author__</span> <span class="o">=</span> <span class="s1">&#39;Alex Rogozhnikov&#39;</span>
 
 
 <div class="viewcode-block" id="FeatureSplitter"><a class="viewcode-back" href="../../../metaml.html#rep.metaml.stacking.FeatureSplitter">[docs]</a><span class="k">class</span> <span class="nc">FeatureSplitter</span><span class="p">(</span><span class="n">Classifier</span><span class="p">):</span>
@@ -163,11 +163,10 @@
 <span class="sd">    When building predictions, classifier predicts the events with</span>
 <span class="sd">    the same value of `split_feature` it was trained on.</span>
 
-<span class="sd">    :param str split_feature: the name of key feature,</span>
+<span class="sd">    :param str split_feature: the name of key feature</span>
 <span class="sd">    :param base_estimator: the classifier, its&#39; copies are trained on parts of dataset</span>
-<span class="sd">    :param list[str] features: list of columns classifier uses</span>
+<span class="sd">    :param list[str] train_features: list of columns classifier uses in training</span>
 
-<span class="sd">    Pay attention: `split_feature` must be in list of `features` (if those are passed).</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">split_feature</span><span class="p">,</span> <span class="n">base_estimator</span><span class="p">,</span> <span class="n">train_features</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">base_estimator</span> <span class="o">=</span> <span class="n">base_estimator</span>
@@ -203,11 +202,11 @@
 
 <span class="sd">        :return: self</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">base_estimator</span><span class="p">,</span> <span class="s">&#39;features&#39;</span><span class="p">):</span>
-            <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_estimator</span><span class="o">.</span><span class="n">features</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">,</span> <span class="s">&#39;Base estimator must have None features! &#39;</span> \
-                                                         <span class="s">&#39;Use features parameter in Folding to fix it&#39;</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">base_estimator</span><span class="p">,</span> <span class="s1">&#39;features&#39;</span><span class="p">):</span>
+            <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_estimator</span><span class="o">.</span><span class="n">features</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">,</span> <span class="s1">&#39;Base estimator must have None features! &#39;</span> \
+                                                         <span class="s1">&#39;Use features parameter in Folding to fix it&#39;</span>
         <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span> <span class="o">=</span> <span class="n">check_inputs</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="n">sample_weight</span><span class="p">,</span> <span class="n">allow_none_weights</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
-        <span class="c"># TODO cover the case of missing labels in subsets.</span>
+        <span class="c1"># TODO cover the case of missing labels in subsets.</span>
         <span class="n">split_column_values</span><span class="p">,</span> <span class="n">X</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_features</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_set_classes</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">base_estimators</span> <span class="o">=</span> <span class="p">{}</span>
@@ -291,7 +290,7 @@
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'../../../',
-            VERSION:'0.6.6',
+            VERSION:'0.6.7',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true

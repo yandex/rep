@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>rep.utils &mdash; REP (Reproducible Experiment Platform) 0.6.6 documentation</title>
+  <title>rep.utils &mdash; REP (Reproducible Experiment Platform) 0.6.7 documentation</title>
   
 
   
@@ -30,7 +30,7 @@
   
 
   
-    <link rel="top" title="REP (Reproducible Experiment Platform) 0.6.6 documentation" href="../../index.html"/>
+    <link rel="top" title="REP (Reproducible Experiment Platform) 0.6.7 documentation" href="../../index.html"/>
         <link rel="up" title="Module code" href="../index.html"/> 
 
   
@@ -59,7 +59,7 @@
             
             
               <div class="version">
-                0.6.6
+                0.6.7
               </div>
             
           
@@ -136,7 +136,7 @@
            <div itemprop="articleBody">
             
   <h1>Source code for rep.utils</h1><div class="highlight"><pre>
-<span class="sd">&quot;&quot;&quot;</span>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Different helpful functions, objects, methods are collected here.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
@@ -171,14 +171,14 @@
     <span class="n">array</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">array</span><span class="p">)</span>
     <span class="n">quantiles</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">quantiles</span><span class="p">)</span>
     <span class="n">sample_weight</span> <span class="o">=</span> <span class="n">check_sample_weight</span><span class="p">(</span><span class="n">array</span><span class="p">,</span> <span class="n">sample_weight</span><span class="p">)</span>
-    <span class="k">assert</span> <span class="n">numpy</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">quantiles</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">)</span> <span class="ow">and</span> <span class="n">numpy</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">quantiles</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">),</span> <span class="s">&#39;Percentiles should be in [0, 1]&#39;</span>
+    <span class="k">assert</span> <span class="n">numpy</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">quantiles</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">)</span> <span class="ow">and</span> <span class="n">numpy</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">quantiles</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">),</span> <span class="s1">&#39;Percentiles should be in [0, 1]&#39;</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="n">array_sorted</span><span class="p">:</span>
         <span class="n">array</span><span class="p">,</span> <span class="n">sample_weight</span> <span class="o">=</span> <span class="n">reorder_by_first</span><span class="p">(</span><span class="n">array</span><span class="p">,</span> <span class="n">sample_weight</span><span class="p">)</span>
 
     <span class="n">weighted_quantiles</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">sample_weight</span><span class="p">)</span> <span class="o">-</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">sample_weight</span>
     <span class="k">if</span> <span class="n">old_style</span><span class="p">:</span>
-        <span class="c"># To be convenient with numpy.percentile</span>
+        <span class="c1"># To be convenient with numpy.percentile</span>
         <span class="n">weighted_quantiles</span> <span class="o">-=</span> <span class="n">weighted_quantiles</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="n">weighted_quantiles</span> <span class="o">/=</span> <span class="n">weighted_quantiles</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
     <span class="k">else</span><span class="p">:</span>
@@ -208,7 +208,7 @@
     <span class="k">else</span><span class="p">:</span>
         <span class="n">sample_weight</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">sample_weight</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">numpy</span><span class="o">.</span><span class="n">float</span><span class="p">)</span>
         <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">y_true</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">sample_weight</span><span class="p">),</span> \
-            <span class="s">&quot;The length of weights is different: not {0}, but {1}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">y_true</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">sample_weight</span><span class="p">))</span>
+            <span class="s2">&quot;The length of weights is different: not {0}, but {1}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">y_true</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">sample_weight</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">sample_weight</span></div>
 
 
@@ -233,7 +233,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">sample_weight</span> <span class="o">=</span> <span class="n">check_sample_weight</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="n">sample_weight</span><span class="p">)</span>
         <span class="n">data</span> <span class="o">=</span> <span class="n">column_or_1d</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-        <span class="k">assert</span> <span class="n">numpy</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">sample_weight</span> <span class="o">&gt;=</span> <span class="mf">0.</span><span class="p">),</span> <span class="s">&#39;sample weight must be non-negative&#39;</span>
+        <span class="k">assert</span> <span class="n">numpy</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">sample_weight</span> <span class="o">&gt;=</span> <span class="mf">0.</span><span class="p">),</span> <span class="s1">&#39;sample weight must be non-negative&#39;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">sample_weight</span> <span class="o">=</span> <span class="n">reorder_by_first</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">sample_weight</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">predictions</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">sample_weight</span><span class="p">)</span> <span class="o">/</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">sample_weight</span><span class="p">)</span>
 
@@ -275,7 +275,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">values</span> <span class="o">=</span> <span class="n">arrays</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="k">for</span> <span class="n">array</span> <span class="ow">in</span> <span class="n">arrays</span><span class="p">:</span>
-            <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">array</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">values</span><span class="p">),</span> <span class="s">&quot;passed arrays have different length&quot;</span>
+            <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">array</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">values</span><span class="p">),</span> <span class="s2">&quot;passed arrays have different length&quot;</span>
         <span class="n">bins</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_bins</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>
         <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="nb">bin</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">limits</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
@@ -302,7 +302,7 @@
     <span class="n">sample_weight</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">signal</span><span class="p">))</span> <span class="k">if</span> <span class="n">sample_weight</span> <span class="ow">is</span> <span class="bp">None</span> <span class="k">else</span> <span class="n">sample_weight</span>
     <span class="n">prediction</span><span class="p">,</span> <span class="n">signal</span><span class="p">,</span> <span class="n">sample_weight</span> <span class="o">=</span> <span class="n">check_arrays</span><span class="p">(</span><span class="n">prediction</span><span class="p">,</span> <span class="n">signal</span><span class="p">,</span> <span class="n">sample_weight</span><span class="p">)</span>
 
-    <span class="k">assert</span> <span class="nb">set</span><span class="p">(</span><span class="n">signal</span><span class="p">)</span> <span class="o">==</span> <span class="p">{</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">},</span> <span class="s">&quot;the labels should be 0 and 1, labels are &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">signal</span><span class="p">))</span>
+    <span class="k">assert</span> <span class="nb">set</span><span class="p">(</span><span class="n">signal</span><span class="p">)</span> <span class="o">==</span> <span class="p">{</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">},</span> <span class="s2">&quot;the labels should be 0 and 1, labels are &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">signal</span><span class="p">))</span>
     <span class="n">fpr</span><span class="p">,</span> <span class="n">tpr</span><span class="p">,</span> <span class="n">thresholds</span> <span class="o">=</span> <span class="n">roc_curve</span><span class="p">(</span><span class="n">signal</span><span class="p">,</span> <span class="n">prediction</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="n">sample_weight</span><span class="p">)</span>
     <span class="n">tpr</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">tpr</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">[</span><span class="mf">0.</span><span class="p">])</span>
     <span class="n">fpr</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">fpr</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">[</span><span class="mf">0.</span><span class="p">])</span>
@@ -452,12 +452,12 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="kn">from</span> <span class="nn">sklearn</span> <span class="kn">import</span> <span class="n">cross_validation</span>
-    <span class="n">allow_none</span> <span class="o">=</span> <span class="n">kw_args</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s">&#39;allow_none&#39;</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span>
+    <span class="n">allow_none</span> <span class="o">=</span> <span class="n">kw_args</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;allow_none&#39;</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span>
 
-    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">arrays</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="s">&quot;at least one array should be passed&quot;</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">arrays</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;at least one array should be passed&quot;</span>
     <span class="n">length</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">arrays</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
     <span class="k">for</span> <span class="n">array</span> <span class="ow">in</span> <span class="n">arrays</span><span class="p">:</span>
-        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">array</span><span class="p">)</span> <span class="o">==</span> <span class="n">length</span><span class="p">,</span> <span class="s">&quot;different size&quot;</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">array</span><span class="p">)</span> <span class="o">==</span> <span class="n">length</span><span class="p">,</span> <span class="s2">&quot;different size&quot;</span>
     <span class="n">train_indices</span><span class="p">,</span> <span class="n">test_indices</span> <span class="o">=</span> <span class="n">cross_validation</span><span class="o">.</span><span class="n">train_test_split</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">length</span><span class="p">),</span> <span class="o">**</span><span class="n">kw_args</span><span class="p">)</span>
     <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">array</span> <span class="ow">in</span> <span class="n">arrays</span><span class="p">:</span>
@@ -465,7 +465,7 @@
             <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">array</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">train_indices</span><span class="p">,</span> <span class="p">:])</span>
             <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">array</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">test_indices</span><span class="p">,</span> <span class="p">:])</span>
         <span class="k">elif</span> <span class="p">(</span><span class="n">array</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">)</span> <span class="ow">and</span> <span class="n">allow_none</span><span class="p">:</span>
-            <span class="c"># specially for checking weights</span>
+            <span class="c1"># specially for checking weights</span>
             <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">None</span><span class="p">)</span>
             <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">None</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
@@ -487,15 +487,15 @@
 <span class="sd">        (useful for sample_weight - after splitting train and test of `None` are again `None`)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="kn">from</span> <span class="nn">sklearn</span> <span class="kn">import</span> <span class="n">cross_validation</span>
-    <span class="n">allow_none</span> <span class="o">=</span> <span class="n">kw_args</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s">&#39;allow_none&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+    <span class="n">allow_none</span> <span class="o">=</span> <span class="n">kw_args</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;allow_none&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
 
-    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">arrays</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="s">&quot;at least one array should be passed&quot;</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">arrays</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;at least one array should be passed&quot;</span>
     <span class="n">length</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">arrays</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
     <span class="k">for</span> <span class="n">array</span> <span class="ow">in</span> <span class="n">arrays</span><span class="p">:</span>
-        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">array</span><span class="p">)</span> <span class="o">==</span> <span class="n">length</span><span class="p">,</span> <span class="s">&quot;different size&quot;</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">array</span><span class="p">)</span> <span class="o">==</span> <span class="n">length</span><span class="p">,</span> <span class="s2">&quot;different size&quot;</span>
 
     <span class="n">initial_data</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">group_column</span><span class="p">)</span>
-    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">initial_data</span><span class="p">)</span> <span class="o">==</span> <span class="n">length</span><span class="p">,</span> <span class="s">&quot;group column must have the same length&quot;</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">initial_data</span><span class="p">)</span> <span class="o">==</span> <span class="n">length</span><span class="p">,</span> <span class="s2">&quot;group column must have the same length&quot;</span>
     <span class="n">group_ids</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">initial_data</span><span class="p">)</span>
 
     <span class="n">train_indices</span><span class="p">,</span> <span class="n">test_indices</span> <span class="o">=</span> <span class="n">cross_validation</span><span class="o">.</span><span class="n">train_test_split</span><span class="p">(</span><span class="n">group_ids</span><span class="p">,</span> <span class="o">**</span><span class="n">kw_args</span><span class="p">)</span>
@@ -508,7 +508,7 @@
             <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">array</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">train_indices</span><span class="p">,</span> <span class="p">:])</span>
             <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">array</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">test_indices</span><span class="p">,</span> <span class="p">:])</span>
         <span class="k">elif</span> <span class="p">(</span><span class="n">array</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">)</span> <span class="ow">and</span> <span class="n">allow_none</span><span class="p">:</span>
-            <span class="c"># specially for checking weights</span>
+            <span class="c1"># specially for checking weights</span>
             <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">None</span><span class="p">)</span>
             <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">None</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
@@ -527,8 +527,8 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">result</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
     <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">columns</span><span class="p">:</span>
-        <span class="n">column_split</span> <span class="o">=</span> <span class="n">column</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;:&#39;</span><span class="p">)</span>
-        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">column_split</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">,</span> <span class="s">&#39;Error in parsing feature expression {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">column</span><span class="p">)</span>
+        <span class="n">column_split</span> <span class="o">=</span> <span class="n">column</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">column_split</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">,</span> <span class="s1">&#39;Error in parsing feature expression {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">column</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">column_split</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
             <span class="n">result</span><span class="p">[</span><span class="n">column_split</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()]</span> <span class="o">=</span> <span class="n">column_split</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
         <span class="k">else</span><span class="p">:</span>
@@ -553,10 +553,10 @@
         <span class="k">if</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
             <span class="n">df_new</span><span class="p">[</span><span class="n">column_new</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">column</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="c"># warning - this thing is known to fail in threads</span>
-            <span class="c"># numexpr.evaluate(column, local_dict=df)</span>
-            <span class="c"># thus we are using python engine, which is slow :(</span>
-            <span class="n">df_new</span><span class="p">[</span><span class="n">column_new</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">eval</span><span class="p">(</span><span class="n">column</span><span class="p">,</span> <span class="n">engine</span><span class="o">=</span><span class="s">&#39;python&#39;</span><span class="p">)</span>
+            <span class="c1"># warning - this thing is known to fail in threads</span>
+            <span class="c1"># numexpr.evaluate(column, local_dict=df)</span>
+            <span class="c1"># thus we are using python engine, which is slow :(</span>
+            <span class="n">df_new</span><span class="p">[</span><span class="n">column_new</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">eval</span><span class="p">(</span><span class="n">column</span><span class="p">,</span> <span class="n">engine</span><span class="o">=</span><span class="s1">&#39;python&#39;</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">df_new</span><span class="p">)</span></div>
 
 
@@ -566,7 +566,7 @@
 
 <span class="sd">    :param list[iterable] arrays: arrays with same length of first dimension.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">arrays</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="s">&#39;The number of array must be greater than zero&#39;</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">arrays</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;The number of array must be greater than zero&#39;</span>
     <span class="n">checked_arrays</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">shapes</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">arr</span> <span class="ow">in</span> <span class="n">arrays</span><span class="p">:</span>
@@ -575,7 +575,7 @@
             <span class="n">shapes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">checked_arrays</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">checked_arrays</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">None</span><span class="p">)</span>
-    <span class="k">assert</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">shapes</span><span class="p">)</span> <span class="o">==</span> <span class="n">shapes</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">shapes</span><span class="p">),</span> <span class="s">&#39;Different shapes of the arrays {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+    <span class="k">assert</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">shapes</span><span class="p">)</span> <span class="o">==</span> <span class="n">shapes</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">shapes</span><span class="p">),</span> <span class="s1">&#39;Different shapes of the arrays {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
         <span class="n">shapes</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">checked_arrays</span></div>
 
@@ -587,7 +587,7 @@
 
 <span class="sd">    :param metric: metric function, following REP conventions</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">metric</span><span class="p">,</span> <span class="s">&#39;fit&#39;</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">metric</span><span class="p">,</span> <span class="s1">&#39;fit&#39;</span><span class="p">):</span>
         <span class="n">metric</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kargs</span><span class="p">)</span></div>
 
 
@@ -618,11 +618,24 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">stop</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">start</span>
 
     <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">result</span> <span class="o">=</span> <span class="s">&quot;interval: {:.2f} sec&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elapsed</span><span class="p">)</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="s2">&quot;interval: {:.2f} sec&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elapsed</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">err_type</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
-            <span class="n">message</span> <span class="o">=</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">Error {error} of type {error_type} was raised&quot;</span>
+            <span class="n">message</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Error {error} of type {error_type} was raised&quot;</span>
             <span class="n">result</span> <span class="o">+=</span> <span class="n">message</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">error</span><span class="o">=</span><span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">err_value</span><span class="p">),</span> <span class="n">error_type</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">err_type</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">result</span></div>
+
+
+<div class="viewcode-block" id="take_last"><a class="viewcode-back" href="../../utils.html#rep.utils.take_last">[docs]</a><span class="k">def</span> <span class="nf">take_last</span><span class="p">(</span><span class="n">sequence</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns the last element in sequence or raises an error</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">empty</span> <span class="o">=</span> <span class="bp">True</span>
+    <span class="k">for</span> <span class="n">element</span> <span class="ow">in</span> <span class="n">sequence</span><span class="p">:</span>
+        <span class="n">empty</span> <span class="o">=</span> <span class="bp">False</span>
+    <span class="k">if</span> <span class="n">empty</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">IndexError</span><span class="p">(</span><span class="s1">&#39;The sequence is empty.&#39;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">element</span></div>
 </pre></div>
 
            </div>
@@ -656,7 +669,7 @@
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'../../',
-            VERSION:'0.6.6',
+            VERSION:'0.6.7',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true
