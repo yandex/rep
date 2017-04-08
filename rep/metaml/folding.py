@@ -47,7 +47,8 @@ class FoldingBase(object):
                  n_folds=2,
                  random_state=None,
                  features=None,
-                 parallel_profile=None):
+                 parallel_profile=None,
+                 folder = None):
         """
 
         :param sklearn.BaseEstimator base_estimator: base classifier, which will be used for training
@@ -56,6 +57,8 @@ class FoldingBase(object):
         :type features: None or list[str]
         :param parallel_profile: profile for IPython cluster, None to compute locally.
         :type parallel_profile: None or str
+        :param folder: external k-Fold iterator holding k-Fold splits of the dataset 
+        :type folder: None or sklearn.cross_validation k-Fold iterator, e.g. sklearn.cross_validation.StratifiedKFold(y).
         :param random_state: random state for reproducibility
         :type random_state: None or int or RandomState
         """
@@ -68,6 +71,7 @@ class FoldingBase(object):
         self._random_number = None
         # setting features directly
         self.features = features
+        self._folder = folder
 
     def _get_folds_column(self, length):
         """
@@ -76,8 +80,8 @@ class FoldingBase(object):
         if self._random_number is None:
             self._random_number = check_random_state(self.random_state).randint(0, 100000)
         folds_column = numpy.zeros(length)
-        for fold_number, (_, folds_indices) in enumerate(
-                KFold(length, self.n_folds, shuffle=True, random_state=self._random_number)):
+        kfold_iter = self._folder if self._folder else KFold(length, self.n_folds, shuffle=True, random_state=self._random_number)
+        for fold_number, (_, folds_indices) in enumerate():
             folds_column[folds_indices] = fold_number
         return folds_column
 
