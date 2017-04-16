@@ -1,0 +1,13 @@
+#!/usr/bin/make -f
+
+export DEB_BUILD_OPTIONS="nostrip"
+
+export DH_VERBOSE=1
+
+%:
+	dh $@ --with python_virtualenv
+
+override_dh_virtualenv:
+	dh_virtualenv
+
+override_dh_usrlocal:
