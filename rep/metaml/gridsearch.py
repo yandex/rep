@@ -88,7 +88,7 @@ import copy
 
 import numpy
 from sklearn.base import clone
-from sklearn.cross_validation import StratifiedKFold, KFold
+from sklearn.model_selection import StratifiedKFold, KFold
 from sklearn.ensemble.forest import RandomForestRegressor
 from sklearn.utils.random import check_random_state
 
