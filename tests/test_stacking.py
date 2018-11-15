@@ -4,7 +4,7 @@ import numpy
 from sklearn.ensemble import AdaBoostClassifier, BaggingClassifier
 
 from rep.test.test_estimators import check_classifier, generate_classification_data
-from rep.estimators import XGBoostClassifier, TMVAClassifier
+from rep.estimators import XGBoostClassifier
 from rep.metaml import FoldingClassifier
 from rep.estimators.sklearn import SklearnClassifier
 
@@ -44,11 +44,6 @@ def test_simple_stacking_sklearn():
     check_classifier(SklearnClassifier(clf=AdaBoostClassifier(base_estimator=base_sk, n_estimators=3)))
 
 
-def test_simple_stacking_tmva():
-    base_tmva = TMVAClassifier(factory_options="Silent=True:V=False:DrawProgressBar=False")
-    check_classifier(SklearnClassifier(clf=BaggingClassifier(base_estimator=base_tmva, n_estimators=3, random_state=13)),
-                     has_staged_pp=False, has_importances=False)
-
 
 def test_complex_stacking_sk():
     # Ada over kFold over Ada over Trees
@@ -56,13 +51,6 @@ def test_complex_stacking_sk():
     check_classifier(SklearnClassifier(clf=AdaBoostClassifier(base_estimator=base_kfold, n_estimators=3)),
                      has_staged_pp=False, has_importances=False)
 
-
-def test_complex_stacking_tmva():
-    # Ada over kFold over TMVA
-    base_kfold = FoldingClassifier(base_estimator=TMVAClassifier(factory_options="Silent=True:V=False:DrawProgressBar=False",
-                                                                 method='kBDT', NTrees=10), random_state=13)
-    check_classifier(SklearnClassifier(clf=AdaBoostClassifier(base_estimator=base_kfold, n_estimators=3)),
-                     has_staged_pp=False, has_importances=False)
 
 
 def test_complex_stacking_xgboost():
