@@ -7,12 +7,8 @@ ipykernel > 4.3.1
 notebook
 bokeh
 mpld3
-neurolab
-theano
 nose
 nose-parameterized
-theanets
-pybrain
 xgboost
 hep_ml
 requests
