@@ -10,7 +10,7 @@ import pandas
 from six.moves import zip
 
 from sklearn import clone
-from sklearn.cross_validation import KFold
+from sklearn.model_selection import KFold
 from sklearn.utils import check_random_state
 from . import utils
 from .factory import train_estimator
