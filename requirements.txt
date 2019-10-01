@@ -15,4 +15,4 @@ theanets == 0.7.3
 pybrain == 0.3
 xgboost == 0.4a30
 hep_ml == 0.4
-requests == 2.9.1
+requests == 2.20.0
