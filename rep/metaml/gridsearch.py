@@ -88,7 +88,7 @@ import copy
 
 import numpy
 from sklearn.base import clone
-from sklearn.cross_validation import StratifiedKFold, KFold
+from sklearn.model_selection import StratifiedKFold, KFold
 from sklearn.ensemble.forest import RandomForestRegressor
 from sklearn.utils.random import check_random_state
 
@@ -242,7 +242,8 @@ class RandomParameterOptimizer(AbstractParameterGenerator):
         self.indices_to_parameters_ = OrderedDict()
         self.grid_scores_ = OrderedDict()
         self.queued_tasks_ = set()
-        from sklearn.grid_search import ParameterSampler
+        from sklearn.model_selection import ParameterSampler
+
         self.param_sampler = iter(ParameterSampler(param_grid, n_iter=n_evaluations, random_state=random_state))
 
     def generate_next_point(self):
@@ -520,7 +521,7 @@ class FoldingScorerBase(object):
         :return float: quality
         """
         score = 0
-        for ind, (train_indices, test_indices) in enumerate(islice(k_folder, 0, self.fold_checks)):
+        for ind, (train_indices, test_indices) in enumerate(islice(k_folder.split(X=X, y=y), 0, self.fold_checks)):
             estimator = clone(base_estimator)
             estimator.set_params(**params)
 
@@ -571,7 +572,7 @@ class ClassificationFoldingScorer(FoldingScorerBase):
 
         :return float: quality
         """
-        k_folder = StratifiedKFold(y=y, n_folds=self.folds, shuffle=self.shuffle, random_state=self.random_state)
+        k_folder = StratifiedKFold(n_splits=self.folds, shuffle=self.shuffle, random_state=self.random_state)
         return self._compute_score(k_folder, get_classifier_probabilities, base_estimator, params, X, y,
                                    sample_weight=sample_weight)
 
@@ -605,7 +606,7 @@ class RegressionFoldingScorer(FoldingScorerBase):
 
         :return float: quality
         """
-        k_folder = KFold(len(y), n_folds=self.folds, shuffle=self.shuffle, random_state=self.random_state)
+        k_folder = KFold(n_splits=self.folds, shuffle=self.shuffle, random_state=self.random_state)
         return self._compute_score(k_folder, get_regressor_prediction, base_estimator, params, X, y,
                                    sample_weight=sample_weight)
 

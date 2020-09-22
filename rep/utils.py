@@ -348,7 +348,7 @@ def train_test_split_group(group_column, *arrays, **kw_args):
     :param bool allow_none: default False
         (useful for sample_weight - after splitting train and test of `None` are again `None`)
     """
-    from sklearn import cross_validation
+    from sklearn import model_selection
     allow_none = kw_args.pop('allow_none', None)
 
     assert len(arrays) > 0, "at least one array should be passed"
@@ -360,7 +360,7 @@ def train_test_split_group(group_column, *arrays, **kw_args):
     assert len(initial_data) == length, "group column must have the same length"
     group_ids = numpy.unique(initial_data)
 
-    train_indices, test_indices = cross_validation.train_test_split(group_ids, **kw_args)
+    train_indices, test_indices = model_selection.train_test_split(group_ids, **kw_args)
     train_indices = numpy.in1d(initial_data, train_indices)
     test_indices = numpy.in1d(initial_data, test_indices)
 

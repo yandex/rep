@@ -1,18 +1,14 @@
 numpy >= 1.10.0
 scipy >= 0.16.0
-matplotlib == 1.5.1
-pandas == 0.17.1
-scikit-learn == 0.17.1
-ipykernel == 4.3.1
-notebook == 4.2.1
-bokeh == 0.11.1
-mpld3 == 0.2
-neurolab == 0.3.5
-theano == 0.8.2
-nose == 1.3.7
-nose-parameterized == 0.5.0
-theanets == 0.7.3
-pybrain == 0.3
-xgboost == 0.4a30
-hep_ml == 0.4
-requests == 2.9.1
+matplotlib > 1.3
+pandas > 0.17.1
+scikit-learn > 0.17.1
+ipykernel > 4.3.1
+notebook
+bokeh
+mpld3
+nose
+nose-parameterized
+xgboost
+hep_ml
+requests

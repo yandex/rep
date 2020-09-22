@@ -10,7 +10,7 @@ import pandas
 from six.moves import zip
 
 from sklearn import clone
-from sklearn.cross_validation import KFold
+from sklearn.model_selection import KFold
 from sklearn.utils import check_random_state
 from . import utils
 from .factory import train_estimator
@@ -20,8 +20,8 @@ from ..estimators.utils import check_inputs
 __author__ = 'Tatiana Likhomanenko, Alex Rogozhnikov'
 __all__ = ['FoldingClassifier', 'FoldingRegressor']
 
-from .utils import get_classifier_probabilities, get_classifier_staged_proba, get_regressor_prediction, \
-    get_regressor_staged_predict
+from .utils import (get_classifier_probabilities, get_classifier_staged_proba, get_regressor_prediction,
+                    get_regressor_staged_predict, )
 
 
 class FoldingBase(object):
@@ -77,7 +77,7 @@ class FoldingBase(object):
             self._random_number = check_random_state(self.random_state).randint(0, 100000)
         folds_column = numpy.zeros(length)
         for fold_number, (_, folds_indices) in enumerate(
-                KFold(length, self.n_folds, shuffle=True, random_state=self._random_number)):
+                KFold(self.n_folds, shuffle=True, random_state=self._random_number).split(folds_column)):
             folds_column[folds_indices] = fold_number
         return folds_column
 
