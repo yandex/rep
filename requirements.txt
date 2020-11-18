@@ -4,7 +4,7 @@ matplotlib == 1.5.1
 pandas == 0.17.1
 scikit-learn == 0.17.1
 ipykernel == 4.3.1
-notebook == 4.2.1
+notebook == 6.1.5
 bokeh == 0.11.1
 mpld3 == 0.2
 neurolab == 0.3.5
